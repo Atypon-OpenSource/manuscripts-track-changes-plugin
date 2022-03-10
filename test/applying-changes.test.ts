@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { QuarterBackSchema, schema as defaultSchema } from '@manuscripts/quarterback-schema'
+import { QuarterBackSchema, schema as defaultSchema } from '@manuscripts/examples-track-schema'
 import { promises as fs } from 'fs'
 
 import {
