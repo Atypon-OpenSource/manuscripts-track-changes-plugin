@@ -1,0 +1,37 @@
+{
+  "doc": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": {
+            "id": "MOCK-ID-0",
+            "userID": "1-mike",
+            "userName": "Mike",
+            "time": 1577836800000,
+            "status": "pending",
+            "operation": "insert"
+          }
+        }
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Hello World"
+          }
+        ]
+      }
+    ]
+  },
+  "selection": {
+    "type": "text",
+    "anchor": 2,
+    "head": 2
+  }
+}

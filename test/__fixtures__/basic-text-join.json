@@ -1,0 +1,190 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-0",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "ab"
+            },
+            {
+              "type": "text",
+              "text": "Hello Wor"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-3",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "c"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-2",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    },
+                    "pending_bg": "#ffa4a4"
+                  }
+                }
+              ],
+              "text": "ld"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 13,
+      "head": 13
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-4",
+                      "userID": "2-rebecca",
+                      "userName": "Rebecca",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "defg"
+            },
+            {
+              "type": "text",
+              "text": "Hello Wo"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-9",
+                      "userID": "2-rebecca",
+                      "userName": "Rebecca",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    },
+                    "pending_bg": "#ffa4a4"
+                  }
+                }
+              ],
+              "text": "rl"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-2",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    },
+                    "pending_bg": "#ffa4a4"
+                  }
+                }
+              ],
+              "text": "d"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-8",
+                      "userID": "2-rebecca",
+                      "userName": "Rebecca",
+                      "time": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "h"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 13,
+      "head": 13
+    }
+  }
+]

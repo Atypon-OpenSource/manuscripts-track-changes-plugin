@@ -1,0 +1,68 @@
+{
+  "doc": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_insert",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-0",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  },
+                  "pending_bg": "greenyellow"
+                }
+              }
+            ],
+            "text": "inserted "
+          },
+          {
+            "type": "text",
+            "text": "H"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_delete",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-1",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  },
+                  "pending_bg": "#ffa4a4"
+                }
+              }
+            ],
+            "text": "ello"
+          },
+          {
+            "type": "text",
+            "text": " World"
+          }
+        ]
+      }
+    ]
+  },
+  "selection": {
+    "type": "text",
+    "anchor": 11,
+    "head": 11
+  }
+}

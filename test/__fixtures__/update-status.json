@@ -1,0 +1,194 @@
+{
+  "doc": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "blockquote",
+        "attrs": {
+          "dataTracked": {
+            "id": "MOCK-ID-6",
+            "userID": "1-mike",
+            "userName": "Mike",
+            "time": 1577836800000,
+            "status": "accepted",
+            "operation": "insert"
+          }
+        },
+        "content": [
+          {
+            "type": "paragraph",
+            "attrs": {
+              "dataTracked": {
+                "id": "MOCK-ID-5",
+                "userID": "1-mike",
+                "userName": "Mike",
+                "time": 1577836800000,
+                "status": "accepted",
+                "operation": "insert"
+              }
+            },
+            "content": [
+              {
+                "type": "text",
+                "marks": [
+                  {
+                    "type": "tracked_insert",
+                    "attrs": {
+                      "dataTracked": {
+                        "id": "MOCK-ID-10",
+                        "userID": "1-mike",
+                        "userName": "Mike",
+                        "time": 1577836800000,
+                        "status": "accepted",
+                        "operation": "insert"
+                      },
+                      "pending_bg": "greenyellow"
+                    }
+                  }
+                ],
+                "text": "more text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": {
+            "id": "MOCK-ID-0",
+            "userID": "1-mike",
+            "userName": "Mike",
+            "time": 1577836800000,
+            "status": "accepted",
+            "operation": "insert"
+          }
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_insert",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-2",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "accepted",
+                    "operation": "insert"
+                  },
+                  "pending_bg": "greenyellow"
+                }
+              }
+            ],
+            "text": "inserted t"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_insert",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-7",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "accepted",
+                    "operation": "insert"
+                  },
+                  "pending_bg": "greenyellow"
+                }
+              }
+            ],
+            "text": "ext"
+          },
+          {
+            "type": "image",
+            "attrs": {
+              "src": "https://i.imgur.com/lFAxY.png",
+              "alt": null,
+              "title": "Image",
+              "dataTracked": null
+            },
+            "marks": [
+              {
+                "type": "tracked_insert",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-7",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  },
+                  "pending_bg": "greenyellow"
+                }
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_insert",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-8",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "accepted",
+                    "operation": "insert"
+                  },
+                  "pending_bg": "greenyellow"
+                }
+              }
+            ],
+            "text": "after image text"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_insert",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-2",
+                    "userID": "1-mike",
+                    "userName": "Mike",
+                    "time": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  },
+                  "pending_bg": "greenyellow"
+                }
+              }
+            ],
+            "text": " yes"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Hello World"
+          }
+        ]
+      }
+    ]
+  },
+  "selection": {
+    "type": "text",
+    "anchor": 11,
+    "head": 11
+  }
+}

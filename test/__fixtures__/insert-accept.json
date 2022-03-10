@@ -1,0 +1,653 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "table",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-25",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "table_body",
+              "content": [
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-19",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    }
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-18",
+                          "userID": "1-mike",
+                          "userName": "Mike",
+                          "time": 1577836800000,
+                          "status": "accepted",
+                          "operation": "insert"
+                        },
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-21",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    }
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-20",
+                          "userID": "1-mike",
+                          "userName": "Mike",
+                          "time": 1577836800000,
+                          "status": "accepted",
+                          "operation": "insert"
+                        },
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-23",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    }
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-22",
+                          "userID": "1-mike",
+                          "userName": "Mike",
+                          "time": 1577836800000,
+                          "status": "accepted",
+                          "operation": "insert"
+                        },
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ordered_list",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-16",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "list_item",
+              "attrs": {
+                "dataTracked": {
+                  "id": "MOCK-ID-15",
+                  "userID": "1-mike",
+                  "userName": "Mike",
+                  "time": 1577836800000,
+                  "status": "accepted",
+                  "operation": "insert"
+                }
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-14",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    }
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "tracked_insert",
+                          "attrs": {
+                            "dataTracked": {
+                              "id": "MOCK-ID-17",
+                              "userID": "1-mike",
+                              "userName": "Mike",
+                              "time": 1577836800000,
+                              "status": "accepted",
+                              "operation": "insert"
+                            },
+                            "pending_bg": "greenyellow"
+                          }
+                        }
+                      ],
+                      "text": "ordered list text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-13",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "hard_break",
+              "attrs": {
+                "dataTracked": {
+                  "id": "MOCK-ID-12",
+                  "userID": "1-mike",
+                  "userName": "Mike",
+                  "time": 1577836800000,
+                  "status": "accepted",
+                  "operation": "insert"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "code_block",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-10",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          }
+        },
+        {
+          "type": "horizontal_rule",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-9",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2,
+            "dataTracked": {
+              "id": "MOCK-ID-7",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-8",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "header text"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-5",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": {
+                  "id": "MOCK-ID-4",
+                  "userID": "1-mike",
+                  "userName": "Mike",
+                  "time": 1577836800000,
+                  "status": "accepted",
+                  "operation": "insert"
+                }
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "tracked_insert",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-6",
+                          "userID": "1-mike",
+                          "userName": "Mike",
+                          "time": 1577836800000,
+                          "status": "accepted",
+                          "operation": "insert"
+                        },
+                        "pending_bg": "greenyellow"
+                      }
+                    }
+                  ],
+                  "text": "quoted text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-0",
+              "userID": "1-mike",
+              "userName": "Mike",
+              "time": 1577836800000,
+              "status": "accepted",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-1",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "before"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-1",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": " image"
+            },
+            {
+              "type": "image",
+              "attrs": {
+                "src": "https://i.imgur.com/lFAxY.png",
+                "alt": null,
+                "title": "Image",
+                "dataTracked": {
+                  "id": "MOCK-ID-2",
+                  "userID": "1-mike",
+                  "userName": "Mike",
+                  "time": 1577836800000,
+                  "status": "accepted",
+                  "operation": "insert"
+                }
+              }
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-3",
+                      "userID": "1-mike",
+                      "userName": "Mike",
+                      "time": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    },
+                    "pending_bg": "greenyellow"
+                  }
+                }
+              ],
+              "text": "after image"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello World"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 19,
+      "head": 19
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "table",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "table_body",
+              "content": [
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": null
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": null
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": null
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ordered_list",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "list_item",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "ordered list text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "hard_break",
+              "attrs": {
+                "dataTracked": null
+              }
+            }
+          ]
+        },
+        {
+          "type": "code_block",
+          "attrs": {
+            "dataTracked": null
+          }
+        },
+        {
+          "type": "horizontal_rule",
+          "attrs": {
+            "dataTracked": null
+          }
+        },
+        {
+          "type": "heading",
+          "attrs": {
+            "level": 2,
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "header text"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "quoted text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "before"
+            },
+            {
+              "type": "text",
+              "text": " image"
+            },
+            {
+              "type": "image",
+              "attrs": {
+                "src": "https://i.imgur.com/lFAxY.png",
+                "alt": null,
+                "title": "Image",
+                "dataTracked": null
+              }
+            },
+            {
+              "type": "text",
+              "text": "after image"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello World"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 19,
+      "head": 19
+    }
+  }
+]
