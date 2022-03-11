@@ -24,10 +24,11 @@
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
   },
   "devDependencies": {
-    "@manuscripts/manuscript-editor": "workspace:*",
     "@manuscripts/examples-track-schema": "workspace:*",
+    "@manuscripts/manuscript-editor": "workspace:*",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@types/debug": "^4.1.7",
+    "@types/jest": "^27.4.1",
     "@types/prosemirror-commands": "^1.0.4",
     "@types/prosemirror-model": "^1.16.1",
     "@types/prosemirror-state": "^1.2.7",
