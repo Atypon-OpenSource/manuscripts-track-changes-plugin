@@ -1,1 +1,1 @@
-# @manuscripts/ext-track-changes
+# @manuscripts/track-changes-plugin
