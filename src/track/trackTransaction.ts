@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
-import { EditorState, Selection, NodeSelection, TextSelection, Transaction } from 'prosemirror-state'
+import {
+  EditorState,
+  Selection,
+  NodeSelection,
+  TextSelection,
+  Transaction,
+} from 'prosemirror-state'
 import {
   AddMarkStep,
   Mapping,

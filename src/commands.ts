@@ -31,9 +31,10 @@ export const setTrackingStatus =
     if (currentStatus) {
       let newStatus = status
       if (newStatus === undefined) {
-        newStatus = currentStatus === TrackChangesStatus.enabled
-          ? TrackChangesStatus.disabled
-          : TrackChangesStatus.enabled
+        newStatus =
+          currentStatus === TrackChangesStatus.enabled
+            ? TrackChangesStatus.disabled
+            : TrackChangesStatus.enabled
       }
       dispatch && dispatch(setAction(state.tr, TrackChangesAction.setPluginStatus, newStatus))
       return true
