@@ -58,8 +58,6 @@ export const trackChangesPlugin = ({
         return {
           status: TrackChangesStatus.enabled,
           currentUser: user,
-          insertColor: 'greenyellow',
-          deleteColor: '#ffa4a4',
           changeSet: changeSet,
           shownChangeStatuses: [
             CHANGE_STATUS.accepted,
@@ -139,24 +137,18 @@ export const trackChangesPlugin = ({
         console.error('Detected probable infinite loop in track changes!')
         return null
       }
-      const { currentUser, insertColor, deleteColor, changeSet } = pluginState
+      const { currentUser, changeSet } = pluginState
       let createdTr = newState.tr,
         docChanged = false
       logger('TRS', trs)
       trs.forEach((tr) => {
-        const userData = {
-          userID: currentUser.id,
-          userName: currentUser.name,
-          insertColor,
-          deleteColor,
-        }
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (tr.docChanged && !skipMetaUsed && !skipTrackUsed && !tr.getMeta('history$')) {
-          createdTr = trackTransaction(tr, oldState, createdTr, userData)
+          createdTr = trackTransaction(tr, oldState, createdTr, currentUser.id)
           createdTr.setMeta('origin', trackChangesPluginKey)
           infiniteLoopCounter.iters += 1
         }

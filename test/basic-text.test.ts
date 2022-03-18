@@ -128,7 +128,6 @@ describe('track changes', () => {
             dataTracked: {
               id: oldMarkAttrs.dataTracked.id,
             },
-            pending_bg: 'red',
           })
         )
         tr.addMark(
@@ -136,7 +135,6 @@ describe('track changes', () => {
           pos + 3,
           state.schema.marks.tracked_insert.create({
             dataTracked: {},
-            pending_bg: 'yellow',
           })
         )
         setAction(tr, TrackChangesAction.skipTrack, true)

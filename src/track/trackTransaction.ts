@@ -34,19 +34,14 @@ import {
 import { logger } from '../utils/logger'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedFragment, ExposedReplaceStep, ExposedSlice } from '../types/pm'
-import { DeleteAttrs, InsertAttrs, UserData } from '../types/track'
+import { DeleteAttrs, InsertAttrs } from '../types/track'
 import {
   addTrackIdIfDoesntExist,
   getMergeableMarkTrackedAttrs,
   shouldMergeTrackedAttributes,
 } from './node-utils'
 
-function markInlineNodeChange(
-  node: PMNode<any>,
-  insertAttrs: InsertAttrs,
-  userColors: UserData,
-  schema: Schema
-) {
+function markInlineNodeChange(node: PMNode<any>, insertAttrs: InsertAttrs, schema: Schema) {
   const filtered = node.marks.filter(
     (m) => m.type !== schema.marks.tracked_insert && m.type !== schema.marks.tracked_delete
   )
@@ -54,29 +49,19 @@ function markInlineNodeChange(
     insertAttrs.operation === CHANGE_OPERATION.insert
       ? schema.marks.tracked_insert
       : schema.marks.tracked_delete
-  const pending_bg =
-    insertAttrs.operation === CHANGE_OPERATION.insert
-      ? userColors.insertColor
-      : userColors.deleteColor
   const createdMark = mark.create({
     dataTracked: addTrackIdIfDoesntExist(insertAttrs),
-    pending_bg,
   })
   return node.mark(filtered.concat(createdMark))
 }
 
-function recurseContent(
-  node: PMNode<any>,
-  insertAttrs: InsertAttrs,
-  userColors: UserData,
-  schema: Schema
-) {
+function recurseContent(node: PMNode<any>, insertAttrs: InsertAttrs, schema: Schema) {
   if (node.isText) {
-    return markInlineNodeChange(node, insertAttrs, userColors, schema)
+    return markInlineNodeChange(node, insertAttrs, schema)
   } else if (node.isBlock || node.isInline) {
     const updatedChildren: PMNode[] = []
     node.content.forEach((child) => {
-      updatedChildren.push(recurseContent(child, insertAttrs, userColors, schema))
+      updatedChildren.push(recurseContent(child, insertAttrs, schema))
     })
     return node.type.create(
       {
@@ -92,16 +77,11 @@ function recurseContent(
   }
 }
 
-function setFragmentAsInserted(
-  inserted: Fragment,
-  insertAttrs: InsertAttrs,
-  userColors: UserData,
-  schema: Schema
-) {
+function setFragmentAsInserted(inserted: Fragment, insertAttrs: InsertAttrs, schema: Schema) {
   // Recurse the content in the inserted slice and either mark it tracked_insert or set node attrs
   const updatedInserted: PMNode[] = []
   inserted.forEach((n) => {
-    updatedInserted.push(recurseContent(n, insertAttrs, userColors, schema))
+    updatedInserted.push(recurseContent(n, insertAttrs, schema))
   })
   return updatedInserted.length === 0 ? inserted : Fragment.fromArray(updatedInserted)
 }
@@ -135,7 +115,7 @@ function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, schema:
   }
   const newAttrs = {
     ...leftAttrs,
-    time: Math.max(leftAttrs.time || 0, rightAttrs.time || 0) || Date.now(),
+    createdAt: Math.max(leftAttrs.createdAt || 0, rightAttrs.createdAt || 0) || Date.now(),
   }
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
@@ -152,7 +132,6 @@ function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, schema:
  * @param newTr
  * @param schema
  * @param addedAttrs
- * @param userColors
  * @returns
  */
 export function applyAndMergeMarks(
@@ -161,8 +140,7 @@ export function applyAndMergeMarks(
   doc: PMNode,
   newTr: Transaction,
   schema: Schema,
-  addedAttrs: InsertAttrs | DeleteAttrs,
-  userColors: UserData
+  addedAttrs: InsertAttrs | DeleteAttrs
 ) {
   if (from === to) {
     return
@@ -200,17 +178,12 @@ export function applyAndMergeMarks(
         addedAttrs.operation === CHANGE_OPERATION.insert
           ? schema.marks.tracked_insert
           : schema.marks.tracked_delete
-      const pending_bg =
-        addedAttrs.operation === CHANGE_OPERATION.insert
-          ? userColors.insertColor
-          : userColors.deleteColor
 
       newTr.addMark(
         fromStartOfMark,
         toEndOfMark,
         mark.create({
           dataTracked,
-          pending_bg,
         })
       )
 
@@ -256,7 +229,6 @@ function deleteInlineIfInserted(
   newTr: Transaction,
   schema: Schema,
   deleteAttrs: DeleteAttrs,
-  deleteColor: string,
   from?: number,
   to?: number
 ) {
@@ -285,7 +257,6 @@ function deleteInlineIfInserted(
       toEndOfMark,
       schema.marks.tracked_delete.create({
         dataTracked,
-        pending_bg: deleteColor,
       })
     )
   }
@@ -380,7 +351,6 @@ export function deleteAndMergeSplitBlockNodes(
   newTr: Transaction,
   schema: Schema,
   deleteAttrs: DeleteAttrs,
-  userColors: UserData,
   insertSlice: ExposedSlice
 ) {
   const deleteMap = new Mapping()
@@ -408,16 +378,7 @@ export function deleteAndMergeSplitBlockNodes(
     if (nodeEnd > offsetFrom && !nodeWasDeleted) {
       // Delete touches this node
       if (node.isText) {
-        deleteInlineIfInserted(
-          node,
-          offsetPos,
-          newTr,
-          schema,
-          deleteAttrs,
-          userColors.deleteColor,
-          offsetFrom,
-          offsetTo
-        )
+        deleteInlineIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
       } else if (node.isBlock) {
         if (offsetPos >= offsetFrom && nodeEnd <= offsetTo) {
           // Block node deleted completely
@@ -447,7 +408,6 @@ export function deleteAndMergeSplitBlockNodes(
                   ...deleteAttrs,
                   operation: CHANGE_OPERATION.insert,
                 },
-                userColors,
                 schema
               )
             )
@@ -476,7 +436,6 @@ export function deleteAndMergeSplitBlockNodes(
                   ...deleteAttrs,
                   operation: CHANGE_OPERATION.insert,
                 },
-                userColors,
                 schema
               )
             )
@@ -519,19 +478,18 @@ const getSelectionStaticCreate = (sel: Selection, doc: PMNode, from: number) =>
  * @param tr Original transaction
  * @param oldState State before transaction
  * @param newTr Transaction created from the new editor state
- * @param userData User data
+ * @param userID User id
  * @returns newTr that inverts the initial tr and applies track attributes/marks
  */
 export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
   newTr: Transaction,
-  userData: UserData
+  userID: string
 ) {
   const defaultAttrs: Omit<TrackedAttrs, 'id' | 'operation'> = {
-    userID: userData.userID,
-    userName: userData.userName,
-    time: tr.time,
+    userID,
+    createdAt: tr.time,
     status: CHANGE_STATUS.pending,
   }
   const insertAttrs: InsertAttrs = {
@@ -585,7 +543,6 @@ export function trackTransaction(
           newTr,
           oldState.schema,
           deleteAttrs,
-          userData,
           slice
         )
         logger('TR: new steps after applying delete', [...newTr.steps])
@@ -597,7 +554,7 @@ export function trackTransaction(
           const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
           const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
           const insertedSlice = new Slice(
-            setFragmentAsInserted(newSliceContent, insertAttrs, userData, oldState.schema),
+            setFragmentAsInserted(newSliceContent, insertAttrs, oldState.schema),
             openStart,
             openEnd
           )

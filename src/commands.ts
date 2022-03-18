@@ -47,23 +47,16 @@ export const setInserted = (): Command => (state, dispatch) => {
   if (!pluginState) {
     return false
   }
-  const { currentUser, insertColor, deleteColor } = pluginState
+  const { currentUser } = pluginState
   const tr = state.tr
   const { from, to } = state.selection
   const insertAttrs: InsertAttrs = {
     userID: currentUser.id,
-    userName: currentUser.name,
-    time: tr.time,
+    createdAt: tr.time,
     operation: CHANGE_OPERATION.insert,
     status: CHANGE_STATUS.pending,
   }
-  const userColors = {
-    userID: currentUser.id,
-    userName: currentUser.name,
-    insertColor,
-    deleteColor,
-  }
-  applyAndMergeMarks(from, to, state.doc, tr, state.schema, insertAttrs, userColors)
+  applyAndMergeMarks(from, to, state.doc, tr, state.schema, insertAttrs)
   dispatch && dispatch(tr)
   return true
 }
@@ -73,21 +66,14 @@ export const setDeleted = (): Command => (state, dispatch) => {
   if (!pluginState) {
     return false
   }
-  const { currentUser, insertColor, deleteColor } = pluginState
+  const { currentUser } = pluginState
   const tr = state.tr
   const { from, to } = state.selection
   const deleteAttrs: DeleteAttrs = {
     userID: currentUser.id,
-    userName: currentUser.name,
-    time: tr.time,
+    createdAt: tr.time,
     operation: CHANGE_OPERATION.delete,
     status: CHANGE_STATUS.pending,
-  }
-  const userColors = {
-    userID: currentUser.id,
-    userName: currentUser.name,
-    insertColor,
-    deleteColor,
   }
   const { deleteMap, newSliceContent } = deleteAndMergeSplitBlockNodes(
     from,
@@ -96,7 +82,6 @@ export const setDeleted = (): Command => (state, dispatch) => {
     tr,
     state.schema,
     deleteAttrs,
-    userColors,
     state.doc.slice(0, 0) as ExposedSlice
   )
   applyAndMergeMarks(
@@ -105,8 +90,7 @@ export const setDeleted = (): Command => (state, dispatch) => {
     state.doc,
     tr,
     state.schema,
-    deleteAttrs,
-    userColors
+    deleteAttrs
   )
   dispatch && dispatch(tr)
   return true
@@ -119,10 +103,9 @@ export const addTrackedAttributesToBlockNode = (): Command => (state, dispatch) 
     dataTracked: {
       id: uuidv4(),
       userID: '1',
-      userName: 'John',
       operation: CHANGE_OPERATION.insert,
       status: CHANGE_STATUS.pending,
-      time: Date.now(),
+      createdAt: Date.now(),
     },
   })
   dispatch && dispatch(tr)

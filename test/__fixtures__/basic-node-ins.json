@@ -8,8 +8,7 @@
           "dataTracked": {
             "id": "MOCK-ID-0",
             "userID": "1-mike",
-            "userName": "Mike",
-            "time": 1577836800000,
+            "createdAt": 1577836800000,
             "status": "pending",
             "operation": "insert"
           }

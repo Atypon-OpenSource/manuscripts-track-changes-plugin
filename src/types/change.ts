@@ -26,10 +26,10 @@ export enum CHANGE_STATUS {
 export interface TrackedAttrs {
   id: string
   userID: string
-  userName: string
   operation: CHANGE_OPERATION
   status: CHANGE_STATUS
-  time: number
+  createdAt: number
+  // updatedAt: number // ?
 }
 export type Change = {
   id: string

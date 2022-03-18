@@ -21,8 +21,7 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-0"
-                    },
-                    "pending_bg": "red"
+                    }
                   }
                 }
               ],
@@ -34,8 +33,7 @@
                 {
                   "type": "tracked_insert",
                   "attrs": {
-                    "dataTracked": {},
-                    "pending_bg": "yellow"
+                    "dataTracked": {}
                   }
                 }
               ],
@@ -50,12 +48,10 @@
                     "dataTracked": {
                       "id": "MOCK-ID-0",
                       "userID": "1-mike",
-                      "userName": "Mike",
-                      "time": 1577836800000,
+                      "createdAt": 1577836800000,
                       "status": "pending",
                       "operation": "insert"
-                    },
-                    "pending_bg": "greenyellow"
+                    }
                   }
                 }
               ],
@@ -95,11 +91,9 @@
                       "id": "MOCK-ID-0",
                       "operation": "delete",
                       "userID": "1-mike",
-                      "userName": "Mike",
                       "status": "pending",
-                      "time": 1577836800000
-                    },
-                    "pending_bg": "#ffa4a4"
+                      "createdAt": 1577836800000
+                    }
                   }
                 }
               ],
@@ -115,11 +109,9 @@
                       "operation": "insert",
                       "id": "MOCK-ID-1",
                       "userID": "1-mike",
-                      "userName": "Mike",
                       "status": "pending",
-                      "time": 1577836800000
-                    },
-                    "pending_bg": "yellow"
+                      "createdAt": 1577836800000
+                    }
                   }
                 }
               ],
@@ -134,12 +126,10 @@
                     "dataTracked": {
                       "id": "MOCK-ID-2",
                       "userID": "1-mike",
-                      "userName": "Mike",
-                      "time": 1577836800000,
+                      "createdAt": 1577836800000,
                       "status": "pending",
                       "operation": "insert"
-                    },
-                    "pending_bg": "greenyellow"
+                    }
                   }
                 }
               ],

@@ -150,11 +150,13 @@ export class ChangeSet {
         attrs
       )
     }
-    const keys = ['id', 'userID', 'userName', 'operation', 'status', 'time']
+    const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'userID', 'operation', 'status', 'createdAt']
     const entries = Object.entries(attrs)
     return (
-      entries.length === keys.length &&
-      entries.every(([key, val]) => keys.includes(key) && val !== undefined) &&
+      entries.length === trackedKeys.length &&
+      entries.every(
+        ([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
+      ) &&
       (attrs.id || '').length > 0 // Changes created with undefined id have '' as placeholder
     )
   }

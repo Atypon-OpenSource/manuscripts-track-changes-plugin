@@ -28,8 +28,6 @@ export interface TrackChangesOptions {
 export interface TrackChangesState {
   status: TrackChangesStatus
   currentUser: TrackedUser
-  insertColor: string
-  deleteColor: string
   changeSet: ChangeSet
   shownChangeStatuses: CHANGE_STATUS[]
 }
@@ -45,10 +43,4 @@ export enum TrackChangesStatus {
   enabled = 'enabled',
   viewSnapshots = 'view-snapshots',
   disabled = 'disabled',
-}
-export interface UserData {
-  userID: string
-  userName: string
-  insertColor: string
-  deleteColor: string
 }

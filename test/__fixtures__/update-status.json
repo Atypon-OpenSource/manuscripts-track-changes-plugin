@@ -8,8 +8,7 @@
           "dataTracked": {
             "id": "MOCK-ID-6",
             "userID": "1-mike",
-            "userName": "Mike",
-            "time": 1577836800000,
+            "createdAt": 1577836800000,
             "status": "accepted",
             "operation": "insert"
           }
@@ -21,8 +20,7 @@
               "dataTracked": {
                 "id": "MOCK-ID-5",
                 "userID": "1-mike",
-                "userName": "Mike",
-                "time": 1577836800000,
+                "createdAt": 1577836800000,
                 "status": "accepted",
                 "operation": "insert"
               }
@@ -37,12 +35,10 @@
                       "dataTracked": {
                         "id": "MOCK-ID-10",
                         "userID": "1-mike",
-                        "userName": "Mike",
-                        "time": 1577836800000,
+                        "createdAt": 1577836800000,
                         "status": "accepted",
                         "operation": "insert"
-                      },
-                      "pending_bg": "greenyellow"
+                      }
                     }
                   }
                 ],
@@ -58,8 +54,7 @@
           "dataTracked": {
             "id": "MOCK-ID-0",
             "userID": "1-mike",
-            "userName": "Mike",
-            "time": 1577836800000,
+            "createdAt": 1577836800000,
             "status": "accepted",
             "operation": "insert"
           }
@@ -74,12 +69,10 @@
                   "dataTracked": {
                     "id": "MOCK-ID-2",
                     "userID": "1-mike",
-                    "userName": "Mike",
-                    "time": 1577836800000,
+                    "createdAt": 1577836800000,
                     "status": "accepted",
                     "operation": "insert"
-                  },
-                  "pending_bg": "greenyellow"
+                  }
                 }
               }
             ],
@@ -94,12 +87,10 @@
                   "dataTracked": {
                     "id": "MOCK-ID-7",
                     "userID": "1-mike",
-                    "userName": "Mike",
-                    "time": 1577836800000,
+                    "createdAt": 1577836800000,
                     "status": "accepted",
                     "operation": "insert"
-                  },
-                  "pending_bg": "greenyellow"
+                  }
                 }
               }
             ],
@@ -120,12 +111,10 @@
                   "dataTracked": {
                     "id": "MOCK-ID-7",
                     "userID": "1-mike",
-                    "userName": "Mike",
-                    "time": 1577836800000,
+                    "createdAt": 1577836800000,
                     "status": "pending",
                     "operation": "insert"
-                  },
-                  "pending_bg": "greenyellow"
+                  }
                 }
               }
             ]
@@ -139,12 +128,10 @@
                   "dataTracked": {
                     "id": "MOCK-ID-8",
                     "userID": "1-mike",
-                    "userName": "Mike",
-                    "time": 1577836800000,
+                    "createdAt": 1577836800000,
                     "status": "accepted",
                     "operation": "insert"
-                  },
-                  "pending_bg": "greenyellow"
+                  }
                 }
               }
             ],
@@ -159,12 +146,10 @@
                   "dataTracked": {
                     "id": "MOCK-ID-2",
                     "userID": "1-mike",
-                    "userName": "Mike",
-                    "time": 1577836800000,
+                    "createdAt": 1577836800000,
                     "status": "pending",
                     "operation": "insert"
-                  },
-                  "pending_bg": "greenyellow"
+                  }
                 }
               }
             ],
