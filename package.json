@@ -10,10 +10,12 @@
   "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
+    "./src/styles.css": "./src/styles.css",
     ".": "./dist/index.es.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/styles.css"
   ],
   "scripts": {
     "build": "rollup -c",

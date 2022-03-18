@@ -1,0 +1,18 @@
+.ProseMirror .inserted.pending {
+  background: greenyellow;
+}
+.ProseMirror .inserted.accepted {
+  background: #92c7ff;
+}
+.ProseMirror .inserted.rejected {
+  background: #cac5c7;
+}
+.ProseMirror .deleted.pending {
+  background: #ffa4a4;
+}
+.ProseMirror .deleted.accepted {
+  background: #ffb747;
+}
+.ProseMirror .deleted.rejected {
+  text-decoration: none;
+}
