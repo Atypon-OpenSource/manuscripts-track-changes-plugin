@@ -18,7 +18,7 @@ import { EditorView } from 'prosemirror-view'
 
 import { getAction, setAction, TrackChangesAction } from './actions'
 import { ChangeSet } from './ChangeSet'
-import { logger } from './logger'
+import { logger } from './utils/logger'
 import { applyAcceptedRejectedChanges } from './track/applyChanges'
 import { findChanges } from './track/findChanges'
 import { fixInconsistentChanges } from './track/fixInconsistentChanges'

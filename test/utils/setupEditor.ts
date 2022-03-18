@@ -21,7 +21,7 @@ import { EditorView } from 'prosemirror-view'
 
 import { DEFAULT_USER } from '../__fixtures__/users'
 import { trackChangesPlugin } from '../../src'
-import { enableDebug } from '../../src/logger'
+import { enableDebug } from '../../src/utils/logger'
 import { ProsemirrorTestChain } from './PMTestChain'
 
 enableDebug(false)

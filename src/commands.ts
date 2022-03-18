@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { uuidv4 } from '@manuscripts/quarterback-shared'
-import { ExposedSlice } from 'types/pm'
 
 import { setAction, TrackChangesAction } from './actions'
 import { trackChangesPluginKey } from './plugin'
 import { applyAndMergeMarks, deleteAndMergeSplitBlockNodes } from './track/trackTransaction'
 import { CHANGE_OPERATION, CHANGE_STATUS } from './types/change'
 import type { Command } from './types/editor'
+import { ExposedSlice } from './types/pm'
 import { DeleteAttrs, InsertAttrs, TrackChangesStatus } from './types/track'
 import { TrackedUser } from './types/user'
+import { uuidv4 } from './utils/uuidv4'
 
 export const setTrackingStatus =
   (status?: TrackChangesStatus): Command =>

@@ -18,8 +18,8 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { logger } from '../logger'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedChange } from '../types/change'
+import { logger } from '../utils/logger'
 import { getChangeContent, getPosToInsertMergedContent } from './node-utils'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 

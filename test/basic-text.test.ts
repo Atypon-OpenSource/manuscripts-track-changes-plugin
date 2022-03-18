@@ -26,8 +26,8 @@ let counter = 0
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('@manuscripts/quarterback-shared', () => {
-  const mockOriginal = jest.requireActual('@manuscripts/quarterback-shared')
+jest.mock('../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,

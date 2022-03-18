@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { uuidv4 } from '@manuscripts/quarterback-shared'
 import { Mark, Node as PMNode, Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { liftTarget, Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { logger } from '../logger'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { logger } from '../utils/logger'
+import { uuidv4 } from '../utils/uuidv4'
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
   if (!attrs.id) {

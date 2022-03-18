@@ -25,7 +25,6 @@
   },
   "devDependencies": {
     "@manuscripts/examples-track-schema": "workspace:*",
-    "@manuscripts/manuscript-editor": "workspace:*",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@types/debug": "^4.1.7",
     "@types/jest": "^27.4.1",
@@ -57,7 +56,6 @@
     "prosemirror-view": "^1.23.6"
   },
   "dependencies": {
-    "@manuscripts/quarterback-shared": "workspace:*",
     "debug": "^4.3.3"
   }
 }

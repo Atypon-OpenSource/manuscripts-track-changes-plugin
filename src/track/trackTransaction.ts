@@ -31,7 +31,7 @@ import {
   StepMap,
 } from 'prosemirror-transform'
 
-import { logger } from '../logger'
+import { logger } from '../utils/logger'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedFragment, ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { DeleteAttrs, InsertAttrs, UserData } from '../types/track'
