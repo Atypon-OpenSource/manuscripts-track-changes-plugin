@@ -18,7 +18,7 @@ import { EditorView } from 'prosemirror-view'
 
 import { getAction, setAction, TrackChangesAction } from './actions'
 import { ChangeSet } from './ChangeSet'
-import { logger } from './utils/logger'
+import { logger, enableDebug } from './utils/logger'
 import { applyAcceptedRejectedChanges } from './track/applyChanges'
 import { findChanges } from './track/findChanges'
 import { fixInconsistentChanges } from './track/fixInconsistentChanges'
@@ -38,16 +38,17 @@ const infiniteLoopCounter = {
 /**
  * The ProseMirror plugin needed to enable track-changes.
  *
- * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as
- * the default userID.
+ * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as the default userID.
  * @param opts
  */
 export const trackChangesPlugin = (
-  { userID, skipTrsWithMetas = [] }: TrackChangesOptions = {
-    userID: 'anonymous:Anonymous',
-  }
+  opts: TrackChangesOptions = { userID: 'anonymous:Anonymous' }
 ) => {
+  const { userID, debug, skipTrsWithMetas = [] } = opts
   let editorView: EditorView | undefined
+  if (debug) {
+    enableDebug(true)
+  }
 
   return new Plugin<TrackChangesState, any>({
     key: trackChangesPluginKey,
@@ -57,7 +58,7 @@ export const trackChangesPlugin = (
       },
     },
     state: {
-      init(config, state) {
+      init(_config, state) {
         return {
           status: TrackChangesStatus.enabled,
           userID,
@@ -70,7 +71,7 @@ export const trackChangesPlugin = (
         }
       },
 
-      apply(tr, pluginState, oldState, newState): TrackChangesState {
+      apply(tr, pluginState, _oldState, newState): TrackChangesState {
         const setUserID = getAction(tr, TrackChangesAction.setUserID)
         const setStatus = getAction(tr, TrackChangesAction.setPluginStatus)
         if (setUserID) {
@@ -143,7 +144,7 @@ export const trackChangesPlugin = (
       const { userID, changeSet } = pluginState
       let createdTr = newState.tr,
         docChanged = false
-      logger('TRS', trs)
+      logger('APPENDED TRS', trs)
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))

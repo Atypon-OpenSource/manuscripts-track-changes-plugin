@@ -4,13 +4,13 @@ This is a ProseMirror plugin that tracks inserts/deletes to nodes and text.
 
 It uses node attributes inside `dataTracked` object to persist changes for both block and inline nodes and `tracked_insert` & `tracked_delete` marks for text. An example implementation can be found inside the `examples-packages/schema` package. This library and approach replaces a previous implementation based on commits as in the https://prosemirror.net/examples/track/ example which proved unreliable due to non-idempotent nature of transactions when rebased as well as inability to use Yjs collaboration with the approach. `prosemirror-changeset` was also trialed by which had similar problems as well as being hard to extend for formatting changes.
 
-On a more detailed level, this plugin checks every transaction in an `appendTranscation` hook for any modifications to the document. If they exist, it prevents that transaction from happening and instead reapplies it with deletes being prevented and inserted wrapped in track attributes/marks. Importantly this can be bybassed by using `TrackActions.skipTrack` action to prevent race conditions where appendTransactions keep firing between 2 or more plugins.
+On a more detailed level, this plugin checks every transaction in an `appendTransaction` hook for any modifications to the document (`tr.docChanged`). If they exist, it prevents that transaction from happening by inverting it and reapplying it with deletions and insertions wrapped in track attributes/marks. Importantly this can be bybassed by using `TrackActions.skipTrack` action to prevent race conditions where appendTransactions keep firing between 2 or more plugins. Or be setting `skipTrsWithMetas?: (PluginKey | string)[]` option parameter to skip all transactions based on their meta fields, such as `ySyncPluginKey`. By default `prosemirror-history` transactions are skipped.
 
-On every transaction prevented, ChangeSet is generated which contains all the changes as retrieved from the document. Whole document is currently being iterated which may be somewhat inefficient on larger docs when the iteration could be limited to only what was modified using nodesBetween. The changes are stored as a flat list yet due to the hierarchy of the changes, a `changeTree` property is generated which wraps all changes within a node change as its children. This is especially helpful when inserting/deleting nodes that require multiple children that are irrelevant to the user. Currently, they are still shown in the UI but future enhancements will probably hide them. Granular controls are however at times needed when some of the changes can be considered separate or non-contiguous.
+On every transaction prevented, ChangeSet is generated which contains all the changes found from the document. `tr.setMeta('origin', trackChangesPluginKey)` is applied to id the transaction. Whole document is currently being iterated which may be somewhat inefficient on larger docs. The changes are stored as a flat list yet due to the hierarchy of the changes, a `changeTree` property is generated which wraps all changes within a node change as its children. This is especially helpful when inserting/deleting nodes that require multiple children that are irrelevant to the user. Currently, they are still shown in the UI but future enhancements will probably hide them. Granular controls are however at times needed when some of the changes can be considered separate or non-contiguous.
 
-Yjs collaboration works without further integration with this attribute & mark based approach. However, due to missing feature-parity with Yjs documents and ProseMirror documents it currently has missing features. Notably, Yjs snapshots do not show node attributes which makes using them for showing snapshots insufficient. Yjs nodes can't also contain marks but this was circumvented by using node attributes for inline nodes too.
+Yjs collaboration works without further integration with this attribute & mark based approach. However, due to missing feature-parity with Yjs documents and ProseMirror documents it currently does not behave consistently. Notably, Yjs snapshots do not show node attributes which makes using them for showing snapshots insufficient. Yjs nodes can't also contain marks but this was circumvented by using node attributes for inline nodes too.
 
-The plugin also includes logging using `debug` library that can be toggled with `enableDebug(enabled: boolean)`.
+The plugin also includes logging using `debug` library that can be toggled with either passing `debug?: boolean` option or executing `enableDebug(enabled: boolean)`.
 
 CKEditor and Fiduswriter served as its inspiration but everything was written from scratch. Also, this library is open-sourced under the Apache 2 license.
 
@@ -24,10 +24,8 @@ export const trackChangesPluginKey = new PluginKey<TrackChangesState, any>('trac
 /**
  * The ProseMirror plugin needed to enable track-changes.
  * 
- * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as 
- * the default userID.
+ * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as the default userID.
  * @param opts
- * @returns 
  */
 export const trackChangesPlugin = (opts?: TrackChangesOptions) => Plugin<TrackChangesState, any>
 
@@ -47,6 +45,8 @@ export enum TrackChangesStatus {
   viewSnapshots = 'view-snapshots',
   disabled = 'disabled',
 }
+
+export const enableDebug = (enabled: boolean) => void
 ```
 
 ### Commands
@@ -66,29 +66,29 @@ export const setTrackingStatus = (status?: TrackChangesStatus) => Command
  * @param status
  * @param ids
  */
-export const setChangeStatuses = (status: CHANGE_STATUS, ids: string[]): Command
+export const setChangeStatuses = (status: CHANGE_STATUS, ids: string[]) => Command
 
 /**
  * Sets track user's ID.
  * @param userID
  */
-export const setUserID = (user: TrackedUser): Command
+export const setUserID = (user: TrackedUser) => Command
 
 /**
  * Filters shown change statuses ('pending','accepted','rejected') from the change list.
  * @param statuses 
  */
-export const toggleShownStatuses = (statuses: CHANGE_STATUS[]): Command
+export const toggleShownStatuses = (statuses: CHANGE_STATUS[]) => Command
 
 /**
  * Applies current accepted and rejected changes to the document.
  */
-export const applyAndRemoveChanges = (): Command
+export const applyAndRemoveChanges = () => Command
 
 /**
  * Iterates over the doc and collects the changes into a new ChangeSet.
  */
-export const refreshChanges = (): Command
+export const refreshChanges = () => Command
 ```
 
 ### Actions
@@ -100,7 +100,6 @@ Actions are used to access/set transaction meta fields.
  * Gets the value of a meta field, action payload, of a defined track-changes action.
  * @param tr 
  * @param action 
- * @returns 
  */
 export function getAction<K extends keyof TrackChangesActionParams>(tr: Transaction, action: K) {
   return tr.getMeta(action) as TrackChangesActionParams[K] | undefined
@@ -112,7 +111,6 @@ export function getAction<K extends keyof TrackChangesActionParams>(tr: Transact
  * @param tr 
  * @param action 
  * @param payload 
- * @returns 
  */
 export function setAction<K extends keyof TrackChangesActionParams>(
   tr: Transaction,

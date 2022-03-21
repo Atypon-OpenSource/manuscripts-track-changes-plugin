@@ -90,7 +90,7 @@ describe('track changes', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(4)
 
     tester
-      .cmd(trackCommands.setUser(SECOND_USER))
+      .cmd(trackCommands.setUserID(SECOND_USER.id))
       .moveCursor('start')
       .insertText('d')
       .insertText('e')

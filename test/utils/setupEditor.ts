@@ -53,7 +53,7 @@ export function setupEditor<S extends Schema = QuarterBackSchema>(
   ).concat(
     plugins || [
       trackChangesPlugin({
-        user: DEFAULT_USER,
+        userID: DEFAULT_USER.id,
       }),
     ]
   )

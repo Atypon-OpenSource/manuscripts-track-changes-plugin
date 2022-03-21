@@ -17,8 +17,10 @@ import debug from 'debug'
 
 export const logger = debug('track')
 
-debug.enable('track')
-
+/**
+ * Sets debug logging enabled/disabled.
+ * @param enabled
+ */
 export const enableDebug = (enabled: boolean) => {
   if (enabled) {
     debug.enable('track')
