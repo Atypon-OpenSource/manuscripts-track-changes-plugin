@@ -18,7 +18,6 @@ import { Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
-import { TrackedUser } from '../types/user'
 import { uuidv4 } from '../utils/uuidv4'
 import { updateChangeAttrs } from './updateChangeAttrs'
 
@@ -34,7 +33,7 @@ import { updateChangeAttrs } from './updateChangeAttrs'
  */
 export function fixInconsistentChanges(
   changeSet: ChangeSet,
-  currentUser: TrackedUser,
+  trackUserID: string,
   newTr: Transaction,
   schema: Schema
 ) {
@@ -45,7 +44,7 @@ export function fixInconsistentChanges(
       const { id, userID, operation, status, createdAt } = c.attrs
       const newAttrs = {
         ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
-        ...(!userID && { userID: currentUser.id }),
+        ...(!userID && { userID: trackUserID }),
         ...(!operation && { operation: CHANGE_OPERATION.insert }),
         ...(!status && { status: CHANGE_STATUS.pending }),
         ...(!createdAt && { createdAt: Date.now() }),

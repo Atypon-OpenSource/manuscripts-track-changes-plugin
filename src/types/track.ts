@@ -17,17 +17,16 @@ import type { PluginKey } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './change'
-import type { TrackedUser } from './user'
 
 export interface TrackChangesOptions {
   debug?: boolean
-  user?: TrackedUser
+  userID: string
   skipTrsWithMetas?: (PluginKey | string)[]
 }
 
 export interface TrackChangesState {
   status: TrackChangesStatus
-  currentUser: TrackedUser
+  userID: string
   changeSet: ChangeSet
   shownChangeStatuses: CHANGE_STATUS[]
 }

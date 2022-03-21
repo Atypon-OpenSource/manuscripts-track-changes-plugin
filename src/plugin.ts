@@ -27,22 +27,26 @@ import { updateChangeAttrs } from './track/updateChangeAttrs'
 import { CHANGE_STATUS } from './types/change'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 
-const DEFAULT_USER = {
-  id: '0',
-  name: 'Unknown',
-}
-
 export const trackChangesPluginKey = new PluginKey<TrackChangesState, any>('track-changes')
 
+// TODO remove
 const infiniteLoopCounter = {
   start: 0,
   iters: 0,
 }
 
-export const trackChangesPlugin = ({
-  user = DEFAULT_USER,
-  skipTrsWithMetas = [],
-}: TrackChangesOptions = {}) => {
+/**
+ * The ProseMirror plugin needed to enable track-changes.
+ *
+ * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as
+ * the default userID.
+ * @param opts
+ */
+export const trackChangesPlugin = (
+  { userID, skipTrsWithMetas = [] }: TrackChangesOptions = {
+    userID: 'anonymous:Anonymous',
+  }
+) => {
   let editorView: EditorView | undefined
 
   return new Plugin<TrackChangesState, any>({
@@ -54,11 +58,10 @@ export const trackChangesPlugin = ({
     },
     state: {
       init(config, state) {
-        const changeSet = findChanges(state)
         return {
           status: TrackChangesStatus.enabled,
-          currentUser: user,
-          changeSet: changeSet,
+          userID,
+          changeSet: findChanges(state),
           shownChangeStatuses: [
             CHANGE_STATUS.accepted,
             CHANGE_STATUS.rejected,
@@ -68,10 +71,10 @@ export const trackChangesPlugin = ({
       },
 
       apply(tr, pluginState, oldState, newState): TrackChangesState {
-        const setUser = getAction(tr, TrackChangesAction.setUser)
+        const setUserID = getAction(tr, TrackChangesAction.setUserID)
         const setStatus = getAction(tr, TrackChangesAction.setPluginStatus)
-        if (setUser) {
-          return { ...pluginState, currentUser: setUser }
+        if (setUserID) {
+          return { ...pluginState, userID: setUserID }
         } else if (setStatus) {
           return {
             ...pluginState,
@@ -137,7 +140,7 @@ export const trackChangesPlugin = ({
         console.error('Detected probable infinite loop in track changes!')
         return null
       }
-      const { currentUser, changeSet } = pluginState
+      const { userID, changeSet } = pluginState
       let createdTr = newState.tr,
         docChanged = false
       logger('TRS', trs)
@@ -148,7 +151,7 @@ export const trackChangesPlugin = ({
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (tr.docChanged && !skipMetaUsed && !skipTrackUsed && !tr.getMeta('history$')) {
-          createdTr = trackTransaction(tr, oldState, createdTr, currentUser.id)
+          createdTr = trackTransaction(tr, oldState, createdTr, userID)
           createdTr.setMeta('origin', trackChangesPluginKey)
           infiniteLoopCounter.iters += 1
         }
@@ -175,7 +178,7 @@ export const trackChangesPlugin = ({
       })
       const changed = fixInconsistentChanges(
         pluginState.changeSet,
-        currentUser,
+        userID,
         createdTr,
         oldState.schema
       )

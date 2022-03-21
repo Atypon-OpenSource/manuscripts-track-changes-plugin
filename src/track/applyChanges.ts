@@ -30,7 +30,6 @@ import { updateChangeChildrenAttributes } from './updateChangeAttrs'
  * @param schema
  * @param changes
  * @param mapping
- * @returns
  */
 export function applyAcceptedRejectedChanges(
   tr: Transaction,

@@ -38,6 +38,7 @@ export function findChanges(state: EditorState) {
     if (attrs) {
       const id = attrs?.id || ''
       // Join adjacent text changes that have been broken up due to different marks
+      // eg <ins><b>bold</b>norm<i>italic</i></ins> -> treated as one continuous change
       // Note the !equalMarks to leave changes separate incase the marks are equal to let fixInconsistentChanges to fix them
       if (
         current &&

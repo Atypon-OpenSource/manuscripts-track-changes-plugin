@@ -24,6 +24,10 @@ import {
 } from './types/change'
 import { logger } from './utils/logger'
 
+/**
+ * ChangeSet is a data structure to contain the tracked changes with some utility methods and computed
+ * values to allow easier operability.
+ */
 export class ChangeSet {
   _changes: PartialTrackedChange[]
   empty!: ChangeSet
@@ -32,10 +36,18 @@ export class ChangeSet {
     this._changes = changes
   }
 
+  /**
+   * changes is a list of all the valid TrackedChanges. This prevents for example changes with
+   * duplicate ids being shown in the UI, causing errors.
+   */
   get changes(): TrackedChange[] {
     return this._changes.filter((c) => ChangeSet.isValidTrackedAttrs(c.attrs)) as TrackedChange[]
   }
 
+  /**
+   * changeTree is a list of 1-level nested changes where the top-most node change contains all the
+   * changes within its start and end position. This is useful for showing the changes as groups in the UI.
+   */
   get changeTree() {
     const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
@@ -84,6 +96,10 @@ export class ChangeSet {
     return this._changes.length === 0
   }
 
+  /**
+   * hasInconsistentData is used to determine whether fixInconsistentChanges has to be executed to replace
+   * eg duplicate ids or changes that are missing attributes.
+   */
   get hasInconsistentData() {
     return this.hasDuplicateIds || this.hasIncompleteAttrs
   }
@@ -116,16 +132,27 @@ export class ChangeSet {
     return this._changes.filter((c) => ids.includes(c.id))
   }
 
-  flatten(changes: TrackedChange[]) {
+  /**
+   * Flattens a changeTree into a list of IDs
+   * @param changes
+   */
+  flatten(changes: TrackedChange[]): string[] {
     return changes.flatMap((c) =>
       c.type === 'text-change' ? c.id : [c.id, ...c.children.map((c) => c.id)]
     )
   }
 
+  /**
+   * empty is used to prevent needless generation of empty ChangeSets whenever appropriate
+   */
   static empty() {
     return empty
   }
 
+  /**
+   * Determines whether a change should not be deleted when applying it to the document.
+   * @param change
+   */
   static shouldNotDelete(change: TrackedChange) {
     const { status, operation } = change.attrs
     return (
@@ -134,6 +161,10 @@ export class ChangeSet {
     )
   }
 
+  /**
+   * Determines whether a change should be deleted when applying it to the document.
+   * @param change
+   */
   static shouldDeleteChange(change: TrackedChange) {
     const { status, operation } = change.attrs
     return (
@@ -142,6 +173,10 @@ export class ChangeSet {
     )
   }
 
+  /**
+   * Checks whether change attributes contain all TrackedAttrs keys with non-undefined values
+   * @param attrs
+   */
   static isValidTrackedAttrs(attrs: Partial<TrackedAttrs> = {}): boolean {
     if ('attrs' in attrs) {
       logger(

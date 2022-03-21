@@ -132,7 +132,6 @@ function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, schema:
  * @param newTr
  * @param schema
  * @param addedAttrs
- * @returns
  */
 export function applyAndMergeMarks(
   from: number,
@@ -309,7 +308,6 @@ function getMergedNode(
  * These parts can be then applied in subsequent iterations so instead of just applying
  * `<p>as|df</p><p>bye</p>|` we get two nodes: `[<p>df</p>,<p>bye</p>]`
  * @param insertSlice
- * @returns
  */
 function splitSliceIntoMergedParts(insertSlice: ExposedSlice) {
   const { openStart, openEnd, content } = insertSlice

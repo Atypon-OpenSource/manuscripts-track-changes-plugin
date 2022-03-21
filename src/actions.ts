@@ -17,11 +17,10 @@ import { Transaction } from 'prosemirror-state'
 
 import { CHANGE_STATUS } from './types/change'
 import { TrackChangesStatus } from './types/track'
-import { TrackedUser } from './types/user'
 
 export enum TrackChangesAction {
   skipTrack = 'track-changes-skip-tracking',
-  setUser = 'track-changes-set-user',
+  setUserID = 'track-changes-set-user-id',
   setPluginStatus = 'track-changes-set-track-status',
   setChangeStatuses = 'track-changes-set-change-statuses',
   toggleShownStatuses = 'track-changes-toggle-shown-change-statuses',
@@ -32,7 +31,7 @@ export enum TrackChangesAction {
 
 export type TrackChangesActionParams = {
   [TrackChangesAction.skipTrack]: boolean
-  [TrackChangesAction.setUser]: TrackedUser
+  [TrackChangesAction.setUserID]: string
   [TrackChangesAction.setPluginStatus]: TrackChangesStatus
   [TrackChangesAction.setChangeStatuses]: {
     status: CHANGE_STATUS
@@ -44,10 +43,22 @@ export type TrackChangesActionParams = {
   [TrackChangesAction.applyAndRemoveChanges]: boolean
 }
 
+/**
+ * Gets the value of a meta field, action payload, of a defined track-changes action.
+ * @param tr
+ * @param action
+ */
 export function getAction<K extends keyof TrackChangesActionParams>(tr: Transaction, action: K) {
   return tr.getMeta(action) as TrackChangesActionParams[K] | undefined
 }
 
+/**
+ * Use this function to set meta keys to transactions that are consumed by the track-changes-plugin.
+ * For example, you can skip tracking of a transaction with setAction(tr, TrackChangesAction.skipTrack, true)
+ * @param tr
+ * @param action
+ * @param payload
+ */
 export function setAction<K extends keyof TrackChangesActionParams>(
   tr: Transaction,
   action: K,

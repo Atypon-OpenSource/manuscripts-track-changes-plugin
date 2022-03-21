@@ -36,7 +36,6 @@ export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
  * Not in use, maybe for ReplaceAroundSteps but we'll see
  * @param pos
  * @param tr
- * @returns
  */
 export function liftNode(pos: number, tr: Transaction) {
   const startPos = tr.doc.resolve(pos)
