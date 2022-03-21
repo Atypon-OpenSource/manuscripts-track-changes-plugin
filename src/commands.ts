@@ -78,17 +78,6 @@ export const setUserID =
   }
 
 /**
- * Filters shown change statuses ('pending','accepted','rejected') from the change list.
- * @param statuses
- */
-export const toggleShownStatuses =
-  (statuses: CHANGE_STATUS[]): Command =>
-  (state, dispatch) => {
-    dispatch && dispatch(setAction(state.tr, TrackChangesAction.toggleShownStatuses, statuses))
-    return true
-  }
-
-/**
  * Applies current accepted and rejected changes to the document.
  */
 export const applyAndRemoveChanges = (): Command => (state, dispatch) => {

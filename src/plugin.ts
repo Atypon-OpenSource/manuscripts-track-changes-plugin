@@ -24,7 +24,6 @@ import { findChanges } from './track/findChanges'
 import { fixInconsistentChanges } from './track/fixInconsistentChanges'
 import { trackTransaction } from './track/trackTransaction'
 import { updateChangeAttrs } from './track/updateChangeAttrs'
-import { CHANGE_STATUS } from './types/change'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState, any>('track-changes')
@@ -63,11 +62,6 @@ export const trackChangesPlugin = (
           status: TrackChangesStatus.enabled,
           userID,
           changeSet: findChanges(state),
-          shownChangeStatuses: [
-            CHANGE_STATUS.accepted,
-            CHANGE_STATUS.rejected,
-            CHANGE_STATUS.pending,
-          ],
         }
       },
 
@@ -88,31 +82,14 @@ export const trackChangesPlugin = (
           }
           return { ...pluginState, changeSet: ChangeSet.empty() }
         }
-        const {
-          changeSet: oldChangeSet,
-          shownChangeStatuses: oldShownChangeStatuses,
-          ...rest
-        } = pluginState
-        let changeSet = oldChangeSet,
-          shownChangeStatuses = oldShownChangeStatuses
+        let { changeSet, ...rest } = pluginState
         const updatedChangeIds = getAction(tr, TrackChangesAction.updateChanges)
-        const toggledChangeStatuses = getAction(tr, TrackChangesAction.toggleShownStatuses)
         // TODO update changes on inspect snapshot by checking !tr.getMeta(ySyncPluginKey) ?
         if (updatedChangeIds || getAction(tr, TrackChangesAction.refreshChanges)) {
           changeSet = findChanges(newState)
         }
-        if (toggledChangeStatuses) {
-          toggledChangeStatuses.forEach((s) => {
-            const foundIdx = shownChangeStatuses.indexOf(s)
-            shownChangeStatuses =
-              foundIdx !== -1
-                ? shownChangeStatuses.filter((_, i) => i !== foundIdx)
-                : shownChangeStatuses.concat(s)
-          })
-        }
         return {
           changeSet,
-          shownChangeStatuses,
           ...rest,
         }
       },

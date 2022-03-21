@@ -28,7 +28,6 @@ export interface TrackChangesState {
   status: TrackChangesStatus
   userID: string
   changeSet: ChangeSet
-  shownChangeStatuses: CHANGE_STATUS[]
 }
 
 export type InsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {

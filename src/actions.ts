@@ -23,7 +23,6 @@ export enum TrackChangesAction {
   setUserID = 'track-changes-set-user-id',
   setPluginStatus = 'track-changes-set-track-status',
   setChangeStatuses = 'track-changes-set-change-statuses',
-  toggleShownStatuses = 'track-changes-toggle-shown-change-statuses',
   updateChanges = 'track-changes-update-changes',
   refreshChanges = 'track-changes-refresh-changes',
   applyAndRemoveChanges = 'track-changes-apply-remove-changes',
@@ -37,7 +36,6 @@ export type TrackChangesActionParams = {
     status: CHANGE_STATUS
     ids: string[]
   }
-  [TrackChangesAction.toggleShownStatuses]: CHANGE_STATUS[]
   [TrackChangesAction.updateChanges]: string[]
   [TrackChangesAction.refreshChanges]: boolean
   [TrackChangesAction.applyAndRemoveChanges]: boolean

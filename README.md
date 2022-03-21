@@ -38,7 +38,6 @@ export interface TrackChangesState {
   status: TrackChangesStatus
   userID: string
   changeSet: ChangeSet
-  shownChangeStatuses: CHANGE_STATUS[]
 }
 export enum TrackChangesStatus {
   enabled = 'enabled',
@@ -73,12 +72,6 @@ export const setChangeStatuses = (status: CHANGE_STATUS, ids: string[]) => Comma
  * @param userID
  */
 export const setUserID = (user: TrackedUser) => Command
-
-/**
- * Filters shown change statuses ('pending','accepted','rejected') from the change list.
- * @param statuses 
- */
-export const toggleShownStatuses = (statuses: CHANGE_STATUS[]) => Command
 
 /**
  * Applies current accepted and rejected changes to the document.
