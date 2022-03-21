@@ -37,16 +37,25 @@ export class ChangeSet {
   }
 
   /**
-   * changes is a list of all the valid TrackedChanges. This prevents for example changes with
-   * duplicate ids being shown in the UI, causing errors.
+   * List of all the valid TrackedChanges. This prevents for example changes with duplicate ids being shown
+   * in the UI, causing errors.
    */
   get changes(): TrackedChange[] {
-    return this._changes.filter((c) => ChangeSet.isValidTrackedAttrs(c.attrs)) as TrackedChange[]
+    const iteratedIds = new Set()
+    return this._changes.filter((c) => {
+      const valid = !iteratedIds.has(c.attrs.id) && ChangeSet.isValidTrackedAttrs(c.attrs)
+      iteratedIds.add(c.attrs.id)
+      return valid
+    }) as TrackedChange[]
+  }
+
+  get invalidChanges() {
+    return this._changes.filter((c) => !this.changes.find((cc) => c.id === cc.id))
   }
 
   /**
-   * changeTree is a list of 1-level nested changes where the top-most node change contains all the
-   * changes within its start and end position. This is useful for showing the changes as groups in the UI.
+   * List of 1-level nested changes where the top-most node change contains all the changes within its start
+   * and end position. This is useful for showing the changes as groups in the UI.
    */
   get changeTree() {
     const rootNodes: TrackedChange[] = []
@@ -97,8 +106,8 @@ export class ChangeSet {
   }
 
   /**
-   * hasInconsistentData is used to determine whether fixInconsistentChanges has to be executed to replace
-   * eg duplicate ids or changes that are missing attributes.
+   * Used to determine whether `fixInconsistentChanges` has to be executed to replace eg duplicate ids or
+   * changes that are missing attributes.
    */
   get hasInconsistentData() {
     return this.hasDuplicateIds || this.hasIncompleteAttrs
@@ -143,7 +152,7 @@ export class ChangeSet {
   }
 
   /**
-   * empty is used to prevent needless generation of empty ChangeSets whenever appropriate
+   * Used to prevent needless generation of empty ChangeSets whenever appropriate
    */
   static empty() {
     return empty

@@ -39,22 +39,20 @@ export function fixInconsistentChanges(
 ) {
   const iteratedIds = new Set()
   let changed = false
-  changeSet._changes.forEach((c) => {
-    if (iteratedIds.has(c.attrs.id) || !ChangeSet.isValidTrackedAttrs(c.attrs)) {
-      const { id, userID, operation, status, createdAt } = c.attrs
-      const newAttrs = {
-        ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
-        ...(!userID && { userID: trackUserID }),
-        ...(!operation && { operation: CHANGE_OPERATION.insert }),
-        ...(!status && { status: CHANGE_STATUS.pending }),
-        ...(!createdAt && { createdAt: Date.now() }),
-      }
-      if (Object.keys(newAttrs).length > 0) {
-        updateChangeAttrs(newTr, c, { ...c.attrs, ...newAttrs }, schema)
-        changed = true
-      }
-      iteratedIds.add(newAttrs.id || id)
+  changeSet.invalidChanges.forEach((c) => {
+    const { id, userID, operation, status, createdAt } = c.attrs
+    const newAttrs = {
+      ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
+      ...(!userID && { userID: trackUserID }),
+      ...(!operation && { operation: CHANGE_OPERATION.insert }),
+      ...(!status && { status: CHANGE_STATUS.pending }),
+      ...(!createdAt && { createdAt: Date.now() }),
     }
+    if (Object.keys(newAttrs).length > 0) {
+      updateChangeAttrs(newTr, c, { ...c.attrs, ...newAttrs }, schema)
+      changed = true
+    }
+    iteratedIds.add(newAttrs.id || id)
   })
   return changed
 }

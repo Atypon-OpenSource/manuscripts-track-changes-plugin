@@ -52,34 +52,36 @@ export const enableDebug = (enabled: boolean) => void
 
 ```ts
 /**
- * Sets tracking status between 'enabled' 'disabled' 'viewSnapshots'
- * In disabled view, the plugin is completely inactive. In viewSnasphots state,
- * editor is set uneditable by editable prop that allows only selection changes to the
- * document.
+ * Sets track-changes plugin's status to any of: 'enabled' 'disabled' 'viewSnapshots'. Passing undefined will
+ * set 'enabled' status to 'disabled' and 'disabled' | 'viewSnapshots' status to 'enabled'.
+ *
+ * In disabled view, the plugin is completely inactive and changes are not updated anymore.
+ * In viewSnasphots state, editor is set uneditable by editable prop that allows only selection changes
+ * to the document.
  * @param status
  */
 export const setTrackingStatus = (status?: TrackChangesStatus) => Command
 
 /**
- * Sets change statuses between 'pending' 'accepted' and 'rejected'
+ * Appends a transaction to set change attributes/marks' status to any of: 'pending' 'accepted' 'rejected'
  * @param status
  * @param ids
  */
 export const setChangeStatuses = (status: CHANGE_STATUS, ids: string[]) => Command
 
 /**
- * Sets track user's ID.
+ * Sets track-changes plugin's userID.
  * @param userID
  */
 export const setUserID = (user: TrackedUser) => Command
 
 /**
- * Applies current accepted and rejected changes to the document.
+ * Appends a transaction that applies all 'accepted' and 'rejected' changes to the document.
  */
 export const applyAndRemoveChanges = () => Command
 
 /**
- * Iterates over the doc and collects the changes into a new ChangeSet.
+ * Runs `findChanges` to iterate over the document to collect changes into a new ChangeSet.
  */
 export const refreshChanges = () => Command
 ```
@@ -89,6 +91,18 @@ export const refreshChanges = () => Command
 Actions are used to access/set transaction meta fields.
 
 ```ts
+export type TrackChangesActionParams = {
+  [TrackChangesAction.skipTrack]: boolean
+  [TrackChangesAction.setUserID]: string
+  [TrackChangesAction.setPluginStatus]: TrackChangesStatus
+  [TrackChangesAction.setChangeStatuses]: {
+    status: CHANGE_STATUS
+    ids: string[]
+  }
+  [TrackChangesAction.updateChanges]: string[]
+  [TrackChangesAction.refreshChanges]: boolean
+  [TrackChangesAction.applyAndRemoveChanges]: boolean
+}
 /**
  * Gets the value of a meta field, action payload, of a defined track-changes action.
  * @param tr 
