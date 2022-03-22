@@ -86,31 +86,3 @@ export function findChanges(state: EditorState) {
   current && changes.push(current.change)
   return new ChangeSet(changes)
 }
-
-/**
- * @deprecated
- */
-export function updateChanges(
-  updatedChangeIds: string[],
-  oldChanges: ChangeSet,
-  state: EditorState
-) {
-  const notUpdated = oldChanges.getNotIn(updatedChangeIds)
-  const updated = oldChanges.getIn(updatedChangeIds)
-  const newChanges: PartialTrackedChange[] = []
-  let idx = 0,
-    current = updated[idx]
-  while (current) {
-    const node = state.doc.nodeAt(current.from)
-    if (!node) {
-      throw Error('No node at the from of change' + current)
-    }
-    const attrs = getNodeTrackedData(node, state.schema)
-    if (attrs) {
-      newChanges.push({ ...current, attrs })
-    }
-    idx += 1
-    current = updated[idx]
-  }
-  return new ChangeSet([...notUpdated, ...newChanges])
-}

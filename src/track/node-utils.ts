@@ -18,7 +18,7 @@ import { Transaction } from 'prosemirror-state'
 import { liftTarget, Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, TrackedAttrs, TrackedChange } from '../types/change'
 import { logger } from '../utils/logger'
 import { uuidv4 } from '../utils/uuidv4'
 

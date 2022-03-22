@@ -121,7 +121,7 @@ export const trackChangesPlugin = (
       const { userID, changeSet } = pluginState
       let createdTr = newState.tr,
         docChanged = false
-      logger('APPENDED TRS', trs)
+      logger('TRS', trs)
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
@@ -154,7 +154,7 @@ export const trackChangesPlugin = (
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
-      const changed = fixInconsistentChanges(
+      const changed = pluginState.changeSet.hasInconsistentData && fixInconsistentChanges(
         pluginState.changeSet,
         userID,
         createdTr,
@@ -164,10 +164,9 @@ export const trackChangesPlugin = (
         logger(`%c WARNING had to fix inconsistent changes in`, 'color: #f3f32c', createdTr)
       }
       if (docChanged || createdTr.docChanged || changed) {
-        setAction(createdTr, TrackChangesAction.refreshChanges, true)
+        return setAction(createdTr, TrackChangesAction.refreshChanges, true)
       }
-      return createdTr
-      // return createdTr.steps.length > 0 ? createdTr : null
+      return null
     },
   })
 }

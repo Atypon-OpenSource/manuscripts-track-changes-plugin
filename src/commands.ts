@@ -16,11 +16,9 @@
 
 import { setAction, TrackChangesAction } from './actions'
 import { trackChangesPluginKey } from './plugin'
-import { applyAndMergeMarks, deleteAndMergeSplitBlockNodes } from './track/trackTransaction'
 import { CHANGE_OPERATION, CHANGE_STATUS } from './types/change'
 import type { Command } from './types/editor'
-import { ExposedSlice } from './types/pm'
-import { DeleteAttrs, InsertAttrs, TrackChangesStatus } from './types/track'
+import { TrackChangesStatus } from './types/track'
 import { uuidv4 } from './utils/uuidv4'
 
 /**
@@ -92,68 +90,6 @@ export const applyAndRemoveChanges = (): Command => (state, dispatch) => {
  */
 export const refreshChanges = (): Command => (state, dispatch) => {
   dispatch && dispatch(setAction(state.tr, TrackChangesAction.updateChanges, []))
-  return true
-}
-
-/**
- * Sets text inside selection as inserted. For testing puroses
- * @deprecated
- */
-export const setInserted = (): Command => (state, dispatch) => {
-  const pluginState = trackChangesPluginKey.getState(state)
-  if (!pluginState) {
-    return false
-  }
-  const { userID } = pluginState
-  const tr = state.tr
-  const { from, to } = state.selection
-  const insertAttrs: InsertAttrs = {
-    userID,
-    createdAt: tr.time,
-    operation: CHANGE_OPERATION.insert,
-    status: CHANGE_STATUS.pending,
-  }
-  applyAndMergeMarks(from, to, state.doc, tr, state.schema, insertAttrs)
-  dispatch && dispatch(tr)
-  return true
-}
-
-/**
- * Sets text inside selection as deleted. For testing puroses
- * @deprecated
- */
-export const setDeleted = (): Command => (state, dispatch) => {
-  const pluginState = trackChangesPluginKey.getState(state)
-  if (!pluginState) {
-    return false
-  }
-  const { userID } = pluginState
-  const tr = state.tr
-  const { from, to } = state.selection
-  const deleteAttrs: DeleteAttrs = {
-    userID,
-    createdAt: tr.time,
-    operation: CHANGE_OPERATION.delete,
-    status: CHANGE_STATUS.pending,
-  }
-  const { deleteMap, newSliceContent } = deleteAndMergeSplitBlockNodes(
-    from,
-    to,
-    state.doc,
-    tr,
-    state.schema,
-    deleteAttrs,
-    state.doc.slice(0, 0) as ExposedSlice
-  )
-  applyAndMergeMarks(
-    deleteMap.map(from),
-    deleteMap.map(to),
-    state.doc,
-    tr,
-    state.schema,
-    deleteAttrs
-  )
-  dispatch && dispatch(tr)
   return true
 }
 
