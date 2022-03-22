@@ -19,7 +19,9 @@ import basicTextDelete from './basic-text-del.json'
 import basicTextInconsistent from './basic-text-inconsistent-track.json'
 import basicTextInsert from './basic-text-ins.json'
 import basicTextJoin from './basic-text-join.json'
+import blockNodeAttrUpdate from './block-node-attr-update.json'
 import defaultDocs from './default-docs.json'
+import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import insertAccept from './insert-accept.json'
 
 export default {
@@ -29,6 +31,8 @@ export default {
   basicTextInconsistent,
   basicTextInsert,
   basicTextJoin,
+  blockNodeAttrUpdate,
   defaultDocs,
+  inlineNodeAttrUpdate,
   insertAccept,
 }

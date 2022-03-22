@@ -6,7 +6,8 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null
+            "dataTracked": null,
+            "testAttribute": null
           },
           "content": [
             {
@@ -84,7 +85,8 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null
+            "dataTracked": null,
+            "testAttribute": null
           },
           "content": [
             {

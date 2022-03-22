@@ -142,7 +142,8 @@
                       "createdAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
-                    }
+                    },
+                    "testAttribute": null
                   },
                   "content": [
                     {
@@ -178,7 +179,8 @@
               "createdAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
-            }
+            },
+            "testAttribute": null
           },
           "content": [
             {
@@ -273,7 +275,8 @@
                   "createdAt": 1577836800000,
                   "status": "accepted",
                   "operation": "insert"
-                }
+                },
+                "testAttribute": null
               },
               "content": [
                 {
@@ -307,7 +310,8 @@
               "createdAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
-            }
+            },
+            "testAttribute": null
           },
           "content": [
             {
@@ -390,7 +394,8 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null
+            "dataTracked": null,
+            "testAttribute": null
           },
           "content": [
             {
@@ -490,7 +495,8 @@
                 {
                   "type": "paragraph",
                   "attrs": {
-                    "dataTracked": null
+                    "dataTracked": null,
+                    "testAttribute": null
                   },
                   "content": [
                     {
@@ -506,7 +512,8 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null
+            "dataTracked": null,
+            "testAttribute": null
           },
           "content": [
             {
@@ -551,7 +558,8 @@
             {
               "type": "paragraph",
               "attrs": {
-                "dataTracked": null
+                "dataTracked": null,
+                "testAttribute": null
               },
               "content": [
                 {
@@ -565,7 +573,8 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null
+            "dataTracked": null,
+            "testAttribute": null
           },
           "content": [
             {
@@ -602,7 +611,8 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null
+            "dataTracked": null,
+            "testAttribute": null
           },
           "content": [
             {

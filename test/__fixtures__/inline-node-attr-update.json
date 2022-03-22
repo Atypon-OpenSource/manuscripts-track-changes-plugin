@@ -1,0 +1,55 @@
+{
+  "doc": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": null,
+          "testAttribute": null
+        },
+        "content": [
+          {
+            "type": "image",
+            "attrs": {
+              "src": "https://i.imgur.com/lFAxY.png",
+              "alt": null,
+              "title": "Image",
+              "dataTracked": {
+                "id": "MOCK-ID-1",
+                "userID": "1-mike",
+                "createdAt": 1577836800000,
+                "status": "pending",
+                "operation": "delete"
+              }
+            }
+          },
+          {
+            "type": "image",
+            "attrs": {
+              "src": "https://i.imgur.com/WdH20od.jpeg",
+              "alt": null,
+              "title": "Changed title",
+              "dataTracked": {
+                "id": "MOCK-ID-2",
+                "userID": "1-mike",
+                "createdAt": 1577836800000,
+                "status": "pending",
+                "operation": "insert"
+              }
+            }
+          },
+          {
+            "type": "text",
+            "text": "Hello World"
+          }
+        ]
+      }
+    ]
+  },
+  "selection": {
+    "type": "text",
+    "anchor": 3,
+    "head": 3
+  }
+}

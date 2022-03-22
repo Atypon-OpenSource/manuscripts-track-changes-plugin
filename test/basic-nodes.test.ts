@@ -87,7 +87,7 @@ describe('track changes', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(10)
   })
 
-  test.skip('should track node attribute updates', async () => {
+  test('should create insert & delete operations on inline node attribute change', async () => {
     const tester = setupEditor({
       doc: docs.defaultDocs[0],
     })
@@ -98,7 +98,6 @@ describe('track changes', () => {
         }),
         1
       )
-      .insertText('inserted text')
       .cmd((state, dispatch) => {
         const trackChangesState = trackChangesPluginKey.getState(state)
         if (!trackChangesState) {
@@ -110,10 +109,44 @@ describe('track changes', () => {
         return true
       })
       .cmd(trackCommands.applyAndRemoveChanges())
+      .cmd((state, dispatch) => {
+        const tr = state.tr
+        tr.setNodeMarkup(1, undefined, {
+          src: 'https://i.imgur.com/WdH20od.jpeg',
+          title: 'Changed title',
+        })
+        dispatch && dispatch(tr)
+        return true
+      })
+
+    expect(tester.toJSON()).toEqual(docs.inlineNodeAttrUpdate)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(3)
+  })
+
+  test.skip('should track node attribute updates', async () => {
+    const tester = setupEditor({
+      doc: docs.defaultDocs[0],
+    }).cmd((state, dispatch) => {
+      const cursor = state.selection.head
+      const blockNodePos = state.doc.resolve(cursor).start(1) - 1
+      if (
+        state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph &&
+        dispatch
+      ) {
+        dispatch(
+          state.tr.setNodeMarkup(blockNodePos, undefined, {
+            testAttribute: 'changed',
+          })
+        )
+        return true
+      }
+      return false
+    })
 
     await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    expect(tester.toJSON()).toEqual(docs.basicNodeDelete)
-    expect(uuidv4Mock.mock.calls.length).toBe(9)
+    expect(tester.toJSON()).toEqual(docs.blockNodeAttrUpdate)
+    expect(uuidv4Mock.mock.calls.length).toBe(1)
   })
 })

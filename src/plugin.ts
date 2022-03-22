@@ -154,12 +154,9 @@ export const trackChangesPlugin = (
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
-      const changed = pluginState.changeSet.hasInconsistentData && fixInconsistentChanges(
-        pluginState.changeSet,
-        userID,
-        createdTr,
-        oldState.schema
-      )
+      const changed =
+        pluginState.changeSet.hasInconsistentData &&
+        fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
       if (changed) {
         logger(`%c WARNING had to fix inconsistent changes in`, 'color: #f3f32c', createdTr)
       }

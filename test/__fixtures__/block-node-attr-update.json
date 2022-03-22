@@ -6,20 +6,16 @@
         "type": "paragraph",
         "attrs": {
           "dataTracked": {
-            "id": "MOCK-ID-0",
+            "id": "MOCK-ID-1",
             "userID": "1-mike",
             "createdAt": 1577836800000,
             "status": "pending",
-            "operation": "insert"
+            "operation": "update",
+            "updated": {
+              "testAttribute": ["initial", "changed"]
+            }
           },
-          "testAttribute": null
-        }
-      },
-      {
-        "type": "paragraph",
-        "attrs": {
-          "dataTracked": null,
-          "testAttribute": null
+          "testAttribute": "changed"
         },
         "content": [
           {
@@ -32,7 +28,7 @@
   },
   "selection": {
     "type": "text",
-    "anchor": 2,
-    "head": 2
+    "anchor": 1,
+    "head": 1
   }
 }

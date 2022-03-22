@@ -16,10 +16,9 @@
 
 import { setAction, TrackChangesAction } from './actions'
 import { trackChangesPluginKey } from './plugin'
-import { CHANGE_OPERATION, CHANGE_STATUS } from './types/change'
+import { CHANGE_STATUS } from './types/change'
 import type { Command } from './types/editor'
 import { TrackChangesStatus } from './types/track'
-import { uuidv4 } from './utils/uuidv4'
 
 /**
  * Sets track-changes plugin's status to any of: 'enabled' 'disabled' 'viewSnapshots'. Passing undefined will
@@ -95,20 +94,22 @@ export const refreshChanges = (): Command => (state, dispatch) => {
 
 /**
  * Adds track attributes not a block node. For testing puroses
- * @deprecated
  */
-export const addTrackedAttributesToBlockNode = (): Command => (state, dispatch) => {
-  const cursor = state.selection.head
-  const blockNodePos = state.doc.resolve(cursor).start(1) - 1
-  const tr = state.tr.setNodeMarkup(blockNodePos, undefined, {
-    dataTracked: {
-      id: uuidv4(),
-      userID: '1',
-      operation: CHANGE_OPERATION.insert,
-      status: CHANGE_STATUS.pending,
-      createdAt: Date.now(),
-    },
-  })
-  dispatch && dispatch(tr)
-  return true
-}
+export const setParagraphTestAttribute =
+  (val = 'changed'): Command =>
+  (state, dispatch) => {
+    const cursor = state.selection.head
+    const blockNodePos = state.doc.resolve(cursor).start(1) - 1
+    if (
+      state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph &&
+      dispatch
+    ) {
+      dispatch(
+        state.tr.setNodeMarkup(blockNodePos, undefined, {
+          testAttribute: val,
+        })
+      )
+      return true
+    }
+    return false
+  }
