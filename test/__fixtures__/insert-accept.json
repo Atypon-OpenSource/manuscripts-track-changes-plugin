@@ -207,7 +207,27 @@
               "status": "accepted",
               "operation": "insert"
             }
-          }
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-11",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "accepted",
+                      "operation": "insert"
+                    }
+                  }
+                }
+              ],
+              "text": "code text"
+            }
+          ]
         },
         {
           "type": "horizontal_rule",
@@ -528,7 +548,13 @@
           "type": "code_block",
           "attrs": {
             "dataTracked": null
-          }
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "code text"
+            }
+          ]
         },
         {
           "type": "horizontal_rule",

@@ -28,6 +28,8 @@ import docs from './__fixtures__/docs'
 import { SECOND_USER } from './__fixtures__/users'
 import { setupEditor } from './utils/setupEditor'
 
+import { log } from '../src/utils/logger'
+
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
@@ -42,13 +44,13 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-
+jest.mock('../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
 describe('track changes', () => {
   afterEach(() => {
     counter = 0
-    uuidv4Mock.mockClear()
+    jest.clearAllMocks()
   })
 
   test('should update marks/attributes status correctly', async () => {
@@ -99,9 +101,10 @@ describe('track changes', () => {
 
     tester.cmd(trackCommands.applyAndRemoveChanges())
 
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
     expect(tester.toJSON()).toEqual(docs.insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

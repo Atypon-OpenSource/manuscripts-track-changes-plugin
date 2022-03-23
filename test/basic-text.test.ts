@@ -21,6 +21,8 @@ import docs from './__fixtures__/docs'
 import { SECOND_USER } from './__fixtures__/users'
 import { setupEditor } from './utils/setupEditor'
 
+import { log } from '../src/utils/logger'
+
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
@@ -35,13 +37,13 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-
+jest.mock('../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
 describe('track changes', () => {
   afterEach(() => {
     counter = 0
-    uuidv4Mock.mockClear()
+    jest.clearAllMocks()
   })
 
   test('should track basic text inserts', async () => {
@@ -54,6 +56,8 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.basicTextInsert)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test('should track basic text inserts and deletes', async () => {
@@ -68,6 +72,8 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.basicTextDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(2)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test('should join adjacent text inserts and deletes by same user', async () => {
@@ -109,6 +115,8 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.basicTextJoin[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(10)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test('should fix inconsistent text inserts and deletes', async () => {
@@ -157,5 +165,7 @@ describe('track changes', () => {
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(log.warn).toHaveBeenCalledTimes(1)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

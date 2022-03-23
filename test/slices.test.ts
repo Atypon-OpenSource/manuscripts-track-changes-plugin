@@ -24,10 +24,12 @@ import * as utils from './utils/nodeUtils'
 import { setupEditor } from './utils/setupEditor'
 import { Fragment, Slice } from 'prosemirror-model'
 
+import { log } from '../src/utils/logger'
+
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
-var uuidv4Mock: jest.Mock, logWarns: jest.Mock, logErrors: jest.Mock
+var uuidv4Mock: jest.Mock
 
 jest.mock('../src/utils/uuidv4', () => {
   const mockOriginal = jest.requireActual('../src/utils/uuidv4')
@@ -38,32 +40,13 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger', () => {
-  const logOriginal = jest.requireActual('../src/utils/logger')
-  logWarns = jest.fn()
-  logErrors = jest.fn()
-  return {
-    __esModule: true,
-    ...logOriginal,
-    log: {
-      info() {},
-      warn: logWarns,
-      error: logErrors,
-    },
-  }
-})
-
+jest.mock('../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
 describe('track changes', () => {
   afterEach(() => {
-    expect(logWarns.mock.calls.length).toBe(0)
-    expect(logErrors.mock.calls.length).toBe(0)
-
     counter = 0
-    uuidv4Mock.mockClear()
-    logWarns.mockClear()
-    logErrors.mockClear()
+    jest.clearAllMocks()
   })
 
   test('should correctly wrap copy-pasted slice with track markup', async () => {
@@ -76,6 +59,8 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test('should prevent replacing of blockquotes and break the slice into parts instead', async () => {
@@ -104,6 +89,8 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(7)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test.skip('asdf', async () => {
@@ -125,6 +112,8 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(7)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test.skip('todo bugs', async () => {
@@ -147,5 +136,7 @@ describe('track changes', () => {
     // expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(7)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })
