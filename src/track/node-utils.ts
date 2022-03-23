@@ -19,7 +19,7 @@ import { liftTarget, Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, TrackedAttrs, TrackedChange } from '../types/change'
-import { logger } from '../utils/logger'
+import { log } from '../utils/logger'
 import { uuidv4 } from '../utils/uuidv4'
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
@@ -101,11 +101,7 @@ export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, sc
     }
   })
   if (marksTrackedData.length > 1) {
-    logger(
-      `%c WARNING Inline node with more than 1 of tracked marks`,
-      'color: #f3f32c',
-      marksTrackedData
-    )
+    log.warn('inline node with more than 1 of tracked marks', marksTrackedData)
   }
   return marksTrackedData[0] || undefined
 }
@@ -133,9 +129,8 @@ export function shouldMergeTrackedAttributes(
   right?: Partial<TrackedAttrs>
 ) {
   if (!left || !right) {
-    logger(
-      `%c WARNING passed undefined dataTracked attributes for shouldMergeTrackedAttributes`,
-      'color: #f3f32c',
+    log.warn(
+      'passed undefined dataTracked attributes for shouldMergeTrackedAttributes',
       left || right
     )
     return false

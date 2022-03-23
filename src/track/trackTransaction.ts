@@ -31,7 +31,7 @@ import {
   StepMap,
 } from 'prosemirror-transform'
 
-import { logger } from '../utils/logger'
+import { log } from '../utils/logger'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedFragment, ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { DeleteAttrs, InsertAttrs } from '../types/track'
@@ -72,7 +72,7 @@ function recurseContent(node: PMNode<any>, insertAttrs: InsertAttrs, schema: Sch
       node.marks
     )
   } else {
-    logger(`%c ERROR Unhandled node type: "${node.type.name}"`, 'color: #ff4242', node)
+    log.error('unhandled node type: "${node.type.name}"', node)
     return node
   }
 }
@@ -295,7 +295,7 @@ export function deleteAndMergeSplitBlockNodes(
     splitSliceIntoMergedParts(insertSlice)
   const insertStartDepth = startDoc.resolve(from).depth
   const insertEndDepth = startDoc.resolve(to).depth
-  logger('deleteAndMergeSplitBlockNodes: updatedSliceNodes', updatedSliceNodes)
+  log.info('deleteAndMergeSplitBlockNodes: updatedSliceNodes', updatedSliceNodes)
   startDoc.nodesBetween(from, to, (node, pos) => {
     const { pos: offsetPos, deleted: nodeWasDeleted } = deleteMap.mapResult(pos, 1)
     const offsetFrom = deleteMap.map(from, -1)
@@ -432,9 +432,9 @@ export function trackTransaction(
   // difficult than prosemirror-transform
   const wasNodeSelection = tr.selection.constructor.name === 'NodeSelection'
   let iters = 0
-  logger('ORIGINAL transaction', tr)
+  log.info('ORIGINAL transaction', tr)
   tr.steps.forEach((step) => {
-    logger('transaction step', step)
+    log.info('transaction step', step)
     if (iters > 10) {
       console.error('Possible infinite loop in trackTransaction!', newTr)
       return
@@ -449,17 +449,13 @@ export function trackTransaction(
     }
     if (step instanceof ReplaceStep) {
       step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
-        logger(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
+        log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
         const { slice } = step as ExposedReplaceStep
         // Invert the transaction step to prevent it from actually deleting or inserting anything
         const newStep = step.invert(oldState.doc)
         const stepResult = newTr.maybeStep(newStep)
         if (stepResult.failed) {
-          logger(
-            `%c ERROR invert ReplaceStep failed: "${stepResult.failed}"`,
-            'color: #ff4242',
-            newStep
-          )
+          log.error('invert ReplaceStep failed: "${stepResult.failed}"', newStep)
           return
         }
         // First apply the deleted range and update the insert slice to not include content that was deleted,
@@ -473,10 +469,10 @@ export function trackTransaction(
           deleteAttrs,
           slice
         )
-        logger('TR: new steps after applying delete', [...newTr.steps])
+        log.info('TR: new steps after applying delete', [...newTr.steps])
         const toAWithOffset = mergedInsertPos ?? deleteMap.map(toA)
         if (newSliceContent.size > 0) {
-          logger('newSliceContent', newSliceContent)
+          log.info('newSliceContent', newSliceContent)
           // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any partial slices,
           // the new slice should contain only complete nodes therefore the depths should be equal
           const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
@@ -489,14 +485,10 @@ export function trackTransaction(
           const newStep = new ReplaceStep(toAWithOffset, toAWithOffset, insertedSlice)
           const stepResult = newTr.maybeStep(newStep)
           if (stepResult.failed) {
-            logger(
-              `%c ERROR insert ReplaceStep failed: "${stepResult.failed}"`,
-              'color: #ff4242',
-              newStep
-            )
+            log.error('insert ReplaceStep failed: "${stepResult.failed}"', newStep)
             return
           }
-          logger('new steps after applying insert', [...newTr.steps])
+          log.info('new steps after applying insert', [...newTr.steps])
           mergeTrackedMarks(toAWithOffset, newTr.doc, newTr, oldState.schema)
           mergeTrackedMarks(toAWithOffset + insertedSlice.size, newTr.doc, newTr, oldState.schema)
           if (!wasNodeSelection) {
@@ -533,6 +525,6 @@ export function trackTransaction(
     const nodePos = mappedPos - (resPos.nodeBefore?.nodeSize || 0)
     newTr.setSelection(getSelectionStaticCreate(tr.selection, newTr.doc, nodePos))
   }
-  logger('NEW transaction', newTr)
+  log.info('NEW transaction', newTr)
   return newTr
 }

@@ -22,7 +22,7 @@ import {
   TrackedAttrs,
   TrackedChange,
 } from './types/change'
-import { logger } from './utils/logger'
+import { log } from './utils/logger'
 
 /**
  * ChangeSet is a data structure to contain the tracked changes with some utility methods and computed
@@ -188,11 +188,7 @@ export class ChangeSet {
    */
   static isValidTrackedAttrs(attrs: Partial<TrackedAttrs> = {}): boolean {
     if ('attrs' in attrs) {
-      logger(
-        `%c WARNING passed "attrs" as property to isValidTrackedAttrs(attrs)`,
-        'color: #f3f32c',
-        attrs
-      )
+      log.warn('passed "attrs" as property to isValidTrackedAttrs(attrs)', attrs)
     }
     const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'userID', 'operation', 'status', 'createdAt']
     const entries = Object.entries(attrs)

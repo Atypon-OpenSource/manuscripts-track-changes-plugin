@@ -15,7 +15,7 @@
  */
 import { Command } from 'prosemirror-commands'
 import { exampleSetup } from 'prosemirror-example-setup'
-import { Mark, Node as PMNode, Schema } from 'prosemirror-model'
+import { Mark, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import { Plugin, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
@@ -83,6 +83,20 @@ export class ProsemirrorTestChain<S extends Schema> {
     const { selection, tr } = this.view.state
     tr.insert(pos ?? selection.head, node)
     this.view.dispatch(tr)
+    return this
+  }
+
+  paste(slice: Slice, start?: number, end?: number) {
+    const {
+      selection: { from, to },
+      tr,
+    } = this.view.state
+    this.view.dispatch(
+      tr
+        .replace(start ?? from, end ?? to, slice)
+        .setMeta('paste', true)
+        .setMeta('uiEvent', 'paste')
+    )
     return this
   }
 

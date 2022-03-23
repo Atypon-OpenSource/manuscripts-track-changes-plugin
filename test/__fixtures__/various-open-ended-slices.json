@@ -1,0 +1,319 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "1st "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-1",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    }
+                  }
+                }
+              ],
+              "text": "paragraph"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-2",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    }
+                  }
+                }
+              ],
+              "text": "replaced"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "blockquote",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": null,
+                    "testAttribute": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "tracked_insert",
+                          "attrs": {
+                            "dataTracked": {
+                              "id": "MOCK-ID-0",
+                              "userID": "1-mike",
+                              "createdAt": 1577836800000,
+                              "status": "pending",
+                              "operation": "insert"
+                            }
+                          }
+                        }
+                      ],
+                      "text": "inserted"
+                    },
+                    {
+                      "type": "text",
+                      "text": "2nd paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "3rd paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "4th paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 22,
+      "head": 22
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-0",
+              "userID": "1-mike",
+              "createdAt": 1577836800000,
+              "status": "pending",
+              "operation": "delete"
+            },
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-1",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    }
+                  }
+                }
+              ],
+              "text": "1st paragraph"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": {
+                  "id": "MOCK-ID-3",
+                  "userID": "1-mike",
+                  "createdAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "insert"
+                },
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "tracked_insert",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-2",
+                          "userID": "1-mike",
+                          "createdAt": 1577836800000,
+                          "status": "pending",
+                          "operation": "insert"
+                        }
+                      }
+                    }
+                  ],
+                  "text": "open-end blockquote"
+                }
+              ]
+            },
+            {
+              "type": "blockquote",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": null,
+                    "testAttribute": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "2nd paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "tracked_delete",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-5",
+                          "userID": "1-mike",
+                          "createdAt": 1577836800000,
+                          "status": "pending",
+                          "operation": "delete"
+                        }
+                      }
+                    }
+                  ],
+                  "text": "3rd paragraph"
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "tracked_insert",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-4",
+                          "userID": "1-mike",
+                          "createdAt": 1577836800000,
+                          "status": "pending",
+                          "operation": "insert"
+                        }
+                      }
+                    }
+                  ],
+                  "text": "open-start blockquote"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-6",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    }
+                  }
+                }
+              ],
+              "text": "4th"
+            },
+            {
+              "type": "text",
+              "text": " paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 55,
+      "head": 55
+    }
+  }
+]

@@ -18,7 +18,7 @@ import { EditorView } from 'prosemirror-view'
 
 import { getAction, setAction, TrackChangesAction } from './actions'
 import { ChangeSet } from './ChangeSet'
-import { logger, enableDebug } from './utils/logger'
+import { log, enableDebug } from './utils/logger'
 import { applyAcceptedRejectedChanges } from './track/applyChanges'
 import { findChanges } from './track/findChanges'
 import { fixInconsistentChanges } from './track/fixInconsistentChanges'
@@ -121,7 +121,7 @@ export const trackChangesPlugin = (
       const { userID, changeSet } = pluginState
       let createdTr = newState.tr,
         docChanged = false
-      logger('TRS', trs)
+      log.info('TRS', trs)
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
@@ -158,7 +158,7 @@ export const trackChangesPlugin = (
         pluginState.changeSet.hasInconsistentData &&
         fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
       if (changed) {
-        logger(`%c WARNING had to fix inconsistent changes in`, 'color: #f3f32c', createdTr)
+        log.warn('had to fix inconsistent changes in', createdTr)
       }
       if (docChanged || createdTr.docChanged || changed) {
         return setAction(createdTr, TrackChangesAction.refreshChanges, true)

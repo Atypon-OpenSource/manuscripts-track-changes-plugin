@@ -19,7 +19,7 @@ import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedChange } from '../types/change'
-import { logger } from '../utils/logger'
+import { log } from '../utils/logger'
 import { getChangeContent, getPosToInsertMergedContent } from './node-utils'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
@@ -46,7 +46,7 @@ export function applyAcceptedRejectedChanges(
     const from = deleteMap.map(change.from)
     const node = tr.doc.nodeAt(from)
     if (!node) {
-      logger(`%c WARNING no node found to update for change`, 'color: #f3f32c', change)
+      log.warn('no node found to update for change', change)
       return
     }
     const noChangeNeeded =

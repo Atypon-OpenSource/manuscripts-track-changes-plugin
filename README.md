@@ -132,9 +132,21 @@ export function setAction<K extends keyof TrackChangesActionParams>(
 
 Can be found in `./src/types` and `./src/ChangeSet.ts`
 
+## Feature summary
+
+* tracks block, inline, atom node inserts & deletes as `dataTracked` attribute objects
+* tracks text insert & delete as `tracked_insert` and `tracked_delete` marks
+* joins track marks based on `userID`, `operation` and `status`, uses the oldest `createdAt` value as timestamp
+* allows deletes of block nodes & text if operation is `inserted`
+* does not diff operations next to each other eg `(ins aasdf)(del asdf)` is not reduced to `ins a`
+* does not track block node attribute updates
+* does not track mark inserts & deletes
+* does not track ReplaceAroundSteps
+* has probably bugs regarding the edge cases around copy-pasting complicated slices
+
 ## Roadmap
 
-* track node attribute updates, mandatory for say tracking image URL changes
+* track block node attribute updates, they currently go undetected
 * test copy-pasting works (slices with varying open endedness)
 * test for race conditions
 * refactor unused code, add better comments

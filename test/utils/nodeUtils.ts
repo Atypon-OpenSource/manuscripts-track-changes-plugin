@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2022 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import debug from 'debug'
 
-export const logger = debug('track')
+import { Schema } from 'prosemirror-model'
 
-export const log = {
-  info(str: string, obj?: any) {
-    logger(str, obj)
-  },
-  warn(str: string, obj?: any) {
-    logger(`%c WARNING ${str}`, 'color: #f3f32c', obj)
-  },
-  error(str: string, obj?: any) {
-    logger(`%c ERROR ${str}`, 'color: #ff4242', obj)
-  },
-}
-
-/**
- * Sets debug logging enabled/disabled.
- * @param enabled
- */
-export const enableDebug = (enabled: boolean) => {
-  if (enabled) {
-    debug.enable('track')
-  } else {
-    debug.disable()
-  }
+export function createBlockquote(schema: Schema, text = '') {
+  return schema.nodes.blockquote.create(
+    undefined,
+    schema.nodes.paragraph.create(undefined, schema.text(text))
+  )
 }
