@@ -17,8 +17,15 @@
 import { Schema } from 'prosemirror-model'
 
 export function createBlockquote(schema: Schema, text = '') {
-  return schema.nodes.blockquote.create(
+  return schema.nodes.blockquote.createChecked(
     undefined,
-    schema.nodes.paragraph.create(undefined, schema.text(text))
+    schema.nodes.paragraph.create(undefined, text.length > 0 ? schema.text(text) : undefined)
+  )
+}
+
+export function createParagraph(schema: Schema, text = '') {
+  return schema.nodes.paragraph.createChecked(
+    undefined,
+    text.length > 0 ? schema.text(text) : undefined
   )
 }

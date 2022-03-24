@@ -23,6 +23,7 @@ import {
   TrackChangesAction,
   trackChangesPluginKey,
   trackCommands,
+  ChangeSet,
 } from '../src'
 import docs from './__fixtures__/docs'
 import { SECOND_USER } from './__fixtures__/users'
@@ -110,7 +111,7 @@ describe('track changes', () => {
           return false
         }
         const { changeSet } = trackChangesState
-        const ids = changeSet.flatten(changeSet.pending)
+        const ids = ChangeSet.flattenTreeToIds(changeSet.pending)
         trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
         return true
       })

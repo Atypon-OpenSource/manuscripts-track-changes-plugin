@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
-import {
+import type {
   EditorState,
   Selection,
   NodeSelection,
@@ -72,7 +72,7 @@ function recurseContent(node: PMNode<any>, insertAttrs: InsertAttrs, schema: Sch
       node.marks
     )
   } else {
-    log.error('unhandled node type: "${node.type.name}"', node)
+    log.error(`unhandled node type: "${node.type.name}"`, node)
     return node
   }
 }
@@ -395,7 +395,7 @@ const getSelectionStaticCreate = (sel: Selection, doc: PMNode, from: number) =>
   Object.getPrototypeOf(sel).constructor.create(doc, from)
 
 /**
- * Applies and immediately inverts transactions to wrap their contents/operations with track data instead
+ * Inverts transactions to wrap their contents/operations with track data instead
  *
  * The main function of track changes that holds the most complex parts of this whole library.
  * Takes in as arguments the data from appendTransaction to reapply it with the track marks/attributes.
@@ -455,7 +455,7 @@ export function trackTransaction(
         const newStep = step.invert(oldState.doc)
         const stepResult = newTr.maybeStep(newStep)
         if (stepResult.failed) {
-          log.error('invert ReplaceStep failed: "${stepResult.failed}"', newStep)
+          log.error(`invert ReplaceStep failed: "${stepResult.failed}"`, newStep)
           return
         }
         // First apply the deleted range and update the insert slice to not include content that was deleted,
@@ -485,7 +485,7 @@ export function trackTransaction(
           const newStep = new ReplaceStep(toAWithOffset, toAWithOffset, insertedSlice)
           const stepResult = newTr.maybeStep(newStep)
           if (stepResult.failed) {
-            log.error('insert ReplaceStep failed: "${stepResult.failed}"', newStep)
+            log.error(`insert ReplaceStep failed: "${stepResult.failed}"`, newStep)
             return
           }
           log.info('new steps after applying insert', [...newTr.steps])

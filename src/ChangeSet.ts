@@ -29,11 +29,10 @@ import { log } from './utils/logger'
  * values to allow easier operability.
  */
 export class ChangeSet {
-  _changes: PartialTrackedChange[]
-  empty!: ChangeSet
+  #changes: PartialTrackedChange[]
 
   constructor(changes: PartialTrackedChange[] = []) {
-    this._changes = changes
+    this.#changes = changes
   }
 
   /**
@@ -42,7 +41,7 @@ export class ChangeSet {
    */
   get changes(): TrackedChange[] {
     const iteratedIds = new Set()
-    return this._changes.filter((c) => {
+    return this.#changes.filter((c) => {
       const valid = !iteratedIds.has(c.attrs.id) && ChangeSet.isValidTrackedAttrs(c.attrs)
       iteratedIds.add(c.attrs.id)
       return valid
@@ -50,7 +49,7 @@ export class ChangeSet {
   }
 
   get invalidChanges() {
-    return this._changes.filter((c) => !this.changes.find((cc) => c.id === cc.id))
+    return this.#changes.filter((c) => !this.changes.find((cc) => c.id === cc.id))
   }
 
   /**
@@ -102,7 +101,7 @@ export class ChangeSet {
   }
 
   get isEmpty() {
-    return this._changes.length === 0
+    return this.#changes.length === 0
   }
 
   /**
@@ -115,7 +114,7 @@ export class ChangeSet {
 
   get hasDuplicateIds() {
     const iterated = new Set()
-    return this._changes.some((c) => {
+    return this.#changes.some((c) => {
       if (iterated.has(c.id)) {
         return true
       }
@@ -124,38 +123,31 @@ export class ChangeSet {
   }
 
   get hasIncompleteAttrs() {
-    return this._changes.some((c) => !ChangeSet.isValidTrackedAttrs(c.attrs))
+    return this.#changes.some((c) => !ChangeSet.isValidTrackedAttrs(c.attrs))
   }
 
   get(id: string) {
-    return this._changes.find((c) => c.id === id)
+    return this.#changes.find((c) => c.id === id)
   }
 
   getIn(ids: string[]) {
     return ids
-      .map((id) => this._changes.find((c) => c.id === id))
-      .filter((c) => c !== undefined) as TrackedChange[]
+      .map((id) => this.#changes.find((c) => c.id === id))
+      .filter((c) => c !== undefined) as PartialTrackedChange[]
   }
 
   getNotIn(ids: string[]) {
-    return this._changes.filter((c) => ids.includes(c.id))
+    return this.#changes.filter((c) => ids.includes(c.id))
   }
 
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes
    */
-  flatten(changes: TrackedChange[]): string[] {
+  static flattenTreeToIds(changes: TrackedChange[]): string[] {
     return changes.flatMap((c) =>
       c.type === 'text-change' ? c.id : [c.id, ...c.children.map((c) => c.id)]
     )
-  }
-
-  /**
-   * Used to prevent needless generation of empty ChangeSets whenever appropriate
-   */
-  static empty() {
-    return empty
   }
 
   /**
@@ -209,5 +201,3 @@ export class ChangeSet {
     return change.type === 'node-change'
   }
 }
-
-const empty = new ChangeSet()

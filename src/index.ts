@@ -17,7 +17,7 @@ export { trackChangesPluginKey, trackChangesPlugin } from './plugin'
 
 export * from './actions'
 export * as trackCommands from './commands'
-export * from './utils/logger'
+export { enableDebug } from './utils/logger'
 
 export { ChangeSet } from './ChangeSet'
 

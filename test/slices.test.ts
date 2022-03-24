@@ -93,25 +93,57 @@ describe('track changes', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('asdf', async () => {
+  test('should track pasted slices and prevent deletion of non-inserted content', async () => {
     const tester = setupEditor({
       doc: docs.defaultDocs[2],
-    }).paste(
-      new Slice(
-        Fragment.from(utils.createBlockquote(defaultSchema, 'delete inside blockquote')),
-        2,
-        0
-      ),
-      18,
-      48
-    )
-    // .paste(new Slice(Fragment.from(utils.createBlockquote(defaultSchema, 'open-start blockquote')), 2, 1), 55, 74)
+    })
+      // Pastes a paragraph and a blockquote from the end of the 1st paragraph all the way to the start of
+      // the 4th paragraph. This should delete all except the 1st paragraph node, and insert the content
+      // just below the 3rd paragraph.
+      .paste(
+        new Slice(
+          Fragment.from([
+            utils.createParagraph(defaultSchema, 'inserted paragraph'),
+            utils.createBlockquote(defaultSchema, 'inserted blockquote'),
+          ]),
+          1,
+          1
+        ),
+        14,
+        50
+      )
+      // This pastes a blockquote that is completely open on both sides, meaning that it is basically a text insert.
+      // It should delete part of the 1st paragraph's text and not do anything to 2nd paragraph since it's already
+      // deleted.
+      .paste(
+        new Slice(
+          Fragment.from([utils.createBlockquote(defaultSchema, 'pasted open blockquote')]),
+          2,
+          2
+        ),
+        11,
+        31
+      )
+      // Pastes blockquote inside the 'inserted paragraph' to the end of 'inserted blockquote' text content:
+      // |<p 49><t 50>inserted paragraph</t 68></p 69><bq 69><p 70><t 71>inserted blockquote</t 90>|</p 91><bq 92>
+      // What it kinda awkwardly does, is deletes the 'inserted paragraph' text as well as the blockquote.
+      // However, since 'inserted paragraph' paragraph itself was deleted by the first paste, it's not modified
+      // except for its id which is regenerated. 4th paragraph remains unchanged.
+      .paste(
+        new Slice(
+          Fragment.from(utils.createBlockquote(defaultSchema, '2nd inserted blockquote')),
+          0,
+          2
+        ),
+        71,
+        112
+      )
 
-    await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[1])
+    expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(7)
+    expect(uuidv4Mock.mock.calls.length).toBe(20)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

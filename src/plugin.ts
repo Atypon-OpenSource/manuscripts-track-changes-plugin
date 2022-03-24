@@ -77,14 +77,10 @@ export const trackChangesPlugin = (
             changeSet: findChanges(newState),
           }
         } else if (pluginState.status === TrackChangesStatus.disabled) {
-          if (pluginState.changeSet.isEmpty) {
-            return pluginState
-          }
-          return { ...pluginState, changeSet: ChangeSet.empty() }
+          return { ...pluginState, changeSet: new ChangeSet() }
         }
         let { changeSet, ...rest } = pluginState
         const updatedChangeIds = getAction(tr, TrackChangesAction.updateChanges)
-        // TODO update changes on inspect snapshot by checking !tr.getMeta(ySyncPluginKey) ?
         if (updatedChangeIds || getAction(tr, TrackChangesAction.refreshChanges)) {
           changeSet = findChanges(newState)
         }
@@ -148,9 +144,9 @@ export const trackChangesPlugin = (
           const mapping = applyAcceptedRejectedChanges(
             createdTr,
             oldState.schema,
-            changeSet!.nodeChanges
+            changeSet.nodeChanges
           )
-          applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet!.textChanges, mapping)
+          applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
