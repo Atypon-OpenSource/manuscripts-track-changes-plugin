@@ -67,6 +67,13 @@ describe('track changes', () => {
     const tester = setupEditor({
       doc: docs.defaultDocs[2],
     })
+      // This is a bit wonky operation that isn't entirely valid but which works nonetheless.
+      // The reason being that it deletes the start tokens of both blockquotes while leaving two separate end tokens.
+      // .replace function adds in the missing end token and in regular PM doc, it should merge the inserted blockquote
+      // with the topmost block, just before the nested 2nd paragraph blockquote.
+      // With track-changes-plugin, however, the inserted blockquote is collapsed to a regular paragraph that is left
+      // outside the blockquote directly below the deleted 1st paragraph.
+      // TODO if one day this seems worthwhile to fix
       .paste(
         new Slice(
           Fragment.from(utils.createBlockquote(defaultSchema, 'open-end blockquote')),
@@ -76,6 +83,8 @@ describe('track changes', () => {
         0,
         17
       )
+      // This pastes a blockquote that is basically a text insert at the end of the large blockquote
+      // as it's almost completely open on all sides
       .paste(
         new Slice(
           Fragment.from(utils.createBlockquote(defaultSchema, 'open-start blockquote')),
@@ -85,6 +94,8 @@ describe('track changes', () => {
         55,
         74
       )
+
+    await fs.writeFile('testx.json', JSON.stringify(tester.toJSON()))
 
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
@@ -125,10 +136,13 @@ describe('track changes', () => {
         31
       )
       // Pastes blockquote inside the 'inserted paragraph' to the end of 'inserted blockquote' text content:
-      // |<p 49><t 50>inserted paragraph</t 68></p 69><bq 69><p 70><t 71>inserted blockquote</t 90>|</p 91><bq 92>
-      // What it kinda awkwardly does, is deletes the 'inserted paragraph' text as well as the blockquote.
-      // However, since 'inserted paragraph' paragraph itself was deleted by the first paste, it's not modified
-      // except for its id which is regenerated. 4th paragraph remains unchanged.
+      // |<p 71><t 72>inserted paragraph</t 90></p 91><bq 91><p 92><t 93>inserted blockquote</t 112>|</p 113><bq 114>
+      // What it kinda awkwardly does, is deletes the 'inserted paragraph' as well as the blockquote, replacing
+      // 'inserted blockquote' with '2nd inserted blockquote' text. However, since 'inserted paragraph' paragraph
+      // was not a new paragraph inserted by the user, it's not deleted and left in tact except for its text which
+      // is deleted. The old blockquote is deleted but at the same, replaced by the new blockquote.
+      // 4th paragraph remains unchanged. This test checks that the merging when start token is deleted works
+      // for depths beyond just paragraph level.
       .paste(
         new Slice(
           Fragment.from(utils.createBlockquote(defaultSchema, '2nd inserted blockquote')),
@@ -143,7 +157,7 @@ describe('track changes', () => {
 
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(20)
+    expect(uuidv4Mock.mock.calls.length).toBe(18)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

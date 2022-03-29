@@ -171,44 +171,44 @@
           ]
         },
         {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-3",
+              "userID": "1-mike",
+              "createdAt": 1577836800000,
+              "status": "pending",
+              "operation": "insert"
+            },
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-2",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    }
+                  }
+                }
+              ],
+              "text": "open-end blockquote"
+            }
+          ]
+        },
+        {
           "type": "blockquote",
           "attrs": {
             "dataTracked": null
           },
           "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "dataTracked": {
-                  "id": "MOCK-ID-3",
-                  "userID": "1-mike",
-                  "createdAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "insert"
-                },
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "marks": [
-                    {
-                      "type": "tracked_insert",
-                      "attrs": {
-                        "dataTracked": {
-                          "id": "MOCK-ID-2",
-                          "userID": "1-mike",
-                          "createdAt": 1577836800000,
-                          "status": "pending",
-                          "operation": "insert"
-                        }
-                      }
-                    }
-                  ],
-                  "text": "open-end blockquote"
-                }
-              ]
-            },
             {
               "type": "blockquote",
               "attrs": {
@@ -480,7 +480,7 @@
           "type": "blockquote",
           "attrs": {
             "dataTracked": {
-              "id": "MOCK-ID-19",
+              "id": "MOCK-ID-11",
               "userID": "1-mike",
               "createdAt": 1577836800000,
               "status": "pending",
@@ -492,7 +492,7 @@
               "type": "paragraph",
               "attrs": {
                 "dataTracked": {
-                  "id": "MOCK-ID-18",
+                  "id": "MOCK-ID-10",
                   "userID": "1-mike",
                   "createdAt": 1577836800000,
                   "status": "pending",
@@ -546,8 +546,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 100,
-      "head": 100
+      "anchor": 71,
+      "head": 71
     }
   }
 ]

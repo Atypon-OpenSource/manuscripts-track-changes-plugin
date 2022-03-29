@@ -19,13 +19,25 @@ export const logger = debug('track')
 
 export const log = {
   info(str: string, obj?: any) {
-    logger(str, obj)
+    if (obj) {
+      logger(str, obj)
+    } else {
+      logger(str)
+    }
   },
   warn(str: string, obj?: any) {
-    logger(`%c WARNING ${str}`, 'color: #f3f32c', obj)
+    if (obj) {
+      logger(`%c WARNING ${str}`, 'color: #f3f32c', obj)
+    } else {
+      logger(`%c WARNING ${str}`, 'color: #f3f32c')
+    }
   },
   error(str: string, obj?: any) {
-    logger(`%c ERROR ${str}`, 'color: #ff4242', obj)
+    if (obj) {
+      logger(`%c ERROR ${str}`, 'color: #ff4242', obj)
+    } else {
+      logger(`%c ERROR ${str}`, 'color: #ff4242')
+    }
   },
 }
 

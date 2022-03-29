@@ -30,12 +30,13 @@ export interface TrackChangesState {
   changeSet: ChangeSet
 }
 
-export type InsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.insert
 }
-export type DeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.delete
 }
+export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs
 
 export enum TrackChangesStatus {
   enabled = 'enabled',
