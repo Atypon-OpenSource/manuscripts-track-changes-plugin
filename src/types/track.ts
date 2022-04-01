@@ -30,6 +30,7 @@ export interface TrackChangesState {
   changeSet: ChangeSet
 }
 
+export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
 export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.insert
 }

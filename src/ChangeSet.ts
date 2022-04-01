@@ -17,7 +17,7 @@ import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
   NodeChange,
-  PartialTrackedChange,
+  IncompleteChange,
   TextChange,
   TrackedAttrs,
   TrackedChange,
@@ -29,9 +29,9 @@ import { log } from './utils/logger'
  * values to allow easier operability.
  */
 export class ChangeSet {
-  #changes: PartialTrackedChange[]
+  #changes: (TrackedChange | IncompleteChange)[]
 
-  constructor(changes: PartialTrackedChange[] = []) {
+  constructor(changes: (TrackedChange | IncompleteChange)[] = []) {
     this.#changes = changes
   }
 
@@ -133,7 +133,7 @@ export class ChangeSet {
   getIn(ids: string[]) {
     return ids
       .map((id) => this.#changes.find((c) => c.id === id))
-      .filter((c) => c !== undefined) as PartialTrackedChange[]
+      .filter((c) => c !== undefined) as (TrackedChange | IncompleteChange)[]
   }
 
   getNotIn(ids: string[]) {
@@ -146,7 +146,7 @@ export class ChangeSet {
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
     return changes.flatMap((c) =>
-      c.type === 'text-change' ? c.id : [c.id, ...c.children.map((c) => c.id)]
+      this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
     )
   }
 

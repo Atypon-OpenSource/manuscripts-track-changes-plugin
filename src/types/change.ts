@@ -16,7 +16,11 @@
 export enum CHANGE_OPERATION {
   insert = 'insert',
   delete = 'delete',
-  update = 'update',
+  set_node_attributes = 'set_node_attributes',
+  wrap_with_node = 'wrap_with_node',
+  unwrap_from_node = 'unwrap_from_node',
+  add_mark = 'add_mark',
+  remove_mark = 'remove_mark',
 }
 export enum CHANGE_STATUS {
   accepted = 'accepted',
@@ -46,20 +50,18 @@ export type NodeChange = Change & {
   mergeInsteadOfDelete: boolean
   children: TrackedChange[]
 }
-export type IncompleteTextChange = Omit<TextChange, 'attrs'> & {
+export type WrapChange = Change & {
+  type: 'wrap-change'
+  wrapperNode: string
+}
+export type MarkChange = Change & {
+  type: 'mark-change'
+}
+export type TrackedChange = TextChange | NodeChange | WrapChange | MarkChange
+export type PartialChange<T extends TrackedChange> = Omit<T, 'attrs'> & {
   attrs: Partial<TrackedAttrs>
 }
-export type IncompleteNodeChange = Omit<NodeChange, 'attrs'> & {
+export type IncompleteChange = Omit<TrackedChange, 'attrs'> & {
   attrs: Partial<TrackedAttrs>
 }
-export type TrackedChange = TextChange | NodeChange
-export type PartialTrackedChange =
-  | TextChange
-  | NodeChange
-  | IncompleteTextChange
-  | IncompleteNodeChange
-
-export interface TreeNode {
-  change: PartialTrackedChange
-  children: PartialTrackedChange[]
-}
+export type ChangeType = TrackedChange['type']

@@ -17,7 +17,7 @@ import { EditorState } from 'prosemirror-state'
 import { Node as PMNode } from 'prosemirror-model'
 
 import { ChangeSet } from '../ChangeSet'
-import { PartialTrackedChange } from '../types/change'
+import { IncompleteChange, NodeChange, PartialChange, TextChange } from '../types/change'
 import { getNodeTrackedData, equalMarks } from './node-utils'
 
 /**
@@ -30,9 +30,9 @@ import { getNodeTrackedData, equalMarks } from './node-utils'
  * @returns
  */
 export function findChanges(state: EditorState) {
-  const changes: PartialTrackedChange[] = []
+  const changes: IncompleteChange[] = []
   // Store the last iterated change to join adjacent text changes
-  let current: { change: PartialTrackedChange; node: PMNode } | undefined
+  let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
     const attrs = getNodeTrackedData(node, state.schema)
     if (attrs) {
@@ -59,7 +59,7 @@ export function findChanges(state: EditorState) {
             from: pos,
             to: pos + node.nodeSize,
             attrs,
-          },
+          } as PartialChange<TextChange>,
           node,
         }
       } else {
@@ -74,7 +74,7 @@ export function findChanges(state: EditorState) {
             mergeInsteadOfDelete: node.type.name === 'paragraph' || node.type.name === 'blockquote',
             children: [],
             attrs,
-          },
+          } as PartialChange<NodeChange>,
           node,
         }
       }

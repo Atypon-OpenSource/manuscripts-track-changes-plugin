@@ -34,12 +34,13 @@ import {
 import { log } from '../utils/logger'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedFragment, ExposedReplaceStep, ExposedSlice } from '../types/pm'
-import { NewDeleteAttrs, NewInsertAttrs, NewTrackedAttrs } from '../types/track'
+import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs, NewTrackedAttrs } from '../types/track'
 import {
   addTrackIdIfDoesntExist,
   getMergeableMarkTrackedAttrs,
   shouldMergeTrackedAttributes,
 } from './node-utils'
+import { trackReplaceAroundStep } from './replace-around-step/trackReplaceAroundStep'
 
 function markInlineNodeChange(node: PMNode<any>, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
   const filtered = node.marks.filter(
@@ -501,17 +502,17 @@ export function trackTransaction(
   newTr: Transaction,
   userID: string
 ) {
-  const defaultAttrs: Omit<TrackedAttrs, 'id' | 'operation'> = {
+  const emptyAttrs: NewEmptyAttrs = {
     userID,
     createdAt: tr.time,
     status: CHANGE_STATUS.pending,
   }
   const insertAttrs: NewInsertAttrs = {
-    ...defaultAttrs,
+    ...emptyAttrs,
     operation: CHANGE_OPERATION.insert,
   }
   const deleteAttrs: NewDeleteAttrs = {
-    ...defaultAttrs,
+    ...emptyAttrs,
     operation: CHANGE_OPERATION.delete,
   }
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
@@ -608,7 +609,8 @@ export function trackTransaction(
         // TODO: will this cause race-condition if a meta causes another appendTransaction to fire
         Object.keys(meta).forEach((key) => newTr.setMeta(key, tr.getMeta(key)))
       })
-      // } else if (step instanceof ReplaceAroundStep) {
+    } else if (step instanceof ReplaceAroundStep) {
+      trackReplaceAroundStep(step, oldState, newTr, emptyAttrs)
     }
   })
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions

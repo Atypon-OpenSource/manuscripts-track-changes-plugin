@@ -95,8 +95,6 @@ describe('track changes', () => {
         74
       )
 
-    await fs.writeFile('testx.json', JSON.stringify(tester.toJSON()))
-
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(7)
@@ -153,8 +151,6 @@ describe('track changes', () => {
         112
       )
 
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(18)
@@ -166,7 +162,9 @@ describe('track changes', () => {
     const tester = setupEditor({
       doc: docs.defaultDocs[2],
     })
-      // Should delete 2nd and 3rd paragraph and replace the inner blockquote with this
+      // Should delete 2nd and 3rd paragraph and replace the inner blockquote with this new blockquote.
+      // At the moment, track-changes-plugin deletes the content correctly but fails to insert the new blockquote.
+      // Which is not ideal but at least user can navigate around it.
       .paste(
         new Slice(
           Fragment.from(utils.createBlockquote(defaultSchema, 'delete inside blockquote')),
@@ -181,7 +179,7 @@ describe('track changes', () => {
 
     // expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(7)
+    expect(uuidv4Mock.mock.calls.length).toBe(10)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

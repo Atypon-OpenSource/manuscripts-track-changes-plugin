@@ -18,12 +18,12 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { PartialTrackedChange, TrackedAttrs, TrackedChange } from '../types/change'
+import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
 import { getNodeTrackedData } from './node-utils'
 
 export function updateChangeAttrs(
   tr: Transaction,
-  change: PartialTrackedChange,
+  change: IncompleteChange,
   trackedAttrs: Partial<TrackedAttrs>,
   schema: Schema
 ): Transaction {

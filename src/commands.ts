@@ -48,7 +48,7 @@ export const setTrackingStatus =
   }
 
 /**
- * Appends a transaction to set change attributes/marks' status to any of: 'pending' 'accepted' 'rejected'
+ * Appends a transaction to set change attributes/marks' statuses to any of: 'pending' 'accepted' 'rejected'.
  * @param status
  * @param ids
  */

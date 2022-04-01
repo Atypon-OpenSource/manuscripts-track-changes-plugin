@@ -65,7 +65,7 @@ export const enableDebug = (enabled: boolean) => void
 export const setTrackingStatus = (status?: TrackChangesStatus) => Command
 
 /**
- * Appends a transaction to set change attributes/marks' status to any of: 'pending' 'accepted' 'rejected'
+ * Appends a transaction to set change attributes/marks' statuses to any of: 'pending' 'accepted' 'rejected'.
  * @param status
  * @param ids
  */
@@ -75,7 +75,7 @@ export const setChangeStatuses = (status: CHANGE_STATUS, ids: string[]) => Comma
  * Sets track-changes plugin's userID.
  * @param userID
  */
-export const setUserID = (user: TrackedUser) => Command
+export const setUserID = (userID: string) => Command
 
 /**
  * Appends a transaction that applies all 'accepted' and 'rejected' changes to the document.
@@ -90,7 +90,7 @@ export const refreshChanges = () => Command
 
 ### Actions
 
-Actions are used to access/set transaction meta fields.
+Actions are used to access/set transaction meta fields. I don't think you ever would need to use other than `TrackChangesAction.skipTrack` but they are all exposed, nonetheless.
 
 ```ts
 export type TrackChangesActionParams = {

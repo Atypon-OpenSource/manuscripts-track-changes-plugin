@@ -129,10 +129,10 @@ export function shouldMergeTrackedAttributes(
   right?: Partial<TrackedAttrs>
 ) {
   if (!left || !right) {
-    log.warn(
-      'passed undefined dataTracked attributes to shouldMergeTrackedAttributes',
-      { left, right }
-    )
+    log.warn('passed undefined dataTracked attributes to shouldMergeTrackedAttributes', {
+      left,
+      right,
+    })
     return false
   }
   return (
