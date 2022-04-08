@@ -95,21 +95,20 @@ function getMergedNode(
  * }
  * @param insertSlice inserted slice
  */
-function splitSliceIntoMergedParts(insertSlice: ExposedSlice) {
+function splitSliceIntoMergedParts(insertSlice: ExposedSlice, mergeEqualSides = false) {
   const {
     openStart,
     openEnd,
     content: { firstChild, lastChild, content: nodes },
   } = insertSlice
   let updatedSliceNodes = nodes
+  const mergeSides = openStart !== openEnd || mergeEqualSides
   const firstMergedNode =
-    openStart > 0 && openStart !== openEnd && firstChild
+    openStart > 0 && mergeSides && firstChild
       ? getMergedNode(firstChild, 1, openStart, true)
       : undefined
   const lastMergedNode =
-    openEnd > 0 && openStart !== openEnd && lastChild
-      ? getMergedNode(lastChild, 1, openEnd, false)
-      : undefined
+    openEnd > 0 && mergeSides && lastChild ? getMergedNode(lastChild, 1, openEnd, false) : undefined
   if (firstMergedNode) {
     updatedSliceNodes = updatedSliceNodes.slice(1)
     if (firstMergedNode.unmergedContent) {
@@ -222,17 +221,17 @@ export function deleteAndMergeSplitBlockNodes(
   insertSlice: ExposedSlice
 ) {
   const deleteMap = new Mapping()
-  let mergedInsertPos = undefined
   // No deletion applied, return default values
   if (from === to) {
     return {
       deleteMap,
-      mergedInsertPos,
       newSliceContent: insertSlice.content,
     }
   }
-  const { updatedSliceNodes, firstMergedNode, lastMergedNode } =
-    splitSliceIntoMergedParts(insertSlice)
+  const { updatedSliceNodes, firstMergedNode, lastMergedNode } = splitSliceIntoMergedParts(
+    insertSlice,
+    true
+  )
   const insertStartDepth = insertSlice.openStart !== insertSlice.openEnd ? 0 : insertSlice.openStart
   const insertEndDepth = insertSlice.openStart !== insertSlice.openEnd ? 0 : insertSlice.openEnd
   const deleteAttrs = trackUtils.createNewDeleteAttrs(trackAttrs)
@@ -240,12 +239,9 @@ export function deleteAndMergeSplitBlockNodes(
     const { pos: offsetPos, deleted: nodeWasDeleted } = deleteMap.mapResult(pos, 1)
     const offsetFrom = deleteMap.map(from, -1)
     const offsetTo = deleteMap.map(to, 1)
-    const wasWithinGap = gap
-      ? deleteMap.map(gap.start) >= offsetFrom && deleteMap.map(gap.end) <= offsetTo
-      : false
+    const wasWithinGap = gap && offsetPos >= deleteMap.map(gap.start, -1)
     const nodeEnd = offsetPos + node.nodeSize
     const step = newTr.steps[newTr.steps.length - 1]
-    log.info(wasWithinGap ? 'wasWithinGap true' : 'wasWithinGap false', node)
     if (nodeEnd > offsetFrom && !nodeWasDeleted && !wasWithinGap) {
       if (node.isText) {
         deleteTextIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
@@ -289,7 +285,6 @@ export function deleteAndMergeSplitBlockNodes(
                 schema
               )
             )
-            mergedInsertPos = offsetPos
           } else if (insertSlice.openStart === insertSlice.openEnd) {
             deleteNode(node, offsetPos, newTr, deleteAttrs)
           }
@@ -305,7 +300,6 @@ export function deleteAndMergeSplitBlockNodes(
   })
   return {
     deleteMap,
-    mergedInsertPos,
     newSliceContent: updatedSliceNodes
       ? Fragment.fromArray(updatedSliceNodes)
       : insertSlice.content,

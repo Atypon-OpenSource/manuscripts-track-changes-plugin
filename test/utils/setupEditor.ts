@@ -23,6 +23,7 @@ import { DEFAULT_USER } from '../__fixtures__/users'
 import { trackChangesPlugin } from '../../src'
 import { enableDebug } from '../../src/utils/logger'
 import { ProsemirrorTestChain } from './PMTestChain'
+import { polyfillDom } from './polyfillDom'
 
 enableDebug(false)
 
@@ -47,6 +48,7 @@ export function setupEditor<S extends Schema = QuarterBackSchema>(
   } else {
     pmDoc = createSimpleDoc('Hello World')
   }
+  polyfillDom()
   const div = document.createElement('div')
   const editorPlugins = (
     useDefaultPlugins ? exampleSetup({ schema: schema || defaultSchema }) : []

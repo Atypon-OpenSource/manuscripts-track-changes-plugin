@@ -16,6 +16,7 @@
 import type { Command } from 'prosemirror-commands'
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { TextSelection } from 'prosemirror-state'
+import { liftTarget } from 'prosemirror-transform'
 
 export const insertText =
   (text: string, pos?: number): Command =>
@@ -71,6 +72,22 @@ export const replace =
     tr.replaceWith(start ?? 0, end ?? state.doc.nodeSize - 2, content)
     dispatch && dispatch(tr)
     return true
+  }
+
+export const liftNode = (pos: number): Command =>
+  (state, dispatch) => {
+    const startPos = state.doc.resolve(pos)
+    const node = state.doc.nodeAt(pos)
+    if (!node) {
+      return false
+    }
+    const range = startPos.blockRange(state.doc.resolve(startPos.pos + node.nodeSize))
+    const targetDepth = range ? Number(liftTarget(range)) : NaN
+    if (range && !Number.isNaN(targetDepth)) {
+      dispatch && dispatch(state.tr.lift(range, targetDepth))
+      return true
+    }
+    return false
   }
 
 export const selectText =

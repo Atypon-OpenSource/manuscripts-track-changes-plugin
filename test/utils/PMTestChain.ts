@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Command } from 'prosemirror-commands'
+import { Command, wrapIn } from 'prosemirror-commands'
+// import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
-import { Mark, Node as PMNode, Schema, Slice } from 'prosemirror-model'
+import { Mark, Node as PMNode, NodeType, Schema, Slice } from 'prosemirror-model'
 import { Plugin, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
-import { trackChangesPluginKey } from '../../src'
+import { ChangeSet, CHANGE_STATUS, trackChangesPluginKey, trackCommands } from '../../src'
 import * as cmds from './commands'
 
 export class ProsemirrorTestChain<S extends Schema> {
@@ -35,6 +36,15 @@ export class ProsemirrorTestChain<S extends Schema> {
       return undefined
     }
     return trackState
+  }
+
+  setChangeStatuses(status = CHANGE_STATUS.accepted, changeIds?: string[]) {
+    const trackState = this.trackState()
+    if (trackState) {
+      const ids = changeIds ?? ChangeSet.flattenTreeToIds(trackState.changeSet.pending)
+      this.cmd(trackCommands.setChangeStatuses(status, ids))
+    }
+    return this
   }
 
   // TODO doesnt replace old trackChanges plugin
@@ -100,8 +110,27 @@ export class ProsemirrorTestChain<S extends Schema> {
     return this
   }
 
+  /**
+   * Simulates backspace by deleting content at cursor but isn't really a backspace
+   * 
+   * The .delete command behaves the same as backspace except when the cursor is at the start of the block
+   * node. In that case, ProseMirror would normally trigger a .liftNode which is currently done as a separate
+   * command.
+   * @param times 
+   * @returns 
+   */
   backspace(times = 1) {
-    this.cmd(cmds.backspace(times))
+    const { selection, tr } = this.view.state
+    const { from, empty } = selection
+    if (empty) {
+      tr.delete(from - times, from)
+    } else {
+      tr.deleteSelection()
+      if (times > 1) {
+        tr.delete(from - (times - 1), from)
+      }
+    }
+    this.view.dispatch(tr)
     return this
   }
 
@@ -126,6 +155,16 @@ export class ProsemirrorTestChain<S extends Schema> {
 
   selectText(start: number, end?: number) {
     this.cmd(cmds.selectText(start, end))
+    return this
+  }
+
+  wrapIn(nodeType: NodeType<S>, attrs?: { [key: string]: any }) {
+    this.cmd(wrapIn(nodeType, attrs))
+    return this
+  }
+
+  liftnode(pos: number) {
+    this.cmd(cmds.liftNode(pos))
     return this
   }
 

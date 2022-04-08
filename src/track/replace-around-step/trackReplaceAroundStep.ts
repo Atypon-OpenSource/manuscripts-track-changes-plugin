@@ -15,7 +15,7 @@
  */
 import { Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep } from 'prosemirror-transform'
+import { ReplaceStep, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { deleteAndMergeSplitBlockNodes } from './deleteAndMergeSplitBlockNodes'
 import { setFragmentAsInserted } from './setFragmentAsInserted'
@@ -96,6 +96,14 @@ export function trackReplaceAroundStep(
   } else {
     log.info('????')
   }
+  if (gapFrom - from > to - gapTo) {
+    log.info('DELETED BEFORE GAP FROM')
+  } else if (gapFrom - from < to - gapTo) {
+    log.info('DELETED AFTER GAP TO')
+  } else {
+    log.info('EQUAL REPLACE BETWEEN GAPS')
+  }
+
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   const newStep = step.invert(oldState.doc)
   const stepResult = newTr.maybeStep(newStep)
@@ -103,43 +111,50 @@ export function trackReplaceAroundStep(
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
     return
   }
+  const gap = oldState.doc.slice(gapFrom, gapTo)
+  log.info('RETAINED GAP CONTENT', gap)
   step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
     log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
   })
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  const { deleteMap, mergedInsertPos, newSliceContent } = deleteAndMergeSplitBlockNodes(
+  const { deleteMap, newSliceContent } = deleteAndMergeSplitBlockNodes(
     from,
     to,
     { start: gapFrom, end: gapTo },
-    oldState.doc,
+    newTr.doc,
     newTr,
     oldState.schema,
     attrs,
     slice
   )
   log.info('TR: new steps after applying delete', [...newTr.steps])
-  const toAWithOffset = mergedInsertPos ?? deleteMap.map(to)
-  if (newSliceContent.size > 0) {
+  if (gap.size > 0 || (!structure && newSliceContent.size > 0)) {
     log.info('newSliceContent', newSliceContent)
     // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
     // the sides should be equal. TODO can they be other than 0?
-    const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
-    const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
-    const insertAttrs = trackUtils.createNewInsertAttrs(attrs)
-    const insertedSlice = new Slice(
-      setFragmentAsInserted(newSliceContent, insertAttrs, oldState.schema),
+    const openStart =
+      slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openStart
+    const openEnd =
+      slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openEnd
+    let insertedSlice = new Slice(
+      setFragmentAsInserted(
+        newSliceContent,
+        trackUtils.createNewInsertAttrs(attrs),
+        oldState.schema
+      ),
       openStart,
       openEnd
     ) as ExposedSlice
-    const newStep = new ReplaceAroundStep(
-      from,
-      to,
-      gapFrom,
-      gapTo,
+    if (gap.size > 0) {
+      insertedSlice = insertedSlice.insertAt(insert, gap.content)
+      log.info('insertedSlice after inserted gap', insertedSlice)
+    }
+    const newStep = new ReplaceStep(
+      deleteMap.map(gapFrom),
+      deleteMap.map(gapTo),
       insertedSlice,
-      insert,
-      structure
+      false
     )
     const stepResult = newTr.maybeStep(newStep)
     if (stepResult.failed) {
@@ -147,8 +162,8 @@ export function trackReplaceAroundStep(
       return
     }
     log.info('new steps after applying insert', [...newTr.steps])
-    mergeTrackedMarks(toAWithOffset, newTr.doc, newTr, oldState.schema)
-    mergeTrackedMarks(toAWithOffset + insertedSlice.size, newTr.doc, newTr, oldState.schema)
+    mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
+    mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
     // if (!wasNodeSelection) {
     //   newTr.setSelection(
     //     getSelectionStaticCreate(tr.selection, newTr.doc, toAWithOffset + insertedSlice.size)
@@ -156,7 +171,8 @@ export function trackReplaceAroundStep(
     // }
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
-    mergeTrackedMarks(toAWithOffset, newTr.doc, newTr, oldState.schema)
+    mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
+    mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
     // if (!wasNodeSelection) {
     //   newTr.setSelection(getSelectionStaticCreate(tr.selection, newTr.doc, fromA))
     // }

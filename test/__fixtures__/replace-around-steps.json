@@ -1,0 +1,169 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "1st paragraph"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "blockquote",
+              "attrs": {
+                "dataTracked": {
+                  "id": "MOCK-ID-1",
+                  "userID": "1-mike",
+                  "createdAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "delete"
+                }
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": null,
+                    "testAttribute": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "2nd paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "3rd paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-2",
+              "userID": "1-mike",
+              "createdAt": 1577836800000,
+              "status": "pending",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "4th paragraph"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 64,
+      "head": 64
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "1st paragraph"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "3rd paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "4th paragraph"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 47,
+      "head": 47
+    }
+  }
+]

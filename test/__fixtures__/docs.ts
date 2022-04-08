@@ -23,6 +23,7 @@ import blockNodeAttrUpdate from './block-node-attr-update.json'
 import defaultDocs from './default-docs.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import insertAccept from './insert-accept.json'
+import replaceAroundSteps from './replace-around-steps.json'
 import variousOpenEndedSlices from './various-open-ended-slices.json'
 
 export default {
@@ -36,5 +37,6 @@ export default {
   defaultDocs,
   inlineNodeAttrUpdate,
   insertAccept,
+  replaceAroundSteps,
   variousOpenEndedSlices,
 }

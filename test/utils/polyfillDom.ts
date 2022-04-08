@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2022 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
-import { ReplaceStep } from 'prosemirror-transform'
 
-export type ExposedReplaceStep = ReplaceStep & {
-  slice: ExposedSlice
-}
-export type ExposedSlice = Slice & {
-  content: ExposedFragment
-  insertAt(pos: number, fragment: Fragment | ExposedFragment): ExposedSlice
-}
-export type ExposedFragment = Fragment & {
-  content: PMNode[]
+export function polyfillDom() {
+  document.createRange = () => {
+    const range = new Range()
+
+    range.getBoundingClientRect = function () {
+      return {
+        toJSON() {
+          return {}
+        },
+        width: 0,
+        height: 0,
+        top: 0,
+        left: 0,
+        x: 0,
+        y: 0,
+        right: 0,
+        bottom: 0,
+      }
+    }
+
+    range.getClientRects = () => {
+      return {
+        item: () => null,
+        length: 0,
+        [Symbol.iterator]: jest.fn(),
+      }
+    }
+
+    return range
+  }
 }
