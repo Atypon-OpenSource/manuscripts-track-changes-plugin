@@ -131,6 +131,19 @@
               "content": [
                 {
                   "type": "text",
+                  "text": "2nd paragraph"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
                   "text": "3rd paragraph"
                 }
               ]
@@ -162,8 +175,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 47,
-      "head": 47
+      "anchor": 62,
+      "head": 62
     }
   }
 ]

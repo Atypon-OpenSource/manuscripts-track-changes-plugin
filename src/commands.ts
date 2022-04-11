@@ -93,7 +93,7 @@ export const refreshChanges = (): Command => (state, dispatch) => {
 }
 
 /**
- * Adds track attributes not a block node. For testing puroses
+ * Adds track attributes for a block node. For testing puroses
  */
 export const setParagraphTestAttribute =
   (val = 'changed'): Command =>

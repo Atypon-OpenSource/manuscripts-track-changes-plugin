@@ -129,6 +129,8 @@ export function trackReplaceAroundStep(
     slice
   )
   log.info('TR: new steps after applying delete', [...newTr.steps])
+  // We only want to insert when there something inside the gap (actually would this be always true?)
+  // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
   if (gap.size > 0 || (!structure && newSliceContent.size > 0)) {
     log.info('newSliceContent', newSliceContent)
     // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,

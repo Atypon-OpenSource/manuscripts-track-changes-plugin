@@ -112,12 +112,12 @@ export class ProsemirrorTestChain<S extends Schema> {
 
   /**
    * Simulates backspace by deleting content at cursor but isn't really a backspace
-   * 
+   *
    * The .delete command behaves the same as backspace except when the cursor is at the start of the block
    * node. In that case, ProseMirror would normally trigger a .liftNode which is currently done as a separate
    * command.
-   * @param times 
-   * @returns 
+   * @param times
+   * @returns
    */
   backspace(times = 1) {
     const { selection, tr } = this.view.state

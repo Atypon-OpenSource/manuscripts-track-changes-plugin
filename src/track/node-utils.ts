@@ -15,7 +15,7 @@
  */
 import { Mark, Node as PMNode, Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
-import { liftTarget, Mapping } from 'prosemirror-transform'
+import { canJoin, liftTarget, Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, TrackedAttrs, TrackedChange } from '../types/change'
@@ -40,7 +40,6 @@ export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
 export function liftNode(pos: number, tr: Transaction) {
   const startPos = tr.doc.resolve(pos)
   const node = tr.doc.nodeAt(pos)
-  // debugger
   if (!node) {
     return undefined
   }
@@ -52,35 +51,25 @@ export function liftNode(pos: number, tr: Transaction) {
   return undefined
 }
 
-export function getChangeContent(changes: TrackedChange[], doc: PMNode, mapping: Mapping) {
-  const nodes: PMNode[] = []
-  changes.forEach((c) => {
-    if (ChangeSet.shouldNotDelete(c)) {
-      const node = doc.nodeAt(mapping.map(c.from))
-      node && nodes.push(node)
+/**
+ * Moves node to either nodeAbove, nodeBelow or tries to lift to its parent
+ * @param node
+ * @param pos
+ * @param tr
+ * @returns
+ */
+export function joinOrLiftNode(node: PMNode, pos: number, tr: Transaction) {
+  if (canJoin(tr.doc, pos)) {
+    return tr.join(pos)
+  } else if (canJoin(tr.doc, pos + node.nodeSize)) {
+    return tr.join(pos + node.nodeSize)
+  } else {
+    const startPos = tr.doc.resolve(pos + 1)
+    const range = startPos.blockRange(tr.doc.resolve(startPos.pos - 2 + node.nodeSize))
+    const targetDepth = range ? Number(liftTarget(range)) : NaN
+    if (range && !Number.isNaN(targetDepth)) {
+      return tr.lift(range, targetDepth)
     }
-  })
-  return nodes
-}
-
-export function getPosToInsertMergedContent(pos: number, tr: Transaction, mapping: Mapping) {
-  const startPos = tr.doc.resolve(pos)
-  const nodeAbove = startPos.nodeBefore
-  const node = tr.doc.nodeAt(pos)
-  const nodeBelowPos = pos + (node ? node.nodeSize : 0)
-  const nodeBelow = tr.doc.nodeAt(nodeBelowPos)
-  if (!node) {
-    return undefined
-  }
-  if (node.content.size > 0 && nodeAbove && nodeAbove.isBlock && nodeAbove.type === node.type) {
-    return pos - 1
-  } else if (
-    node.content.size > 0 &&
-    nodeBelow &&
-    nodeBelow.isBlock &&
-    nodeBelow.type === node.type
-  ) {
-    return mapping.map(nodeBelowPos) + 1
   }
   return undefined
 }

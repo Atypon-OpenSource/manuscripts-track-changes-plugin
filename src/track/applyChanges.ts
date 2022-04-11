@@ -20,7 +20,7 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { getChangeContent, getPosToInsertMergedContent } from './node-utils'
+import { joinOrLiftNode } from './node-utils'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 /**
@@ -29,29 +29,25 @@ import { updateChangeChildrenAttributes } from './updateChangeAttrs'
  * @param tr
  * @param schema
  * @param changes
- * @param mapping
+ * @param deleteMap
  */
 export function applyAcceptedRejectedChanges(
   tr: Transaction,
   schema: Schema,
   changes: TrackedChange[],
-  mapping?: Mapping
+  deleteMap = new Mapping()
 ): Mapping {
-  const deleteMap = mapping || new Mapping()
   changes.forEach((change) => {
-    const { status, operation } = change.attrs
-    if (status === CHANGE_STATUS.pending) {
+    if (change.attrs.status === CHANGE_STATUS.pending) {
       return
     }
-    const from = deleteMap.map(change.from)
-    const node = tr.doc.nodeAt(from)
+    const from = deleteMap.map(change.from),
+      node = tr.doc.nodeAt(from),
+      noChangeNeeded = ChangeSet.shouldNotDelete(change)
     if (!node) {
       log.warn('no node found to update for change', change)
       return
     }
-    const noChangeNeeded =
-      (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.accepted) ||
-      (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.rejected)
     if (ChangeSet.isTextChange(change) && noChangeNeeded) {
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
@@ -63,15 +59,13 @@ export function applyAcceptedRejectedChanges(
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
     } else if (ChangeSet.isNodeChange(change)) {
-      if (change.mergeInsteadOfDelete) {
-        const notDeleted = getChangeContent(change.children, tr.doc, deleteMap)
-        const pos = getPosToInsertMergedContent(from, tr, deleteMap)
-        if (pos !== undefined && notDeleted.length > 0) {
-          tr.insert(pos, notDeleted)
-          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-        }
+      // Try moving the node children to either nodeAbove, nodeBelow or its parent.
+      // If it fails, delete the content between the change.
+      // NOTE: there's an edge case where moving content is not possible but because the immediate
+      // child, say some wrapper blockNode, is also deleted the content could be retained. TODO I guess.
+      if (joinOrLiftNode(node, from, tr) === undefined) {
+        tr.delete(deleteMap.map(change.from), deleteMap.map(change.to))
       }
-      tr.delete(deleteMap.map(change.from), deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     }
   })

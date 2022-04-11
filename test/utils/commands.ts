@@ -74,7 +74,8 @@ export const replace =
     return true
   }
 
-export const liftNode = (pos: number): Command =>
+export const liftNode =
+  (pos: number): Command =>
   (state, dispatch) => {
     const startPos = state.doc.resolve(pos)
     const node = state.doc.nodeAt(pos)

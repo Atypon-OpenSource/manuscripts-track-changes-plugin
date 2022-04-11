@@ -77,10 +77,9 @@ describe('track changes', () => {
 
     tester
       .setChangeStatuses()
-      // TODO this deletes 2nd paragraph even though it wasn't deleted -> unwrap it instead
       .cmd(trackCommands.applyAndRemoveChanges())
 
-    await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
     expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)

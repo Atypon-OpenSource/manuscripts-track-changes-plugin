@@ -524,10 +524,8 @@ export function trackTransaction(
     log.info('transaction step', step)
     if (iters > 20) {
       console.error(
-        'Possible infinite loop in track-changes-plugin trackTransaction, tracking skipped!'
-      )
-      console.error(
-        'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
+        'Possible infinite loop in track-changes-plugin trackTransaction, tracking skipped!\n' +
+          'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
         newTr
       )
       return
