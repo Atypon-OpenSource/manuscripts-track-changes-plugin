@@ -13,54 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Schema, Slice } from 'prosemirror-model'
+import { Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { deleteAndMergeSplitBlockNodes } from './deleteAndMergeSplitBlockNodes'
+import { mergeTrackedMarks } from './mergeTrackedMarks'
 import { setFragmentAsInserted } from './setFragmentAsInserted'
 import { log } from '../../utils/logger'
 import { ExposedSlice } from '../../types/pm'
 import { NewEmptyAttrs } from '../../types/track'
-import { shouldMergeTrackedAttributes } from '../node-utils'
 import * as trackUtils from './track-utils'
-
-/**
- * Merges tracked marks between text nodes at a position
- *
- * Will work for any nodes that use tracked_insert or tracked_delete marks which may not be preferrable
- * if used for block nodes (since we possibly want to show the individual changed nodes).
- * Merging is done based on the userID, operation type and status.
- * @param pos
- * @param doc
- * @param newTr
- * @param schema
- */
-function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, schema: Schema) {
-  const resolved = doc.resolve(pos)
-  const { nodeAfter, nodeBefore } = resolved
-  const leftMark = nodeBefore?.marks.filter(
-    (m) => m.type === schema.marks.tracked_insert || m.type === schema.marks.tracked_delete
-  )[0]
-  const rightMark = nodeAfter?.marks.filter(
-    (m) => m.type === schema.marks.tracked_insert || m.type === schema.marks.tracked_delete
-  )[0]
-  if (!nodeAfter || !nodeBefore || !leftMark || !rightMark || leftMark.type !== rightMark.type) {
-    return
-  }
-  const leftAttrs = leftMark.attrs
-  const rightAttrs = rightMark.attrs
-  if (!shouldMergeTrackedAttributes(leftAttrs.dataTracked, rightAttrs.dataTracked)) {
-    return
-  }
-  const newAttrs = {
-    ...leftAttrs,
-    createdAt: Math.max(leftAttrs.createdAt || 0, rightAttrs.createdAt || 0) || Date.now(),
-  }
-  const fromStartOfMark = pos - nodeBefore.nodeSize
-  const toEndOfMark = pos + nodeAfter.nodeSize
-  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create(newAttrs))
-}
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
@@ -149,7 +112,8 @@ export function trackReplaceAroundStep(
       openEnd
     ) as ExposedSlice
     if (gap.size > 0) {
-      insertedSlice = insertedSlice.insertAt(insert, gap.content)
+      log.info('insertedSlice before inserted gap', insertedSlice)
+      insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
     const newStep = new ReplaceStep(

@@ -71,20 +71,35 @@ describe('track changes', () => {
 
     // move at the start of 3rd paragraph, hit backspace -> should wrap inside the nested blockquote
     // same would happen with 4th paragraph
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
     expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester
-      .setChangeStatuses()
-      .cmd(trackCommands.applyAndRemoveChanges())
-
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    tester.setChangeStatuses().cmd(trackCommands.applyAndRemoveChanges())
 
     expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)
     expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should mark text inserted/deleted when selection spans various nodes', async () => {
+    const tester = setupEditor({
+      doc: docs.defaultDocs[2],
+    })
+      .selectText(5, 21)
+      .insertText('ab')
+      .selectText(32, 48)
+      .insertText('c')
+
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+    expect(tester.toJSON()).toEqual(docs.basicTextInconsistent[0])
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(log.warn).toHaveBeenCalledTimes(1)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 })
