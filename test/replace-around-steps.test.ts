@@ -85,7 +85,7 @@ describe('track changes', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('should mark text inserted/deleted when selection spans various nodes', async () => {
+  test.skip('should mark text inserted/deleted when selection spans various nodes', async () => {
     const tester = setupEditor({
       doc: docs.defaultDocs[2],
     })

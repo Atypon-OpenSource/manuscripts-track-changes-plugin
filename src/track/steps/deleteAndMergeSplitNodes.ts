@@ -213,7 +213,32 @@ function deleteNode(node: PMNode, pos: number, newTr: Transaction, deleteAttrs: 
   }
 }
 
-export function deleteAndMergeSplitBlockNodes(
+/**
+ * Applies deletion to the doc without actually deleting nodes that have not been inserted
+ *
+ * The hairiest part of this whole library which does a fair bit of magic to split the inserted slice
+ * into pieces that can be inserted without deleting nodes in the doc. Basically we first split the
+ * inserted slice into merged pieces _if_ the slice was open on either end. Then, we iterate over the deleted
+ * range and see if the node in question was completely wrapped in the range (therefore fully deleted)
+ * or only partially deleted by the slice. In that case, we merge the content from the inserted slice
+ * and keep the original nodes if they do not contain insert attributes.
+ *
+ * It is definitely a messy function but so far this seems to have been the best approach to prevent
+ * deletion of nodes with open slices. Other option would be to allow the deletions to take place but that
+ * requires then inserting the deleted nodes back to the doc if their deletion should be prevented, which does
+ * not seem trivial either.
+ *
+ * @param from start of the deleted range
+ * @param to end of the deleted range
+ * @param gap retained content in a ReplaceAroundStep, not deleted
+ * @param startDoc doc before the deletion
+ * @param newTr the new track transaction
+ * @param schema ProseMirror schema
+ * @param deleteAttrs attributes for the dataTracked object
+ * @param insertSlice the inserted slice from ReplaceStep
+ * @returns mapping adjusted by the applied operations & modified insert slice
+ */
+export function deleteAndMergeSplitNodes(
   from: number,
   to: number,
   gap: { start: number; end: number } | undefined,
@@ -224,16 +249,18 @@ export function deleteAndMergeSplitBlockNodes(
   insertSlice: ExposedSlice
 ) {
   const deleteMap = new Mapping()
+  let mergedInsertPos = undefined
   // No deletion applied, return default values
   if (from === to) {
     return {
       deleteMap,
+      mergedInsertPos,
       newSliceContent: insertSlice.content,
     }
   }
   const { updatedSliceNodes, firstMergedNode, lastMergedNode } = splitSliceIntoMergedParts(
     insertSlice,
-    true
+    gap !== undefined
   )
   const insertStartDepth = insertSlice.openStart !== insertSlice.openEnd ? 0 : insertSlice.openStart
   const insertEndDepth = insertSlice.openStart !== insertSlice.openEnd ? 0 : insertSlice.openEnd
@@ -245,7 +272,7 @@ export function deleteAndMergeSplitBlockNodes(
     const wasWithinGap = gap && offsetPos >= deleteMap.map(gap.start, -1)
     const nodeEnd = offsetPos + node.nodeSize
     const step = newTr.steps[newTr.steps.length - 1]
-    // debugger
+    debugger
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     //
@@ -255,6 +282,8 @@ export function deleteAndMergeSplitBlockNodes(
     // say an inserted blockquote that had all its children deleted, nodesBetween still iterates over those
     // nodes and therefore we have to make this check to ensure they still exist in the doc.
     if (nodeEnd > offsetFrom && !nodeWasDeleted && !wasWithinGap) {
+      // |<p>asdf</p>| -> node deleted completely
+      const nodeCompletelyDeleted = offsetPos >= offsetFrom && nodeEnd <= offsetTo
       // The end token deleted eg:
       // <p 1>asdf|</p 7><p 7>bye</p 12>| + [<p>]hello</p> -> <p>asdfhello</p>
       // (del 6 12) + (ins [<p>]hello</p> openStart 1 openEnd 0)
@@ -272,14 +301,7 @@ export function deleteAndMergeSplitBlockNodes(
       // (del 1 7) + (ins <p>hello [</p>] openStart 0 openEnd 1)
       // (<p> pos 6) >= (from 1) && (nodeEnd 12) - 1 > (to 7)
       const startTokenDeleted = offsetPos >= offsetFrom && nodeEnd - 1 > offsetTo
-      if (offsetPos >= offsetFrom && nodeEnd <= offsetTo) {
-        // |<p>asdf</p>| -> node deleted completely
-        if (node.isText) {
-          deleteTextIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
-        } else {
-          deleteNode(node, offsetPos, newTr, deleteAttrs)
-        }
-      } else if (endTokenDeleted || startTokenDeleted) {
+      if (!nodeCompletelyDeleted && (endTokenDeleted || startTokenDeleted)) {
         // Depth is often 1 when merging paragraphs or 2 for fully open blockquotes.
         // Incase of merging text within a ReplaceAroundStep the depth might be 1
         const depth = newTr.doc.resolve(offsetPos).depth
@@ -290,12 +312,18 @@ export function deleteAndMergeSplitBlockNodes(
         // Then we only have to ensure the depth is at the right level, so say a fully open blockquote insert will
         // be merged at the lowest, paragraph level, instead of blockquote level.
         const mergeStartNode =
-          endTokenDeleted && insertSlice.openStart > 0 && depth === insertStartDepth && mergeContent !== undefined
+          endTokenDeleted &&
+          insertSlice.openStart > 0 &&
+          depth === insertStartDepth &&
+          mergeContent !== undefined
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
         const mergeEndNode =
-          startTokenDeleted && insertSlice.openEnd > 0 && depth === insertEndDepth && mergeContent !== undefined
+          startTokenDeleted &&
+          insertSlice.openEnd > 0 &&
+          depth === insertEndDepth &&
+          mergeContent !== undefined
         if (mergeStartNode || mergeEndNode) {
           // The default insert position for block nodes is either the start of the merged content or the end.
           // Incase text was merged, this must be updated as the start or end of the node doesn't map to the
@@ -321,18 +349,35 @@ export function deleteAndMergeSplitBlockNodes(
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps
           // it into a new paragraph(!). So that's why you always offset your positions to insert it _inside_
           // the paragraph.
-          newTr.insert(
-            insertPos,
-            setFragmentAsInserted(
-              mergeContent,
-              {
-                ...deleteAttrs,
-                operation: CHANGE_OPERATION.insert,
-              },
-              schema
+          if (mergeContent.size !== 0) {
+            newTr.insert(
+              insertPos,
+              setFragmentAsInserted(
+                mergeContent,
+                {
+                  ...deleteAttrs,
+                  operation: CHANGE_OPERATION.insert,
+                },
+                schema
+              )
             )
-          )
+          }
+          // Okay this is a bit ridiculous but it's used to adjust the insert pos when track changes prevents deletions
+          // of merged nodes & content, as just using mapped toA in that case isn't the same.
+          // The calculation is a bit mysterious, I admit.
+          if (startTokenDeleted) {
+            mergedInsertPos = offsetPos + insertSlice.openEnd - 1
+          }
+        } else if (node.isText) {
+          // TODO this should be fixed in the case above
+          deleteTextIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
         }
+      } else if (node.isText) {
+        // Text deletion is handled even when the deletion doesn't completely wrap the text node
+        // (which is basically the case most of the time)
+        deleteTextIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
+      } else if (nodeCompletelyDeleted) {
+        deleteNode(node, offsetPos, newTr, deleteAttrs)
       }
     }
     const newestStep = newTr.steps[newTr.steps.length - 1]
@@ -342,6 +387,7 @@ export function deleteAndMergeSplitBlockNodes(
   })
   return {
     deleteMap,
+    mergedInsertPos,
     newSliceContent: updatedSliceNodes
       ? Fragment.fromArray(updatedSliceNodes)
       : insertSlice.content,

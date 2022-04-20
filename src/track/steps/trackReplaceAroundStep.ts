@@ -17,7 +17,7 @@ import { Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, ReplaceAroundStep } from 'prosemirror-transform'
 
-import { deleteAndMergeSplitBlockNodes } from './deleteAndMergeSplitBlockNodes'
+import { deleteAndMergeSplitNodes } from './deleteAndMergeSplitNodes'
 import { mergeTrackedMarks } from './mergeTrackedMarks'
 import { setFragmentAsInserted } from './setFragmentAsInserted'
 import { log } from '../../utils/logger'
@@ -81,7 +81,7 @@ export function trackReplaceAroundStep(
   })
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  const { deleteMap, newSliceContent } = deleteAndMergeSplitBlockNodes(
+  const { deleteMap, newSliceContent } = deleteAndMergeSplitNodes(
     from,
     to,
     { start: gapFrom, end: gapTo },
@@ -130,17 +130,9 @@ export function trackReplaceAroundStep(
     log.info('new steps after applying insert', [...newTr.steps])
     mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
     mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
-    // if (!wasNodeSelection) {
-    //   newTr.setSelection(
-    //     getSelectionStaticCreate(tr.selection, newTr.doc, toAWithOffset + insertedSlice.size)
-    //   )
-    // }
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
     mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
     mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
-    // if (!wasNodeSelection) {
-    //   newTr.setSelection(getSelectionStaticCreate(tr.selection, newTr.doc, fromA))
-    // }
   }
 }

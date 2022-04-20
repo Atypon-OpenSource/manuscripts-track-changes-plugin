@@ -74,6 +74,7 @@ describe('track changes', () => {
       // With track-changes-plugin, however, the inserted blockquote is collapsed to a regular paragraph that is left
       // outside the blockquote directly below the deleted 1st paragraph.
       // TODO if one day this seems worthwhile to fix
+      // FIXED by adding mergedInsertPos to deleteAndMergeSplitNodes yet not entirely sure does it break in some cases
       .paste(
         new Slice(
           Fragment.from(utils.createBlockquote(defaultSchema, 'open-end blockquote')),
@@ -153,7 +154,7 @@ describe('track changes', () => {
 
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(18)
+    expect(uuidv4Mock.mock.calls.length).toBe(17)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
