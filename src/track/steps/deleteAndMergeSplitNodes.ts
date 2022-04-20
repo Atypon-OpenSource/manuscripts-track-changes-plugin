@@ -271,8 +271,7 @@ export function deleteAndMergeSplitNodes(
     const offsetTo = deleteMap.map(to, 1)
     const wasWithinGap = gap && offsetPos >= deleteMap.map(gap.start, -1)
     const nodeEnd = offsetPos + node.nodeSize
-    const step = newTr.steps[newTr.steps.length - 1]
-    debugger
+    let step = newTr.steps[newTr.steps.length - 1]
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     //
@@ -345,6 +344,7 @@ export function deleteAndMergeSplitNodes(
               offsetTo
             )
             deleteMap.appendMap(newTr.steps[newTr.steps.length - 1].getMap())
+            step = newTr.steps[newTr.steps.length - 1]
           }
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps
           // it into a new paragraph(!). So that's why you always offset your positions to insert it _inside_
