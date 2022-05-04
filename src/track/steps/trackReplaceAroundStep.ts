@@ -76,9 +76,6 @@ export function trackReplaceAroundStep(
   }
   const gap = oldState.doc.slice(gapFrom, gapTo)
   log.info('RETAINED GAP CONTENT', gap)
-  step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
-    log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
-  })
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
   const { deleteMap, newSliceContent } = deleteAndMergeSplitNodes(

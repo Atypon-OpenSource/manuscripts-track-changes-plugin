@@ -17,7 +17,7 @@ import { Command, wrapIn } from 'prosemirror-commands'
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Mark, Node as PMNode, NodeType, Schema, Slice } from 'prosemirror-model'
-import { Plugin, TextSelection } from 'prosemirror-state'
+import { EditorState, Plugin, TextSelection, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
 import { ChangeSet, CHANGE_STATUS, trackChangesPluginKey, trackCommands } from '../../src'
@@ -65,8 +65,14 @@ export class ProsemirrorTestChain<S extends Schema> {
     return this
   }
 
-  cmd(cmd: Command) {
-    cmd(this.view.state, this.view.dispatch)
+  cmd(
+    cmd: (
+      state: EditorState<S>,
+      dispatch: (tr: Transaction<S>) => void,
+      view?: EditorView<S>
+    ) => void
+  ) {
+    cmd(this.view.state, this.view.dispatch, this.view)
     return this
   }
 
@@ -127,7 +133,7 @@ export class ProsemirrorTestChain<S extends Schema> {
     } else {
       tr.deleteSelection()
       if (times > 1) {
-        tr.delete(from - (times - 1), from)
+        tr.delete(from - times, from)
       }
     }
     this.view.dispatch(tr)

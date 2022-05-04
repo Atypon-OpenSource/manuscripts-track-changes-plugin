@@ -21,6 +21,7 @@ import { log } from '../../utils/logger'
 import { CHANGE_OPERATION, TrackedAttrs } from '../../types/change'
 import { ExposedFragment, ExposedSlice } from '../../types/pm'
 import { NewDeleteAttrs, NewEmptyAttrs } from '../../types/track'
+import { deleteNode } from '../deleteNode'
 import { addTrackIdIfDoesntExist, getMergeableMarkTrackedAttrs } from '../node-utils'
 import { mergeTrackedMarks } from './mergeTrackedMarks'
 import { setFragmentAsInserted } from './setFragmentAsInserted'
@@ -75,11 +76,10 @@ function getMergedNode(
       result.push(n)
     }
   })
-  const unmergedContent =
-    result.length > 0 ? (Fragment.fromArray(result) as ExposedFragment) : undefined
   return {
     mergedNodeContent: merged,
-    unmergedContent,
+    unmergedContent:
+      result.length > 0 ? (Fragment.fromArray(result) as ExposedFragment) : undefined,
   }
 }
 
@@ -190,20 +190,17 @@ function deleteTextIfInserted(
  * @param newTr
  * @param deleteAttrs
  */
-function deleteNode(node: PMNode, pos: number, newTr: Transaction, deleteAttrs: NewDeleteAttrs) {
+function deleteOrSetNodeDeleted(
+  node: PMNode,
+  pos: number,
+  newTr: Transaction,
+  deleteAttrs: NewDeleteAttrs
+) {
   const dataTracked: TrackedAttrs | undefined = node.attrs.dataTracked
   const wasInsertedBySameUser =
     dataTracked?.operation === CHANGE_OPERATION.insert && dataTracked.userID === deleteAttrs.userID
   if (wasInsertedBySameUser) {
-    const resPos = newTr.doc.resolve(pos)
-    const canMergeToNodeAbove =
-      (resPos.parent !== newTr.doc || resPos.nodeBefore) && node.firstChild?.isText
-    // TODO ensure this works and blocks at the start of doc cant be deleted (as they wont merge to node above)
-    if (canMergeToNodeAbove) {
-      newTr.replaceWith(pos - 1, pos + 1, Fragment.empty)
-    } else {
-      newTr.delete(pos, pos + node.nodeSize)
-    }
+    deleteNode(node, pos, newTr)
   } else {
     const attrs = {
       ...node.attrs,
@@ -258,13 +255,13 @@ export function deleteAndMergeSplitNodes(
       newSliceContent: insertSlice.content,
     }
   }
+  const { openStart, openEnd } = insertSlice
   const { updatedSliceNodes, firstMergedNode, lastMergedNode } = splitSliceIntoMergedParts(
     insertSlice,
     gap !== undefined
   )
-  const insertStartDepth = insertSlice.openStart !== insertSlice.openEnd ? 0 : insertSlice.openStart
-  const insertEndDepth = insertSlice.openStart !== insertSlice.openEnd ? 0 : insertSlice.openEnd
   const deleteAttrs = trackUtils.createNewDeleteAttrs(trackAttrs)
+  let mergingStartSide = true
   startDoc.nodesBetween(from, to, (node, pos) => {
     const { pos: offsetPos, deleted: nodeWasDeleted } = deleteMap.mapResult(pos, 1)
     const offsetFrom = deleteMap.map(from, -1)
@@ -272,6 +269,7 @@ export function deleteAndMergeSplitNodes(
     const wasWithinGap = gap && offsetPos >= deleteMap.map(gap.start, -1)
     const nodeEnd = offsetPos + node.nodeSize
     let step = newTr.steps[newTr.steps.length - 1]
+    // debugger
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     //
@@ -293,50 +291,54 @@ export function deleteAndMergeSplitNodes(
       //
       // What about:
       // <p 1>asdf|</p 7><p 7 op="inserted">|bye</p 12> + empty -> <p>asdfbye</p>
-      const endTokenDeleted = nodeEnd > offsetFrom && nodeEnd <= offsetTo
+      const endTokenDeleted = nodeEnd <= offsetTo
 
       // The start token deleted eg:
-      // |<p 1>hey</p 6><p 6>|asdf</p 12> + <p>hello [</p>] -> <p>hello asdf</p>
-      // (del 1 7) + (ins <p>hello [</p>] openStart 0 openEnd 1)
-      // (<p> pos 6) >= (from 1) && (nodeEnd 12) - 1 > (to 7)
-      const startTokenDeleted = offsetPos >= offsetFrom && nodeEnd - 1 > offsetTo
-      if (!nodeCompletelyDeleted && (endTokenDeleted || startTokenDeleted)) {
+      // |<p1 0>hey</p 6><p2 6>|asdf</p 12> + <p3>hello [</p>] -> <p3>hello asdf</p2>
+      // (del 0 7) + (ins <p>hello [</p>] openStart 0 openEnd 1)
+      // (<p1> pos 0) >= (from 0) && (nodeEnd 6) - 1 > (to 7) == false???
+      // (<p2> pos 6) >= (from 0) && (nodeEnd 12) - 1 > (to 7) == true
+      //
+      const startTokenDeleted = offsetPos >= offsetFrom // && nodeEnd - 1 > offsetTo
+      if (
+        node.isText ||
+        (!endTokenDeleted && startTokenDeleted) ||
+        (endTokenDeleted && !startTokenDeleted)
+      ) {
+        // Since we don't know which side to merge with wholly deleted TextNodes, we use this boolean to remember
+        // whether we have entered the endSide of the mergeable blockNodes. Also applies for partial TextNodes
+        // (which we could determine without this).
+        if (!endTokenDeleted && startTokenDeleted) {
+          mergingStartSide = false
+        }
         // Depth is often 1 when merging paragraphs or 2 for fully open blockquotes.
         // Incase of merging text within a ReplaceAroundStep the depth might be 1
         const depth = newTr.doc.resolve(offsetPos).depth
-        const mergeContent = endTokenDeleted
+        const mergeContent = mergingStartSide
           ? firstMergedNode?.mergedNodeContent
           : lastMergedNode?.mergedNodeContent
         // Insert inside a merged node only if the slice was open (openStart > 0) and there exists mergedNodeContent.
         // Then we only have to ensure the depth is at the right level, so say a fully open blockquote insert will
         // be merged at the lowest, paragraph level, instead of blockquote level.
         const mergeStartNode =
-          endTokenDeleted &&
-          insertSlice.openStart > 0 &&
-          depth === insertStartDepth &&
-          mergeContent !== undefined
+          endTokenDeleted && openStart > 0 && depth === openStart && mergeContent !== undefined
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
         const mergeEndNode =
-          startTokenDeleted &&
-          insertSlice.openEnd > 0 &&
-          depth === insertEndDepth &&
-          mergeContent !== undefined
+          startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent !== undefined
         if (mergeStartNode || mergeEndNode) {
           // The default insert position for block nodes is either the start of the merged content or the end.
           // Incase text was merged, this must be updated as the start or end of the node doesn't map to the
           // actual position of the merge. Currently the inserted content is inserted at the start or end
           // of the merged content, TODO reverse the start/end when end/start token?
-          let insertPos = mergeStartNode
-            ? nodeEnd - insertSlice.openStart
-            : offsetPos + insertSlice.openEnd
+          let insertPos = mergeStartNode ? nodeEnd - openStart : offsetPos + openEnd
           if (node.isText) {
             // When merging text we must delete text in the same go as well, as the from/to boundary goes through
             // the text node.
             insertPos = deleteTextIfInserted(
               node,
-              pos,
+              offsetPos,
               newTr,
               schema,
               deleteAttrs,
@@ -354,10 +356,7 @@ export function deleteAndMergeSplitNodes(
               insertPos,
               setFragmentAsInserted(
                 mergeContent,
-                {
-                  ...deleteAttrs,
-                  operation: CHANGE_OPERATION.insert,
-                },
+                trackUtils.createNewInsertAttrs(trackAttrs),
                 schema
               )
             )
@@ -365,19 +364,25 @@ export function deleteAndMergeSplitNodes(
           // Okay this is a bit ridiculous but it's used to adjust the insert pos when track changes prevents deletions
           // of merged nodes & content, as just using mapped toA in that case isn't the same.
           // The calculation is a bit mysterious, I admit.
-          if (startTokenDeleted) {
-            mergedInsertPos = offsetPos + insertSlice.openEnd - 1
-          }
+          // TODO delete/fix this?
+          // 'should prevent replacing of blockquotes and break the slice into parts instead' test needs this
+          // if (node.isText) {
+          //   mergedInsertPos = offsetPos - openEnd
+          // }
         } else if (node.isText) {
-          // TODO this should be fixed in the case above
+          // Text deletion is handled even when the deletion doesn't completely wrap the text node
+          // (which is basically the case most of the time)
           deleteTextIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
+        } else if (startTokenDeleted) {
+          // TODO while technically correct to delete a node which has its start token deleted, it's a lot more
+          // difficult to determine merging of content. For example, if inserted blockquote's start token was deleted
+          // and subsequently, removed from the doc _but_ a new blockquote with fully open end was inserted at its place.
+          // Then merging, as it's currently implemented, would fail as it expects the old blockquote to be present.
+          // To improve this the merging would have to be omitted and the whole inserted slice be inserted with openEnd=0.
+          // deleteOrSetNodeDeleted(node, offsetPos, newTr, deleteAttrs)
         }
-      } else if (node.isText) {
-        // Text deletion is handled even when the deletion doesn't completely wrap the text node
-        // (which is basically the case most of the time)
-        deleteTextIfInserted(node, offsetPos, newTr, schema, deleteAttrs, offsetFrom, offsetTo)
       } else if (nodeCompletelyDeleted) {
-        deleteNode(node, offsetPos, newTr, deleteAttrs)
+        deleteOrSetNodeDeleted(node, offsetPos, newTr, deleteAttrs)
       }
     }
     const newestStep = newTr.steps[newTr.steps.length - 1]

@@ -22,6 +22,8 @@ import docs from './__fixtures__/docs'
 import { setupEditor } from './utils/setupEditor'
 
 import { log } from '../src/utils/logger'
+import { ReplaceAroundStep } from 'prosemirror-transform'
+import { Fragment, Slice } from 'prosemirror-model'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -64,6 +66,16 @@ describe('track changes', () => {
       // .backspace(4)
       // Unwrap the innermost blockquote which should set it deleted but leave the content intact
       .liftnode(17)
+      // This simulates pressing backspace inside 4th paragraph which should try to lift it inside the blockquote
+      // .cmd((state, dispatch) => {
+      //   const { tr, schema } = state
+      //   const bq = schema.nodes.blockquote.create()
+      //   // Or, more challenging?
+      //   // const bq = schema.nodes.blockquote.create(undefined, schema.nodes.paragraph.create())
+      //   const slice = new Slice(Fragment.from(bq), 1, 0)
+      //   const step = new ReplaceAroundStep(48, 64, 49, 64, slice, 0, true)
+      //   dispatch(tr.step(step))
+      // })
       // Wrap the 4th paragraph in a blockquote and see whether track-changes-plugin correctly handles the positions
       // when adjacent to blockquote above and end of doc at the bottom
       .selectText(50)
@@ -71,8 +83,6 @@ describe('track changes', () => {
 
     // move at the start of 3rd paragraph, hit backspace -> should wrap inside the nested blockquote
     // same would happen with 4th paragraph
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-
     expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 

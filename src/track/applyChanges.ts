@@ -20,7 +20,8 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { joinOrLiftNode } from './node-utils'
+import { deleteNode } from './deleteNode'
+import { mergeNode } from './mergeNode'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 /**
@@ -59,12 +60,12 @@ export function applyAcceptedRejectedChanges(
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
     } else if (ChangeSet.isNodeChange(change)) {
-      // Try moving the node children to either nodeAbove, nodeBelow or its parent.
-      // If it fails, delete the content between the change.
-      // NOTE: there's an edge case where moving content is not possible but because the immediate
-      // child, say some wrapper blockNode, is also deleted the content could be retained. TODO I guess.
-      if (joinOrLiftNode(node, from, tr) === undefined) {
-        tr.delete(deleteMap.map(change.from), deleteMap.map(change.to))
+      // Try first moving the node children to either nodeAbove, nodeBelow or its parent.
+      // Then try unwrapping it with lift or just hacky-joining by replacing the border between
+      // it and its parent with Fragment.empty. If none of these apply, delete the content between the change.
+      const merged = mergeNode(node, from, tr)
+      if (merged === undefined) {
+        deleteNode(node, from, tr)
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     }

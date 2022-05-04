@@ -75,6 +75,7 @@ describe('track changes', () => {
       // outside the blockquote directly below the deleted 1st paragraph.
       // TODO if one day this seems worthwhile to fix
       // FIXED by adding mergedInsertPos to deleteAndMergeSplitNodes yet not entirely sure does it break in some cases
+      // TODO broken again after refactoring deleteAndMergeSplitNodes
       .paste(
         new Slice(
           Fragment.from(utils.createBlockquote(defaultSchema, 'open-end blockquote')),

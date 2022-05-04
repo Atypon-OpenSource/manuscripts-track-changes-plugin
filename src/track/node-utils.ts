@@ -51,29 +51,6 @@ export function liftNode(pos: number, tr: Transaction) {
   return undefined
 }
 
-/**
- * Moves node to either nodeAbove, nodeBelow or tries to lift to its parent
- * @param node
- * @param pos
- * @param tr
- * @returns
- */
-export function joinOrLiftNode(node: PMNode, pos: number, tr: Transaction) {
-  if (canJoin(tr.doc, pos)) {
-    return tr.join(pos)
-  } else if (canJoin(tr.doc, pos + node.nodeSize)) {
-    return tr.join(pos + node.nodeSize)
-  } else {
-    const startPos = tr.doc.resolve(pos + 1)
-    const range = startPos.blockRange(tr.doc.resolve(startPos.pos - 2 + node.nodeSize))
-    const targetDepth = range ? Number(liftTarget(range)) : NaN
-    if (range && !Number.isNaN(targetDepth)) {
-      return tr.lift(range, targetDepth)
-    }
-  }
-  return undefined
-}
-
 export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, schema: Schema) {
   if (!node || !node.isInline) {
     return undefined
