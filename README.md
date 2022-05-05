@@ -25,7 +25,7 @@ export const trackChangesPluginKey = new PluginKey<TrackChangesState, any>('trac
 
 /**
  * The ProseMirror plugin needed to enable track-changes.
- * 
+ *
  * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as the default userID.
  * @param opts
  */
@@ -107,8 +107,8 @@ export type TrackChangesActionParams = {
 }
 /**
  * Gets the value of a meta field, action payload, of a defined track-changes action.
- * @param tr 
- * @param action 
+ * @param tr
+ * @param action
  */
 export function getAction<K extends keyof TrackChangesActionParams>(tr: Transaction, action: K) {
   return tr.getMeta(action) as TrackChangesActionParams[K] | undefined
@@ -117,9 +117,9 @@ export function getAction<K extends keyof TrackChangesActionParams>(tr: Transact
 /**
  * Use this function to set meta keys to transactions that are consumed by the track-changes-plugin.
  * For example, you can skip tracking of a transaction with setAction(tr, TrackChangesAction.skipTrack, true)
- * @param tr 
- * @param action 
- * @param payload 
+ * @param tr
+ * @param action
+ * @param payload
  */
 export function setAction<K extends keyof TrackChangesActionParams>(
   tr: Transaction,
@@ -136,33 +136,33 @@ Can be found in `./src/types` and `./src/ChangeSet.ts`
 
 ## Feature summary
 
-* tracks block, inline, atom node inserts & deletes as `dataTracked` attribute objects
-* tracks text insert & delete as `tracked_insert` and `tracked_delete` marks
-* joins track marks based on `userID`, `operation` and `status`, uses the oldest `createdAt` value as timestamp
-* allows deletes of block nodes & text if operation is `inserted`
-* does not diff operations next to each other eg `(ins aasdf)(del asdf)` is not reduced to `ins a`
-* does not track block node attribute updates
-* does not track mark inserts & deletes
-* does not track ReplaceAroundSteps
-* has probably bugs regarding the edge cases around copy-pasting complicated slices
+- tracks block, inline, atom node inserts & deletes as `dataTracked` attribute objects
+- tracks text insert & delete as `tracked_insert` and `tracked_delete` marks
+- joins track marks based on `userID`, `operation` and `status`, uses the oldest `createdAt` value as timestamp
+- allows deletes of block nodes & text if operation is `inserted`
+- does not diff operations next to each other eg `(ins aasdf)(del asdf)` is not reduced to `ins a`
+- does not track block node attribute updates
+- does not track mark inserts & deletes
+- does not track ReplaceAroundSteps
+- has probably bugs regarding the edge cases around copy-pasting complicated slices
 
 ## Roadmap
 
-* track block node attribute updates, they currently go undetected
-* test copy-pasting works (slices with varying open endedness)
-* test for race conditions
-* refactor unused code, add better comments
-* more thorough tests
-* track ReplaceAroundSteps
-* track formatting changes, basically handle AddMarkStep and RemoveMarkSteps
+- track block node attribute updates, they currently go undetected
+- test copy-pasting works (slices with varying open endedness)
+- test for race conditions
+- refactor unused code, add better comments
+- more thorough tests
+- track ReplaceAroundSteps
+- track formatting changes, basically handle AddMarkStep and RemoveMarkSteps
 
 ## Related reading
 
-* https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/track-changes/track-changes.html
-* https://ckeditor.com/blog/ckeditor-5-comparing-revision-history-with-track-changes/
-* https://github.com/fiduswriter/fiduswriter
-* https://www.ncbi.nlm.nih.gov/books/NBK159965/
-* https://teemukoivisto.github.io/prosemirror-track-changes-example/
-* https://demos.yjs.dev/prosemirror-versions/prosemirror-versions.html
-* https://slab.com/blog/announcing-delta-for-elixir/
-* https://www.inkandswitch.com/peritext/
+- https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/track-changes/track-changes.html
+- https://ckeditor.com/blog/ckeditor-5-comparing-revision-history-with-track-changes/
+- https://github.com/fiduswriter/fiduswriter
+- https://www.ncbi.nlm.nih.gov/books/NBK159965/
+- https://teemukoivisto.github.io/prosemirror-track-changes-example/
+- https://demos.yjs.dev/prosemirror-versions/prosemirror-versions.html
+- https://slab.com/blog/announcing-delta-for-elixir/
+- https://www.inkandswitch.com/peritext/

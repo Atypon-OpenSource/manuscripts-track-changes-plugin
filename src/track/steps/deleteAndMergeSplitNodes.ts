@@ -246,7 +246,7 @@ export function deleteAndMergeSplitNodes(
   insertSlice: ExposedSlice
 ) {
   const deleteMap = new Mapping()
-  let mergedInsertPos = undefined
+  const mergedInsertPos = undefined
   // No deletion applied, return default values
   if (from === to) {
     return {
