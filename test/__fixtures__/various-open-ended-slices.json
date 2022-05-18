@@ -385,7 +385,7 @@
               "type": "blockquote",
               "attrs": {
                 "dataTracked": {
-                  "id": "MOCK-ID-1",
+                  "id": "MOCK-ID-14",
                   "userID": "1-mike",
                   "createdAt": 1577836800000,
                   "status": "pending",
@@ -397,7 +397,7 @@
                   "type": "paragraph",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-2",
+                      "id": "MOCK-ID-15",
                       "userID": "1-mike",
                       "createdAt": 1577836800000,
                       "status": "pending",
@@ -413,7 +413,7 @@
                           "type": "tracked_delete",
                           "attrs": {
                             "dataTracked": {
-                              "id": "MOCK-ID-14",
+                              "id": "MOCK-ID-16",
                               "userID": "1-mike",
                               "createdAt": 1577836800000,
                               "status": "pending",
@@ -467,7 +467,7 @@
           "type": "paragraph",
           "attrs": {
             "dataTracked": {
-              "id": "MOCK-ID-15",
+              "id": "MOCK-ID-17",
               "userID": "1-mike",
               "createdAt": 1577836800000,
               "status": "pending",
@@ -508,7 +508,7 @@
                       "type": "tracked_insert",
                       "attrs": {
                         "dataTracked": {
-                          "id": "MOCK-ID-16",
+                          "id": "MOCK-ID-18",
                           "userID": "1-mike",
                           "createdAt": 1577836800000,
                           "status": "pending",
