@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuarterBackSchema, schema as defaultSchema } from '@manuscripts/examples-track-schema'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Schema } from 'prosemirror-model'
 import { EditorState, Plugin } from 'prosemirror-state'
@@ -24,6 +23,7 @@ import { trackChangesPlugin } from '../../src'
 import { enableDebug } from '../../src/utils/logger'
 import { ProsemirrorTestChain } from './PMTestChain'
 import { polyfillDom } from './polyfillDom'
+import { ExampleSchema, schema as defaultSchema } from './schema'
 
 enableDebug(false)
 
@@ -34,7 +34,7 @@ interface SetupEditorOptions<S extends Schema> {
   plugins?: Plugin[]
 }
 
-export function setupEditor<S extends Schema = QuarterBackSchema>(
+export function setupEditor<S extends Schema = ExampleSchema>(
   opts?: SetupEditorOptions<S>
 ): ProsemirrorTestChain<S> {
   const { doc, schema, useDefaultPlugins, plugins } = opts || {}

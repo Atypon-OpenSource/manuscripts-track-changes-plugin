@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { QuarterBackSchema, schema as defaultSchema } from '@manuscripts/examples-track-schema'
+import { schema as defaultSchema } from './utils/schema'
 import { promises as fs } from 'fs'
 
 import {
@@ -107,5 +107,20 @@ describe('track changes', () => {
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test.skip('should apply changes correctly', async () => {
+    const tester = setupEditor({
+      doc: docs.defaultDocs[2],
+    })
+
+    expect(tester.toJSON()).toEqual(docs.insertAccept[0])
+    expect(uuidv4Mock.mock.calls.length).toBe(26)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+
+    tester.cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(tester.toJSON()).toEqual(docs.insertAccept[1])
+    expect(uuidv4Mock.mock.calls.length).toBe(26)
   })
 })

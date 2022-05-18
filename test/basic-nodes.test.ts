@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { schema as defaultSchema } from '@manuscripts/examples-track-schema'
+import { schema as defaultSchema } from './utils/schema'
 import { promises as fs } from 'fs'
 
 import {
