@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
 
 import { setAction, TrackChangesAction, trackCommands } from '../src'

@@ -3,11 +3,10 @@
   "compilerOptions": {
     "target": "es2018",
     "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["jest"],
     "declaration": true,
     "declarationDir": "./dist",
-    "baseUrl": "src",
-    "jsx": "react"
+    "baseUrl": "src"
   },
-  "include": ["src", "global-types.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src", "global-types.d.ts"]
 }
