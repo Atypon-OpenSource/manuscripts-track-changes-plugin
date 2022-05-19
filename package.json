@@ -17,6 +17,9 @@
     "dist",
     "src/styles.css"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -cw",
