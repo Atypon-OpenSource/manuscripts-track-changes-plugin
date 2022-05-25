@@ -1,20 +1,58 @@
-# @manuscripts/track-changes-plugin
+# [@manuscripts/track-changes-plugin](https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/quarterback-packages/track-changes-plugin)
 
-This is a ProseMirror plugin that tracks inserts/deletes to nodes and text.
+ProseMirror plugin to track inserts/deletes to nodes and text.
 
-It uses node attributes inside `dataTracked` object to persist changes for both block and inline nodes and `tracked_insert` & `tracked_delete` marks for text. An example implementation can be found inside the `examples-packages/schema` package. In addition to `dataTracked`, `tracked_insert` and `tracked_delete` code_blocks marks were altered to include track marks: `marks: 'tracked_insert tracked_delete'`. If you have multiple versions of prosemirror packages, ensure that track-changes' dependencies `prosemirror-model` and `prosemirror-transform` are aliased/deduped to same instance. `prosemirror-state` and `prosemirror-view` are only used at type level.
+If you have multiple versions of prosemirror packages, ensure that track-changes' dependencies `prosemirror-model` and `prosemirror-transform` are aliased/deduped to same instance. `prosemirror-state` and `prosemirror-view` are only used at type level. [Example](https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/examples-packages/client/vite.config.js).
 
-This library replaces a previous implementation based on commits as in https://prosemirror.net/examples/track/ which proved unreliable due to non-idempotent nature of transactions when rebased as well as the inability to transition to Yjs syncing. `prosemirror-changeset` was also trialed but it had similar problems and was deemed hard to extend to include tracking formatting changes.
+[More detailed overview](https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/quarterback-packages/track-changes-plugin/OVERVIEW.md)
 
-On a more detailed level, this plugin checks every transaction in an `appendTransaction` hook for any modifications to the document (`tr.docChanged`). If they exist, it prevents that transaction from happening by inverting it and reapplying it with deletions and insertions wrapped in track attributes/marks. It can be bybassed by using `TrackActions.skipTrack` action or by setting `skipTrsWithMetas?: (PluginKey | string)[]` option to skip all transactions based on their meta fields, such as `ySyncPluginKey`. This prevents race conditions where appendTransactions keep firing between 2 or more plugins. `prosemirror-history` transactions are skipped by default.
+## How to use
 
-On every transaction prevented, ChangeSet is generated which contains all the changes found from the document. `tr.setMeta('origin', trackChangesPluginKey)` is applied to id the transaction. Whole document is currently being iterated which may be somewhat inefficient on larger docs. The changes are stored as a flat list yet due to the hierarchy of the changes, a `changeTree` property is generated which wraps all changes within a node change as its children. This is especially helpful when inserting/deleting nodes that require multiple children that are irrelevant to the user. Currently, they are still shown in the example UI but future enhancements will probably hide them. Granular controls are however at times needed when some of the changes can be considered separate or non-contiguous.
+First install the plugin: `npm i @manuscripts/track-changes-plugin`
 
-Yjs collaboration works without further integration with this attribute & mark based approach. However, due to missing feature-parity with Yjs documents and ProseMirror documents it currently does not behave consistently. Notably, Yjs snapshots do not show node attributes which makes using them for viewing snapshots insufficient. Yjs nodes can't also contain marks but this was circumvented by using node attributes for inline nodes too.
+Then add the plugin to ProseMirror plugins:
 
-The plugin also includes logging using `debug` library that can be toggled with either passing `debug?: boolean` option or executing `enableDebug(enabled: boolean)`.
+```ts
+import { EditorState } from 'prosemirror-state'
+import { EditorView } from 'prosemirror-view'
+import { exampleSetup } from 'prosemirror-example-setup'
+import { trackChangesPlugin } from '@manuscripts/track-changes-plugin'
 
-CKEditor and Fiduswriter served as its inspiration but everything was written from scratch. Also, this library is open-sourced under the Apache 2 license.
+import { schema } from './schema'
+
+const plugins = exampleSetup({ schema }).concat(trackChangesPlugin({
+  debug: true
+}))
+const state = EditorState.create({
+  schema,
+  plugins,
+})
+const view = new EditorView(document.querySelector('#editor') as HTMLElement, {
+  state,
+})
+```
+
+where `schema` is https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/quarterback-packages/track-changes-plugin/test/utils/schema.ts
+
+Enable or disable the plugin with:
+
+```ts
+import { trackCommands, TrackChangesStatus } from '@manuscripts/track-changes-plugin'
+
+// toggle
+cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus())
+
+// enable
+cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus(TrackChangesStatus.enabled))
+
+// disable
+cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus(TrackChangesStatus.disabled))
+
+// sets editor's 'editable' prop to false, making it ready-only
+cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus(TrackChangesStatus.viewSnapshots))
+```
+
+See an example app at https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/examples-packages/client
 
 ## API
 
@@ -133,36 +171,3 @@ export function setAction<K extends keyof TrackChangesActionParams>(
 ### Types
 
 Can be found in `./src/types` and `./src/ChangeSet.ts`
-
-## Feature summary
-
-- tracks block, inline, atom node inserts & deletes as `dataTracked` attribute objects
-- tracks text insert & delete as `tracked_insert` and `tracked_delete` marks
-- joins track marks based on `userID`, `operation` and `status`, uses the oldest `createdAt` value as timestamp
-- allows deletes of block nodes & text if operation is `inserted`
-- does not diff operations next to each other eg `(ins aasdf)(del asdf)` is not reduced to `ins a`
-- does not track block node attribute updates
-- does not track mark inserts & deletes
-- does not track ReplaceAroundSteps
-- has probably bugs regarding the edge cases around copy-pasting complicated slices
-
-## Roadmap
-
-- track block node attribute updates, they currently go undetected
-- test copy-pasting works (slices with varying open endedness)
-- test for race conditions
-- refactor unused code, add better comments
-- more thorough tests
-- track ReplaceAroundSteps
-- track formatting changes, basically handle AddMarkStep and RemoveMarkSteps
-
-## Related reading
-
-- https://ckeditor.com/docs/ckeditor5/latest/features/collaboration/track-changes/track-changes.html
-- https://ckeditor.com/blog/ckeditor-5-comparing-revision-history-with-track-changes/
-- https://github.com/fiduswriter/fiduswriter
-- https://www.ncbi.nlm.nih.gov/books/NBK159965/
-- https://teemukoivisto.github.io/prosemirror-track-changes-example/
-- https://demos.yjs.dev/prosemirror-versions/prosemirror-versions.html
-- https://slab.com/blog/announcing-delta-for-elixir/
-- https://www.inkandswitch.com/peritext/
