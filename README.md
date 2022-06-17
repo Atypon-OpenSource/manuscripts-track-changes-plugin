@@ -40,16 +40,16 @@ Enable or disable the plugin with:
 import { trackCommands, TrackChangesStatus } from '@manuscripts/track-changes-plugin'
 
 // toggle
-cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus())
+trackCommands.setTrackingStatus())(view.state, view.dispatch, view)
 
 // enable
-cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus(TrackChangesStatus.enabled))
+trackCommands.setTrackingStatus(TrackChangesStatus.enabled))(view.state, view.dispatch, view)
 
 // disable
-cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus(TrackChangesStatus.disabled))
+trackCommands.setTrackingStatus(TrackChangesStatus.disabled))(view.state, view.dispatch, view)
 
 // sets editor's 'editable' prop to false, making it ready-only
-cmd(view.state, view.dispatch, view)(trackCommands.setTrackingStatus(TrackChangesStatus.viewSnapshots))
+trackCommands.setTrackingStatus(TrackChangesStatus.viewSnapshots))(view.state, view.dispatch, view)
 ```
 
 See an example app at https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/examples-packages/client
