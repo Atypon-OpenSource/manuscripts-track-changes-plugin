@@ -42,9 +42,11 @@ export function applyAcceptedRejectedChanges(
     if (change.attrs.status === CHANGE_STATUS.pending) {
       return
     }
-    const from = deleteMap.map(change.from),
+    // Map change.from and skip those which dont need to be applied
+    // or were already deleted by an applied block delete
+    const { pos: from, deleted } = deleteMap.mapResult(change.from),
       node = tr.doc.nodeAt(from),
-      noChangeNeeded = ChangeSet.shouldNotDelete(change)
+      noChangeNeeded = deleted || ChangeSet.shouldNotDelete(change)
     if (!node) {
       log.warn('no node found to update for change', change)
       return
