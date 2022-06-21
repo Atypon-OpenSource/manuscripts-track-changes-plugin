@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.0.4
+
+### Patch Changes
+
+- f12b327: fix(track): dont copy meta-keys to created new transaction as it might cause race-conditions
+
 ## 0.0.3
 
 ### Patch Changes
