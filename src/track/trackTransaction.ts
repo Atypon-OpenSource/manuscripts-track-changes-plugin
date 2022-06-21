@@ -105,12 +105,10 @@ export function trackTransaction(
     const { meta } = tr as Transaction & {
       meta: Record<string, any>
     }
-    // This is quite non-optimal in some sense but to ensure no information is lost
-    // we have to re-add all the old meta keys, such as inputType or uiEvent.
-    // This should prevent bugs incase other plugins/widgets rely upon them existing (and they
-    // are not able to process the transactions before track-changes).
-    // TODO: will this cause race-condition if a meta causes another appendTransaction to fire
-    Object.keys(meta).forEach((key) => newTr.setMeta(key, tr.getMeta(key)))
+    // The old meta keys are not copied to the new transaction since this will cause race-conditions
+    // when a single meta-field is thought to be processed. MAYBE only the generic meta keys, such as
+    // inputType or uiEvent, could be copied over but it remains to be seen if it's necessary.
+    // Object.keys(meta).forEach((key) => newTr.setMeta(key, tr.getMeta(key)))
   })
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
   // These are required by at least cross-references that need it to activate the selector pop-up
