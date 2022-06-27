@@ -23,6 +23,9 @@ import blockNodeAttrUpdate from './block-node-attr-update.json'
 import defaultDocs from './default-docs.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import insertAccept from './insert-accept.json'
+import insertReject from './insert-reject.json'
+import manuscriptApplied from './manuscript-applied.json'
+import manuscriptDefaultDocs from './manuscript-default-docs.json'
 import replaceAroundSteps from './replace-around-steps.json'
 import variousOpenEndedSlices from './various-open-ended-slices.json'
 
@@ -37,6 +40,9 @@ export default {
   defaultDocs,
   inlineNodeAttrUpdate,
   insertAccept,
+  insertReject,
+  manuscriptApplied,
+  manuscriptDefaultDocs,
   replaceAroundSteps,
   variousOpenEndedSlices,
 }

@@ -1,0 +1,174 @@
+[
+  {
+    "type": "manuscript",
+    "attrs": {
+      "id": "MPManuscript:BFABFC43-99C7-4F4D-985E-777B2138A726"
+    },
+    "content": [
+      {
+        "type": "section",
+        "attrs": {
+          "id": "MPSection:919A1176-C606-4105-9783-8A0ABEB952B5",
+          "category": "MPSectionCategory:abstract",
+          "titleSuppressed": false,
+          "dataTracked": null
+        },
+        "content": [
+          {
+            "type": "section_title",
+            "attrs": {
+              "dataTracked": null
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Abstract"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "attrs": {
+              "id": "MPParagraphElement:A1890637-54EB-44E0-BC19-A6C6FA5F2C94",
+              "paragraphStyle": "",
+              "placeholder": ""
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "First section"
+              }
+            ]
+          },
+          {
+            "type": "blockquote_element",
+            "attrs": {
+              "id": "MPQuoteElement:9F51C428-D458-4A62-A9AE-ADA5FF60D598",
+              "paragraphStyle": "",
+              "placeholder": ""
+            },
+            "content": [
+              {
+                "type": "paragraph",
+                "attrs": {
+                  "id": "MPParagraphElement:628749AD-BBFE-4A83-B98B-9D14F069D6C2",
+                  "paragraphStyle": "",
+                  "placeholder": ""
+                },
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "I am a quote"
+                  }
+                ]
+              },
+              {
+                "type": "attribution",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "I am an attribution"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "attrs": {
+          "id": "MPSection:8F47C5E7-4F17-44B1-8597-542C7B398172",
+          "category": "MPSectionCategory:introduction",
+          "titleSuppressed": false
+        },
+        "content": [
+          {
+            "type": "section_title",
+            "content": [
+              {
+                "type": "text",
+                "text": "Introduction"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "attrs": {
+              "id": "MPParagraphElement:920E413A-7920-48D7-B1DC-8E010138620E",
+              "paragraphStyle": "",
+              "placeholder": ""
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Second section"
+              }
+            ]
+          },
+          {
+            "type": "figure_element",
+            "attrs": {
+              "figureLayout": "",
+              "figureStyle": "",
+              "id": "MPFigureElement:37C9C906-3472-4A2C-B170-B2B0E62FC0D9",
+              "label": "",
+              "sizeFraction": 0,
+              "suppressCaption": false
+            },
+            "content": [
+              {
+                "type": "figure",
+                "attrs": {
+                  "id": "MPFigure:7AA967A7-BF9E-4B67-8B1D-11CB4DA2A660",
+                  "label": "",
+                  "src": "",
+                  "contentType": ""
+                },
+                "content": [
+                  {
+                    "type": "figcaption"
+                  }
+                ]
+              },
+              {
+                "type": "figcaption",
+                "content": [
+                  {
+                    "type": "caption_title",
+                    "attrs": {
+                      "placeholder": "Title..."
+                    }
+                  },
+                  {
+                    "type": "caption",
+                    "attrs": {
+                      "placeholder": "Caption..."
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "I am a caption"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listing",
+                "attrs": {
+                  "id": "MPListing:73A88D44-9223-412D-AF24-8CE6F3E5D44B",
+                  "contents": "",
+                  "language": "",
+                  "languageKey": "null",
+                  "isExpanded": false,
+                  "isExecuting": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

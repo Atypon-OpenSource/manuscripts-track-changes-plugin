@@ -109,6 +109,37 @@ describe('track changes', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('should correctly apply adjacent block changes', async () => {
+    const tester = setupEditor({
+      doc: docs.defaultDocs[2],
+    })
+      .insertNode(defaultSchema.nodes.ordered_list.createAndFill(), 0)
+      .insertNode(defaultSchema.nodes.table.createAndFill(), 0)
+      .cmd((state, dispatch) => {
+        const trackChangesState = trackChangesPluginKey.getState(state)
+        if (!trackChangesState) {
+          return
+        }
+        const { changeSet } = trackChangesState
+        const change = changeSet.pending.find(c => c.type === 'node-change' && c.nodeType === 'table')
+        if (change && ChangeSet.isNodeChange(change)) {
+          // const ids = [change.id, ...change.children.map(c => c.id)]
+          const ids = [change.id]
+          trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
+        }
+      })
+
+      tester.cmd(trackCommands.applyAndRemoveChanges())
+
+      // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+      expect(tester.toJSON()).toEqual(docs.insertReject[0])
+      expect(uuidv4Mock.mock.calls.length).toBe(11)
+      expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+      expect(log.warn).toHaveBeenCalledTimes(0)
+      expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
   test.skip('should apply changes correctly', async () => {
     const tester = setupEditor({
       doc: docs.defaultDocs[2],

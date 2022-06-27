@@ -1,0 +1,123 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "ordered_list",
+          "attrs": {
+            "dataTracked": {
+              "id": "MOCK-ID-2",
+              "userID": "1-mike",
+              "createdAt": 1577836800000,
+              "status": "pending",
+              "operation": "insert"
+            }
+          },
+          "content": [
+            {
+              "type": "list_item",
+              "attrs": {
+                "dataTracked": {
+                  "id": "MOCK-ID-1",
+                  "userID": "1-mike",
+                  "createdAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "insert"
+                }
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-0",
+                      "userID": "1-mike",
+                      "createdAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    },
+                    "testAttribute": null
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "1st paragraph"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "blockquote",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": null,
+                    "testAttribute": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "2nd paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "3rd paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "4th paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 3,
+      "head": 3
+    }
+  }
+]
