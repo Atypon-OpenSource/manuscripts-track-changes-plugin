@@ -428,8 +428,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 19,
-      "head": 19
+      "anchor": 12,
+      "head": 12
     }
   },
   {
@@ -651,8 +651,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 19,
-      "head": 19
+      "anchor": 12,
+      "head": 12
     }
   }
 ]

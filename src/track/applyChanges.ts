@@ -48,7 +48,7 @@ export function applyAcceptedRejectedChanges(
       node = tr.doc.nodeAt(from),
       noChangeNeeded = deleted || ChangeSet.shouldNotDelete(change)
     if (!node) {
-      log.warn('no node found to update for change', change)
+      !deleted && log.warn('no node found to update for change', change)
       return
     }
     if (ChangeSet.isTextChange(change) && noChangeNeeded) {

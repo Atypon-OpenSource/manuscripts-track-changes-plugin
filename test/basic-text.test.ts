@@ -51,8 +51,6 @@ describe('track changes', () => {
       doc: docs.defaultDocs[0],
     }).insertText('inserted text')
 
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-
     expect(tester.toJSON()).toEqual(docs.basicTextInsert)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
@@ -90,6 +88,8 @@ describe('track changes', () => {
       .backspace(1)
       .backspace(1)
       .insertText('c')
+
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
     expect(tester.toJSON()).toEqual(docs.basicTextJoin[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)

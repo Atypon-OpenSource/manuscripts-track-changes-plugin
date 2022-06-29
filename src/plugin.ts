@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
-import { EditorView } from 'prosemirror-view'
+import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, setAction, TrackChangesAction } from './actions'
 import { ChangeSet } from './ChangeSet'
@@ -53,9 +53,9 @@ export const trackChangesPlugin = (
     key: trackChangesPluginKey,
     props: {
       editable(state) {
-        return trackChangesPluginKey.getState(state as any)?.status !== TrackChangesStatus.viewSnapshots
+        return trackChangesPluginKey.getState(state)?.status !== TrackChangesStatus.viewSnapshots
       },
-    },
+    } as EditorProps,
     state: {
       init(_config, state) {
         return {

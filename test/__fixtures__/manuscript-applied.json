@@ -327,8 +327,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 16,
-      "head": 16
+      "anchor": 10,
+      "head": 10
     }
   }
 ]
