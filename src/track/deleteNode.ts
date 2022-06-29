@@ -29,8 +29,9 @@ import { liftTarget } from 'prosemirror-transform'
 export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
   const startPos = tr.doc.resolve(pos + 1)
   const range = startPos.blockRange(tr.doc.resolve(startPos.pos - 2 + node.nodeSize))
-  const targetDepth = range ? Number(liftTarget(range)) : NaN
-  if (range && !Number.isNaN(targetDepth)) {
+  const targetDepth = range && liftTarget(range)
+  // Check with typeof since with old prosemirror-transform targetDepth is undefined
+  if (range && typeof targetDepth === 'number') {
     return tr.lift(range, targetDepth)
   }
   const resPos = tr.doc.resolve(pos)

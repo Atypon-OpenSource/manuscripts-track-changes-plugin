@@ -20,7 +20,7 @@ import { CHANGE_OPERATION } from '../../types/change'
 import { NewInsertAttrs, NewTrackedAttrs } from '../../types/track'
 import { addTrackIdIfDoesntExist } from '../node-utils'
 
-function markInlineNodeChange(node: PMNode<any>, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
+function markInlineNodeChange(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
   const filtered = node.marks.filter(
     (m) => m.type !== schema.marks.tracked_insert && m.type !== schema.marks.tracked_delete
   )
@@ -34,7 +34,7 @@ function markInlineNodeChange(node: PMNode<any>, newTrackAttrs: NewTrackedAttrs,
   return node.mark(filtered.concat(createdMark))
 }
 
-function recurseNodeContent(node: PMNode<any>, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
+function recurseNodeContent(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
   if (node.isText) {
     return markInlineNodeChange(node, newTrackAttrs, schema)
   } else if (node.isBlock || node.isInline) {

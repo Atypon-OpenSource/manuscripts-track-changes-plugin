@@ -16,9 +16,9 @@
 import { Node as PMNode } from 'prosemirror-model'
 import type {
   EditorState,
-  Selection,
   NodeSelection,
   TextSelection,
+  Selection,
   Transaction,
 } from 'prosemirror-state'
 import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
@@ -35,12 +35,9 @@ import { trackReplaceStep } from './steps/trackReplaceStep'
  * This skips the direct dependency to prosemirror-state where multiple versions might cause conflicts
  * as the created instances might belong to different prosemirror-state import than one used in the editor.
  * @param sel
- * @param doc
- * @param from
  * @returns
  */
-const getSelectionStaticCreate = (sel: Selection, doc: PMNode, from: number) =>
-  Object.getPrototypeOf(sel).constructor.create(doc, from)
+const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -92,7 +89,12 @@ export function trackTransaction(
     } else if (step instanceof ReplaceStep) {
       const selectionPos = trackReplaceStep(step, oldState, newTr, emptyAttrs)
       if (!wasNodeSelection) {
-        newTr.setSelection(getSelectionStaticCreate(tr.selection, newTr.doc, selectionPos))
+        const sel: typeof Selection = getSelectionStaticConstructor(tr.selection)
+        // Use Selection.near to fix selections that point to a block node instead of inline content
+        // eg when inserting a complete new paragraph. -1 finds the first valid position moving backwards
+        // inside the content
+        const near: Selection = sel.near(newTr.doc.resolve(selectionPos), -1)
+        newTr.setSelection(near)
       }
     } else if (step instanceof ReplaceAroundStep) {
       trackReplaceAroundStep(step, oldState, newTr, emptyAttrs)
@@ -102,13 +104,13 @@ export function trackTransaction(
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.
-    const { meta } = tr as Transaction & {
-      meta: Record<string, any>
-    }
+
     // The old meta keys are not copied to the new transaction since this will cause race-conditions
-    // when a single meta-field is thought to be processed. MAYBE only the generic meta keys, such as
-    // inputType or uiEvent, could be copied over but it remains to be seen if it's necessary.
-    // Object.keys(meta).forEach((key) => newTr.setMeta(key, tr.getMeta(key)))
+    // when a single meta-field is expected to having been processed / removed. Generic input meta keys,
+    // inputType and uiEvent, are re-added since some plugins might depend on them and process the transaction
+    // after track-changes plugin.
+    tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
+    tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   })
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
   // These are required by at least cross-references that need it to activate the selector pop-up
@@ -116,7 +118,8 @@ export function trackTransaction(
     const mappedPos = newTr.mapping.map(tr.selection.from)
     const resPos = newTr.doc.resolve(mappedPos)
     const nodePos = mappedPos - (resPos.nodeBefore?.nodeSize || 0)
-    newTr.setSelection(getSelectionStaticCreate(tr.selection, newTr.doc, nodePos))
+    const sel: typeof NodeSelection = getSelectionStaticConstructor(tr.selection)
+    newTr.setSelection(sel.create(newTr.doc, nodePos))
   }
   log.info('NEW transaction', newTr)
   return newTr

@@ -16,6 +16,7 @@
 /// <reference types="@types/jest" />;
 import { schema as defaultSchema } from './utils/schema'
 import { schema } from '@manuscripts/manuscript-transform'
+import { Node as PMNode, Schema } from 'prosemirror-model'
 import { promises as fs } from 'fs'
 
 import {
@@ -58,10 +59,10 @@ describe('TC with manuscripts schema', () => {
   test('should correctly apply adjacent block changes', async () => {
     const tester = setupEditor({
       doc: docs.manuscriptDefaultDocs[0],
-      schema,
+      schema: schema as unknown as Schema,
     })
-      .insertNode(schema.nodes.table_element.createAndFill(), 11)
-      .insertNode(schema.nodes.figure_element.createAndFill(), 11)
+      .insertNode(schema.nodes.table_element.createAndFill() as unknown as PMNode, 11)
+      .insertNode(schema.nodes.figure_element.createAndFill() as unknown as PMNode, 11)
       .cmd((state, dispatch) => {
         const trackChangesState = trackChangesPluginKey.getState(state)
         if (!trackChangesState) {
@@ -74,6 +75,8 @@ describe('TC with manuscripts schema', () => {
           trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
         }
       })
+
+      // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
       tester.cmd(trackCommands.applyAndRemoveChanges())
 
