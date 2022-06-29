@@ -278,9 +278,11 @@ export function deleteAndMergeSplitNodes(
     // But from what I remember what it safeguards against is, when you've already deleted a node
     // say an inserted blockquote that had all its children deleted, nodesBetween still iterates over those
     // nodes and therefore we have to make this check to ensure they still exist in the doc.
+    //
     if (nodeEnd > offsetFrom && !nodeWasDeleted && !wasWithinGap) {
       // |<p>asdf</p>| -> node deleted completely
       const nodeCompletelyDeleted = offsetPos >= offsetFrom && nodeEnd <= offsetTo
+
       // The end token deleted eg:
       // <p 1>asdf|</p 7><p 7>bye</p 12>| + [<p>]hello</p> -> <p>asdfhello</p>
       // (del 6 12) + (ins [<p>]hello</p> openStart 1 openEnd 0)

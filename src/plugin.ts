@@ -26,7 +26,7 @@ import { trackTransaction } from './track/trackTransaction'
 import { updateChangeAttrs } from './track/updateChangeAttrs'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 
-export const trackChangesPluginKey = new PluginKey<TrackChangesState, any>('track-changes')
+export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
 // TODO remove
 const infiniteLoopCounter = {
@@ -49,11 +49,11 @@ export const trackChangesPlugin = (
     enableDebug(true)
   }
 
-  return new Plugin<TrackChangesState, any>({
+  return new Plugin<TrackChangesState>({
     key: trackChangesPluginKey,
     props: {
       editable(state) {
-        return this.getState(state).status !== TrackChangesStatus.viewSnapshots
+        return trackChangesPluginKey.getState(state as any)?.status !== TrackChangesStatus.viewSnapshots
       },
     },
     state: {
@@ -126,7 +126,6 @@ export const trackChangesPlugin = (
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (tr.docChanged && !skipMetaUsed && !skipTrackUsed && !tr.getMeta('history$')) {
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
-          createdTr.setMeta('origin', trackChangesPluginKey)
           infiniteLoopCounter.iters += 1
         }
         docChanged = docChanged || tr.docChanged
@@ -157,6 +156,7 @@ export const trackChangesPlugin = (
         log.warn('had to fix inconsistent changes in', createdTr)
       }
       if (docChanged || createdTr.docChanged || changed) {
+        createdTr.setMeta('origin', trackChangesPluginKey)
         return setAction(createdTr, TrackChangesAction.refreshChanges, true)
       }
       return null

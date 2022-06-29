@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Schema } from 'prosemirror-model'
+import { Mark, Node as PMNode, Schema } from 'prosemirror-model'
 import { bulletList, listItem, orderedList } from 'prosemirror-schema-list'
 
 import { TrackedAttrs } from '../../src'
@@ -132,7 +132,7 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
         { tag: 'h5', attrs: { level: 5 } },
         { tag: 'h6', attrs: { level: 6 } },
       ],
-      toDOM(node) {
+      toDOM(node: PMNode) {
         return ['h' + node.attrs.level, 0]
       },
     },
@@ -174,17 +174,19 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
       parseDOM: [
         {
           tag: 'img[src]',
-          getAttrs(p) {
-            const dom = p as HTMLElement
-            return {
-              src: dom.getAttribute('src'),
-              title: dom.getAttribute('title'),
-              alt: dom.getAttribute('alt'),
+          getAttrs(dom: HTMLElement | string) {
+            if (dom instanceof HTMLElement) {
+              return {
+                src: dom.getAttribute('src'),
+                title: dom.getAttribute('title'),
+                alt: dom.getAttribute('alt'),
+              }
             }
+            return null
           },
         },
       ],
-      toDOM(node) {
+      toDOM(node: PMNode) {
         const { src, alt, title } = node.attrs
         return ['img', { src, alt, title }]
       },
@@ -235,7 +237,6 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
 
     table_body: {
       content: 'table_row{3,}',
-      group: 'block',
       tableRole: 'tbody',
       parseDOM: [
         {
@@ -249,7 +250,6 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
 
     table_colgroup: {
       content: 'table_col+',
-      group: 'block',
       tableRole: 'colgroup',
       attrs: { dataTracked: { default: null } },
       parseDOM: [
@@ -291,7 +291,7 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
         { tag: 'td', getAttrs: getCellAttrs },
         { tag: 'th', getAttrs: getCellAttrs },
       ],
-      toDOM: (node) => {
+      toDOM: (node: PMNode) => {
         const tableCellNode = node
         const attrs: { [attr: string]: string } = {}
         const tag = tableCellNode.attrs.celltype
@@ -310,20 +310,21 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
         dataTracked: { default: null },
         width: { default: '' },
       },
-      group: 'block',
       tableRole: 'col',
       parseDOM: [
         {
           tag: 'col',
-          getAttrs: (p) => {
-            const dom = p as HTMLTableColElement
-            return {
-              width: dom.getAttribute('width'),
+          getAttrs: (dom: HTMLElement | string) => {
+            if (dom instanceof HTMLElement) {
+              return {
+                width: dom.getAttribute('width'),
+              }
             }
+            return null
           },
         },
       ],
-      toDOM: (node) => {
+      toDOM: (node: PMNode) => {
         const tableColNode = node
         const attrs: { [key: string]: string } = {}
         if (tableColNode.attrs.width) {
@@ -347,16 +348,19 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
       parseDOM: [
         {
           tag: 'a[href]',
-          getAttrs(p) {
-            const dom = p as HTMLElement
-            return {
-              href: dom.getAttribute('href'),
-              title: dom.getAttribute('title'),
+          getAttrs(dom: HTMLElement | string) {
+            if (dom instanceof HTMLElement) {
+              return {
+                src: dom.getAttribute('src'),
+                title: dom.getAttribute('title'),
+                alt: dom.getAttribute('alt'),
+              }
             }
+            return null
           },
         },
       ],
-      toDOM(node) {
+      toDOM(node: Mark) {
         const { href, title } = node.attrs
         return ['a', { href, title }, 0]
       },
@@ -383,16 +387,20 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
         // tags with a font-weight normal.
         {
           tag: 'b',
-          getAttrs: (p) => {
-            const node = p as HTMLElement
-            return node.style.fontWeight != 'normal' && null
+          getAttrs: (dom: HTMLElement | string) => {
+            if (dom instanceof HTMLElement) {
+              return dom.style.fontWeight !== 'normal' && null
+            }
+            return null
           },
         },
         {
           style: 'font-weight',
-          getAttrs: (p) => {
-            const value = p as string
-            return /^(bold(er)?|[5-9]\d{2,})$/.test(value) && null
+          getAttrs: (dom: HTMLElement | string) => {
+            if (typeof dom === 'string') {
+              return /^(bold(er)?|[5-9]\d{2,})$/.test(dom) && null
+            }
+            return null
           },
         },
       ],
@@ -427,7 +435,7 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
         dataTracked: { default: null },
       },
       parseDOM: [{ tag: 'ins' }],
-      toDOM: (el) => {
+      toDOM: (el: Mark) => {
         const dataTracked: TrackedAttrs | undefined = el.attrs.dataTracked
         const { status = 'pending' } = dataTracked || {}
         const attrs = {
@@ -443,7 +451,7 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
         dataTracked: { default: null },
       },
       parseDOM: [{ tag: 'del' }],
-      toDOM: (el) => {
+      toDOM: (el: Mark) => {
         const dataTracked: TrackedAttrs | undefined = el.attrs.dataTracked
         const { status = 'pending' } = dataTracked || {}
         const attrs = {

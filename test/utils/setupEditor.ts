@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { exampleSetup } from 'prosemirror-example-setup'
-import { Schema } from 'prosemirror-model'
+import { Node as PMNode, Schema } from 'prosemirror-model'
 import { EditorState, Plugin } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
@@ -27,16 +27,16 @@ import { ExampleSchema, schema as defaultSchema } from './schema'
 
 enableDebug(false)
 
-interface SetupEditorOptions<S extends Schema> {
+interface SetupEditorOptions {
   doc: Record<string, any> | undefined
-  schema?: S
+  schema?: Schema
   useDefaultPlugins?: boolean
   plugins?: Plugin[]
 }
 
-export function setupEditor<S extends Schema = ExampleSchema>(
-  opts?: SetupEditorOptions<S>
-): ProsemirrorTestChain<S> {
+export function setupEditor(
+  opts?: SetupEditorOptions
+): ProsemirrorTestChain {
   const { doc, schema, useDefaultPlugins, plugins } = opts || {}
   let pmDoc
   if (doc && schema) {
@@ -44,7 +44,7 @@ export function setupEditor<S extends Schema = ExampleSchema>(
   } else if (doc) {
     pmDoc = defaultSchema.nodeFromJSON(doc)
   } else if (schema) {
-    pmDoc = schema.nodes.doc.createAndFill()
+    pmDoc = schema.nodes.doc.createAndFill() as PMNode
   } else {
     pmDoc = createSimpleDoc('Hello World')
   }
@@ -59,9 +59,8 @@ export function setupEditor<S extends Schema = ExampleSchema>(
       }),
     ]
   )
-  const view = new EditorView<S>(div, {
-    state: EditorState.create<S>({
-      // @ts-ignore
+  const view = new EditorView(div, {
+    state: EditorState.create({
       doc: pmDoc,
       plugins: editorPlugins,
     }),
@@ -69,7 +68,7 @@ export function setupEditor<S extends Schema = ExampleSchema>(
 
   document.body.append(div)
 
-  return new ProsemirrorTestChain<S>(view)
+  return new ProsemirrorTestChain(view)
 }
 
 export function createSimpleDoc(text: string) {

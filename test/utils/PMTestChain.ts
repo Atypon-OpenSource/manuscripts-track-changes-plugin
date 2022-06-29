@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Command, wrapIn } from 'prosemirror-commands'
+import { wrapIn } from 'prosemirror-commands'
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Mark, Node as PMNode, NodeType, Schema, Slice } from 'prosemirror-model'
@@ -23,10 +23,10 @@ import { EditorView } from 'prosemirror-view'
 import { ChangeSet, CHANGE_STATUS, trackChangesPluginKey, trackCommands } from '../../src'
 import * as cmds from './commands'
 
-export class ProsemirrorTestChain<S extends Schema> {
-  view: EditorView<S>
+export class ProsemirrorTestChain {
+  view: EditorView
 
-  constructor(view: EditorView<S>) {
+  constructor(view: EditorView) {
     this.view = view
   }
 
@@ -67,9 +67,9 @@ export class ProsemirrorTestChain<S extends Schema> {
 
   cmd(
     cmd: (
-      state: EditorState<S>,
-      dispatch: (tr: Transaction<S>) => void,
-      view?: EditorView<S>
+      state: EditorState,
+      dispatch: (tr: Transaction) => void,
+      view?: EditorView
     ) => void
   ) {
     cmd(this.view.state, this.view.dispatch, this.view)
@@ -164,7 +164,7 @@ export class ProsemirrorTestChain<S extends Schema> {
     return this
   }
 
-  wrapIn(nodeType: NodeType<S>, attrs?: { [key: string]: any }) {
+  wrapIn(nodeType: NodeType, attrs?: { [key: string]: any }) {
     this.cmd(wrapIn(nodeType, attrs))
     return this
   }
