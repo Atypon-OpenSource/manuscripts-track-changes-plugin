@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.1.1
+
+### Patch Changes
+
+- 4985cd8: fix(track): types & add typecheck command, run lint
+
 ## 0.1.0
 
 ### Minor Changes
