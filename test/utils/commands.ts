@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { Command } from 'prosemirror-commands'
 import { Fragment, Node as PMNode } from 'prosemirror-model'
-import { TextSelection } from 'prosemirror-state'
+import { Command, TextSelection } from 'prosemirror-state'
 import { liftTarget } from 'prosemirror-transform'
 
 export const insertText =

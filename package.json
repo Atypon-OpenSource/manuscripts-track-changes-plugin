@@ -25,6 +25,7 @@
     "watch": "rollup -cw",
     "test": "jest --runInBand",
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
+    "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
   },

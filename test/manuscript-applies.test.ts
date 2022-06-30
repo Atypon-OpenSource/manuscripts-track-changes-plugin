@@ -69,21 +69,23 @@ describe('TC with manuscripts schema', () => {
           return
         }
         const { changeSet } = trackChangesState
-        const change = changeSet.pending.find(c => c.type === 'node-change' && c.nodeType === 'figure_element')
+        const change = changeSet.pending.find(
+          (c) => c.type === 'node-change' && c.nodeType === 'figure_element'
+        )
         if (change && ChangeSet.isNodeChange(change)) {
           const ids = [change.id]
           trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
         }
       })
 
-      // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-      tester.cmd(trackCommands.applyAndRemoveChanges())
+    tester.cmd(trackCommands.applyAndRemoveChanges())
 
-      expect(tester.toJSON()).toEqual(docs.manuscriptApplied[0])
-      expect(uuidv4Mock.mock.calls.length).toBe(14)
-      expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-      expect(log.warn).toHaveBeenCalledTimes(0)
-      expect(log.error).toHaveBeenCalledTimes(0)
+    expect(tester.toJSON()).toEqual(docs.manuscriptApplied[0])
+    expect(uuidv4Mock.mock.calls.length).toBe(14)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

@@ -65,13 +65,7 @@ export class ProsemirrorTestChain {
     return this
   }
 
-  cmd(
-    cmd: (
-      state: EditorState,
-      dispatch: (tr: Transaction) => void,
-      view?: EditorView
-    ) => void
-  ) {
+  cmd(cmd: (state: EditorState, dispatch: (tr: Transaction) => void, view?: EditorView) => void) {
     cmd(this.view.state, this.view.dispatch, this.view)
     return this
   }

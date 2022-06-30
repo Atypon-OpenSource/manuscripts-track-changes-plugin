@@ -34,9 +34,7 @@ interface SetupEditorOptions {
   plugins?: Plugin[]
 }
 
-export function setupEditor(
-  opts?: SetupEditorOptions
-): ProsemirrorTestChain {
+export function setupEditor(opts?: SetupEditorOptions): ProsemirrorTestChain {
   const { doc, schema, useDefaultPlugins, plugins } = opts || {}
   let pmDoc
   if (doc && schema) {
