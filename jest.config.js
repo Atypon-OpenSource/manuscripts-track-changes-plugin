@@ -21,11 +21,9 @@ export default {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/dist/'],
-  transformIgnorePatterns: [
-    "/node_modules/(?!(uuid)/)"
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
   testRegex: 'test.*\\.test\\.tsx?$',
   transform: {
-    "^.+\\.[tj]s$": "ts-jest"
-  }
+    '^.+\\.[tj]s$': 'ts-jest',
+  },
 }

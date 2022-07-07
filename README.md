@@ -20,9 +20,11 @@ import { trackChangesPlugin } from '@manuscripts/track-changes-plugin'
 
 import { schema } from './schema'
 
-const plugins = exampleSetup({ schema }).concat(trackChangesPlugin({
-  debug: true
-}))
+const plugins = exampleSetup({ schema }).concat(
+  trackChangesPlugin({
+    debug: true,
+  })
+)
 const state = EditorState.create({
   schema,
   plugins,
