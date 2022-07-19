@@ -1,0 +1,17 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": {
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hello World"
+        }
+      ]
+    }
+  ]
+}

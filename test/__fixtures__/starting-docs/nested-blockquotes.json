@@ -1,0 +1,73 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": {
+        "dataTracked": null,
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "1st paragraph"
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "attrs": {
+        "dataTracked": null
+      },
+      "content": [
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "2nd paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "3rd paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "dataTracked": null,
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "4th paragraph"
+        }
+      ]
+    }
+  ]
+}

@@ -56,7 +56,7 @@ describe('track changes', () => {
 
   test('should track inserts of paragraphs', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     }).insertNode(defaultSchema.nodes.paragraph.createAndFill(), 0)
 
     expect(tester.toJSON()).toEqual(docs.basicNodeInsert)
@@ -68,7 +68,7 @@ describe('track changes', () => {
 
   test('should prevent deletion of paragraphs unless already inserted', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[1],
+      doc: docs.startingDocs.blockquoteMarks,
     })
       .insertNode(defaultSchema.nodes.paragraph.create(), 0)
       .moveCursor('start')
@@ -96,7 +96,7 @@ describe('track changes', () => {
 
   test('should create insert & delete operations on inline node attribute change', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     })
       .insertNode(
         defaultSchema.nodes.image.createAndFill({
@@ -135,7 +135,7 @@ describe('track changes', () => {
 
   test.skip('should track node attribute updates', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     }).cmd((state, dispatch) => {
       const cursor = state.selection.head
       const blockNodePos = state.doc.resolve(cursor).start(1) - 1

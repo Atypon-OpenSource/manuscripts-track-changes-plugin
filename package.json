@@ -4,14 +4,14 @@
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/quarterback-packages/track-changes-plugin",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     "./src/styles.css": "./src/styles.css",
-    ".": "./dist/index.es.js"
+    ".": "./dist/index.js"
   },
   "files": [
     "dist",
