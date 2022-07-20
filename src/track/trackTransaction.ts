@@ -118,7 +118,6 @@ export function trackTransaction(
     // And -1 here is necessary to keep the selection pointing at the start of the node
     // (or something, breaks with cross-references otherwise)
     const mappedPos = newTr.mapping.map(tr.selection.from, -1)
-    console.log('mappedPos ' + mappedPos)
     const sel: typeof NodeSelection = getSelectionStaticConstructor(tr.selection)
     newTr.setSelection(sel.create(newTr.doc, mappedPos))
   }

@@ -30,7 +30,7 @@
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
   },
   "devDependencies": {
-    "@manuscripts/manuscript-transform": "^0.49.1",
+    "@manuscripts/manuscript-transform": "^0.49.4",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@types/debug": "^4.1.7",
     "@types/jest": "27.5.1",
