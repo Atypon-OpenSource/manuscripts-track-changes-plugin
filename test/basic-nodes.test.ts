@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from './utils/schema'
 import { promises as fs } from 'fs'
 
-import {
-  CHANGE_STATUS,
-  setAction,
-  TrackChangesAction,
-  trackChangesPluginKey,
-  trackCommands,
-  ChangeSet,
-} from '../src'
+import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../src'
 import docs from './__fixtures__/docs'
-import { SECOND_USER } from './__fixtures__/users'
+import { schema as defaultSchema, schema } from './utils/schema'
 import { setupEditor } from './utils/setupEditor'
 
 import { log } from '../src/utils/logger'
@@ -129,6 +121,32 @@ describe('track changes', () => {
     expect(tester.toJSON()).toEqual(docs.inlineNodeAttrUpdate)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should correctly track only inserted link leaving its text content untouched', async () => {
+    const tester = setupEditor({
+      doc: docs.startingDocs.paragraph,
+    })
+      .selectText(1, 6)
+      .wrapInInline(schema.nodes.link)
+
+    expect(tester.toJSON()).toEqual(docs.wrapWithLink[0])
+
+    tester.cmd((state, dispatch) => {
+      dispatch(
+        state.tr.setNodeMarkup(1, undefined, {
+          href: 'https://testing.testing',
+          title: 'I am a title',
+        })
+      )
+    })
+
+    expect(tester.toJSON()).toEqual(docs.wrapWithLink[1])
+
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(2)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

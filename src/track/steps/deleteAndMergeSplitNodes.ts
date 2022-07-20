@@ -266,10 +266,23 @@ export function deleteAndMergeSplitNodes(
     const { pos: offsetPos, deleted: nodeWasDeleted } = deleteMap.mapResult(pos, 1)
     const offsetFrom = deleteMap.map(from, -1)
     const offsetTo = deleteMap.map(to, 1)
-    const wasWithinGap = gap && offsetPos >= deleteMap.map(gap.start, -1)
     const nodeEnd = offsetPos + node.nodeSize
+    // So this insane boolean checks for ReplaceAroundStep gaps and whether the node should be skipped
+    // since the content inside gap should stay unchanged.
+    // All other nodes except text nodes consist of one start and end token (or just a single token for atoms).
+    // For them we can just check whether the start token is within the gap eg pos is 10 when gap (8, 18) to
+    // determine whether it should be skipped.
+    // For text nodes though, since they are continous, they might only partially be enclosed in the gap
+    // eg. pos 10 when gap is (8, 18) BUT if their nodeEnd goes past the gap's end eg nodeEnd 20 they actually
+    // are altered and should not be skipped.
+    // @TODO ATM 20.7.2022 there doesn't seem to be tests that capture this.
+    const wasWithinGap =
+      gap &&
+      ((!node.isText && offsetPos >= deleteMap.map(gap.start, -1)) ||
+        (node.isText &&
+          offsetPos <= deleteMap.map(gap.start, -1) &&
+          nodeEnd >= deleteMap.map(gap.end, -1)))
     let step = newTr.steps[newTr.steps.length - 1]
-    // debugger
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     //

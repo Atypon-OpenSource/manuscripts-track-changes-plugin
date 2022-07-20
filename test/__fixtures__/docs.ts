@@ -30,8 +30,10 @@ import insertAccept from './insert-accept.json'
 import insertReject from './insert-reject.json'
 import manuscriptApplied from './manuscript-applied.json'
 import manuscriptDefaultDocs from './manuscript-default-docs.json'
+import repeatedDelete from './repeated-delete.json'
 import replaceAroundSteps from './replace-around-steps.json'
 import variousOpenEndedSlices from './various-open-ended-slices.json'
+import wrapWithLink from './wrap-with-link.json'
 
 export default {
   startingDocs: {
@@ -52,6 +54,8 @@ export default {
   insertReject,
   manuscriptApplied,
   manuscriptDefaultDocs,
+  repeatedDelete,
   replaceAroundSteps,
   variousOpenEndedSlices,
+  wrapWithLink,
 }

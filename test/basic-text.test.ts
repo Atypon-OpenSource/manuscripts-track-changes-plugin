@@ -74,12 +74,20 @@ describe('track changes', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should correctly delete content when backspace is pressed repeatedly', async () => {
+  test.skip('should continue delete content when backspace is pressed repeatedly', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
-    }).insertText('inserted text')
+      doc: docs.startingDocs.manyParagraphs,
+    })
+      .moveCursor('end')
+      .moveCursor(-2)
 
-    expect(tester.toJSON()).toEqual(docs.basicTextInsert)
+    for (let i = 0; i < 400; i += 1) {
+      tester.backspace(1)
+    }
+
+    await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+    expect(tester.toJSON()).toEqual(docs.repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
     expect(log.warn).toHaveBeenCalledTimes(0)

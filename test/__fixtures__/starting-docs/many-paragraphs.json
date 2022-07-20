@@ -4,6 +4,7 @@
     {
       "type": "paragraph",
       "attrs": {
+        "dataTracked": null,
         "testAttribute": null
       },
       "content": [
@@ -16,6 +17,7 @@
     {
       "type": "paragraph",
       "attrs": {
+        "dataTracked": null,
         "testAttribute": null
       },
       "content": [
@@ -28,18 +30,42 @@
     {
       "type": "paragraph",
       "attrs": {
+        "dataTracked": null,
         "testAttribute": null
       },
       "content": [
         {
           "type": "text",
-          "text": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+          "text": "Duis aute irure dolor in"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "tracked_delete",
+              "attrs": {
+                "dataTracked": {
+                  "id": "f82da531-2d26-4204-a502-2730094ae1ab",
+                  "userID": "1-mike",
+                  "createdAt": 1658211701402,
+                  "status": "pending",
+                  "operation": "delete"
+                }
+              }
+            }
+          ],
+          "text": " repre"
+        },
+        {
+          "type": "text",
+          "text": "henderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
         }
       ]
     },
     {
       "type": "paragraph",
       "attrs": {
+        "dataTracked": null,
         "testAttribute": null
       },
       "content": [

@@ -35,8 +35,10 @@ export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
     return tr.lift(range, targetDepth)
   }
   const resPos = tr.doc.resolve(pos)
+  // Block nodes can be deleted by just removing their start token which should then merge the text
+  // content to above node's content (if there is one)
   const canMergeToNodeAbove =
-    (resPos.parent !== tr.doc || resPos.nodeBefore) && node.firstChild?.isText
+    (resPos.parent !== tr.doc || resPos.nodeBefore) && node.isBlock && node.firstChild?.isText
   if (canMergeToNodeAbove) {
     return tr.replaceWith(pos - 1, pos + 1, Fragment.empty)
   } else {

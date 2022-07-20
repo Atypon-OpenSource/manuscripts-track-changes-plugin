@@ -91,7 +91,7 @@ describe('track changes', () => {
 
     expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(uuidv4Mock.mock.calls.length).toBe(7)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

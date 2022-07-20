@@ -156,7 +156,7 @@ describe('track changes', () => {
 
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(19)
+    expect(uuidv4Mock.mock.calls.length).toBe(18)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
