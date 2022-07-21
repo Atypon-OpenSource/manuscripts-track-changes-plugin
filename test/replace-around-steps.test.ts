@@ -51,7 +51,7 @@ describe('track changes', () => {
 
   test('should track basic wrapping and unwrapping of blockquotes', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       // Wrap the 1st paragraph in a blockquote using a ReplaceAroundStep and then immediately delete it with
       // another ReplaceAroundStep. LiftNode in this case maps to pressing backspace inside the paragraph
@@ -91,14 +91,14 @@ describe('track changes', () => {
 
     expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(uuidv4Mock.mock.calls.length).toBe(7)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test.skip('should mark text inserted/deleted when selection spans various nodes', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       .selectText(5, 21)
       .insertText('ab')

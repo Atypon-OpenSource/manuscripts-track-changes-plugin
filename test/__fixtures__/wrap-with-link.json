@@ -1,0 +1,92 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "",
+                "title": "",
+                "dataTracked": {
+                  "id": "MOCK-ID-0",
+                  "userID": "1-mike",
+                  "createdAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "insert"
+                }
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Hello"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " World"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 1,
+      "head": 8
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "https://testing.testing",
+                "title": "I am a title",
+                "dataTracked": {
+                  "id": "MOCK-ID-1",
+                  "userID": "1-mike",
+                  "createdAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "insert"
+                }
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Hello"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": " World"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 8,
+      "head": 8
+    }
+  }
+]

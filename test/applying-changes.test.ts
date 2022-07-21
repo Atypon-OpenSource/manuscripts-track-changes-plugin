@@ -56,7 +56,7 @@ describe('track changes', () => {
 
   test('should update marks/attributes status correctly', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     })
       .insertNode(defaultSchema.nodes.paragraph.createAndFill(), 0)
       .moveCursor('start')
@@ -111,7 +111,7 @@ describe('track changes', () => {
 
   test('should correctly apply adjacent block changes', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       .insertNode(defaultSchema.nodes.ordered_list.createAndFill(), 0)
       .insertNode(defaultSchema.nodes.table.createAndFill(), 0)
@@ -144,7 +144,7 @@ describe('track changes', () => {
 
   test.skip('should apply changes correctly', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
 
     expect(tester.toJSON()).toEqual(docs.insertAccept[0])

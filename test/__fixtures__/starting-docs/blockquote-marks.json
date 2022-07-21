@@ -1,0 +1,86 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": {
+        "dataTracked": null,
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hello world"
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "attrs": {
+        "dataTracked": null
+      },
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "I am a quote"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "dataTracked": null,
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "Bolded"
+        },
+        {
+          "type": "text",
+          "text": " "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "italic"
+            }
+          ],
+          "text": "italic"
+        },
+        {
+          "type": "text",
+          "text": " "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "italic"
+            },
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "both"
+        }
+      ]
+    }
+  ]
+}

@@ -28,6 +28,7 @@ export type Nodes =
   | 'image'
   | 'paragraph'
   | 'text'
+  | 'link'
   | 'ordered_list'
   | 'bullet_list'
   | 'list_item'
@@ -42,7 +43,6 @@ export type Marks =
   | 'bold'
   | 'code'
   | 'italic'
-  | 'link'
   | 'strikethrough'
   | 'tracked_insert'
   | 'tracked_delete'
@@ -80,6 +80,11 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
     // :: NodeSpec The top level document node.
     doc: {
       content: 'block+',
+    },
+
+    // :: NodeSpec The text node.
+    text: {
+      group: 'inline',
     },
 
     // :: NodeSpec A plain paragraph textblock. Represented in the DOM
@@ -153,11 +158,44 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
       },
     },
 
-    // :: NodeSpec The text node.
-    text: {
+    // Use inline nodes for links instead of marks as in the original example schema
+    // This is an useful test case for checking whether wrapping & unwrapping text with links
+    // is tracked properly and without errors.
+    link: {
+      content: 'text*',
+      marks: '', // no marks
+      attrs: {
+        href: { default: '' },
+        title: { default: '' },
+        dataTracked: { default: null },
+      },
+      inline: true,
       group: 'inline',
+      draggable: true,
+      atom: true,
+      parseDOM: [
+        {
+          tag: 'a[href]',
+          getAttrs: (dom) => {
+            if (dom instanceof HTMLElement) {
+              return {
+                href: dom.getAttribute('href') || '',
+                title: dom.getAttribute('title') || '',
+              }
+            }
+            return null
+          },
+        },
+      ],
+      toDOM: (node: PMNode) => {
+        const { href, title } = node.attrs
+        const attrs = {
+          href,
+          ...(title && { title }),
+        }
+        return ['a', attrs, 0]
+      },
     },
-
     // :: NodeSpec An inline image (`<img>`) node. Supports `src`,
     // `alt`, and `href` attributes. The latter two default to the empty
     // string.
@@ -335,37 +373,6 @@ export const schema: ExampleSchema = new Schema<Nodes, Marks>({
     },
   },
   marks: {
-    // :: MarkSpec A link. Has `href` and `title` attributes. `title`
-    // defaults to the empty string. Rendered and parsed as an `<a>`
-    // element.
-    link: {
-      attrs: {
-        href: {},
-        title: { default: null },
-        dataTracked: { default: null },
-      },
-      inclusive: false,
-      parseDOM: [
-        {
-          tag: 'a[href]',
-          getAttrs(dom: HTMLElement | string) {
-            if (dom instanceof HTMLElement) {
-              return {
-                src: dom.getAttribute('src'),
-                title: dom.getAttribute('title'),
-                alt: dom.getAttribute('alt'),
-              }
-            }
-            return null
-          },
-        },
-      ],
-      toDOM(node: Mark) {
-        const { href, title } = node.attrs
-        return ['a', { href, title }, 0]
-      },
-    },
-
     // :: MarkSpec An emphasis mark. Rendered as an `<em>` element.
     // Has parse rules that also match `<i>` and `font-style: italic`.
     italic: {

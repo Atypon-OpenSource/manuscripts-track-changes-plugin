@@ -43,6 +43,7 @@ export function trackReplaceStep(
       log.error(`invert ReplaceStep failed: "${stepResult.failed}"`, newStep)
       return
     }
+    log.info('TR: steps before applying delete', [...newTr.steps])
     // First apply the deleted range and update the insert slice to not include content that was deleted,
     // eg partial nodes in an open-ended slice
     const { deleteMap, mergedInsertPos, newSliceContent } = deleteAndMergeSplitNodes(
@@ -55,7 +56,7 @@ export function trackReplaceStep(
       attrs,
       slice
     )
-    log.info('TR: new steps after applying delete', [...newTr.steps])
+    log.info('TR: steps after applying delete', [...newTr.steps])
     const adjustedInsertPos = mergedInsertPos ?? deleteMap.map(toA)
     if (newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)

@@ -48,7 +48,7 @@ describe('track changes', () => {
 
   test('should track basic text inserts', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     }).insertText('inserted text')
 
     expect(tester.toJSON()).toEqual(docs.basicTextInsert)
@@ -60,7 +60,7 @@ describe('track changes', () => {
 
   test('should track basic text inserts and deletes', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     })
       .insertText('inserted text')
       .backspace(4)
@@ -74,13 +74,35 @@ describe('track changes', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('should continue delete content when backspace is pressed repeatedly', async () => {
+    const tester = setupEditor({
+      doc: docs.startingDocs.manyParagraphs,
+    })
+      .moveCursor('end')
+      .moveCursor(-2)
+
+    for (let i = 0; i < 400; i += 1) {
+      tester.backspace(1)
+    }
+
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+    // @TODO should delete links & their text and blockquotes
+    // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
+    expect(tester.toJSON()).toEqual(docs.repeatedDelete)
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(11)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
   test('should join adjacent text inserts and deletes by same user', async () => {
     // delete first user inserts
     // delete at first user deletes -> should not replace marks
     // check inserts joined, deletes still separate
     // MISSING: check timestamps merged correctly
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     })
       .insertText('a')
       .insertText('b')
@@ -121,7 +143,7 @@ describe('track changes', () => {
 
   test('should fix inconsistent text inserts and deletes', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[0],
+      doc: docs.startingDocs.paragraph,
     })
       .insertText('abcd')
       .cmd((state, dispatch) => {

@@ -52,7 +52,7 @@ describe('track changes', () => {
 
   test('should correctly wrap copy-pasted slice with track markup', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       .paste(new Slice(Fragment.from(defaultSchema.text('inserted')), 0, 0), 18, 18)
       .paste(new Slice(Fragment.from(defaultSchema.text('replaced')), 0, 0), 5, 14)
@@ -66,7 +66,7 @@ describe('track changes', () => {
 
   test('should prevent replacing of blockquotes and break the slice into parts instead', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       // This is a bit wonky operation that isn't entirely valid but which works nonetheless.
       // The reason being that it deletes the start tokens of both blockquotes while leaving two separate end tokens.
@@ -107,7 +107,7 @@ describe('track changes', () => {
 
   test('should track pasted slices and prevent deletion of non-inserted content', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       // Pastes a paragraph and a blockquote from the end of the 1st paragraph all the way to the start of
       // the 4th paragraph. This should delete all except the 1st paragraph node, and insert the content
@@ -156,14 +156,14 @@ describe('track changes', () => {
 
     expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(19)
+    expect(uuidv4Mock.mock.calls.length).toBe(18)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test.skip('todo bugs', async () => {
     const tester = setupEditor({
-      doc: docs.defaultDocs[2],
+      doc: docs.startingDocs.nestedBlockquotes,
     })
       // Should delete 2nd and 3rd paragraph and replace the inner blockquote with this new blockquote.
       // At the moment, track-changes-plugin deletes the content correctly but fails to insert the new blockquote.

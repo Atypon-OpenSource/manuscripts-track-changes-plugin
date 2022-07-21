@@ -16,9 +16,10 @@
 import { wrapIn } from 'prosemirror-commands'
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
-import { Mark, Node as PMNode, NodeType, Schema, Slice } from 'prosemirror-model'
+import { Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
 import { EditorState, Plugin, TextSelection, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
+import { findWrapping } from 'prosemirror-transform'
 
 import { ChangeSet, CHANGE_STATUS, trackChangesPluginKey, trackCommands } from '../../src'
 import * as cmds from './commands'
@@ -160,6 +161,19 @@ export class ProsemirrorTestChain {
 
   wrapIn(nodeType: NodeType, attrs?: { [key: string]: any }) {
     this.cmd(wrapIn(nodeType, attrs))
+    return this
+  }
+
+  wrapInInline(nodeType: NodeType, attrs?: { [key: string]: any }) {
+    this.cmd((state, dispatch) => {
+      const range = new NodeRange(
+          state.selection.$from,
+          state.selection.$to,
+          state.selection.$from.depth
+        ),
+        wrapping = findWrapping(range, nodeType, attrs)
+      wrapping && dispatch(state.tr.wrap(range, wrapping))
+    })
     return this
   }
 

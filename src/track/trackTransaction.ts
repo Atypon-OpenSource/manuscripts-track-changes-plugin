@@ -113,13 +113,13 @@ export function trackTransaction(
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   })
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
-  // These are required by at least cross-references that need it to activate the selector pop-up
+  // These are required by at least cross-references and links to activate their selector pop-ups
   if (wasNodeSelection) {
-    const mappedPos = newTr.mapping.map(tr.selection.from)
-    const resPos = newTr.doc.resolve(mappedPos)
-    const nodePos = mappedPos - (resPos.nodeBefore?.nodeSize || 0)
+    // And -1 here is necessary to keep the selection pointing at the start of the node
+    // (or something, breaks with cross-references otherwise)
+    const mappedPos = newTr.mapping.map(tr.selection.from, -1)
     const sel: typeof NodeSelection = getSelectionStaticConstructor(tr.selection)
-    newTr.setSelection(sel.create(newTr.doc, nodePos))
+    newTr.setSelection(sel.create(newTr.doc, mappedPos))
   }
   log.info('NEW transaction', newTr)
   return newTr

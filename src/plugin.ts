@@ -28,12 +28,6 @@ import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './ty
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
-// TODO remove
-const infiniteLoopCounter = {
-  start: 0,
-  iters: 0,
-}
-
 /**
  * The ProseMirror plugin needed to enable track-changes.
  *
@@ -106,14 +100,6 @@ export const trackChangesPlugin = (
       ) {
         return null
       }
-      if (infiniteLoopCounter.start < Date.now() - 10000) {
-        infiniteLoopCounter.start = Date.now()
-        infiniteLoopCounter.iters = 0
-      }
-      if (infiniteLoopCounter.iters >= 100) {
-        console.error('Detected probable infinite loop in track changes!')
-        return null
-      }
       const { userID, changeSet } = pluginState
       let createdTr = newState.tr,
         docChanged = false
@@ -126,7 +112,6 @@ export const trackChangesPlugin = (
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (tr.docChanged && !skipMetaUsed && !skipTrackUsed && !tr.getMeta('history$')) {
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
-          infiniteLoopCounter.iters += 1
         }
         docChanged = docChanged || tr.docChanged
         const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)

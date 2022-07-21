@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import paragraph from './starting-docs/paragraph.json'
+import manyParagraphs from './starting-docs/many-paragraphs.json'
+import blockquoteMarks from './starting-docs/blockquote-marks.json'
+import nestedBlockquotes from './starting-docs/nested-blockquotes.json'
+
 import basicNodeDelete from './basic-node-del.json'
 import basicNodeInsert from './basic-node-ins.json'
 import basicTextDelete from './basic-text-del.json'
@@ -20,16 +25,23 @@ import basicTextInconsistent from './basic-text-inconsistent-track.json'
 import basicTextInsert from './basic-text-ins.json'
 import basicTextJoin from './basic-text-join.json'
 import blockNodeAttrUpdate from './block-node-attr-update.json'
-import defaultDocs from './default-docs.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import insertAccept from './insert-accept.json'
 import insertReject from './insert-reject.json'
 import manuscriptApplied from './manuscript-applied.json'
 import manuscriptDefaultDocs from './manuscript-default-docs.json'
+import repeatedDelete from './repeated-delete.json'
 import replaceAroundSteps from './replace-around-steps.json'
 import variousOpenEndedSlices from './various-open-ended-slices.json'
+import wrapWithLink from './wrap-with-link.json'
 
 export default {
+  startingDocs: {
+    paragraph,
+    manyParagraphs,
+    blockquoteMarks,
+    nestedBlockquotes,
+  },
   basicNodeDelete,
   basicNodeInsert,
   basicTextDelete,
@@ -37,12 +49,13 @@ export default {
   basicTextInsert,
   basicTextJoin,
   blockNodeAttrUpdate,
-  defaultDocs,
   inlineNodeAttrUpdate,
   insertAccept,
   insertReject,
   manuscriptApplied,
   manuscriptDefaultDocs,
+  repeatedDelete,
   replaceAroundSteps,
   variousOpenEndedSlices,
+  wrapWithLink,
 }
