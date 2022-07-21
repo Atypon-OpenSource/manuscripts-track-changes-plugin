@@ -28,9 +28,10 @@ export function mergeNode(node: PMNode, pos: number, tr: Transaction) {
   if (canJoin(tr.doc, pos)) {
     return tr.join(pos)
   } else if (canJoin(tr.doc, pos + node.nodeSize)) {
+    // TODO should copy the attributes from the merged node below
     return tr.join(pos + node.nodeSize)
   }
-  // TODO is this the same thing as join?
+  // TODO is this the same thing as join to above?
   const resPos = tr.doc.resolve(pos)
   const canMergeToNodeAbove =
     (resPos.parent !== tr.doc || resPos.nodeBefore) && node.firstChild?.isText

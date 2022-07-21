@@ -11,7 +11,25 @@
         "content": [
           {
             "type": "text",
-            "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            "text": "Lorem ipsum dolor sit amet, consectetur adipisc"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_delete",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-10",
+                    "userID": "1-mike",
+                    "createdAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                }
+              }
+            ],
+            "text": "ing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
           }
         ]
       },
@@ -24,6 +42,20 @@
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "tracked_delete",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-9",
+                    "userID": "1-mike",
+                    "createdAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                }
+              }
+            ],
             "text": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
           }
         ]
@@ -37,20 +69,131 @@
         "content": [
           {
             "type": "text",
-            "text": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+            "marks": [
+              {
+                "type": "tracked_delete",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-8",
+                    "userID": "1-mike",
+                    "createdAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                }
+              }
+            ],
+            "text": "Duis aute irure "
+          },
+          {
+            "type": "link",
+            "attrs": {
+              "href": "",
+              "title": "",
+              "dataTracked": null
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "dolor"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "tracked_delete",
+                "attrs": {
+                  "dataTracked": {
+                    "id": "MOCK-ID-2",
+                    "userID": "1-mike",
+                    "createdAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                }
+              }
+            ],
+            "text": " in repre henderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+          },
+          {
+            "type": "image",
+            "attrs": {
+              "src": "https://i.imgur.com/lFAxY.png",
+              "alt": null,
+              "title": "Image",
+              "dataTracked": {
+                "id": "MOCK-ID-1",
+                "userID": "1-mike",
+                "createdAt": 1577836800000,
+                "status": "pending",
+                "operation": "delete"
+              }
+            }
           }
         ]
       },
       {
-        "type": "paragraph",
+        "type": "blockquote",
         "attrs": {
-          "dataTracked": null,
-          "testAttribute": null
+          "dataTracked": null
         },
         "content": [
           {
-            "type": "text",
-            "text": "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+            "type": "paragraph",
+            "attrs": {
+              "dataTracked": null,
+              "testAttribute": null
+            },
+            "content": [
+              {
+                "type": "text",
+                "marks": [
+                  {
+                    "type": "italic",
+                    "attrs": {
+                      "dataTracked": null
+                    }
+                  },
+                  {
+                    "type": "tracked_delete",
+                    "attrs": {
+                      "dataTracked": {
+                        "id": "MOCK-ID-0",
+                        "userID": "1-mike",
+                        "createdAt": 1577836800000,
+                        "status": "pending",
+                        "operation": "delete"
+                      }
+                    }
+                  }
+                ],
+                "text": "Excepteur"
+              },
+              {
+                "type": "text",
+                "marks": [
+                  {
+                    "type": "tracked_delete",
+                    "attrs": {
+                      "dataTracked": {
+                        "id": "MOCK-ID-0",
+                        "userID": "1-mike",
+                        "createdAt": 1577836800000,
+                        "status": "pending",
+                        "operation": "delete"
+                      }
+                    }
+                  }
+                ],
+                "text": " sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laboru"
+              },
+              {
+                "type": "text",
+                "text": "m."
+              }
+            ]
           }
         ]
       }
@@ -58,7 +201,7 @@
   },
   "selection": {
     "type": "text",
-    "anchor": 266,
-    "head": 266
+    "anchor": 48,
+    "head": 48
   }
 }

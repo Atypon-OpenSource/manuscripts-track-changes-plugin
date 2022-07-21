@@ -74,7 +74,7 @@ describe('track changes', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should continue delete content when backspace is pressed repeatedly', async () => {
+  test('should continue delete content when backspace is pressed repeatedly', async () => {
     const tester = setupEditor({
       doc: docs.startingDocs.manyParagraphs,
     })
@@ -85,11 +85,13 @@ describe('track changes', () => {
       tester.backspace(1)
     }
 
-    await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
+    // @TODO should delete links & their text and blockquotes
+    // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
     expect(tester.toJSON()).toEqual(docs.repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(1)
+    expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
