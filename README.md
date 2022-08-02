@@ -2,15 +2,12 @@
 
 ProseMirror plugin to track inserts/deletes to nodes and text.
 
-If you have multiple versions of prosemirror packages, ensure that track-changes' dependencies `prosemirror-model` and `prosemirror-transform` are aliased/deduped to same instance. `prosemirror-state` and `prosemirror-view` are only used at type level. [Example](https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/examples-packages/client/vite.config.js).
-
-[More detailed overview](https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/quarterback-packages/track-changes-plugin/OVERVIEW.md)
-
 ## How to use
 
-First install the plugin: `npm i @manuscripts/track-changes-plugin`
+Requires normal ProseMirror editor dependencies.
 
-Then add the plugin to ProseMirror plugins:
+1. Install the plugin: `npm i @manuscripts/track-changes-plugin`
+2. Add it to ProseMirror plugins:
 
 ```ts
 import { EditorState } from 'prosemirror-state'
@@ -34,9 +31,9 @@ const view = new EditorView(document.querySelector('#editor') as HTMLElement, {
 })
 ```
 
-where `schema` is https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/quarterback-packages/track-changes-plugin/test/utils/schema.ts
+where `schema` contains `dataTracked` attributes for tracked nodes and `tracked_insert` & `tracked_delete` marks as shown here: https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/quarterback-packages/track-changes-plugin/test/utils/schema.ts
 
-Enable or disable the plugin with:
+3. That should start tracking all transactions. You can use the following commands to enable/disable/enter read-only mode:
 
 ```ts
 import { trackCommands, TrackChangesStatus } from '@manuscripts/track-changes-plugin'
@@ -54,7 +51,11 @@ trackCommands.setTrackingStatus(TrackChangesStatus.disabled))(view.state, view.d
 trackCommands.setTrackingStatus(TrackChangesStatus.viewSnapshots))(view.state, view.dispatch, view)
 ```
 
-See an example app at https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/examples-packages/client
+See an example app at https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/examples-packages/client for a more complete boilerplate.
+
+**NOTE**: If you have multiple versions of prosemirror packages, ensure that track-changes' dependencies `prosemirror-model` and `prosemirror-transform` are aliased/deduped to same instance. `prosemirror-state` and `prosemirror-view` are only used at type level. [Example](https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/examples-packages/client/vite.config.js).
+
+[More detailed overview](https://github.com/Atypon-OpenSource/manuscripts-quarterback/blob/main/quarterback-packages/track-changes-plugin/OVERVIEW.md)
 
 ## API
 

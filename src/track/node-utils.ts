@@ -13,12 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Mark, Node as PMNode, Schema } from 'prosemirror-model'
-import { Transaction } from 'prosemirror-state'
-import { canJoin, liftTarget, Mapping } from 'prosemirror-transform'
+import { Node as PMNode, Schema } from 'prosemirror-model'
 
-import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { log } from '../utils/logger'
 import { uuidv4 } from '../utils/uuidv4'
 
@@ -30,25 +27,6 @@ export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
     }
   }
   return attrs
-}
-
-/**
- * Not in use, maybe for ReplaceAroundSteps but we'll see
- * @param pos
- * @param tr
- */
-export function liftNode(pos: number, tr: Transaction) {
-  const startPos = tr.doc.resolve(pos)
-  const node = tr.doc.nodeAt(pos)
-  if (!node) {
-    return undefined
-  }
-  const range = startPos.blockRange(tr.doc.resolve(startPos.pos + node.nodeSize))
-  const targetDepth = range ? Number(liftTarget(range)) : NaN
-  if (range && !Number.isNaN(targetDepth)) {
-    return tr.lift(range, targetDepth)
-  }
-  return undefined
 }
 
 export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, schema: Schema) {

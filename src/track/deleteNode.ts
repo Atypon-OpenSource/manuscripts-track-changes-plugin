@@ -30,7 +30,7 @@ export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
   const startPos = tr.doc.resolve(pos + 1)
   const range = startPos.blockRange(tr.doc.resolve(startPos.pos - 2 + node.nodeSize))
   const targetDepth = range && liftTarget(range)
-  // Check with typeof since with old prosemirror-transform targetDepth is undefined
+  // Check with typeof since with prosemirror-transform pre 1.6.0 targetDepth is undefined
   if (range && typeof targetDepth === 'number') {
     return tr.lift(range, targetDepth)
   }

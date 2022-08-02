@@ -101,7 +101,7 @@ export const trackChangesPlugin = (
         return null
       }
       const { userID, changeSet } = pluginState
-      let createdTr = newState.tr,
+      let createdTr: Transaction = newState.tr,
         docChanged = false
       log.info('TRS', trs)
       trs.forEach((tr) => {
