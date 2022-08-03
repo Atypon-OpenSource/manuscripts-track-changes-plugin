@@ -131,44 +131,16 @@ export const refreshChanges = () => Command
 
 ### Actions
 
-Actions are used to access/set transaction meta fields. I don't think you ever would need to use other than `TrackChangesAction.skipTrack` but they are all exposed, nonetheless.
+Actions are used to access/set transaction meta fields internally. `skipTracking` is exposed publicly to set track-changes to skip certain transaction.
 
 ```ts
-export type TrackChangesActionParams = {
-  [TrackChangesAction.skipTrack]: boolean
-  [TrackChangesAction.setUserID]: string
-  [TrackChangesAction.setPluginStatus]: TrackChangesStatus
-  [TrackChangesAction.setChangeStatuses]: {
-    status: CHANGE_STATUS
-    ids: string[]
-  }
-  [TrackChangesAction.updateChanges]: string[]
-  [TrackChangesAction.refreshChanges]: boolean
-  [TrackChangesAction.applyAndRemoveChanges]: boolean
-}
 /**
- * Gets the value of a meta field, action payload, of a defined track-changes action.
- * @param tr
- * @param action
+ * Skip tracking for a transaction, use this with caution to avoid race-conditions or just to otherwise
+ * omitting applying of track attributes or marks.
+ * @param tr 
+ * @returns 
  */
-export function getAction<K extends keyof TrackChangesActionParams>(tr: Transaction, action: K) {
-  return tr.getMeta(action) as TrackChangesActionParams[K] | undefined
-}
-
-/**
- * Use this function to set meta keys to transactions that are consumed by the track-changes-plugin.
- * For example, you can skip tracking of a transaction with setAction(tr, TrackChangesAction.skipTrack, true)
- * @param tr
- * @param action
- * @param payload
- */
-export function setAction<K extends keyof TrackChangesActionParams>(
-  tr: Transaction,
-  action: K,
-  payload: TrackChangesActionParams[K]
-) {
-  return tr.setMeta(action, payload)
-}
+export const skipTracking = (tr: Transaction) => setAction(tr, TrackChangesAction.skipTrack, true)
 ```
 
 ### Types

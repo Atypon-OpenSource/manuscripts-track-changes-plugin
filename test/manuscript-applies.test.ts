@@ -21,8 +21,6 @@ import { promises as fs } from 'fs'
 
 import {
   CHANGE_STATUS,
-  setAction,
-  TrackChangesAction,
   trackChangesPluginKey,
   trackCommands,
   ChangeSet,
