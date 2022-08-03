@@ -18,7 +18,7 @@ import { schema as defaultSchema } from './utils/schema'
 
 import { promises as fs } from 'fs'
 
-import { setAction, TrackChangesAction, trackCommands } from '../src'
+import { trackCommands } from '../src'
 import docs from './__fixtures__/docs'
 import { SECOND_USER } from './__fixtures__/users'
 import * as utils from './utils/nodeUtils'

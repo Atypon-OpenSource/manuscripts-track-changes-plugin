@@ -40,8 +40,10 @@
                 "expandListing": false,
                 "dataTracked": {
                   "id": "MOCK-ID-9",
-                  "userID": "1-mike",
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
                   "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
                   "status": "pending",
                   "operation": "insert"
                 }
@@ -55,8 +57,10 @@
                     "footerRows": 1,
                     "dataTracked": {
                       "id": "MOCK-ID-7",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "pending",
                       "operation": "insert"
                     }
@@ -149,8 +153,10 @@
                     "isExecuting": false,
                     "dataTracked": {
                       "id": "MOCK-ID-8",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "pending",
                       "operation": "insert"
                     }

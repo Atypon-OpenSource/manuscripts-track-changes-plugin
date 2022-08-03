@@ -19,14 +19,7 @@ import { schema } from '@manuscripts/manuscript-transform'
 import { Node as PMNode, Schema } from 'prosemirror-model'
 import { promises as fs } from 'fs'
 
-import {
-  CHANGE_STATUS,
-  setAction,
-  TrackChangesAction,
-  trackChangesPluginKey,
-  trackCommands,
-  ChangeSet,
-} from '../src'
+import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../src'
 import docs from './__fixtures__/docs'
 import { SECOND_USER } from './__fixtures__/users'
 import { setupEditor } from './utils/setupEditor'

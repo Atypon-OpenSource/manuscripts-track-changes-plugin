@@ -120,7 +120,12 @@ export const trackChangesPlugin = (
           ids.forEach((changeId: string) => {
             const change = changeSet?.get(changeId)
             if (change) {
-              createdTr = updateChangeAttrs(createdTr, change, { status }, oldState.schema)
+              createdTr = updateChangeAttrs(
+                createdTr,
+                change,
+                { status, reviewedByID: userID },
+                oldState.schema
+              )
               setAction(createdTr, TrackChangesAction.updateChanges, [change.id])
             }
           })

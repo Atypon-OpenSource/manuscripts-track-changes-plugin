@@ -29,11 +29,12 @@ export enum CHANGE_STATUS {
 }
 export interface TrackedAttrs {
   id: string
-  userID: string
+  authorID: string
+  reviewedByID: string | null
   operation: CHANGE_OPERATION
   status: CHANGE_STATUS
   createdAt: number
-  // updatedAt: number // ?
+  updatedAt: number
 }
 export type Change = {
   id: string
@@ -43,6 +44,7 @@ export type Change = {
 }
 export type TextChange = Change & {
   type: 'text-change'
+  text: string
 }
 export type NodeChange = Change & {
   type: 'node-change'

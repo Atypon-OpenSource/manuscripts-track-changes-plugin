@@ -51,18 +51,20 @@ const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(
  * @param tr Original transaction
  * @param oldState State before transaction
  * @param newTr Transaction created from the new editor state
- * @param userID User id
+ * @param authorID User id
  * @returns newTr that inverts the initial tr and applies track attributes/marks
  */
 export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
   newTr: Transaction,
-  userID: string
+  authorID: string
 ) {
   const emptyAttrs: NewEmptyAttrs = {
-    userID,
+    authorID,
+    reviewedByID: null,
     createdAt: tr.time,
+    updatedAt: tr.time,
     status: CHANGE_STATUS.pending,
   }
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more

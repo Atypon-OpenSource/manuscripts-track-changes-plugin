@@ -16,7 +16,7 @@
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
 
-import { setAction, TrackChangesAction, trackCommands } from '../src'
+import { skipTracking, trackCommands } from '../src'
 import docs from './__fixtures__/docs'
 import { SECOND_USER } from './__fixtures__/users'
 import { setupEditor } from './utils/setupEditor'
@@ -167,7 +167,7 @@ describe('track changes', () => {
             dataTracked: {},
           })
         )
-        setAction(tr, TrackChangesAction.skipTrack, true)
+        skipTracking(tr)
         dispatch && dispatch(tr)
         return true
       })

@@ -182,12 +182,30 @@ export class ChangeSet {
     if ('attrs' in attrs) {
       log.warn('passed "attrs" as property to isValidTrackedAttrs(attrs)', attrs)
     }
-    const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'userID', 'operation', 'status', 'createdAt']
-    const entries = Object.entries(attrs)
+    const trackedKeys: (keyof TrackedAttrs)[] = [
+      'id',
+      'authorID',
+      'operation',
+      'status',
+      'createdAt',
+      'updatedAt',
+    ]
+    // reviewedByID is set optional since either ProseMirror or Yjs doesn't like persisting null values inside attributes objects
+    // So it can be either omitted completely or at least null or string
+    const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID']
+    const entries = Object.entries(attrs).filter(([key, val]) =>
+      trackedKeys.includes(key as keyof TrackedAttrs)
+    )
+    const optionalEntries = Object.entries(attrs).filter(([key, val]) =>
+      optionalKeys.includes(key as keyof TrackedAttrs)
+    )
     return (
       entries.length === trackedKeys.length &&
       entries.every(
         ([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
+      ) &&
+      optionalEntries.every(
+        ([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&
       (attrs.id || '').length > 0 // Changes created with undefined id have '' as placeholder
     )

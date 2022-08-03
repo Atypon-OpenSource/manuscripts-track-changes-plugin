@@ -17,6 +17,7 @@ import { Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
 import { shouldMergeTrackedAttributes } from '../node-utils'
+import type { TrackedAttrs } from 'types/change'
 
 /**
  * Merges tracked marks between text nodes at a position
@@ -41,16 +42,24 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   if (!nodeAfter || !nodeBefore || !leftMark || !rightMark || leftMark.type !== rightMark.type) {
     return
   }
-  const leftAttrs = leftMark.attrs
-  const rightAttrs = rightMark.attrs
-  if (!shouldMergeTrackedAttributes(leftAttrs.dataTracked, rightAttrs.dataTracked)) {
+  const leftDataTracked: Partial<TrackedAttrs> = leftMark.attrs.dataTracked
+  const rightDataTracked: Partial<TrackedAttrs> = rightMark.attrs.dataTracked
+  if (!shouldMergeTrackedAttributes(leftDataTracked, rightDataTracked)) {
     return
   }
-  const newAttrs = {
-    ...leftAttrs,
-    createdAt: Math.max(leftAttrs.createdAt || 0, rightAttrs.createdAt || 0) || Date.now(),
+  const isLeftOlder =
+    (leftDataTracked.createdAt || Number.MAX_VALUE) <
+    (rightDataTracked.createdAt || Number.MAX_VALUE)
+  const ancestorAttrs = isLeftOlder ? leftDataTracked : rightDataTracked
+  const dataTracked = {
+    ...ancestorAttrs,
+    updatedAt: Date.now(),
   }
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
-  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create(newAttrs))
+  newTr.addMark(
+    fromStartOfMark,
+    toEndOfMark,
+    leftMark.type.create({ ...leftMark.attrs, dataTracked })
+  )
 }

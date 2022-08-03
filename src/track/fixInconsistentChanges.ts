@@ -40,13 +40,15 @@ export function fixInconsistentChanges(
   const iteratedIds = new Set()
   let changed = false
   changeSet.invalidChanges.forEach((c) => {
-    const { id, userID, operation, status, createdAt } = c.attrs
+    const { id, authorID, operation, reviewedByID, status, createdAt, updatedAt } = c.attrs
     const newAttrs = {
       ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
-      ...(!userID && { userID: trackUserID }),
+      ...(!authorID && { authorID: trackUserID }),
       ...(!operation && { operation: CHANGE_OPERATION.insert }),
+      ...(!reviewedByID && { reviewedByID: null }),
       ...(!status && { status: CHANGE_STATUS.pending }),
       ...(!createdAt && { createdAt: Date.now() }),
+      ...(!updatedAt && { updatedAt: Date.now() }),
     }
     if (Object.keys(newAttrs).length > 0) {
       updateChangeAttrs(newTr, c, { ...c.attrs, ...newAttrs }, schema)
