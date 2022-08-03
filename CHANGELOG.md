@@ -1,5 +1,17 @@
 # @manuscripts/track-changes-plugin
 
+## 0.3.0
+
+### Minor Changes
+
+- b774a07: breaking: refactor userID to authorID, add reviewedById & updatedAt to trackedAttrs
+- e874c4d: refactor(track): BREAKING expose skipTracking instead of setAction
+
+### Patch Changes
+
+- 207178c: fix(track): set reviewedByID as optional since ProseMirror doesnt like persisting null values
+- 566e3a2: fix(track): set reviewedByID when status is changed
+
 ## 0.2.0
 
 ### Minor Changes
