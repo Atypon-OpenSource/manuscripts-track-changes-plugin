@@ -8,8 +8,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-25",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             }
@@ -23,8 +25,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-19",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -35,8 +39,10 @@
                       "attrs": {
                         "dataTracked": {
                           "id": "MOCK-ID-18",
-                          "userID": "1-mike",
+                          "authorID": "1-mike",
+                          "reviewedByID": null,
                           "createdAt": 1577836800000,
+                          "updatedAt": 1577836800000,
                           "status": "accepted",
                           "operation": "insert"
                         },
@@ -52,8 +58,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-21",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -64,8 +72,10 @@
                       "attrs": {
                         "dataTracked": {
                           "id": "MOCK-ID-20",
-                          "userID": "1-mike",
+                          "authorID": "1-mike",
+                          "reviewedByID": null,
                           "createdAt": 1577836800000,
+                          "updatedAt": 1577836800000,
                           "status": "accepted",
                           "operation": "insert"
                         },
@@ -81,8 +91,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-23",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -93,8 +105,10 @@
                       "attrs": {
                         "dataTracked": {
                           "id": "MOCK-ID-22",
-                          "userID": "1-mike",
+                          "authorID": "1-mike",
+                          "reviewedByID": null,
                           "createdAt": 1577836800000,
+                          "updatedAt": 1577836800000,
                           "status": "accepted",
                           "operation": "insert"
                         },
@@ -114,8 +128,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-16",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             }
@@ -126,8 +142,10 @@
               "attrs": {
                 "dataTracked": {
                   "id": "MOCK-ID-15",
-                  "userID": "1-mike",
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
                   "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
                   "status": "accepted",
                   "operation": "insert"
                 }
@@ -138,8 +156,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-14",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     },
@@ -154,8 +174,10 @@
                           "attrs": {
                             "dataTracked": {
                               "id": "MOCK-ID-17",
-                              "userID": "1-mike",
+                              "authorID": "1-mike",
+                              "reviewedByID": null,
                               "createdAt": 1577836800000,
+                              "updatedAt": 1577836800000,
                               "status": "accepted",
                               "operation": "insert"
                             }
@@ -175,8 +197,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-13",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             },
@@ -188,8 +212,10 @@
               "attrs": {
                 "dataTracked": {
                   "id": "MOCK-ID-12",
-                  "userID": "1-mike",
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
                   "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
                   "status": "accepted",
                   "operation": "insert"
                 }
@@ -202,8 +228,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-10",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             }
@@ -217,8 +245,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-11",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -234,8 +264,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-9",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             }
@@ -247,8 +279,10 @@
             "level": 2,
             "dataTracked": {
               "id": "MOCK-ID-7",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             }
@@ -262,8 +296,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-8",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -279,8 +315,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-5",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             }
@@ -291,8 +329,10 @@
               "attrs": {
                 "dataTracked": {
                   "id": "MOCK-ID-4",
-                  "userID": "1-mike",
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
                   "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
                   "status": "accepted",
                   "operation": "insert"
                 },
@@ -307,8 +347,10 @@
                       "attrs": {
                         "dataTracked": {
                           "id": "MOCK-ID-6",
-                          "userID": "1-mike",
+                          "authorID": "1-mike",
+                          "reviewedByID": null,
                           "createdAt": 1577836800000,
+                          "updatedAt": 1577836800000,
                           "status": "accepted",
                           "operation": "insert"
                         }
@@ -326,8 +368,10 @@
           "attrs": {
             "dataTracked": {
               "id": "MOCK-ID-0",
-              "userID": "1-mike",
+              "authorID": "1-mike",
+              "reviewedByID": null,
               "createdAt": 1577836800000,
+              "updatedAt": 1577836800000,
               "status": "accepted",
               "operation": "insert"
             },
@@ -348,8 +392,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-1",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -366,8 +412,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-1",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }
@@ -384,8 +432,10 @@
                 "title": "Image",
                 "dataTracked": {
                   "id": "MOCK-ID-2",
-                  "userID": "1-mike",
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
                   "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
                   "status": "accepted",
                   "operation": "insert"
                 }
@@ -399,8 +449,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-3",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "accepted",
                       "operation": "insert"
                     }

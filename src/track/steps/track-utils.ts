@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-import { CHANGE_OPERATION, CHANGE_STATUS } from '../../types/change'
+import { CHANGE_OPERATION } from '../../types/change'
 import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs } from '../../types/track'
-
-export function createNewEmptyAttrs(userID: string, createdAt: number): NewEmptyAttrs {
-  return {
-    userID,
-    createdAt,
-    status: CHANGE_STATUS.pending,
-  }
-}
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {

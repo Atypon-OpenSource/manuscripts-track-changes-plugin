@@ -48,8 +48,10 @@
                   "attrs": {
                     "dataTracked": {
                       "id": "MOCK-ID-0",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "pending",
                       "operation": "insert"
                     }
@@ -92,9 +94,11 @@
                     "dataTracked": {
                       "id": "MOCK-ID-0",
                       "operation": "delete",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
                       "status": "pending",
-                      "createdAt": 1577836800000
+                      "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
+                      "reviewedByID": null
                     }
                   }
                 }
@@ -110,9 +114,11 @@
                     "dataTracked": {
                       "operation": "insert",
                       "id": "MOCK-ID-1",
-                      "userID": "1-mike",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "status": "pending",
-                      "createdAt": 1577836800000
+                      "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000
                     }
                   }
                 }
@@ -126,9 +132,11 @@
                   "type": "tracked_insert",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-2",
-                      "userID": "1-mike",
+                      "id": "MOCK-ID-3",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
                       "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
                       "status": "pending",
                       "operation": "insert"
                     }

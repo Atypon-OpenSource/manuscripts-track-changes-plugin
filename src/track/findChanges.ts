@@ -58,6 +58,7 @@ export function findChanges(state: EditorState) {
             type: 'text-change',
             from: pos,
             to: pos + node.nodeSize,
+            text: node.text,
             attrs,
           } as PartialChange<TextChange>,
           node,

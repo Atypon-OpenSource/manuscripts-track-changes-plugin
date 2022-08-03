@@ -182,7 +182,7 @@ export class ChangeSet {
     if ('attrs' in attrs) {
       log.warn('passed "attrs" as property to isValidTrackedAttrs(attrs)', attrs)
     }
-    const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'userID', 'operation', 'status', 'createdAt']
+    const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'authorID', 'reviewedByID', 'operation', 'status', 'createdAt', 'updatedAt']
     const entries = Object.entries(attrs)
     return (
       entries.length === trackedKeys.length &&
