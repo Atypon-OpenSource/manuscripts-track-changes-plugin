@@ -9,7 +9,7 @@
             "dataTracked": {
               "id": "MOCK-ID-25",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -26,7 +26,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-19",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -40,7 +40,7 @@
                         "dataTracked": {
                           "id": "MOCK-ID-18",
                           "authorID": "1-mike",
-                          "reviewedByID": null,
+                          "reviewedByID": "1-mike",
                           "createdAt": 1577836800000,
                           "updatedAt": 1577836800000,
                           "status": "accepted",
@@ -59,7 +59,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-21",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -73,7 +73,7 @@
                         "dataTracked": {
                           "id": "MOCK-ID-20",
                           "authorID": "1-mike",
-                          "reviewedByID": null,
+                          "reviewedByID": "1-mike",
                           "createdAt": 1577836800000,
                           "updatedAt": 1577836800000,
                           "status": "accepted",
@@ -92,7 +92,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-23",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -106,7 +106,7 @@
                         "dataTracked": {
                           "id": "MOCK-ID-22",
                           "authorID": "1-mike",
-                          "reviewedByID": null,
+                          "reviewedByID": "1-mike",
                           "createdAt": 1577836800000,
                           "updatedAt": 1577836800000,
                           "status": "accepted",
@@ -129,7 +129,7 @@
             "dataTracked": {
               "id": "MOCK-ID-16",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -143,7 +143,7 @@
                 "dataTracked": {
                   "id": "MOCK-ID-15",
                   "authorID": "1-mike",
-                  "reviewedByID": null,
+                  "reviewedByID": "1-mike",
                   "createdAt": 1577836800000,
                   "updatedAt": 1577836800000,
                   "status": "accepted",
@@ -157,7 +157,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-14",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -175,7 +175,7 @@
                             "dataTracked": {
                               "id": "MOCK-ID-17",
                               "authorID": "1-mike",
-                              "reviewedByID": null,
+                              "reviewedByID": "1-mike",
                               "createdAt": 1577836800000,
                               "updatedAt": 1577836800000,
                               "status": "accepted",
@@ -198,7 +198,7 @@
             "dataTracked": {
               "id": "MOCK-ID-13",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -213,7 +213,7 @@
                 "dataTracked": {
                   "id": "MOCK-ID-12",
                   "authorID": "1-mike",
-                  "reviewedByID": null,
+                  "reviewedByID": "1-mike",
                   "createdAt": 1577836800000,
                   "updatedAt": 1577836800000,
                   "status": "accepted",
@@ -229,7 +229,7 @@
             "dataTracked": {
               "id": "MOCK-ID-10",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -246,7 +246,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-11",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -265,7 +265,7 @@
             "dataTracked": {
               "id": "MOCK-ID-9",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -280,7 +280,7 @@
             "dataTracked": {
               "id": "MOCK-ID-7",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -297,7 +297,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-8",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -316,7 +316,7 @@
             "dataTracked": {
               "id": "MOCK-ID-5",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -330,7 +330,7 @@
                 "dataTracked": {
                   "id": "MOCK-ID-4",
                   "authorID": "1-mike",
-                  "reviewedByID": null,
+                  "reviewedByID": "1-mike",
                   "createdAt": 1577836800000,
                   "updatedAt": 1577836800000,
                   "status": "accepted",
@@ -348,7 +348,7 @@
                         "dataTracked": {
                           "id": "MOCK-ID-6",
                           "authorID": "1-mike",
-                          "reviewedByID": null,
+                          "reviewedByID": "1-mike",
                           "createdAt": 1577836800000,
                           "updatedAt": 1577836800000,
                           "status": "accepted",
@@ -369,7 +369,7 @@
             "dataTracked": {
               "id": "MOCK-ID-0",
               "authorID": "1-mike",
-              "reviewedByID": null,
+              "reviewedByID": "1-mike",
               "createdAt": 1577836800000,
               "updatedAt": 1577836800000,
               "status": "accepted",
@@ -393,7 +393,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-1",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -413,7 +413,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-1",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
@@ -433,7 +433,7 @@
                 "dataTracked": {
                   "id": "MOCK-ID-2",
                   "authorID": "1-mike",
-                  "reviewedByID": null,
+                  "reviewedByID": "1-mike",
                   "createdAt": 1577836800000,
                   "updatedAt": 1577836800000,
                   "status": "accepted",
@@ -450,7 +450,7 @@
                     "dataTracked": {
                       "id": "MOCK-ID-3",
                       "authorID": "1-mike",
-                      "reviewedByID": null,
+                      "reviewedByID": "1-mike",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
