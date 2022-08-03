@@ -47,13 +47,19 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   if (!shouldMergeTrackedAttributes(leftDataTracked, rightDataTracked)) {
     return
   }
-  const isLeftOlder = (leftDataTracked.createdAt || Number.MAX_VALUE) < (rightDataTracked.createdAt || Number.MAX_VALUE)
+  const isLeftOlder =
+    (leftDataTracked.createdAt || Number.MAX_VALUE) <
+    (rightDataTracked.createdAt || Number.MAX_VALUE)
   const ancestorAttrs = isLeftOlder ? leftDataTracked : rightDataTracked
   const dataTracked = {
     ...ancestorAttrs,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
   }
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
-  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create({ ...leftMark.attrs, dataTracked }))
+  newTr.addMark(
+    fromStartOfMark,
+    toEndOfMark,
+    leftMark.type.create({ ...leftMark.attrs, dataTracked })
+  )
 }

@@ -137,8 +137,8 @@ Actions are used to access/set transaction meta fields internally. `skipTracking
 /**
  * Skip tracking for a transaction, use this with caution to avoid race-conditions or just to otherwise
  * omitting applying of track attributes or marks.
- * @param tr 
- * @returns 
+ * @param tr
+ * @returns
  */
 export const skipTracking = (tr: Transaction) => setAction(tr, TrackChangesAction.skipTrack, true)
 ```

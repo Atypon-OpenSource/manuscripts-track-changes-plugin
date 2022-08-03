@@ -33,8 +33,9 @@ export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, sc
   if (!node || !node.isInline) {
     return undefined
   }
-  const marksTrackedData: (Omit<Partial<TrackedAttrs>, 'operation'> &
-    { operation: CHANGE_OPERATION })[] = []
+  const marksTrackedData: (Omit<Partial<TrackedAttrs>, 'operation'> & {
+    operation: CHANGE_OPERATION
+  })[] = []
   node.marks.forEach((mark) => {
     if (mark.type === schema.marks.tracked_insert || mark.type === schema.marks.tracked_delete) {
       const operation =

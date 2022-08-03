@@ -167,7 +167,11 @@ function deleteTextIfInserted(
     const rightMarks = getMergeableMarkTrackedAttrs(rightNode, deleteAttrs, schema)
     const fromStartOfMark = start - (leftNode && leftMarks ? leftNode.nodeSize : 0)
     const toEndOfMark = end + (rightNode && rightMarks ? rightNode.nodeSize : 0)
-    const createdAt = Math.min(leftMarks?.createdAt || Number.MAX_VALUE, rightMarks?.createdAt || Number.MAX_VALUE, deleteAttrs.createdAt)
+    const createdAt = Math.min(
+      leftMarks?.createdAt || Number.MAX_VALUE,
+      rightMarks?.createdAt || Number.MAX_VALUE,
+      deleteAttrs.createdAt
+    )
     const dataTracked = addTrackIdIfDoesntExist({
       ...leftMarks,
       ...rightMarks,
@@ -200,7 +204,8 @@ function deleteOrSetNodeDeleted(
 ) {
   const dataTracked: TrackedAttrs | undefined = node.attrs.dataTracked
   const wasInsertedBySameUser =
-    dataTracked?.operation === CHANGE_OPERATION.insert && dataTracked.authorID === deleteAttrs.authorID
+    dataTracked?.operation === CHANGE_OPERATION.insert &&
+    dataTracked.authorID === deleteAttrs.authorID
   if (wasInsertedBySameUser) {
     deleteNode(node, pos, newTr)
   } else {
