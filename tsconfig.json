@@ -8,5 +8,5 @@
     "declarationDir": "./dist",
     "baseUrl": "src"
   },
-  "include": ["src", "global-types.d.ts"]
+  "include": ["src"]
 }

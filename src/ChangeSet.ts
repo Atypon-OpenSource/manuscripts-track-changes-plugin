@@ -191,7 +191,7 @@ export class ChangeSet {
       'updatedAt',
     ]
     // reviewedByID is set optional since either ProseMirror or Yjs doesn't like persisting null values inside attributes objects
-    // So it can be either omitted completely or at least null or string
+    // So it can be either omitted completely or at least be null or string
     const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID']
     const entries = Object.entries(attrs).filter(([key, val]) =>
       trackedKeys.includes(key as keyof TrackedAttrs)
