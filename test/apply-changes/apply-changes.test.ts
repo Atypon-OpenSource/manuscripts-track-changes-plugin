@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from './utils/schema'
+import { schema as defaultSchema } from '../utils/schema'
 import { promises as fs } from 'fs'
 
-import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../src'
-import docs from './__fixtures__/docs'
-import { SECOND_USER } from './__fixtures__/users'
-import { setupEditor } from './utils/setupEditor'
+import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
+import docs from '../__fixtures__/docs'
+import { SECOND_USER } from '../__fixtures__/users'
+import { setupEditor } from '../utils/setupEditor'
 
-import { log } from '../src/utils/logger'
+import { log } from '../../src/utils/logger'
+import insertAccept from './insert-accept.json'
+import insertReject from './insert-reject.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
+jest.mock('../../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
@@ -38,10 +40,10 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger')
+jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('track changes', () => {
+describe('apply-changes.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
@@ -49,7 +51,7 @@ describe('track changes', () => {
 
   test('should update marks/attributes status correctly', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     })
       .insertNode(defaultSchema.nodes.paragraph.createAndFill(), 0)
       .moveCursor('start')
@@ -89,13 +91,13 @@ describe('track changes', () => {
         return true
       })
 
-    expect(tester.toJSON()).toEqual(docs.insertAccept[0])
+    expect(tester.toJSON()).toEqual(insertAccept[0])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
     tester.cmd(trackCommands.applyAndRemoveChanges())
 
-    expect(tester.toJSON()).toEqual(docs.insertAccept[1])
+    expect(tester.toJSON()).toEqual(insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -104,7 +106,7 @@ describe('track changes', () => {
 
   test('should correctly apply adjacent block changes', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       .insertNode(defaultSchema.nodes.ordered_list.createAndFill(), 0)
       .insertNode(defaultSchema.nodes.table.createAndFill(), 0)
@@ -128,7 +130,7 @@ describe('track changes', () => {
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    expect(tester.toJSON()).toEqual(docs.insertReject[0])
+    expect(tester.toJSON()).toEqual(insertReject[0])
     expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -137,16 +139,16 @@ describe('track changes', () => {
 
   test.skip('should apply changes correctly', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
 
-    expect(tester.toJSON()).toEqual(docs.insertAccept[0])
+    expect(tester.toJSON()).toEqual(insertAccept[0])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
     tester.cmd(trackCommands.applyAndRemoveChanges())
 
-    expect(tester.toJSON()).toEqual(docs.insertAccept[1])
+    expect(tester.toJSON()).toEqual(insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
   })
 })

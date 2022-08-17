@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from './utils/schema'
+import { schema as defaultSchema } from '../utils/schema'
 import { schema } from '@manuscripts/manuscript-transform'
 import { Node as PMNode, Schema } from 'prosemirror-model'
 import { promises as fs } from 'fs'
 
-import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../src'
-import docs from './__fixtures__/docs'
-import { SECOND_USER } from './__fixtures__/users'
-import { setupEditor } from './utils/setupEditor'
+import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
+import docs from '../__fixtures__/docs'
+import { SECOND_USER } from '../__fixtures__/users'
+import { setupEditor } from '../utils/setupEditor'
 
-import { log } from '../src/utils/logger'
+import { log } from '../../src/utils/logger'
+import manuscriptApplied from './manuscript-applied.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
+jest.mock('../../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
@@ -40,10 +41,10 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger')
+jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('TC with manuscripts schema', () => {
+describe('manuscript.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
@@ -51,7 +52,7 @@ describe('TC with manuscripts schema', () => {
 
   test('should correctly apply adjacent block changes', async () => {
     const tester = setupEditor({
-      doc: docs.manuscriptDefaultDocs[0],
+      doc: docs.manuscriptSimple[0],
       schema: schema as unknown as Schema,
     })
       .insertNode(schema.nodes.table_element.createAndFill() as unknown as PMNode, 11)
@@ -75,7 +76,7 @@ describe('TC with manuscripts schema', () => {
 
     tester.cmd(trackCommands.applyAndRemoveChanges())
 
-    expect(tester.toJSON()).toEqual(docs.manuscriptApplied[0])
+    expect(tester.toJSON()).toEqual(manuscriptApplied[0])
     expect(uuidv4Mock.mock.calls.length).toBe(14)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)

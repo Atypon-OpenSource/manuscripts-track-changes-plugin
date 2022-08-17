@@ -16,20 +16,26 @@
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
 
-import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../src'
-import docs from './__fixtures__/docs'
-import { schema as defaultSchema, schema } from './utils/schema'
-import { setupEditor } from './utils/setupEditor'
+import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
+import docs from '../__fixtures__/docs'
+import { schema as defaultSchema, schema } from '../utils/schema'
+import { setupEditor } from '../utils/setupEditor'
 
-import { log } from '../src/utils/logger'
+import { log } from '../../src/utils/logger'
+
+import basicNodeDelete from './basic-node-del.json'
+import basicNodeInsert from './basic-node-ins.json'
+import blockNodeAttrUpdate from './block-node-attr-update.json'
+import inlineNodeAttrUpdate from './inline-node-attr-update.json'
+import wrapWithLink from './wrap-with-link.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
+jest.mock('../../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
@@ -37,10 +43,10 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger')
+jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('track changes', () => {
+describe('nodes.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
@@ -48,10 +54,10 @@ describe('track changes', () => {
 
   test('should track inserts of paragraphs', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     }).insertNode(defaultSchema.nodes.paragraph.createAndFill(), 0)
 
-    expect(tester.toJSON()).toEqual(docs.basicNodeInsert)
+    expect(tester.toJSON()).toEqual(basicNodeInsert)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -60,13 +66,13 @@ describe('track changes', () => {
 
   test('should prevent deletion of paragraphs unless already inserted', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.blockquoteMarks,
+      doc: docs.blockquoteMarks,
     })
       .insertNode(defaultSchema.nodes.paragraph.create(), 0)
       .moveCursor('start')
       .insertText('inserted text')
 
-    expect(tester.toJSON()).toEqual(docs.basicNodeDelete[0])
+    expect(tester.toJSON()).toEqual(basicNodeDelete[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
     tester.cmd((state, dispatch) => {
@@ -79,7 +85,7 @@ describe('track changes', () => {
     // Contains paragraph insert since the default doc must have at least one child paragraph,
     // thus PM tries to automatically fill it when it's destroyed. However, in our case that's
     // not ideal but it's not fixed for now, since deleting the whole doc at once can't be done by user.
-    expect(tester.toJSON()).toEqual(docs.basicNodeDelete[1])
+    expect(tester.toJSON()).toEqual(basicNodeDelete[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(10)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -88,7 +94,7 @@ describe('track changes', () => {
 
   test('should create insert & delete operations on inline node attribute change', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     })
       .insertNode(
         defaultSchema.nodes.image.createAndFill({
@@ -118,7 +124,7 @@ describe('track changes', () => {
         return true
       })
 
-    expect(tester.toJSON()).toEqual(docs.inlineNodeAttrUpdate)
+    expect(tester.toJSON()).toEqual(inlineNodeAttrUpdate)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -127,12 +133,12 @@ describe('track changes', () => {
 
   test('should correctly track only inserted link leaving its text content untouched', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     })
       .selectText(1, 6)
       .wrapInInline(schema.nodes.link)
 
-    expect(tester.toJSON()).toEqual(docs.wrapWithLink[0])
+    expect(tester.toJSON()).toEqual(wrapWithLink[0])
 
     tester.cmd((state, dispatch) => {
       dispatch(
@@ -143,7 +149,7 @@ describe('track changes', () => {
       )
     })
 
-    expect(tester.toJSON()).toEqual(docs.wrapWithLink[1])
+    expect(tester.toJSON()).toEqual(wrapWithLink[1])
 
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(2)
@@ -153,7 +159,7 @@ describe('track changes', () => {
 
   test.skip('should track node attribute updates', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     }).cmd((state, dispatch) => {
       const cursor = state.selection.head
       const blockNodePos = state.doc.resolve(cursor).start(1) - 1
@@ -173,7 +179,7 @@ describe('track changes', () => {
 
     await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    expect(tester.toJSON()).toEqual(docs.blockNodeAttrUpdate)
+    expect(tester.toJSON()).toEqual(blockNodeAttrUpdate)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)

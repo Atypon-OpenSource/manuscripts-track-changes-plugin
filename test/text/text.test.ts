@@ -16,20 +16,25 @@
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
 
-import { skipTracking, trackCommands } from '../src'
-import docs from './__fixtures__/docs'
-import { SECOND_USER } from './__fixtures__/users'
-import { setupEditor } from './utils/setupEditor'
+import { skipTracking, trackCommands } from '../../src'
+import docs from '../__fixtures__/docs'
+import { SECOND_USER } from '../__fixtures__/users'
+import { setupEditor } from '../utils/setupEditor'
 
-import { log } from '../src/utils/logger'
+import { log } from '../../src/utils/logger'
+import basicTextDelete from './basic-text-del.json'
+import basicTextInconsistent from './basic-text-inconsistent-track.json'
+import basicTextInsert from './basic-text-ins.json'
+import basicTextJoin from './basic-text-join.json'
+import repeatedDelete from './repeated-delete.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
+jest.mock('../../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
@@ -37,10 +42,10 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger')
+jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('track changes', () => {
+describe('text.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
@@ -48,10 +53,10 @@ describe('track changes', () => {
 
   test('should track basic text inserts', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     }).insertText('inserted text')
 
-    expect(tester.toJSON()).toEqual(docs.basicTextInsert)
+    expect(tester.toJSON()).toEqual(basicTextInsert)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -60,14 +65,14 @@ describe('track changes', () => {
 
   test('should track basic text inserts and deletes', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     })
       .insertText('inserted text')
       .backspace(4)
       .moveCursor(5)
       .backspace(4)
 
-    expect(tester.toJSON()).toEqual(docs.basicTextDelete)
+    expect(tester.toJSON()).toEqual(basicTextDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(2)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -76,7 +81,7 @@ describe('track changes', () => {
 
   test('should continue delete content when backspace is pressed repeatedly', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.manyParagraphs,
+      doc: docs.manyParagraphs,
     })
       .moveCursor('end')
       .moveCursor(-2)
@@ -89,7 +94,7 @@ describe('track changes', () => {
 
     // @TODO should delete links & their text and blockquotes
     // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
-    expect(tester.toJSON()).toEqual(docs.repeatedDelete)
+    expect(tester.toJSON()).toEqual(repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -102,7 +107,7 @@ describe('track changes', () => {
     // check inserts joined, deletes still separate
     // MISSING: check timestamps merged correctly
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     })
       .insertText('a')
       .insertText('b')
@@ -113,7 +118,7 @@ describe('track changes', () => {
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    expect(tester.toJSON()).toEqual(docs.basicTextJoin[0])
+    expect(tester.toJSON()).toEqual(basicTextJoin[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(4)
 
@@ -134,7 +139,7 @@ describe('track changes', () => {
       .backspace(1) // Deletes Mike's inserted 'c'
       .backspace(1) // Regular deletion of 'r'
 
-    expect(tester.toJSON()).toEqual(docs.basicTextJoin[1])
+    expect(tester.toJSON()).toEqual(basicTextJoin[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(10)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -143,7 +148,7 @@ describe('track changes', () => {
 
   test('should fix inconsistent text inserts and deletes', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.paragraph,
+      doc: docs.paragraph,
     })
       .insertText('abcd')
       .cmd((state, dispatch) => {
@@ -173,7 +178,7 @@ describe('track changes', () => {
       })
 
     // Check the insert mark was overwritten and the data is now inconsistent
-    expect(tester.toJSON()).toEqual(docs.basicTextInconsistent[0])
+    expect(tester.toJSON()).toEqual(basicTextInconsistent[0])
     // Should contain one duplicate id
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(true)
     expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(true)
@@ -183,7 +188,7 @@ describe('track changes', () => {
     tester.moveCursor(0).insertText('e').moveCursor(-4).backspace()
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-    expect(tester.toJSON()).toEqual(docs.basicTextInconsistent[1])
+    expect(tester.toJSON()).toEqual(basicTextInconsistent[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(4)

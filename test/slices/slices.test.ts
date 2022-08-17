@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from './utils/schema'
+import { schema as defaultSchema } from '../utils/schema'
 
 import { promises as fs } from 'fs'
 
-import { trackCommands } from '../src'
-import docs from './__fixtures__/docs'
-import { SECOND_USER } from './__fixtures__/users'
-import * as utils from './utils/nodeUtils'
-import { setupEditor } from './utils/setupEditor'
+import { trackCommands } from '../../src'
+import docs from '../__fixtures__/docs'
+import { SECOND_USER } from '../__fixtures__/users'
+import * as utils from '../utils/nodeUtils'
+import { setupEditor } from '../utils/setupEditor'
 import { Fragment, Slice } from 'prosemirror-model'
 
-import { log } from '../src/utils/logger'
+import { log } from '../../src/utils/logger'
+import variousOpenEndedSlices from './various-open-ended-slices.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
+jest.mock('../../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
@@ -41,10 +42,10 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger')
+jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('track changes', () => {
+describe('slices.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
@@ -52,12 +53,12 @@ describe('track changes', () => {
 
   test('should correctly wrap copy-pasted slice with track markup', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       .paste(new Slice(Fragment.from(defaultSchema.text('inserted')), 0, 0), 18, 18)
       .paste(new Slice(Fragment.from(defaultSchema.text('replaced')), 0, 0), 5, 14)
 
-    expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[0])
+    expect(tester.toJSON()).toEqual(variousOpenEndedSlices[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -66,7 +67,7 @@ describe('track changes', () => {
 
   test('should prevent replacing of blockquotes and break the slice into parts instead', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       // This is a bit wonky operation that isn't entirely valid but which works nonetheless.
       // The reason being that it deletes the start tokens of both blockquotes while leaving two separate end tokens.
@@ -98,7 +99,7 @@ describe('track changes', () => {
         74
       )
 
-    expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[1])
+    expect(tester.toJSON()).toEqual(variousOpenEndedSlices[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(7)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -107,7 +108,7 @@ describe('track changes', () => {
 
   test('should track pasted slices and prevent deletion of non-inserted content', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       // Pastes a paragraph and a blockquote from the end of the 1st paragraph all the way to the start of
       // the 4th paragraph. This should delete all except the 1st paragraph node, and insert the content
@@ -154,7 +155,7 @@ describe('track changes', () => {
         112
       )
 
-    expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
+    expect(tester.toJSON()).toEqual(variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(18)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -163,7 +164,7 @@ describe('track changes', () => {
 
   test.skip('todo bugs', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       // Should delete 2nd and 3rd paragraph and replace the inner blockquote with this new blockquote.
       // At the moment, track-changes-plugin deletes the content correctly but fails to insert the new blockquote.
@@ -180,7 +181,7 @@ describe('track changes', () => {
 
     await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    // expect(tester.toJSON()).toEqual(docs.variousOpenEndedSlices[2])
+    // expect(tester.toJSON()).toEqual(variousOpenEndedSlices[2])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(10)
     expect(log.warn).toHaveBeenCalledTimes(0)

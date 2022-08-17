@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from './utils/schema'
+import { schema as defaultSchema } from '../utils/schema'
 
 import { promises as fs } from 'fs'
 
-import { trackCommands } from '../src'
-import docs from './__fixtures__/docs'
-import { setupEditor } from './utils/setupEditor'
+import { trackCommands } from '../../src'
+import docs from '../__fixtures__/docs'
+import { setupEditor } from '../utils/setupEditor'
 
-import { log } from '../src/utils/logger'
+import { log } from '../../src/utils/logger'
 import { ReplaceAroundStep } from 'prosemirror-transform'
 import { Fragment, Slice } from 'prosemirror-model'
+
+import replaceAroundSteps from './replace-around-steps.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
 var uuidv4Mock: jest.Mock
 
-jest.mock('../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../src/utils/uuidv4')
+jest.mock('../../src/utils/uuidv4', () => {
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
   uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
@@ -40,10 +42,10 @@ jest.mock('../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../src/utils/logger')
+jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('track changes', () => {
+describe('replace-around-steps.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
@@ -51,7 +53,7 @@ describe('track changes', () => {
 
   test('should track basic wrapping and unwrapping of blockquotes', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       // Wrap the 1st paragraph in a blockquote using a ReplaceAroundStep and then immediately delete it with
       // another ReplaceAroundStep. LiftNode in this case maps to pressing backspace inside the paragraph
@@ -84,12 +86,12 @@ describe('track changes', () => {
 
     // move at the start of 3rd paragraph, hit backspace -> should wrap inside the nested blockquote
     // same would happen with 4th paragraph
-    expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[0])
+    expect(tester.toJSON()).toEqual(replaceAroundSteps[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
     tester.setChangeStatuses().cmd(trackCommands.applyAndRemoveChanges())
 
-    expect(tester.toJSON()).toEqual(docs.replaceAroundSteps[1])
+    expect(tester.toJSON()).toEqual(replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(7)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -98,7 +100,7 @@ describe('track changes', () => {
 
   test.skip('should mark text inserted/deleted when selection spans various nodes', async () => {
     const tester = setupEditor({
-      doc: docs.startingDocs.nestedBlockquotes,
+      doc: docs.nestedBlockquotes,
     })
       .selectText(5, 21)
       .insertText('ab')
@@ -107,7 +109,7 @@ describe('track changes', () => {
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    expect(tester.toJSON()).toEqual(docs.basicTextInconsistent[0])
+    // expect(tester.toJSON()).toEqual(basicTextInconsistent[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(4)
     expect(log.warn).toHaveBeenCalledTimes(1)
