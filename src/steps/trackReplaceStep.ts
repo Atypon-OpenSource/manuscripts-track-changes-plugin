@@ -17,13 +17,13 @@ import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, ReplaceAroundStep } from 'prosemirror-transform'
 
-import { deleteAndMergeSplitNodes } from './deleteAndMergeSplitNodes'
-import { mergeTrackedMarks } from './mergeTrackedMarks'
-import { setFragmentAsInserted } from './setFragmentAsInserted'
-import { log } from '../../utils/logger'
-import { ExposedReplaceStep, ExposedSlice } from '../../types/pm'
-import { NewEmptyAttrs } from '../../types/track'
-import * as trackUtils from './track-utils'
+import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
+import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
+import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
+import { log } from '../utils/logger'
+import { ExposedReplaceStep } from '../types/pm'
+import { NewEmptyAttrs } from '../types/track'
+import * as trackUtils from '../utils/track-utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,

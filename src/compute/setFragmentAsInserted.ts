@@ -15,10 +15,10 @@
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 
-import { log } from '../../utils/logger'
-import { CHANGE_OPERATION } from '../../types/change'
-import { NewInsertAttrs, NewTrackedAttrs } from '../../types/track'
-import { addTrackIdIfDoesntExist } from '../node-utils'
+import { log } from '../utils/logger'
+import { CHANGE_OPERATION } from '../types/change'
+import { NewInsertAttrs, NewTrackedAttrs } from '../types/track'
+import { addTrackIdIfDoesntExist } from './nodeHelpers'
 
 function markInlineNodeChange(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
   const filtered = node.marks.filter(

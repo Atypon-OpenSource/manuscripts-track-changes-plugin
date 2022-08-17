@@ -26,8 +26,8 @@ import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'pro
 import { log } from '../utils/logger'
 import { CHANGE_STATUS } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
-import { trackReplaceAroundStep } from './steps/trackReplaceAroundStep'
-import { trackReplaceStep } from './steps/trackReplaceStep'
+import { trackReplaceAroundStep } from './trackReplaceAroundStep'
+import { trackReplaceStep } from './trackReplaceStep'
 
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
-import { getNodeTrackedData } from './node-utils'
+import { getNodeTrackedData } from '../compute/nodeHelpers'
 
 export function updateChangeAttrs(
   tr: Transaction,

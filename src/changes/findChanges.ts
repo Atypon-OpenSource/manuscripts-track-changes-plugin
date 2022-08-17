@@ -18,7 +18,7 @@ import { Node as PMNode } from 'prosemirror-model'
 
 import { ChangeSet } from '../ChangeSet'
 import { IncompleteChange, NodeChange, PartialChange, TextChange } from '../types/change'
-import { getNodeTrackedData, equalMarks } from './node-utils'
+import { getNodeTrackedData, equalMarks } from '../compute/nodeHelpers'
 
 /**
  * Finds all changes (basically text marks or node attributes) from document

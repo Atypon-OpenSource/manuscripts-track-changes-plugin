@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { CHANGE_OPERATION } from '../../types/change'
-import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs } from '../../types/track'
+import { CHANGE_OPERATION } from '../types/change'
+import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs } from '../types/track'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {

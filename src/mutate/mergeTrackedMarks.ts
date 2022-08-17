@@ -16,8 +16,8 @@
 import { Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
-import { shouldMergeTrackedAttributes } from '../node-utils'
-import type { TrackedAttrs } from 'types/change'
+import { shouldMergeTrackedAttributes } from '../compute/nodeHelpers'
+import type { TrackedAttrs } from '../types/change'
 
 /**
  * Merges tracked marks between text nodes at a position

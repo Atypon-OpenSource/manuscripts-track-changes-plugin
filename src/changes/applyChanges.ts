@@ -18,10 +18,10 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedChange } from '../types/change'
+import { CHANGE_STATUS, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { deleteNode } from './deleteNode'
-import { mergeNode } from './mergeNode'
+import { deleteNode } from '../mutate/deleteNode'
+import { mergeNode } from '../mutate/mergeNode'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 /**

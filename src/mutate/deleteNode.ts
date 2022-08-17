@@ -17,6 +17,10 @@ import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { liftTarget } from 'prosemirror-transform'
 
+import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
+import { NewDeleteAttrs } from '../types/track'
+import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
+
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first
  *
@@ -45,5 +49,33 @@ export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
     // NOTE: there's an edge case where moving content is not possible but because the immediate
     // child, say some wrapper blockNode, is also deleted the content could be retained. TODO I guess.
     return tr.delete(pos, pos + node.nodeSize)
+  }
+}
+
+/**
+ * Deletes inserted block or inline node, otherwise adds `dataTracked` object with CHANGE_STATUS 'deleted'
+ * @param node
+ * @param pos
+ * @param newTr
+ * @param deleteAttrs
+ */
+export function deleteOrSetNodeDeleted(
+  node: PMNode,
+  pos: number,
+  newTr: Transaction,
+  deleteAttrs: NewDeleteAttrs
+) {
+  const dataTracked: TrackedAttrs | undefined = node.attrs.dataTracked
+  const wasInsertedBySameUser =
+    dataTracked?.operation === CHANGE_OPERATION.insert &&
+    dataTracked.authorID === deleteAttrs.authorID
+  if (wasInsertedBySameUser) {
+    deleteNode(node, pos, newTr)
+  } else {
+    const attrs = {
+      ...node.attrs,
+      dataTracked: addTrackIdIfDoesntExist(deleteAttrs),
+    }
+    newTr.setNodeMarkup(pos, undefined, attrs, node.marks)
   }
 }
