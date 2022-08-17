@@ -23,7 +23,7 @@ import { trackChangesPlugin } from '../../src'
 import { enableDebug } from '../../src/utils/logger'
 import { ProsemirrorTestChain } from './PMTestChain'
 import { polyfillDom } from './polyfillDom'
-import { ExampleSchema, schema as defaultSchema } from './schema'
+import { schema as defaultSchema } from './schema'
 
 enableDebug(false)
 

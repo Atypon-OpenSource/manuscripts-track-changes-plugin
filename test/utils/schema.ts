@@ -18,37 +18,6 @@ import { bulletList, listItem, orderedList } from 'prosemirror-schema-list'
 
 import { TrackedAttrs } from '../../src'
 
-export type Nodes =
-  | 'blockquote'
-  | 'code_block'
-  | 'doc'
-  | 'hard_break'
-  | 'heading'
-  | 'horizontal_rule'
-  | 'image'
-  | 'paragraph'
-  | 'text'
-  | 'link'
-  | 'ordered_list'
-  | 'bullet_list'
-  | 'list_item'
-  | 'table'
-  | 'table_body'
-  | 'table_colgroup'
-  | 'table_row'
-  | 'table_cell'
-  | 'table_col'
-
-export type Marks =
-  | 'bold'
-  | 'code'
-  | 'italic'
-  | 'strikethrough'
-  | 'tracked_insert'
-  | 'tracked_delete'
-
-export type ExampleSchema = Schema<Nodes, Marks>
-
 function add(obj: Record<string, any>, props: Record<string, any>) {
   const copy: Record<string, any> = {}
   for (const prop in obj) {
@@ -75,7 +44,7 @@ const getCellAttrs = (p: Node | string) => {
 }
 
 // From https://github.com/ProseMirror/prosemirror-schema-basic/blob/master/src/schema-basic.js
-export const schema: ExampleSchema = new Schema<Nodes, Marks>({
+export const schema = new Schema({
   nodes: {
     // :: NodeSpec The top level document node.
     doc: {

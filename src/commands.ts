@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { Command } from 'prosemirror-state'
 import { setAction, TrackChangesAction } from './actions'
 import { trackChangesPluginKey } from './plugin'
 import { CHANGE_STATUS } from './types/change'
-import type { Command } from './types/editor'
 import { TrackChangesStatus } from './types/track'
 
 /**
