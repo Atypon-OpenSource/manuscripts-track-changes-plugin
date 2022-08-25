@@ -21,6 +21,7 @@ import {
   TextChange,
   TrackedAttrs,
   TrackedChange,
+  NodeAttrChange,
 } from './types/change'
 import { log } from './utils/logger'
 
@@ -64,13 +65,11 @@ export class ChangeSet {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
       }
-      if (c.type === 'node-change' && currentNodeChange && c.from < currentNodeChange.to) {
+      if (currentNodeChange && c.from < currentNodeChange.to) {
         currentNodeChange.children.push(c)
       } else if (c.type === 'node-change') {
         currentNodeChange = { ...c, children: [] }
-      } else if (c.type === 'text-change' && currentNodeChange && c.from < currentNodeChange.to) {
-        currentNodeChange.children.push(c)
-      } else if (c.type === 'text-change') {
+      } else {
         rootNodes.push(c)
       }
     })
@@ -98,6 +97,10 @@ export class ChangeSet {
 
   get nodeChanges() {
     return this.changes.filter((c) => c.type === 'node-change')
+  }
+
+  get nodeAttrChanges() {
+    return this.changes.filter((c) => c.type === 'node-attr-change')
   }
 
   get isEmpty() {
@@ -155,11 +158,7 @@ export class ChangeSet {
    * @param change
    */
   static shouldNotDelete(change: TrackedChange) {
-    const { status, operation } = change.attrs
-    return (
-      (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.accepted) ||
-      (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.rejected)
-    )
+    return !ChangeSet.shouldDeleteChange(change)
   }
 
   /**
@@ -217,5 +216,9 @@ export class ChangeSet {
 
   static isNodeChange(change: TrackedChange): change is NodeChange {
     return change.type === 'node-change'
+  }
+
+  static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
+    return change.type === 'node-attr-change'
   }
 }

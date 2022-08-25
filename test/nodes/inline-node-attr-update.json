@@ -12,34 +12,23 @@
           {
             "type": "image",
             "attrs": {
-              "src": "https://i.imgur.com/lFAxY.png",
-              "alt": null,
-              "title": "Image",
-              "dataTracked": {
-                "id": "MOCK-ID-1",
-                "authorID": "1-mike",
-                "reviewedByID": null,
-                "createdAt": 1577836800000,
-                "updatedAt": 1577836800000,
-                "status": "pending",
-                "operation": "delete"
-              }
-            }
-          },
-          {
-            "type": "image",
-            "attrs": {
               "src": "https://i.imgur.com/WdH20od.jpeg",
               "alt": null,
               "title": "Changed title",
               "dataTracked": {
                 "id": "MOCK-ID-2",
+                "oldAttrs": {
+                  "src": "https://i.imgur.com/lFAxY.png",
+                  "alt": null,
+                  "title": "Image",
+                  "dataTracked": null
+                },
                 "authorID": "1-mike",
                 "reviewedByID": null,
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "pending",
-                "operation": "insert"
+                "operation": "set_attrs"
               }
             }
           },
@@ -53,7 +42,7 @@
   },
   "selection": {
     "type": "text",
-    "anchor": 3,
-    "head": 3
+    "anchor": 1,
+    "head": 1
   }
 }

@@ -16,27 +16,33 @@
 export enum CHANGE_OPERATION {
   insert = 'insert',
   delete = 'delete',
-  set_node_attributes = 'set_node_attributes',
-  wrap_with_node = 'wrap_with_node',
-  unwrap_from_node = 'unwrap_from_node',
-  add_mark = 'add_mark',
-  remove_mark = 'remove_mark',
+  set_node_attributes = 'set_attrs',
+  // wrap_with_node = 'wrap_with_node',
+  // unwrap_from_node = 'unwrap_from_node',
+  // add_mark = 'add_mark',
+  // remove_mark = 'remove_mark',
 }
 export enum CHANGE_STATUS {
   accepted = 'accepted',
   rejected = 'rejected',
   pending = 'pending',
 }
-export interface TrackedAttrs {
+type InsertDeleteAttrs = {
   id: string
   authorID: string
   reviewedByID: string | null
-  operation: CHANGE_OPERATION
+  operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.delete
   status: CHANGE_STATUS
   createdAt: number
   updatedAt: number
 }
-export type Change = {
+type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.set_node_attributes
+  oldAttrs: Record<string, any>
+}
+export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs
+
+type Change = {
   id: string
   from: number
   to: number
@@ -51,6 +57,12 @@ export type NodeChange = Change & {
   nodeType: string
   children: TrackedChange[]
 }
+export type NodeAttrChange = Change & {
+  type: 'node-attr-change'
+  nodeType: string
+  oldAttrs: Record<string, any>
+  newAttrs: Record<string, any>
+}
 export type WrapChange = Change & {
   type: 'wrap-change'
   wrapperNode: string
@@ -58,7 +70,7 @@ export type WrapChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
-export type TrackedChange = TextChange | NodeChange | WrapChange | MarkChange
+export type TrackedChange = TextChange | NodeChange | NodeAttrChange | WrapChange | MarkChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'attrs'> & {
   attrs: Partial<TrackedAttrs>
 }

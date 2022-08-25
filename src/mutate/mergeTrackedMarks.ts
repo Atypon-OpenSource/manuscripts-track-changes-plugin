@@ -47,9 +47,7 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   if (!shouldMergeTrackedAttributes(leftDataTracked, rightDataTracked)) {
     return
   }
-  const isLeftOlder =
-    (leftDataTracked.createdAt || Number.MAX_VALUE) <
-    (rightDataTracked.createdAt || Number.MAX_VALUE)
+  const isLeftOlder = (leftDataTracked.createdAt || 0) < (rightDataTracked.createdAt || 0)
   const ancestorAttrs = isLeftOlder ? leftDataTracked : rightDataTracked
   const dataTracked = {
     ...ancestorAttrs,

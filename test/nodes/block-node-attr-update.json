@@ -1,34 +1,128 @@
-{
-  "doc": {
-    "type": "doc",
-    "content": [
-      {
-        "type": "paragraph",
-        "attrs": {
-          "dataTracked": {
-            "id": "MOCK-ID-1",
-            "userID": "1-mike",
-            "createdAt": 1577836800000,
-            "status": "pending",
-            "operation": "update",
-            "updated": {
-              "testAttribute": ["initial", "changed"]
-            }
-          },
-          "testAttribute": "changed"
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Hello World"
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
           }
-        ]
-      }
-    ]
+        },
+        {
+          "type": "equation_wrapper",
+          "attrs": {
+            "id": "",
+            "class": "equation-wrapper",
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "equation",
+              "attrs": {
+                "id": "",
+                "class": "equation",
+                "TeXRepresentation": "",
+                "dataTracked": null
+              }
+            },
+            {
+              "type": "figcaption",
+              "attrs": {
+                "dataTracked": null
+              }
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello World"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "node",
+      "anchor": 3
+    }
   },
-  "selection": {
-    "type": "text",
-    "anchor": 1,
-    "head": 1
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          }
+        },
+        {
+          "type": "equation_wrapper",
+          "attrs": {
+            "id": "",
+            "class": "equation-wrapper",
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "equation",
+              "attrs": {
+                "id": "",
+                "class": "equation",
+                "TeXRepresentation": "1+1=2",
+                "dataTracked": {
+                  "id": "MOCK-ID-6",
+                  "oldAttrs": {
+                    "id": "",
+                    "class": "equation",
+                    "TeXRepresentation": "",
+                    "dataTracked": null
+                  },
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
+                  "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "set_attrs"
+                }
+              }
+            },
+            {
+              "type": "figcaption",
+              "attrs": {
+                "dataTracked": null
+              }
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello World"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "node",
+      "anchor": 3
+    }
   }
-}
+]

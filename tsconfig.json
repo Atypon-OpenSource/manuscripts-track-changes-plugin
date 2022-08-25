@@ -5,8 +5,7 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "types": ["node", "jest"],
     "declaration": true,
-    "declarationDir": "./dist",
-    "baseUrl": "src"
+    "declarationDir": "./dist"
   },
   "include": ["src"]
 }

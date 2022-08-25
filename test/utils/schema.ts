@@ -199,6 +199,83 @@ export const schema = new Schema({
       },
     },
 
+    figcaption: {
+      content: 'inline*',
+      group: 'block',
+      attrs: { dataTracked: { default: null } },
+      isolating: true,
+      selectable: false,
+      parseDOM: [
+        {
+          tag: 'figcaption',
+        },
+      ],
+      toDOM: () => ['figcaption', 0],
+    },
+
+    equation_wrapper: {
+      content: 'equation figcaption',
+      attrs: {
+        id: { default: '' },
+        class: { default: 'equation-wrapper' },
+        dataTracked: { default: null },
+      },
+      selectable: false,
+      group: 'block element',
+      parseDOM: [
+        {
+          tag: 'figure.equation-wrapper',
+          getAttrs: (dom: HTMLElement | string) => {
+            if (dom instanceof HTMLElement) {
+              return {
+                id: dom.getAttribute('id'),
+              }
+            }
+            return null
+          },
+        },
+      ],
+      toDOM: (node: PMNode) => {
+        const attrs = {
+          id: node.attrs.id,
+          class: node.attrs.class,
+        }
+        return ['figure', attrs, 0]
+      },
+    },
+
+    equation: {
+      attrs: {
+        id: { default: '' },
+        class: { default: 'equation' },
+        TeXRepresentation: { default: '' },
+        dataTracked: { default: null },
+      },
+      group: 'block',
+      parseDOM: [
+        {
+          tag: `div.equation`,
+          getAttrs: (dom: HTMLElement | string) => {
+            if (dom instanceof HTMLElement) {
+              return {
+                id: dom.getAttribute('id'),
+                TeXRepresentation: dom.getAttribute('data-tex-representation'),
+              }
+            }
+            return null
+          },
+        },
+      ],
+      toDOM: (node: PMNode) => {
+        const attrs = {
+          id: node.attrs.id,
+          class: node.attrs.class,
+          'data-tex-representation': node.attrs.TeXRepresentation,
+        }
+        return ['div', attrs]
+      },
+    },
+
     // :: NodeSpec A hard line break, represented in the DOM as `<br>`.
     hard_break: {
       inline: true,
