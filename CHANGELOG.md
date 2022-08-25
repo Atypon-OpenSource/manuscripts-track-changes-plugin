@@ -1,5 +1,15 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.0
+
+### Minor Changes
+
+- b5968df: feat: add diffing of transactions
+
+### Patch Changes
+
+- 1444126: refactor(track): rename & move files to improve readability
+
 ## 0.3.0
 
 ### Minor Changes
