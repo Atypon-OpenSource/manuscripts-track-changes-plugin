@@ -28,6 +28,7 @@ import basicNodeInsert from './basic-node-ins.json'
 import blockNodeAttrUpdate from './block-node-attr-update.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import wrapWithLink from './wrap-with-link.json'
+import { NodeSelection } from 'prosemirror-state'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -76,10 +77,7 @@ describe('nodes.test', () => {
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
     tester.cmd((state, dispatch) => {
-      const tr = state.tr
-      tr.delete(0, state.doc.nodeSize - 2)
-      dispatch && dispatch(tr)
-      return true
+      dispatch(state.tr.delete(0, state.doc.nodeSize - 2))
     })
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
     // Contains paragraph insert since the default doc must have at least one child paragraph,
@@ -115,15 +113,14 @@ describe('nodes.test', () => {
       })
       .cmd(trackCommands.applyAndRemoveChanges())
       .cmd((state, dispatch) => {
-        const tr = state.tr
-        tr.setNodeMarkup(1, undefined, {
-          src: 'https://i.imgur.com/WdH20od.jpeg',
-          title: 'Changed title',
-        })
-        dispatch && dispatch(tr)
-        return true
+        dispatch(
+          state.tr.setNodeMarkup(1, undefined, {
+            src: 'https://i.imgur.com/WdH20od.jpeg',
+            title: 'Changed title',
+          })
+        )
       })
-
+    // await fs.writeFile('inline.json', JSON.stringify(tester.toJSON()))
     expect(tester.toJSON()).toEqual(inlineNodeAttrUpdate)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)
@@ -162,6 +159,9 @@ describe('nodes.test', () => {
       doc: docs.paragraph,
     })
       .insertNode(defaultSchema.nodes.equation_wrapper.createAndFill(), 1)
+      .cmd((state, dispatch) => {
+        dispatch(state.tr.setSelection(NodeSelection.create(state.doc, 3)))
+      })
       .cmd((state, dispatch) => {
         const trackChangesState = trackChangesPluginKey.getState(state)
         if (!trackChangesState) {

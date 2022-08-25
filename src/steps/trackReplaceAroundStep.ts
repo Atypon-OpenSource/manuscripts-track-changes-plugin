@@ -24,6 +24,7 @@ import { log } from '../utils/logger'
 import { ExposedSlice } from '../types/pm'
 import { NewEmptyAttrs } from '../types/track'
 import * as trackUtils from '../utils/track-utils'
+import { ChangeStep } from '../types/step'
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
@@ -72,13 +73,17 @@ export function trackReplaceAroundStep(
   const stepResult = newTr.maybeStep(newStep)
   if (stepResult.failed) {
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
-    return
+    return []
   }
   const gap = oldState.doc.slice(gapFrom, gapTo)
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  const { deleteMap, newSliceContent } = deleteAndMergeSplitNodes(
+  const {
+    deleteMap,
+    newSliceContent,
+    steps: deleteSteps,
+  } = deleteAndMergeSplitNodes(
     from,
     to,
     { start: gapFrom, end: gapTo },
@@ -88,7 +93,9 @@ export function trackReplaceAroundStep(
     attrs,
     slice
   )
+  let steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
+  log.info('DELETE STEPS: ', deleteSteps)
   // We only want to insert when there something inside the gap (actually would this be always true?)
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
   if (gap.size > 0 || (!structure && newSliceContent.size > 0)) {
@@ -113,23 +120,16 @@ export function trackReplaceAroundStep(
       insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
-    const newStep = new ReplaceStep(
-      deleteMap.map(gapFrom),
-      deleteMap.map(gapTo),
-      insertedSlice,
-      false
-    )
-    const stepResult = newTr.maybeStep(newStep)
-    if (stepResult.failed) {
-      log.error(`insert ReplaceStep failed: "${stepResult.failed}"`, newStep)
-      return
-    }
-    log.info('new steps after applying insert', [...newTr.steps])
-    mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
-    mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
+    deleteSteps.push({
+      type: 'insert-slice',
+      from: deleteMap.map(gapFrom),
+      to: deleteMap.map(gapTo),
+      slice: insertedSlice,
+    })
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
     mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
     mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
   }
+  return steps
 }

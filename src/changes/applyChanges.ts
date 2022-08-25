@@ -70,6 +70,18 @@ export function applyAcceptedRejectedChanges(
         deleteNode(node, from, tr)
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+    } else if (
+      ChangeSet.isNodeAttrChange(change) &&
+      change.attrs.status === CHANGE_STATUS.accepted
+    ) {
+      const attrs = { ...node.attrs, dataTracked: null }
+      tr.setNodeMarkup(from, undefined, attrs, node.marks)
+    } else if (
+      ChangeSet.isNodeAttrChange(change) &&
+      change.attrs.status === CHANGE_STATUS.rejected
+    ) {
+      const attrs = { ...change.oldAttrs, dataTracked: null }
+      tr.setNodeMarkup(from, undefined, attrs, node.marks)
     }
   })
   return deleteMap

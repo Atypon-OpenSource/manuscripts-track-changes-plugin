@@ -60,7 +60,7 @@ describe('slices.test', () => {
 
     expect(tester.toJSON()).toEqual(variousOpenEndedSlices[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(uuidv4Mock.mock.calls.length).toBe(4)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

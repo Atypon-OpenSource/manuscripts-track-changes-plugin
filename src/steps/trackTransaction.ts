@@ -28,6 +28,9 @@ import { CHANGE_STATUS } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
+import { processChangeSteps } from '../change-steps/processChangeSteps'
+import { diffChangeSteps } from '../change-steps/diffChangeSteps'
+import { InsertSliceStep } from '../types/step'
 
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
@@ -89,7 +92,20 @@ export function trackTransaction(
       )
       return
     } else if (step instanceof ReplaceStep) {
-      const selectionPos = trackReplaceStep(step, oldState, newTr, emptyAttrs)
+      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
+      log.info('CHANGES: ', steps)
+      // deleted and merged really...
+      const deleted = steps.filter((s) => s.type !== 'insert-slice')
+      const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
+      steps = diffChangeSteps(deleted, inserted, newTr, oldState.schema)
+      log.info('DIFFED STEPS: ', steps)
+      const [mapping, selectionPos] = processChangeSteps(
+        steps,
+        startPos,
+        newTr,
+        emptyAttrs,
+        oldState.schema
+      )
       if (!wasNodeSelection) {
         const sel: typeof Selection = getSelectionStaticConstructor(tr.selection)
         // Use Selection.near to fix selections that point to a block node instead of inline content
@@ -99,10 +115,22 @@ export function trackTransaction(
         newTr.setSelection(near)
       }
     } else if (step instanceof ReplaceAroundStep) {
-      trackReplaceAroundStep(step, oldState, newTr, emptyAttrs)
-      // } else if (step instanceof AddMarkStep) {
-      // } else if (step instanceof RemoveMarkStep) {
+      let steps = trackReplaceAroundStep(step, oldState, newTr, emptyAttrs)
+      const deleted = steps.filter((s) => s.type !== 'insert-slice')
+      const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
+      log.info('INSERT STEPS: ', inserted)
+      steps = diffChangeSteps(deleted, inserted, newTr, oldState.schema)
+      log.info('DIFFED STEPS: ', steps)
+      const [mapping, selectionPos] = processChangeSteps(
+        steps,
+        tr.selection.from,
+        newTr,
+        emptyAttrs,
+        oldState.schema
+      )
     }
+    // } else if (step instanceof AddMarkStep) {
+    // } else if (step instanceof RemoveMarkStep) {
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.

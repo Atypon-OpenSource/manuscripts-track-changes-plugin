@@ -51,9 +51,8 @@
       ]
     },
     "selection": {
-      "type": "text",
-      "anchor": 8,
-      "head": 8
+      "type": "node",
+      "anchor": 3
     }
   },
   {
@@ -82,13 +81,19 @@
                 "class": "equation",
                 "TeXRepresentation": "1+1=2",
                 "dataTracked": {
-                  "id": "MOCK-ID-5",
+                  "id": "MOCK-ID-6",
+                  "oldAttrs": {
+                    "id": "",
+                    "class": "equation",
+                    "TeXRepresentation": "",
+                    "dataTracked": null
+                  },
                   "authorID": "1-mike",
                   "reviewedByID": null,
                   "createdAt": 1577836800000,
                   "updatedAt": 1577836800000,
                   "status": "pending",
-                  "operation": "update"
+                  "operation": "set_attrs"
                 }
               }
             },
@@ -117,7 +122,7 @@
     },
     "selection": {
       "type": "node",
-      "anchor": 4
+      "anchor": 3
     }
   }
 ]
