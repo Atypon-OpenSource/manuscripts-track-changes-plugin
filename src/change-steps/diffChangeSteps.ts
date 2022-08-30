@@ -45,7 +45,7 @@ export function matchInserted(
         d = from - pos,
         maxSteps = Math.max(pos, from) - to
       // Match text inside the inserted text node to the deleted text node
-      for (; maxSteps !== j && child.text![j] === node.text![d]; j += 1, d += 1) {
+      for (; maxSteps !== j && child.text![j] !== undefined && child.text![j] === node.text![d]; j += 1, d += 1) {
         inDeleted -= 1
       }
       // this is needed incase diffing tr.doc
