@@ -51,15 +51,22 @@ export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, sc
   return marksTrackedData[0] || undefined
 }
 
+export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs> | undefined {
+  let { dataTracked } = node.attrs
+  return dataTracked
+}
+
 export function getNodeTrackedData(
   node: PMNode | undefined | null,
   schema: Schema
 ): Partial<TrackedAttrs> | undefined {
-  return !node
-    ? undefined
-    : node.isText
-    ? getInlineNodeTrackedMarkData(node, schema)
-    : node.attrs.dataTracked
+  let tracked
+  if (node && !node.isText) {
+    tracked = getBlockInlineTrackedData(node)
+  } else if (node?.isText) {
+    tracked = getInlineNodeTrackedMarkData(node, schema)
+  }
+  return tracked
 }
 
 export function equalMarks(n1: PMNode, n2: PMNode) {

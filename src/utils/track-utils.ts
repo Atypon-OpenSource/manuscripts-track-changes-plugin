@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { CHANGE_OPERATION } from '../types/change'
-import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs } from '../types/track'
+import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs, NewUpdateAttrs } from '../types/track'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
@@ -28,5 +27,16 @@ export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.delete,
+  }
+}
+
+export function createNewUpdateAttrs(
+  attrs: NewEmptyAttrs,
+  oldAttrs: Record<string, any>
+): NewUpdateAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.set_node_attributes,
+    oldAttrs,
   }
 }
