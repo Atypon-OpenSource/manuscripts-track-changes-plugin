@@ -40,18 +40,19 @@ export function fixInconsistentChanges(
   const iteratedIds = new Set()
   let changed = false
   changeSet.invalidChanges.forEach((c) => {
-    const { id, authorID, operation, reviewedByID, status, createdAt, updatedAt } = c.attrs
+    const { id, authorID, operation, reviewedByID, status, createdAt, updatedAt } = c.dataTracked
     const newAttrs = {
       ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
       ...(!authorID && { authorID: trackUserID }),
-      ...(!operation && { operation: CHANGE_OPERATION.insert }),
+      // Dont add a default operation -> rather have updateChangeAttrs delete the track data
+      // ...(!operation && { operation: CHANGE_OPERATION.insert }),
       ...(!reviewedByID && { reviewedByID: null }),
       ...(!status && { status: CHANGE_STATUS.pending }),
       ...(!createdAt && { createdAt: Date.now() }),
       ...(!updatedAt && { updatedAt: Date.now() }),
     }
     if (Object.keys(newAttrs).length > 0) {
-      updateChangeAttrs(newTr, c, { ...c.attrs, ...newAttrs }, schema)
+      updateChangeAttrs(newTr, c, { ...c.dataTracked, ...newAttrs }, schema)
       changed = true
     }
     iteratedIds.add(newAttrs.id || id)

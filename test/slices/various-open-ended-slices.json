@@ -411,7 +411,7 @@
               "type": "blockquote",
               "attrs": {
                 "dataTracked": {
-                  "id": "MOCK-ID-14",
+                  "id": "MOCK-ID-7",
                   "authorID": "1-mike",
                   "reviewedByID": null,
                   "createdAt": 1577836800000,
@@ -425,7 +425,7 @@
                   "type": "paragraph",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-15",
+                      "id": "MOCK-ID-8",
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
@@ -503,7 +503,7 @@
           "type": "paragraph",
           "attrs": {
             "dataTracked": {
-              "id": "MOCK-ID-17",
+              "id": "MOCK-ID-15",
               "authorID": "1-mike",
               "reviewedByID": null,
               "createdAt": 1577836800000,
@@ -550,7 +550,7 @@
                       "type": "tracked_insert",
                       "attrs": {
                         "dataTracked": {
-                          "id": "MOCK-ID-16",
+                          "id": "MOCK-ID-14",
                           "authorID": "1-mike",
                           "reviewedByID": null,
                           "createdAt": 1577836800000,

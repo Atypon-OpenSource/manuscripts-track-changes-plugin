@@ -39,14 +39,14 @@ export function applyAcceptedRejectedChanges(
   deleteMap = new Mapping()
 ): Mapping {
   changes.forEach((change) => {
-    if (change.attrs.status === CHANGE_STATUS.pending) {
+    if (change.dataTracked.status === CHANGE_STATUS.pending) {
       return
     }
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from),
       node = tr.doc.nodeAt(from),
-      noChangeNeeded = deleted || ChangeSet.shouldNotDelete(change)
+      noChangeNeeded = deleted || !ChangeSet.shouldDeleteChange(change)
     if (!node) {
       !deleted && log.warn('no node found to update for change', change)
       return
@@ -72,13 +72,13 @@ export function applyAcceptedRejectedChanges(
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (
       ChangeSet.isNodeAttrChange(change) &&
-      change.attrs.status === CHANGE_STATUS.accepted
+      change.dataTracked.status === CHANGE_STATUS.accepted
     ) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
     } else if (
       ChangeSet.isNodeAttrChange(change) &&
-      change.attrs.status === CHANGE_STATUS.rejected
+      change.dataTracked.status === CHANGE_STATUS.rejected
     ) {
       const attrs = { ...change.oldAttrs, dataTracked: null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)

@@ -123,7 +123,7 @@ export const trackChangesPlugin = (
               createdTr = updateChangeAttrs(
                 createdTr,
                 change,
-                { status, reviewedByID: userID },
+                { ...change.dataTracked, status, reviewedByID: userID },
                 oldState.schema
               )
               setAction(createdTr, TrackChangesAction.updateChanges, [change.id])

@@ -34,9 +34,9 @@ export function findChanges(state: EditorState) {
   // Store the last iterated change to join adjacent text changes
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
-    const attrs = getNodeTrackedData(node, state.schema)
-    if (attrs) {
-      const id = attrs?.id || ''
+    const dataTracked = getNodeTrackedData(node, state.schema)
+    if (dataTracked) {
+      const id = dataTracked?.id || ''
       // Join adjacent text changes that have been broken up due to different marks
       // eg <ins><b>bold</b>norm<i>italic</i></ins> -> treated as one continuous change
       // Note the !equalMarks to leave changes separate incase the marks are equal to let fixInconsistentChanges to fix them
@@ -59,7 +59,7 @@ export function findChanges(state: EditorState) {
             from: pos,
             to: pos + node.nodeSize,
             text: node.text,
-            attrs,
+            dataTracked,
           } as PartialChange<TextChange>,
           node,
         }
@@ -73,7 +73,7 @@ export function findChanges(state: EditorState) {
             to: pos + node.nodeSize,
             nodeType: node.type.name,
             children: [],
-            attrs,
+            dataTracked,
           } as PartialChange<NodeChange>,
           node,
         }

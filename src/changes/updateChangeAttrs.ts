@@ -17,9 +17,14 @@ import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
+import { log } from '../utils/logger'
 import { ChangeSet } from '../ChangeSet'
 import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
-import { getNodeTrackedData } from '../compute/nodeHelpers'
+import {
+  getNodeTrackedData,
+  getTextNodeTrackedMarkData,
+  getBlockInlineTrackedData,
+} from '../compute/nodeHelpers'
 
 export function updateChangeAttrs(
   tr: Transaction,
@@ -29,16 +34,44 @@ export function updateChangeAttrs(
 ): Transaction {
   const node = tr.doc.nodeAt(change.from)
   if (!node) {
-    throw Error('No node at the from of change' + change)
+    log.error('updateChangeAttrs: no node at the from of change ', change)
+    return tr
   }
-  const dataTracked = { ...getNodeTrackedData(node, schema), ...trackedAttrs }
-  const oldMark = node.marks.find(
-    (m) => m.type === schema.marks.tracked_insert || m.type === schema.marks.tracked_delete
-  )
-  if (change.type === 'text-change' && oldMark) {
-    tr.addMark(change.from, change.to, oldMark.type.create({ ...oldMark.attrs, dataTracked }))
+  const { operation } = trackedAttrs
+  const oldTrackData =
+    change.type === 'text-change'
+      ? getTextNodeTrackedMarkData(node, schema)
+      : getBlockInlineTrackedData(node)
+  if (!operation) {
+    log.warn('updateChangeAttrs: unable to determine operation of change ', change)
+  } else if (!oldTrackData) {
+    log.warn('updateChangeAttrs: no old dataTracked for change ', change)
+  }
+  if (change.type === 'text-change') {
+    const oldMark = node.marks.find(
+      (m) => m.type === schema.marks.tracked_insert || m.type === schema.marks.tracked_delete
+    )
+    if (!oldMark) {
+      log.warn('updateChangeAttrs: no track marks for a text-change ', change)
+      return tr
+    }
+    // TODO add operation based on mark type if it's undefined?
+    tr.addMark(
+      change.from,
+      change.to,
+      oldMark.type.create({ ...oldMark.attrs, dataTracked: { ...oldTrackData, ...trackedAttrs } })
+    )
+  } else if (change.type === 'node-change' && !operation) {
+    // Very weird edge-case if this happens
+    tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
   } else if (change.type === 'node-change') {
-    tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked }, node.marks)
+    const oldTrack = getBlockInlineTrackedData(node)
+    tr.setNodeMarkup(
+      change.from,
+      undefined,
+      { ...node.attrs, dataTracked: { ...oldTrack, ...trackedAttrs } },
+      node.marks
+    )
   }
   return tr
 }

@@ -108,24 +108,26 @@ export function processChangeSteps(
       selectionPos = mapping.map(c.to) + c.slice.size
     } else if (c.type === 'update-node-attrs') {
       const oldDataTracked = getBlockInlineTrackedData(c.node)
-      let attrs
+      let newDataTracked
       if (oldDataTracked?.operation === CHANGE_OPERATION.set_node_attributes) {
-        attrs = {
-          ...c.newAttrs,
-          dataTracked: {
-            ...oldDataTracked,
-            updatedAt: emptyAttrs.updatedAt,
-          },
+        newDataTracked = {
+          ...oldDataTracked,
+          updatedAt: emptyAttrs.updatedAt,
         }
       } else {
-        attrs = {
-          ...c.newAttrs,
-          dataTracked: addTrackIdIfDoesntExist(
-            trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)
-          ),
-        }
+        newDataTracked = addTrackIdIfDoesntExist(
+          trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)
+        )
       }
-      newTr.setNodeMarkup(mapping.map(c.pos), undefined, attrs, c.node.marks)
+      newTr.setNodeMarkup(
+        mapping.map(c.pos),
+        undefined,
+        {
+          ...c.newAttrs,
+          dataTracked: newDataTracked,
+        },
+        c.node.marks
+      )
     }
     const newestStep = newTr.steps[newTr.steps.length - 1]
     if (step !== newestStep) {
