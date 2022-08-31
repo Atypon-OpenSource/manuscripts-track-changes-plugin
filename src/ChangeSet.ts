@@ -155,14 +155,6 @@ export class ChangeSet {
   }
 
   /**
-   * Determines whether a change should not be deleted when applying it to the document.
-   * @param change
-   */
-  static shouldNotDelete(change: TrackedChange) {
-    return !ChangeSet.shouldDeleteChange(change)
-  }
-
-  /**
    * Determines whether a change should be deleted when applying it to the document.
    * @param change
    */

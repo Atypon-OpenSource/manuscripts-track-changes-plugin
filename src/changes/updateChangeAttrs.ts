@@ -65,11 +65,16 @@ export function updateChangeAttrs(
     // Very weird edge-case if this happens
     tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
   } else if (change.type === 'node-change') {
-    const oldTrack = getBlockInlineTrackedData(node)
+    const newDataTracked = (getBlockInlineTrackedData(node) || []).map((oldTrack) => {
+      if (oldTrack.operation === operation) {
+        return { ...oldTrack, ...trackedAttrs }
+      }
+      return oldTrack
+    })
     tr.setNodeMarkup(
       change.from,
       undefined,
-      { ...node.attrs, dataTracked: { ...oldTrack, ...trackedAttrs } },
+      { ...node.attrs, dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
       node.marks
     )
   }
@@ -82,7 +87,7 @@ export function updateChangeChildrenAttributes(
   mapping: Mapping
 ) {
   changes.forEach((c) => {
-    if (c.type === 'node-change' && ChangeSet.shouldNotDelete(c)) {
+    if (c.type === 'node-change' && !ChangeSet.shouldDeleteChange(c)) {
       const from = mapping.map(c.from)
       const node = tr.doc.nodeAt(from)
       if (!node) {

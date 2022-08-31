@@ -66,19 +66,21 @@ export function deleteOrSetNodeDeleted(
   deleteAttrs: NewDeleteAttrs
 ) {
   const dataTracked = getBlockInlineTrackedData(node)
-  const inserted = dataTracked?.operation === CHANGE_OPERATION.insert
-  if (inserted && dataTracked?.authorID === deleteAttrs.authorID) {
+  const inserted = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.insert)
+  const deleted = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.delete)
+  const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
+  if (inserted && inserted.authorID === deleteAttrs.authorID) {
     return deleteNode(node, pos, newTr)
   }
-  const newDeleted = dataTracked
-    ? { ...dataTracked, updatedAt: deleteAttrs.updatedAt }
+  const newDeleted = deleted
+    ? { ...deleted, updatedAt: deleteAttrs.updatedAt }
     : addTrackIdIfDoesntExist(deleteAttrs)
   newTr.setNodeMarkup(
     pos,
     undefined,
     {
       ...node.attrs,
-      dataTracked: newDeleted,
+      dataTracked: updated ? [newDeleted, updated] : [newDeleted],
     },
     node.marks
   )

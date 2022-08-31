@@ -45,7 +45,7 @@ function recurseNodeContent(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema
     return node.type.create(
       {
         ...node.attrs,
-        dataTracked: addTrackIdIfDoesntExist(newTrackAttrs),
+        dataTracked: [addTrackIdIfDoesntExist(newTrackAttrs)],
       },
       Fragment.fromArray(updatedChildren),
       node.marks

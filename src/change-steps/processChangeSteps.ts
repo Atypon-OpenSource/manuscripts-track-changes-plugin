@@ -107,17 +107,24 @@ export function processChangeSteps(
       mergeTrackedMarks(mapping.map(c.to), newTr.doc, newTr, schema)
       selectionPos = mapping.map(c.to) + c.slice.size
     } else if (c.type === 'update-node-attrs') {
-      const oldDataTracked = getBlockInlineTrackedData(c.node)
+      const oldDataTracked = getBlockInlineTrackedData(c.node) || []
+      const oldUpdate = oldDataTracked.find(
+        (d) => d.operation === CHANGE_OPERATION.set_node_attributes
+      )
       let newDataTracked
-      if (oldDataTracked?.operation === CHANGE_OPERATION.set_node_attributes) {
-        newDataTracked = {
-          ...oldDataTracked,
-          updatedAt: emptyAttrs.updatedAt,
-        }
+      if (oldUpdate) {
+        newDataTracked = [
+          ...oldDataTracked.filter((d) => d === oldUpdate),
+          {
+            ...oldUpdate,
+            updatedAt: emptyAttrs.updatedAt,
+          },
+        ]
       } else {
-        newDataTracked = addTrackIdIfDoesntExist(
-          trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)
-        )
+        newDataTracked = [
+          ...oldDataTracked,
+          addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)),
+        ]
       }
       newTr.setNodeMarkup(
         mapping.map(c.pos),

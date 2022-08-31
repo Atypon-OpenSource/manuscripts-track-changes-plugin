@@ -131,15 +131,17 @@
               "src": "https://i.imgur.com/lFAxY.png",
               "alt": null,
               "title": "Image",
-              "dataTracked": {
-                "id": "MOCK-ID-1",
-                "authorID": "1-mike",
-                "reviewedByID": null,
-                "createdAt": 1577836800000,
-                "updatedAt": 1577836800000,
-                "status": "pending",
-                "operation": "delete"
-              }
+              "dataTracked": [
+                {
+                  "id": "MOCK-ID-1",
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
+                  "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "delete"
+                }
+              ]
             }
           }
         ]

@@ -51,20 +51,26 @@ export function getTextNodeTrackedMarkData(node: PMNode | undefined | null, sche
   return marksTrackedData[0] || undefined
 }
 
-export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs> | undefined {
+export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[] | undefined {
   let { dataTracked } = node.attrs
+  if (dataTracked && !Array.isArray(dataTracked)) {
+    return [dataTracked]
+  }
   return dataTracked
 }
 
 export function getNodeTrackedData(
   node: PMNode | undefined | null,
   schema: Schema
-): Partial<TrackedAttrs> | undefined {
+): Partial<TrackedAttrs>[] | undefined {
   let tracked
   if (node && !node.isText) {
     tracked = getBlockInlineTrackedData(node)
   } else if (node?.isText) {
     tracked = getTextNodeTrackedMarkData(node, schema)
+  }
+  if (tracked && !Array.isArray(tracked)) {
+    tracked = [tracked]
   }
   return tracked
 }

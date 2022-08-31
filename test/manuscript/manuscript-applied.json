@@ -38,15 +38,17 @@
                 "suppressFooter": false,
                 "suppressHeader": false,
                 "expandListing": false,
-                "dataTracked": {
-                  "id": "MOCK-ID-9",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "insert"
-                }
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-9",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  }
+                ]
               },
               "content": [
                 {
@@ -55,15 +57,17 @@
                     "id": "",
                     "headerRows": 1,
                     "footerRows": 1,
-                    "dataTracked": {
-                      "id": "MOCK-ID-7",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "insert"
-                    }
+                    "dataTracked": [
+                      {
+                        "id": "MOCK-ID-7",
+                        "authorID": "1-mike",
+                        "reviewedByID": null,
+                        "createdAt": 1577836800000,
+                        "updatedAt": 1577836800000,
+                        "status": "pending",
+                        "operation": "insert"
+                      }
+                    ]
                   },
                   "content": [
                     {
@@ -151,15 +155,17 @@
                     "languageKey": "null",
                     "isExpanded": false,
                     "isExecuting": false,
-                    "dataTracked": {
-                      "id": "MOCK-ID-8",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "insert"
-                    }
+                    "dataTracked": [
+                      {
+                        "id": "MOCK-ID-8",
+                        "authorID": "1-mike",
+                        "reviewedByID": null,
+                        "createdAt": 1577836800000,
+                        "updatedAt": 1577836800000,
+                        "status": "pending",
+                        "operation": "insert"
+                      }
+                    ]
                   }
                 }
               ]

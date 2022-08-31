@@ -15,15 +15,17 @@
               "attrs": {
                 "href": "",
                 "title": "",
-                "dataTracked": {
-                  "id": "MOCK-ID-0",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "insert"
-                }
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-0",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  }
+                ]
               },
               "content": [
                 {
@@ -62,15 +64,17 @@
               "attrs": {
                 "href": "https://testing.testing",
                 "title": "I am a title",
-                "dataTracked": {
-                  "id": "MOCK-ID-1",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "insert"
-                }
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-1",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  }
+                ]
               },
               "content": [
                 {
