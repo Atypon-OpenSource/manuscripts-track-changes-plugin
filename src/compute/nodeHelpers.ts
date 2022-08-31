@@ -29,8 +29,8 @@ export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
   return attrs
 }
 
-export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, schema: Schema) {
-  if (!node || !node.isInline) {
+export function getTextNodeTrackedMarkData(node: PMNode | undefined | null, schema: Schema) {
+  if (!node || !node.isText) {
     return undefined
   }
   const marksTrackedData: (Omit<Partial<TrackedAttrs>, 'operation'> & {
@@ -51,15 +51,28 @@ export function getInlineNodeTrackedMarkData(node: PMNode | undefined | null, sc
   return marksTrackedData[0] || undefined
 }
 
+export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[] | undefined {
+  let { dataTracked } = node.attrs
+  if (dataTracked && !Array.isArray(dataTracked)) {
+    return [dataTracked]
+  }
+  return dataTracked
+}
+
 export function getNodeTrackedData(
   node: PMNode | undefined | null,
   schema: Schema
-): Partial<TrackedAttrs> | undefined {
-  return !node
-    ? undefined
-    : node.isText
-    ? getInlineNodeTrackedMarkData(node, schema)
-    : node.attrs.dataTracked
+): Partial<TrackedAttrs>[] | undefined {
+  let tracked
+  if (node && !node.isText) {
+    tracked = getBlockInlineTrackedData(node)
+  } else if (node?.isText) {
+    tracked = getTextNodeTrackedMarkData(node, schema)
+  }
+  if (tracked && !Array.isArray(tracked)) {
+    tracked = [tracked]
+  }
+  return tracked
 }
 
 export function equalMarks(n1: PMNode, n2: PMNode) {
@@ -92,6 +105,6 @@ export function getMergeableMarkTrackedAttrs(
   attrs: Partial<TrackedAttrs>,
   schema: Schema
 ) {
-  const nodeAttrs = getInlineNodeTrackedMarkData(node, schema)
+  const nodeAttrs = getTextNodeTrackedMarkData(node, schema)
   return nodeAttrs && shouldMergeTrackedAttributes(nodeAttrs, attrs) ? nodeAttrs : null
 }

@@ -17,7 +17,14 @@ import { EditorState } from 'prosemirror-state'
 import { Node as PMNode } from 'prosemirror-model'
 
 import { ChangeSet } from '../ChangeSet'
-import { IncompleteChange, NodeChange, PartialChange, TextChange } from '../types/change'
+import {
+  CHANGE_OPERATION,
+  IncompleteChange,
+  NodeAttrChange,
+  NodeChange,
+  PartialChange,
+  TextChange,
+} from '../types/change'
 import { getNodeTrackedData, equalMarks } from '../compute/nodeHelpers'
 
 /**
@@ -34,9 +41,10 @@ export function findChanges(state: EditorState) {
   // Store the last iterated change to join adjacent text changes
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
-    const attrs = getNodeTrackedData(node, state.schema)
-    if (attrs) {
-      const id = attrs?.id || ''
+    const tracked = getNodeTrackedData(node, state.schema) || []
+    for (let i = 0; i < tracked.length; i += 1) {
+      const dataTracked = tracked[i]
+      const id = dataTracked.id || ''
       // Join adjacent text changes that have been broken up due to different marks
       // eg <ins><b>bold</b>norm<i>italic</i></ins> -> treated as one continuous change
       // Note the !equalMarks to leave changes separate incase the marks are equal to let fixInconsistentChanges to fix them
@@ -50,35 +58,47 @@ export function findChanges(state: EditorState) {
         current.change.to = pos + node.nodeSize
         // Important to update the node as the text changes might contain multiple parts where some marks equal each other
         current.node = node
-      } else if (node.isText) {
-        current && changes.push(current.change)
-        current = {
-          change: {
-            id,
-            type: 'text-change',
-            from: pos,
-            to: pos + node.nodeSize,
-            text: node.text,
-            attrs,
-          } as PartialChange<TextChange>,
-          node,
-        }
-      } else {
-        current && changes.push(current.change)
-        current = {
-          change: {
-            id,
-            type: 'node-change',
-            from: pos,
-            to: pos + node.nodeSize,
-            nodeType: node.type.name,
-            children: [],
-            attrs,
-          } as PartialChange<NodeChange>,
-          node,
-        }
+        continue
       }
-    } else if (current) {
+      current && changes.push(current.change)
+      let change
+      if (node.isText) {
+        change = {
+          id,
+          type: 'text-change',
+          from: pos,
+          to: pos + node.nodeSize,
+          dataTracked,
+          text: node.text,
+        } as PartialChange<TextChange>
+      } else if (dataTracked.operation === CHANGE_OPERATION.set_node_attributes) {
+        change = {
+          id,
+          type: 'node-attr-change',
+          from: pos,
+          to: pos + node.nodeSize,
+          dataTracked,
+          nodeType: node.type.name,
+          newAttrs: node.attrs,
+          oldAttrs: dataTracked.oldAttrs,
+        } as NodeAttrChange
+      } else {
+        change = {
+          id,
+          type: 'node-change',
+          from: pos,
+          to: pos + node.nodeSize,
+          dataTracked,
+          nodeType: node.type.name,
+          children: [],
+        } as PartialChange<NodeChange>
+      }
+      current = {
+        change,
+        node,
+      }
+    }
+    if (tracked.length === 0 && current) {
       changes.push(current.change)
       current = undefined
     }

@@ -45,7 +45,11 @@ export function matchInserted(
         d = from - pos,
         maxSteps = Math.max(pos, from) - to
       // Match text inside the inserted text node to the deleted text node
-      for (; maxSteps !== j && child.text![j] === node.text![d]; j += 1, d += 1) {
+      for (
+        ;
+        maxSteps !== j && child.text![j] !== undefined && child.text![j] === node.text![d];
+        j += 1, d += 1
+      ) {
         inDeleted -= 1
       }
       // this is needed incase diffing tr.doc
@@ -79,8 +83,8 @@ export function matchInserted(
     deleted.push({
       pos: adjDeleted.pos,
       type: 'update-node-attrs',
+      node: adjDeleted.node,
       // Should check the attrs for equality in fixInconsistentChanges? to remove dataTracked completely
-      oldAttrs: adjDeleted.node.attrs || {},
       newAttrs: child.attrs || {},
     })
     deleted = deleted.filter((d) => d !== adjDeleted)

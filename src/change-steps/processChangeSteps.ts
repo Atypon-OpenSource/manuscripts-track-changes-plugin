@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Schema } from 'prosemirror-model'
+import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { log } from '../utils/logger'
-import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
+import { CHANGE_OPERATION } from '../types/change'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
-import { deleteNode } from '../mutate/deleteNode'
+import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { addTrackIdIfDoesntExist, getMergeableMarkTrackedAttrs } from '../compute/nodeHelpers'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import * as trackUtils from '../utils/track-utils'
 
 export function processChangeSteps(
@@ -43,52 +43,29 @@ export function processChangeSteps(
     log.info('process change: ', c)
     // const handled = customStepHandler(changes, newTr, emptyAttrs) // ChangeStep[] | undefined
     if (c.type === 'delete-node') {
-      const dataTracked: TrackedAttrs | undefined = c.node.attrs.dataTracked
-      const wasInsertedBySameUser =
-        dataTracked?.operation === CHANGE_OPERATION.insert &&
-        dataTracked.authorID === emptyAttrs.authorID
-      if (wasInsertedBySameUser) {
-        deleteNode(c.node, mapping.map(c.pos), newTr)
-        const newestStep = newTr.steps[newTr.steps.length - 1]
-        if (step !== newestStep) {
-          mapping.appendMap(newestStep.getMap())
-          step = newestStep
-        }
-        mergeTrackedMarks(mapping.map(c.pos), newTr.doc, newTr, schema)
-      } else {
-        const attrs = {
-          ...c.node.attrs,
-          dataTracked: addTrackIdIfDoesntExist(deleteAttrs),
-        }
-        newTr.setNodeMarkup(mapping.map(c.pos), undefined, attrs, c.node.marks)
+      deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
+      const newestStep = newTr.steps[newTr.steps.length - 1]
+      if (step !== newestStep) {
+        mapping.appendMap(newestStep.getMap())
+        step = newestStep
       }
+      mergeTrackedMarks(mapping.map(c.pos), newTr.doc, newTr, schema)
     } else if (c.type === 'delete-text') {
-      const from = mapping.map(c.from, -1)
-      const to = mapping.map(c.to, 1)
       const node = newTr.doc.nodeAt(mapping.map(c.pos))
-      if (node?.marks.find((m) => m.type === schema.marks.tracked_insert)) {
-        newTr.replaceWith(from, to, Fragment.empty)
-        mergeTrackedMarks(from, newTr.doc, newTr, schema)
-      } else {
-        const leftNode = newTr.doc.resolve(from).nodeBefore
-        const leftMarks = getMergeableMarkTrackedAttrs(leftNode, deleteAttrs, schema)
-        const rightNode = newTr.doc.resolve(to).nodeAfter
-        const rightMarks = getMergeableMarkTrackedAttrs(rightNode, deleteAttrs, schema)
-        const fromStartOfMark = from - (leftNode && leftMarks ? leftNode.nodeSize : 0)
-        const toEndOfMark = to + (rightNode && rightMarks ? rightNode.nodeSize : 0)
-        const dataTracked = addTrackIdIfDoesntExist({
-          ...leftMarks,
-          ...rightMarks,
-          ...deleteAttrs,
-        })
-        newTr.addMark(
-          fromStartOfMark,
-          toEndOfMark,
-          schema.marks.tracked_delete.create({
-            dataTracked,
-          })
-        )
+      if (!node) {
+        log.error(`processChangeSteps: no text node found for text-change`, c)
+        return
       }
+      const where = deleteTextIfInserted(
+        node,
+        mapping.map(c.pos),
+        newTr,
+        schema,
+        deleteAttrs,
+        mapping.map(c.from),
+        mapping.map(c.to)
+      )
+      mergeTrackedMarks(where, newTr.doc, newTr, schema)
     } else if (c.type === 'merge-fragment') {
       let insertPos = mapping.map(c.mergePos)
       // The default insert position for block nodes is either the start of the merged content or the end.
@@ -120,25 +97,44 @@ export function processChangeSteps(
       const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.slice, false)
       const stepResult = newTr.maybeStep(newStep)
       if (stepResult.failed) {
-        log.error(`insert ReplaceStep failed: "${stepResult.failed}"`, newStep)
+        log.error(
+          `processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`,
+          newStep
+        )
         return
       }
       mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
       mergeTrackedMarks(mapping.map(c.to), newTr.doc, newTr, schema)
       selectionPos = mapping.map(c.to) + c.slice.size
     } else if (c.type === 'update-node-attrs') {
-      const oldDataTracked: Partial<TrackedAttrs> | undefined = c.oldAttrs.dataTracked
-      const oldAttrs =
-        oldDataTracked?.operation === CHANGE_OPERATION.set_node_attributes
-          ? oldDataTracked.oldAttrs
-          : c.oldAttrs
-      const dataTracked = addTrackIdIfDoesntExist({
-        ...oldDataTracked,
-        oldAttrs,
-        ...emptyAttrs,
-        operation: CHANGE_OPERATION.set_node_attributes,
-      })
-      newTr.setNodeMarkup(mapping.map(c.pos), undefined, { ...c.newAttrs, dataTracked })
+      const oldDataTracked = getBlockInlineTrackedData(c.node) || []
+      const oldUpdate = oldDataTracked.find(
+        (d) => d.operation === CHANGE_OPERATION.set_node_attributes
+      )
+      let newDataTracked
+      if (oldUpdate) {
+        newDataTracked = [
+          ...oldDataTracked.filter((d) => d === oldUpdate),
+          {
+            ...oldUpdate,
+            updatedAt: emptyAttrs.updatedAt,
+          },
+        ]
+      } else {
+        newDataTracked = [
+          ...oldDataTracked,
+          addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)),
+        ]
+      }
+      newTr.setNodeMarkup(
+        mapping.map(c.pos),
+        undefined,
+        {
+          ...c.newAttrs,
+          dataTracked: newDataTracked,
+        },
+        c.node.marks
+      )
     }
     const newestStep = newTr.steps[newTr.steps.length - 1]
     if (step !== newestStep) {

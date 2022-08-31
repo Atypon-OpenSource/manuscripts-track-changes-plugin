@@ -46,7 +46,7 @@ type Change = {
   id: string
   from: number
   to: number
-  attrs: TrackedAttrs
+  dataTracked: TrackedAttrs
 }
 export type TextChange = Change & {
   type: 'text-change'
@@ -71,10 +71,10 @@ export type MarkChange = Change & {
   type: 'mark-change'
 }
 export type TrackedChange = TextChange | NodeChange | NodeAttrChange | WrapChange | MarkChange
-export type PartialChange<T extends TrackedChange> = Omit<T, 'attrs'> & {
-  attrs: Partial<TrackedAttrs>
+export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
+  dataTracked: Partial<TrackedAttrs>
 }
-export type IncompleteChange = Omit<TrackedChange, 'attrs'> & {
-  attrs: Partial<TrackedAttrs>
+export type IncompleteChange = Omit<TrackedChange, 'dataTracked'> & {
+  dataTracked: Partial<TrackedAttrs>
 }
 export type ChangeType = TrackedChange['type']

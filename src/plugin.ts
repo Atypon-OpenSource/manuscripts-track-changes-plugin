@@ -123,12 +123,12 @@ export const trackChangesPlugin = (
               createdTr = updateChangeAttrs(
                 createdTr,
                 change,
-                { status, reviewedByID: userID },
+                { ...change.dataTracked, status, reviewedByID: userID },
                 oldState.schema
               )
-              setAction(createdTr, TrackChangesAction.updateChanges, [change.id])
             }
           })
+          setAction(createdTr, TrackChangesAction.updateChanges, ids)
         } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
           const mapping = applyAcceptedRejectedChanges(
             createdTr,

@@ -47,7 +47,7 @@ export interface InsertSliceStep {
 export interface UpdateNodeAttrsStep {
   pos: number
   type: 'update-node-attrs'
-  oldAttrs: Record<string, any>
+  node: PMNode
   newAttrs: Record<string, any>
 }
 export type ChangeStep =

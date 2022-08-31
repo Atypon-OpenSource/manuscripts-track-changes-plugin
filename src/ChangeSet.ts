@@ -43,8 +43,9 @@ export class ChangeSet {
   get changes(): TrackedChange[] {
     const iteratedIds = new Set()
     return this.#changes.filter((c) => {
-      const valid = !iteratedIds.has(c.attrs.id) && ChangeSet.isValidTrackedAttrs(c.attrs)
-      iteratedIds.add(c.attrs.id)
+      const valid =
+        !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
+      iteratedIds.add(c.dataTracked.id)
       return valid
     }) as TrackedChange[]
   }
@@ -80,15 +81,15 @@ export class ChangeSet {
   }
 
   get pending() {
-    return this.changeTree.filter((c) => c.attrs.status === CHANGE_STATUS.pending)
+    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
   }
 
   get accepted() {
-    return this.changeTree.filter((c) => c.attrs.status === CHANGE_STATUS.accepted)
+    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.accepted)
   }
 
   get rejected() {
-    return this.changeTree.filter((c) => c.attrs.status === CHANGE_STATUS.rejected)
+    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.rejected)
   }
 
   get textChanges() {
@@ -126,7 +127,7 @@ export class ChangeSet {
   }
 
   get hasIncompleteAttrs() {
-    return this.#changes.some((c) => !ChangeSet.isValidTrackedAttrs(c.attrs))
+    return this.#changes.some((c) => !ChangeSet.isValidDataTracked(c.dataTracked))
   }
 
   get(id: string) {
@@ -154,19 +155,11 @@ export class ChangeSet {
   }
 
   /**
-   * Determines whether a change should not be deleted when applying it to the document.
-   * @param change
-   */
-  static shouldNotDelete(change: TrackedChange) {
-    return !ChangeSet.shouldDeleteChange(change)
-  }
-
-  /**
    * Determines whether a change should be deleted when applying it to the document.
    * @param change
    */
   static shouldDeleteChange(change: TrackedChange) {
-    const { status, operation } = change.attrs
+    const { status, operation } = change.dataTracked
     return (
       (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
@@ -175,11 +168,11 @@ export class ChangeSet {
 
   /**
    * Checks whether change attributes contain all TrackedAttrs keys with non-undefined values
-   * @param attrs
+   * @param dataTracked
    */
-  static isValidTrackedAttrs(attrs: Partial<TrackedAttrs> = {}): boolean {
-    if ('attrs' in attrs) {
-      log.warn('passed "attrs" as property to isValidTrackedAttrs(attrs)', attrs)
+  static isValidDataTracked(dataTracked: Partial<TrackedAttrs> = {}): boolean {
+    if ('dataTracked' in dataTracked) {
+      log.warn('passed "dataTracked" as property to isValidTrackedAttrs()', dataTracked)
     }
     const trackedKeys: (keyof TrackedAttrs)[] = [
       'id',
@@ -192,10 +185,10 @@ export class ChangeSet {
     // reviewedByID is set optional since either ProseMirror or Yjs doesn't like persisting null values inside attributes objects
     // So it can be either omitted completely or at least be null or string
     const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID']
-    const entries = Object.entries(attrs).filter(([key, val]) =>
+    const entries = Object.entries(dataTracked).filter(([key, val]) =>
       trackedKeys.includes(key as keyof TrackedAttrs)
     )
-    const optionalEntries = Object.entries(attrs).filter(([key, val]) =>
+    const optionalEntries = Object.entries(dataTracked).filter(([key, val]) =>
       optionalKeys.includes(key as keyof TrackedAttrs)
     )
     return (
@@ -206,7 +199,7 @@ export class ChangeSet {
       optionalEntries.every(
         ([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&
-      (attrs.id || '').length > 0 // Changes created with undefined id have '' as placeholder
+      (dataTracked.id || '').length > 0 // Changes created with undefined id have '' as placeholder
     )
   }
 

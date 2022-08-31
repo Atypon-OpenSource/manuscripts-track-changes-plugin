@@ -19,7 +19,7 @@ import { liftTarget } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { NewDeleteAttrs } from '../types/track'
-import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first
@@ -65,17 +65,23 @@ export function deleteOrSetNodeDeleted(
   newTr: Transaction,
   deleteAttrs: NewDeleteAttrs
 ) {
-  const dataTracked: TrackedAttrs | undefined = node.attrs.dataTracked
-  const wasInsertedBySameUser =
-    dataTracked?.operation === CHANGE_OPERATION.insert &&
-    dataTracked.authorID === deleteAttrs.authorID
-  if (wasInsertedBySameUser) {
-    deleteNode(node, pos, newTr)
-  } else {
-    const attrs = {
-      ...node.attrs,
-      dataTracked: addTrackIdIfDoesntExist(deleteAttrs),
-    }
-    newTr.setNodeMarkup(pos, undefined, attrs, node.marks)
+  const dataTracked = getBlockInlineTrackedData(node)
+  const inserted = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.insert)
+  const deleted = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.delete)
+  const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
+  if (inserted && inserted.authorID === deleteAttrs.authorID) {
+    return deleteNode(node, pos, newTr)
   }
+  const newDeleted = deleted
+    ? { ...deleted, updatedAt: deleteAttrs.updatedAt }
+    : addTrackIdIfDoesntExist(deleteAttrs)
+  newTr.setNodeMarkup(
+    pos,
+    undefined,
+    {
+      ...node.attrs,
+      dataTracked: updated ? [newDeleted, updated] : [newDeleted],
+    },
+    node.marks
+  )
 }

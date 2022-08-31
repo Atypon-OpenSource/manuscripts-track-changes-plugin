@@ -21,7 +21,7 @@
                   "type": "tracked_delete",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-3",
+                      "id": "MOCK-ID-2",
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
@@ -146,15 +146,17 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": {
-              "id": "MOCK-ID-2",
-              "authorID": "1-mike",
-              "reviewedByID": null,
-              "createdAt": 1577836800000,
-              "updatedAt": 1577836800000,
-              "status": "pending",
-              "operation": "delete"
-            },
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-2",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "delete"
+              }
+            ],
             "testAttribute": null
           },
           "content": [
@@ -195,15 +197,17 @@
                 {
                   "type": "paragraph",
                   "attrs": {
-                    "dataTracked": {
-                      "id": "MOCK-ID-1",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "insert"
-                    },
+                    "dataTracked": [
+                      {
+                        "id": "MOCK-ID-1",
+                        "authorID": "1-mike",
+                        "reviewedByID": null,
+                        "createdAt": 1577836800000,
+                        "updatedAt": 1577836800000,
+                        "status": "pending",
+                        "operation": "insert"
+                      }
+                    ],
                     "testAttribute": null
                   },
                   "content": [
@@ -396,43 +400,49 @@
         {
           "type": "blockquote",
           "attrs": {
-            "dataTracked": {
-              "id": "MOCK-ID-6",
-              "authorID": "1-mike",
-              "reviewedByID": null,
-              "createdAt": 1577836800000,
-              "updatedAt": 1577836800000,
-              "status": "pending",
-              "operation": "delete"
-            }
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-6",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "delete"
+              }
+            ]
           },
           "content": [
             {
               "type": "blockquote",
               "attrs": {
-                "dataTracked": {
-                  "id": "MOCK-ID-14",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "delete"
-                }
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-7",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                ]
               },
               "content": [
                 {
                   "type": "paragraph",
                   "attrs": {
-                    "dataTracked": {
-                      "id": "MOCK-ID-15",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "delete"
-                    },
+                    "dataTracked": [
+                      {
+                        "id": "MOCK-ID-8",
+                        "authorID": "1-mike",
+                        "reviewedByID": null,
+                        "createdAt": 1577836800000,
+                        "updatedAt": 1577836800000,
+                        "status": "pending",
+                        "operation": "delete"
+                      }
+                    ],
                     "testAttribute": null
                   },
                   "content": [
@@ -463,15 +473,17 @@
             {
               "type": "paragraph",
               "attrs": {
-                "dataTracked": {
-                  "id": "MOCK-ID-10",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "delete"
-                },
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-10",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                ],
                 "testAttribute": null
               },
               "content": [
@@ -502,44 +514,50 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": {
-              "id": "MOCK-ID-17",
-              "authorID": "1-mike",
-              "reviewedByID": null,
-              "createdAt": 1577836800000,
-              "updatedAt": 1577836800000,
-              "status": "pending",
-              "operation": "delete"
-            },
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-15",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "delete"
+              }
+            ],
             "testAttribute": null
           }
         },
         {
           "type": "blockquote",
           "attrs": {
-            "dataTracked": {
-              "id": "MOCK-ID-4",
-              "authorID": "1-mike",
-              "reviewedByID": null,
-              "createdAt": 1577836800000,
-              "updatedAt": 1577836800000,
-              "status": "pending",
-              "operation": "insert"
-            }
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-4",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "insert"
+              }
+            ]
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
-                "dataTracked": {
-                  "id": "MOCK-ID-3",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "insert"
-                },
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-3",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  }
+                ],
                 "testAttribute": null
               },
               "content": [
@@ -550,7 +568,7 @@
                       "type": "tracked_insert",
                       "attrs": {
                         "dataTracked": {
-                          "id": "MOCK-ID-16",
+                          "id": "MOCK-ID-14",
                           "authorID": "1-mike",
                           "reviewedByID": null,
                           "createdAt": 1577836800000,
@@ -570,15 +588,17 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": {
-              "id": "MOCK-ID-5",
-              "authorID": "1-mike",
-              "reviewedByID": null,
-              "createdAt": 1577836800000,
-              "updatedAt": 1577836800000,
-              "status": "pending",
-              "operation": "insert"
-            },
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-5",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "insert"
+              }
+            ],
             "testAttribute": null
           },
           "content": [

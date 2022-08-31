@@ -25,15 +25,17 @@
             {
               "type": "blockquote",
               "attrs": {
-                "dataTracked": {
-                  "id": "MOCK-ID-3",
-                  "authorID": "1-mike",
-                  "reviewedByID": null,
-                  "createdAt": 1577836800000,
-                  "updatedAt": 1577836800000,
-                  "status": "pending",
-                  "operation": "delete"
-                }
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-3",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "delete"
+                  }
+                ]
               },
               "content": [
                 {
@@ -69,15 +71,17 @@
         {
           "type": "blockquote",
           "attrs": {
-            "dataTracked": {
-              "id": "MOCK-ID-5",
-              "authorID": "1-mike",
-              "reviewedByID": null,
-              "createdAt": 1577836800000,
-              "updatedAt": 1577836800000,
-              "status": "pending",
-              "operation": "insert"
-            }
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-5",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "insert"
+              }
+            ]
           },
           "content": [
             {

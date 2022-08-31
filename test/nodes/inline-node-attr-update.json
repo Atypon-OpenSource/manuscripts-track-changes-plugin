@@ -15,21 +15,23 @@
               "src": "https://i.imgur.com/WdH20od.jpeg",
               "alt": null,
               "title": "Changed title",
-              "dataTracked": {
-                "id": "MOCK-ID-2",
-                "oldAttrs": {
-                  "src": "https://i.imgur.com/lFAxY.png",
-                  "alt": null,
-                  "title": "Image",
-                  "dataTracked": null
-                },
-                "authorID": "1-mike",
-                "reviewedByID": null,
-                "createdAt": 1577836800000,
-                "updatedAt": 1577836800000,
-                "status": "pending",
-                "operation": "set_attrs"
-              }
+              "dataTracked": [
+                {
+                  "id": "MOCK-ID-2",
+                  "oldAttrs": {
+                    "src": "https://i.imgur.com/lFAxY.png",
+                    "alt": null,
+                    "title": "Image",
+                    "dataTracked": null
+                  },
+                  "authorID": "1-mike",
+                  "reviewedByID": null,
+                  "createdAt": 1577836800000,
+                  "updatedAt": 1577836800000,
+                  "status": "pending",
+                  "operation": "set_attrs"
+                }
+              ]
             }
           },
           {
