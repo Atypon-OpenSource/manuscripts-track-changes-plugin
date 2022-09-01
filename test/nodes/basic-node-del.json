@@ -152,7 +152,24 @@
           "attrs": {
             "dataTracked": [
               {
-                "id": "MOCK-ID-4",
+                "id": "MOCK-ID-0",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "insert"
+              }
+            ],
+            "testAttribute": null
+          }
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-3",
                 "authorID": "1-mike",
                 "reviewedByID": null,
                 "createdAt": 1577836800000,
@@ -171,7 +188,7 @@
                   "type": "tracked_delete",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-5",
+                      "id": "MOCK-ID-4",
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
@@ -191,7 +208,7 @@
           "attrs": {
             "dataTracked": [
               {
-                "id": "MOCK-ID-6",
+                "id": "MOCK-ID-5",
                 "authorID": "1-mike",
                 "reviewedByID": null,
                 "createdAt": 1577836800000,
@@ -207,7 +224,7 @@
               "attrs": {
                 "dataTracked": [
                   {
-                    "id": "MOCK-ID-7",
+                    "id": "MOCK-ID-6",
                     "authorID": "1-mike",
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
@@ -226,7 +243,7 @@
                       "type": "tracked_delete",
                       "attrs": {
                         "dataTracked": {
-                          "id": "MOCK-ID-8",
+                          "id": "MOCK-ID-7",
                           "authorID": "1-mike",
                           "reviewedByID": null,
                           "createdAt": 1577836800000,
@@ -246,7 +263,17 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": null,
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-8",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "delete"
+              }
+            ],
             "testAttribute": null
           },
           "content": [

@@ -111,7 +111,7 @@ export function processChangeSteps(
       const oldUpdate = oldDataTracked.find(
         (d) => d.operation === CHANGE_OPERATION.set_node_attributes
       )
-      let newDataTracked
+      let newDataTracked = oldDataTracked
       if (oldUpdate) {
         newDataTracked = [
           ...oldDataTracked.filter((d) => d === oldUpdate),
@@ -120,7 +120,10 @@ export function processChangeSteps(
             updatedAt: emptyAttrs.updatedAt,
           },
         ]
-      } else {
+      } else if (
+        oldDataTracked.length === 0 ||
+        oldDataTracked.find((d) => d.operation === CHANGE_OPERATION.delete)
+      ) {
         newDataTracked = [
           ...oldDataTracked,
           addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)),
@@ -131,7 +134,7 @@ export function processChangeSteps(
         undefined,
         {
           ...c.newAttrs,
-          dataTracked: newDataTracked,
+          dataTracked: newDataTracked.length > 0 ? newDataTracked : null,
         },
         c.node.marks
       )

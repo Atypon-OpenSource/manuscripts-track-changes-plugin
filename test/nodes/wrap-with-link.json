@@ -66,7 +66,7 @@
                 "title": "I am a title",
                 "dataTracked": [
                   {
-                    "id": "MOCK-ID-1",
+                    "id": "MOCK-ID-0",
                     "authorID": "1-mike",
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
@@ -93,7 +93,7 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 8,
+      "anchor": 1,
       "head": 8
     }
   }

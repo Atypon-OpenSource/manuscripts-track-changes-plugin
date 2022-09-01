@@ -60,13 +60,12 @@ export function deleteAndMergeSplitNodes(
   trackAttrs: NewEmptyAttrs,
   insertSlice: ExposedSlice
 ) {
-  const deleteMap = new Mapping()
   const steps: ChangeStep[] = []
   // No deletion applied, return default values
   if (from === to) {
     return {
-      deleteMap,
       newSliceContent: insertSlice.content,
+      sliceWasSplit: false,
       steps,
     }
   }
@@ -77,10 +76,7 @@ export function deleteAndMergeSplitNodes(
   )
   let mergingStartSide = true
   startDoc.nodesBetween(from, to, (node, pos) => {
-    const { pos: offsetPos, deleted: nodeWasDeleted } = deleteMap.mapResult(pos, 1)
-    const offsetFrom = deleteMap.map(from, -1)
-    const offsetTo = deleteMap.map(to, 1)
-    const nodeEnd = offsetPos + node.nodeSize
+    const nodeEnd = pos + node.nodeSize
     // So this insane boolean checks for ReplaceAroundStep gaps and whether the node should be skipped
     // since the content inside gap should stay unchanged.
     // All other nodes except text nodes consist of one start and end token (or just a single token for atoms).
@@ -92,23 +88,14 @@ export function deleteAndMergeSplitNodes(
     // @TODO ATM 20.7.2022 there doesn't seem to be tests that capture this.
     const wasWithinGap =
       gap &&
-      ((!node.isText && offsetPos >= deleteMap.map(gap.start, -1)) ||
-        (node.isText &&
-          offsetPos <= deleteMap.map(gap.start, -1) &&
-          nodeEnd >= deleteMap.map(gap.end, -1)))
-    let step = newTr.steps[newTr.steps.length - 1]
+      ((!node.isText && pos >= gap.start) ||
+        (node.isText && pos <= gap.start && nodeEnd >= gap.start))
+
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
-    //
-    // !nodeWasDeleted -> Check node wasn't already deleted by a previous deleteNode
-    // This is quite tricky to wrap your head around and I've forgotten the nitty-gritty details already.
-    // But from what I remember what it safeguards against is, when you've already deleted a node
-    // say an inserted blockquote that had all its children deleted, nodesBetween still iterates over those
-    // nodes and therefore we have to make this check to ensure they still exist in the doc.
-    //
-    if (nodeEnd > offsetFrom && !nodeWasDeleted && !wasWithinGap) {
+    if (nodeEnd > from && !wasWithinGap) {
       // |<p>asdf</p>| -> node deleted completely
-      const nodeCompletelyDeleted = offsetPos >= offsetFrom && nodeEnd <= offsetTo
+      const nodeCompletelyDeleted = pos >= from && nodeEnd <= to
 
       // The end token deleted eg:
       // <p 1>asdf|</p 7><p 7>bye</p 12>| + [<p>]hello</p> -> <p>asdfhello</p>
@@ -120,7 +107,7 @@ export function deleteAndMergeSplitNodes(
       //
       // What about:
       // <p 1>asdf|</p 7><p 7 op="inserted">|bye</p 12> + empty -> <p>asdfbye</p>
-      const endTokenDeleted = nodeEnd <= offsetTo
+      const endTokenDeleted = nodeEnd <= to
 
       // The start token deleted eg:
       // |<p1 0>hey</p 6><p2 6>|asdf</p 12> + <p3>hello [</p>] -> <p3>hello asdf</p2>
@@ -128,7 +115,7 @@ export function deleteAndMergeSplitNodes(
       // (<p1> pos 0) >= (from 0) && (nodeEnd 6) - 1 > (to 7) == false???
       // (<p2> pos 6) >= (from 0) && (nodeEnd 12) - 1 > (to 7) == true
       //
-      const startTokenDeleted = offsetPos >= offsetFrom // && nodeEnd - 1 > offsetTo
+      const startTokenDeleted = pos >= from // && nodeEnd - 1 > offsetTo
       if (
         node.isText ||
         (!endTokenDeleted && startTokenDeleted) ||
@@ -142,7 +129,7 @@ export function deleteAndMergeSplitNodes(
         }
         // Depth is often 1 when merging paragraphs or 2 for fully open blockquotes.
         // Incase of merging text within a ReplaceAroundStep the depth might be 1
-        const depth = newTr.doc.resolve(offsetPos).depth
+        const depth = newTr.doc.resolve(pos).depth
         const mergeContent = mergingStartSide
           ? firstMergedNode?.mergedNodeContent
           : lastMergedNode?.mergedNodeContent
@@ -162,10 +149,10 @@ export function deleteAndMergeSplitNodes(
           // the paragraph.
           steps.push({
             type: 'merge-fragment',
-            pos: offsetPos,
-            mergePos: mergeStartNode ? nodeEnd - openStart : offsetPos + openEnd,
-            from: offsetFrom,
-            to: offsetTo,
+            pos,
+            mergePos: mergeStartNode ? nodeEnd - openStart : pos + openEnd,
+            from,
+            to,
             node,
             fragment: setFragmentAsInserted(
               mergeContent,
@@ -186,9 +173,9 @@ export function deleteAndMergeSplitNodes(
           // (which is basically the case most of the time)
           steps.push({
             type: 'delete-text',
-            pos: offsetPos,
-            from: Math.max(offsetPos, offsetFrom),
-            to: Math.min(nodeEnd, offsetTo),
+            pos,
+            from: Math.max(pos, from),
+            to: Math.min(nodeEnd, to),
             node,
           })
         } else if (startTokenDeleted) {
@@ -202,19 +189,15 @@ export function deleteAndMergeSplitNodes(
       } else if (nodeCompletelyDeleted) {
         steps.push({
           type: 'delete-node',
-          pos: offsetPos,
-          nodeEnd: nodeEnd,
+          pos,
+          nodeEnd,
           node,
         })
       }
     }
-    const newestStep = newTr.steps[newTr.steps.length - 1]
-    if (step !== newestStep) {
-      deleteMap.appendMap(newestStep.getMap())
-    }
   })
   return {
-    deleteMap,
+    sliceWasSplit: !!(firstMergedNode || lastMergedNode),
     newSliceContent: updatedSliceNodes
       ? Fragment.fromArray(updatedSliceNodes)
       : insertSlice.content,

@@ -80,7 +80,7 @@ export function trackReplaceAroundStep(
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
   const {
-    deleteMap,
+    sliceWasSplit,
     newSliceContent,
     steps: deleteSteps,
   } = deleteAndMergeSplitNodes(
@@ -122,14 +122,15 @@ export function trackReplaceAroundStep(
     }
     deleteSteps.push({
       type: 'insert-slice',
-      from: deleteMap.map(gapFrom),
-      to: deleteMap.map(gapTo),
+      from: gapFrom,
+      to: gapTo,
       slice: insertedSlice,
+      sliceWasSplit,
     })
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
-    mergeTrackedMarks(deleteMap.map(gapFrom), newTr.doc, newTr, oldState.schema)
-    mergeTrackedMarks(deleteMap.map(gapTo), newTr.doc, newTr, oldState.schema)
+    mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)
+    mergeTrackedMarks(gapTo, newTr.doc, newTr, oldState.schema)
   }
   return steps
 }

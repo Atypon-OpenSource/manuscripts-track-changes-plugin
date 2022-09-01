@@ -49,7 +49,7 @@ export function trackReplaceStep(
     // First apply the deleted range and update the insert slice to not include content that was deleted,
     // eg partial nodes in an open-ended slice
     const {
-      deleteMap,
+      sliceWasSplit,
       newSliceContent,
       steps: deleteSteps,
     } = deleteAndMergeSplitNodes(
@@ -65,7 +65,7 @@ export function trackReplaceStep(
     changeSteps.push(...deleteSteps)
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', changeSteps)
-    const adjustedInsertPos = deleteMap.map(toA)
+    const adjustedInsertPos = toA // deleteMap.map(toA)
     if (newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
@@ -76,6 +76,7 @@ export function trackReplaceStep(
         type: 'insert-slice',
         from: adjustedInsertPos,
         to: adjustedInsertPos,
+        sliceWasSplit,
         slice: new Slice(
           setFragmentAsInserted(
             newSliceContent,

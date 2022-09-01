@@ -41,6 +41,7 @@ export interface MergeFragmentStep {
 export interface InsertSliceStep {
   from: number
   to: number
+  sliceWasSplit: boolean
   type: 'insert-slice'
   slice: ExposedSlice
 }
