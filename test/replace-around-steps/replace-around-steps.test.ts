@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from '../utils/schema'
-
 import { promises as fs } from 'fs'
 
 import { trackCommands } from '../../src'
 import docs from '../__fixtures__/docs'
 import { setupEditor } from '../utils/setupEditor'
+import { schema } from '../utils/schema'
 
 import { log } from '../../src/utils/logger'
 import { ReplaceAroundStep } from 'prosemirror-transform'
@@ -59,7 +58,7 @@ describe('replace-around-steps.test', () => {
       // another ReplaceAroundStep. LiftNode in this case maps to pressing backspace inside the paragraph
       // which I could not programmatically trigger in jsdom
       .selectText(12, 14)
-      .wrapIn(defaultSchema.nodes.blockquote)
+      .wrapIn(schema.nodes.blockquote)
       .liftnode(1)
       // As the backspace command isn't really a backspace, it doesn't really behave which should just lift the
       // inner most blockquote. However, executing .delete(14, 18) as we do here does make for an interesting test
@@ -82,7 +81,7 @@ describe('replace-around-steps.test', () => {
       // Wrap the 4th paragraph in a blockquote and see whether track-changes-plugin correctly handles the positions
       // when adjacent to blockquote above and end of doc at the bottom
       .selectText(50)
-      .wrapIn(defaultSchema.nodes.blockquote)
+      .wrapIn(schema.nodes.blockquote)
 
     // move at the start of 3rd paragraph, hit backspace -> should wrap inside the nested blockquote
     // same would happen with 4th paragraph

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema as defaultSchema } from '../utils/schema'
 import { promises as fs } from 'fs'
 
 import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
+import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 
 import { log } from '../../src/utils/logger'
@@ -53,33 +53,33 @@ describe('apply-changes.test', () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
-      .insertNode(defaultSchema.nodes.paragraph.createAndFill(), 0)
+      .insertNode(schema.nodes.paragraph.createAndFill(), 0)
       .moveCursor('start')
       .insertText('before image')
-      .insertMark(defaultSchema.marks.bold.create(), 1, 1 + 'before'.length)
+      .insertMark(schema.marks.bold.create(), 1, 1 + 'before'.length)
       .insertNode(
-        defaultSchema.nodes.image.createAndFill({
+        schema.nodes.image.createAndFill({
           src: 'https://i.imgur.com/lFAxY.png',
           title: 'Image',
         }),
         1 + 'before image'.length
       )
       .insertText('after image')
-      .insertNode(defaultSchema.nodes.blockquote.createAndFill(), 0)
+      .insertNode(schema.nodes.blockquote.createAndFill(), 0)
       .moveCursor('start')
       .insertText('quoted text')
-      .insertNode(defaultSchema.nodes.heading.createAndFill({ level: 2 }), 0)
+      .insertNode(schema.nodes.heading.createAndFill({ level: 2 }), 0)
       .moveCursor('start')
       .insertText('header text')
-      .insertNode(defaultSchema.nodes.horizontal_rule.createAndFill(), 0)
-      .insertNode(defaultSchema.nodes.code_block.createAndFill(), 0)
+      .insertNode(schema.nodes.horizontal_rule.createAndFill(), 0)
+      .insertNode(schema.nodes.code_block.createAndFill(), 0)
       .moveCursor('start')
       .insertText('code text')
-      .insertNode(defaultSchema.nodes.hard_break.createAndFill(), 0)
-      .insertNode(defaultSchema.nodes.ordered_list.createAndFill(), 0)
+      .insertNode(schema.nodes.hard_break.createAndFill(), 0)
+      .insertNode(schema.nodes.ordered_list.createAndFill(), 0)
       .moveCursor('start')
       .insertText('ordered list text')
-      .insertNode(defaultSchema.nodes.table.createAndFill(), 0)
+      .insertNode(schema.nodes.table.createAndFill(), 0)
       .cmd((state, dispatch) => {
         const trackChangesState = trackChangesPluginKey.getState(state)
         if (!trackChangesState) {
@@ -108,8 +108,8 @@ describe('apply-changes.test', () => {
     const tester = setupEditor({
       doc: docs.nestedBlockquotes,
     })
-      .insertNode(defaultSchema.nodes.ordered_list.createAndFill(), 0)
-      .insertNode(defaultSchema.nodes.table.createAndFill(), 0)
+      .insertNode(schema.nodes.ordered_list.createAndFill(), 0)
+      .insertNode(schema.nodes.table.createAndFill(), 0)
       .cmd((state, dispatch) => {
         const trackChangesState = trackChangesPluginKey.getState(state)
         if (!trackChangesState) {

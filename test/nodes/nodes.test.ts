@@ -18,7 +18,7 @@ import { promises as fs } from 'fs'
 
 import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
 import docs from '../__fixtures__/docs'
-import { schema as defaultSchema, schema } from '../utils/schema'
+import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 
 import { log } from '../../src/utils/logger'
@@ -56,7 +56,7 @@ describe('nodes.test', () => {
   test('should track inserts of paragraphs', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
-    }).insertNode(defaultSchema.nodes.paragraph.createAndFill(), 0)
+    }).insertNode(schema.nodes.paragraph.createAndFill(), 0)
 
     expect(tester.toJSON()).toEqual(basicNodeInsert)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
@@ -69,7 +69,7 @@ describe('nodes.test', () => {
     const tester = setupEditor({
       doc: docs.blockquoteMarks,
     })
-      .insertNode(defaultSchema.nodes.paragraph.create(), 0)
+      .insertNode(schema.nodes.paragraph.create(), 0)
       .moveCursor('start')
       .insertText('inserted text')
 
@@ -95,7 +95,7 @@ describe('nodes.test', () => {
       doc: docs.paragraph,
     })
       .insertNode(
-        defaultSchema.nodes.image.createAndFill({
+        schema.nodes.image.createAndFill({
           src: 'https://i.imgur.com/lFAxY.png',
           title: 'Image',
         }),
@@ -158,7 +158,7 @@ describe('nodes.test', () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
-      .insertNode(defaultSchema.nodes.equation_wrapper.createAndFill(), 1)
+      .insertNode(schema.nodes.equation_wrapper.createAndFill(), 1)
       .cmd((state, dispatch) => {
         dispatch(state.tr.setSelection(NodeSelection.create(state.doc, 3)))
       })

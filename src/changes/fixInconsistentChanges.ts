@@ -33,7 +33,7 @@ import { updateChangeAttrs } from './updateChangeAttrs'
  */
 export function fixInconsistentChanges(
   changeSet: ChangeSet,
-  trackUserID: string,
+  currentUserID: string,
   newTr: Transaction,
   schema: Schema
 ) {
@@ -43,7 +43,7 @@ export function fixInconsistentChanges(
     const { id, authorID, operation, reviewedByID, status, createdAt, updatedAt } = c.dataTracked
     const newAttrs = {
       ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
-      ...(!authorID && { authorID: trackUserID }),
+      ...(!authorID && { authorID: currentUserID }),
       // Dont add a default operation -> rather have updateChangeAttrs delete the track data
       // ...(!operation && { operation: CHANGE_OPERATION.insert }),
       ...(!reviewedByID && { reviewedByID: null }),

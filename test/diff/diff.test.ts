@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { schema } from '@manuscripts/manuscript-transform'
-import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
+import { undo } from 'prosemirror-history'
 
 import { promises as fs } from 'fs'
 
 import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
+import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 
 import { log } from '../../src/utils/logger'
-import manuscriptApplied from './manuscript-applied.json'
+import textDiff from './text-diff.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -44,42 +45,77 @@ jest.mock('../../src/utils/uuidv4', () => {
 jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
-describe('manuscript.test', () => {
+describe('diff.test', () => {
   afterEach(() => {
     counter = 0
     jest.clearAllMocks()
   })
 
-  test('should correctly apply adjacent block changes', async () => {
+  test('should diff text starting from the start of the deleted range', async () => {
     const tester = setupEditor({
-      doc: docs.manuscriptSimple[0],
+      doc: docs.paragraphsMarksOldDeleted[0],
       schema: schema as unknown as Schema,
-    })
-      .insertNode(schema.nodes.table_element.createAndFill() as unknown as PMNode, 11)
-      .insertNode(schema.nodes.figure_element.createAndFill() as unknown as PMNode, 11)
-      .cmd((state, dispatch) => {
-        const trackChangesState = trackChangesPluginKey.getState(state)
-        if (!trackChangesState) {
-          return
-        }
-        const { changeSet } = trackChangesState
-        const change = changeSet.pending.find(
-          (c) => c.type === 'node-change' && c.nodeType === 'figure_element'
-        )
-        if (change && ChangeSet.isNodeChange(change)) {
-          const ids = [change.id]
-          trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
-        }
-      })
+    }).paste(
+      // Replace 'This is a partial' with 'This is a partial'
+      new Slice(Fragment.from([schema.text('This is a partial')]), 0, 0),
+      1,
+      18
+    )
+    // The doc should stay the same as the text content being replace is equal
+    expect(tester.toJSON()).toEqual(textDiff[0])
 
+    // Replace 'partially' with 'partially'
+    tester.paste(
+      new Slice(
+        Fragment.from([
+          schema.text('partial'),
+          schema.text('ly', [
+            schema.marks.tracked_delete.create({
+              createdAt: 1661509955426,
+              id: '0767eaed-b7bb-4f72-8842-9f707ef46473',
+              status: 'rejected',
+              userID: null,
+            }),
+          ]),
+        ]),
+        0,
+        0
+      ),
+      11,
+      20
+    )
+    expect(tester.toJSON()).toEqual(textDiff[1])
+
+    tester.cmd(undo).paste(
+      // Replace 'ally' with 'partially'
+      new Slice(
+        Fragment.from([
+          schema.text('partial'),
+          schema.text('ly', [
+            schema.marks.tracked_delete.create({
+              createdAt: 1661509955426,
+              id: '0767eaed-b7bb-4f72-8842-9f707ef46473',
+              status: 'rejected',
+              userID: null,
+            }),
+          ]),
+        ]),
+        0,
+        0
+      ),
+      16,
+      20
+    )
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-    tester.cmd(trackCommands.applyAndRemoveChanges())
-
-    expect(tester.toJSON()).toEqual(manuscriptApplied[0])
-    expect(uuidv4Mock.mock.calls.length).toBe(14)
+    expect(tester.toJSON()).toEqual(textDiff[2])
+    expect(uuidv4Mock.mock.calls.length).toBe(6)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
+
+  // test('should diff text starting from the start of the deleted range', async () => {
+
+  // })
 })

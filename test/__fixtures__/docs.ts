@@ -18,6 +18,7 @@ import manuscriptSimple from './manuscript-simple.json'
 import manyParagraphs from './many-paragraphs.json'
 import blockquoteMarks from './blockquote-marks.json'
 import nestedBlockquotes from './nested-blockquotes.json'
+import paragraphsMarksOldDeleted from './paragraphs-marks-old-deleted.json'
 
 export default {
   paragraph,
@@ -25,4 +26,5 @@ export default {
   manuscriptSimple,
   blockquoteMarks,
   nestedBlockquotes,
+  paragraphsMarksOldDeleted,
 }

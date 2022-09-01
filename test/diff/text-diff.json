@@ -1,0 +1,692 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "This is a partial"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "0767eaed-b7bb-4f72-8842-9f707ef46473",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "ly delete"
+            },
+            {
+              "type": "text",
+              "text": "d text."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "This is a "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "par"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "ti"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "all"
+            },
+            {
+              "type": "text",
+              "text": "y"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "a21aafac-3434-443d-9a81-6a337c993ab6",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": " de"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "4c963ec7-5b8d-4a92-aa38-8d3a6f70769e",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "le"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "a0b5ddb8-ed7a-4d55-b84e-a430adde0c67",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "te"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "74523efc-caec-4747-9cf4-035c367ea579",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "d"
+            },
+            {
+              "type": "text",
+              "text": " text."
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 1,
+      "head": 1
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "This is a partial"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-3",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
+                      "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    }
+                  }
+                }
+              ],
+              "text": "ly"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "0767eaed-b7bb-4f72-8842-9f707ef46473",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": " delete"
+            },
+            {
+              "type": "text",
+              "text": "d text."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "This is a "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "par"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "ti"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "all"
+            },
+            {
+              "type": "text",
+              "text": "y"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "a21aafac-3434-443d-9a81-6a337c993ab6",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": " de"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "4c963ec7-5b8d-4a92-aa38-8d3a6f70769e",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "le"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "a0b5ddb8-ed7a-4d55-b84e-a430adde0c67",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "te"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "74523efc-caec-4747-9cf4-035c367ea579",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "d"
+            },
+            {
+              "type": "text",
+              "text": " text."
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 1,
+      "head": 1
+    }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "This is a parti"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-3",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
+                      "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    }
+                  }
+                }
+              ],
+              "text": "ally"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_insert",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-4",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
+                      "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "insert"
+                    }
+                  }
+                }
+              ],
+              "text": "partially"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "0767eaed-b7bb-4f72-8842-9f707ef46473",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": " delete"
+            },
+            {
+              "type": "text",
+              "text": "d text."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "This is a "
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "par"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "ti"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                }
+              ],
+              "text": "all"
+            },
+            {
+              "type": "text",
+              "text": "y"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "a21aafac-3434-443d-9a81-6a337c993ab6",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": " de"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "4c963ec7-5b8d-4a92-aa38-8d3a6f70769e",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "le"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "italic",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "bold",
+                  "attrs": {
+                    "dataTracked": null
+                  }
+                },
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "a0b5ddb8-ed7a-4d55-b84e-a430adde0c67",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "te"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "74523efc-caec-4747-9cf4-035c367ea579",
+                      "status": "rejected",
+                      "authorID": "none",
+                      "createdAt": 1661509955426,
+                      "operation": "delete",
+                      "updatedAt": 1661509955426,
+                      "reviewedByID": "none"
+                    }
+                  }
+                }
+              ],
+              "text": "d"
+            },
+            {
+              "type": "text",
+              "text": " text."
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 29,
+      "head": 29
+    }
+  }
+]
