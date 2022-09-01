@@ -1,5 +1,14 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.1
+
+### Patch Changes
+
+- 8a9c759: fix(track): prevent infinite loops by checking for undefined in diff
+- ad87378: refactor(track): remove duplicated code, modify update change-step
+- baf766c: fix(track): diff from start instead of end since it's better UX
+- cdde368: refactor(track): switch to using list for node dataTracked attributes
+
 ## 0.4.0
 
 ### Minor Changes
