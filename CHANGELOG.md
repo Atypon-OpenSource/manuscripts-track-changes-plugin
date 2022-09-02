@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.2
+
+### Patch Changes
+
+- 9cabcf3: fix(track): diff yet again, also selection pos when diffed
+
 ## 0.4.1
 
 ### Patch Changes
