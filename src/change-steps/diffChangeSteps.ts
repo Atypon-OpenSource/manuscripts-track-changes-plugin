@@ -16,84 +16,10 @@
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
+import { matchInserted } from './matchInserted'
 import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { ChangeStep, DeleteNodeStep, DeleteTextStep, InsertSliceStep } from '../types/step'
-
-export function matchInserted(
-  matchedDeleted: number,
-  deleted: ChangeStep[],
-  inserted: ExposedFragment,
-  newTr: Transaction,
-  schema: Schema
-): [number, ChangeStep[]] {
-  let matched: [number, ChangeStep[]] = [matchedDeleted, deleted]
-  for (let i = 0; ; i += 1) {
-    if (inserted.childCount === i) return matched
-    const insNode = inserted.child(i)
-    // @ts-ignore
-    let adjDeleted: DeleteTextStep | DeleteNodeStep | undefined = matched[1].find(
-      (d) =>
-        (d.type === 'delete-text' && Math.max(d.pos, d.from) === matched[0]) ||
-        (d.type === 'delete-node' && d.pos === matched[0])
-    )
-    if (insNode.type !== adjDeleted?.node?.type) {
-      return matched
-    } else if (insNode.isText && adjDeleted?.node) {
-      adjDeleted = adjDeleted as DeleteTextStep
-      const { pos, from, to, node: delNode } = adjDeleted
-      let j = 0,
-        d = from - pos,
-        maxSteps = to - Math.max(pos, from)
-      // Match text inside the inserted text node to the deleted text node
-      for (
-        ;
-        maxSteps !== j && insNode.text![j] !== undefined && insNode.text![j] === delNode.text![d];
-        j += 1, d += 1
-      ) {
-        matched[0] += 1
-      }
-      // this is needed incase diffing tr.doc
-      // deleted.push({
-      //   pos: pos,
-      //   type: 'update-node-attrs',
-      //   // Should check the attrs for equality in fixInconsistentChanges? to remove dataTracked completely
-      //   oldAttrs: adjDeleted.node.attrs || {},
-      //   newAttrs: child.attrs || {},
-      // })
-      matched = [matched[0], matched[1].filter((d) => d !== adjDeleted)]
-      if (maxSteps !== j) {
-        matched[1].push({
-          pos,
-          from: Math.max(pos, from) + j,
-          to,
-          type: 'delete-text',
-          node: delNode,
-        })
-        return matched
-      }
-      continue
-    } else if (insNode.content.size > 0 || adjDeleted?.node.content.size > 0) {
-      // Move the inDeleted inside the block/inline node's boundary
-      matched = matchInserted(
-        matched[0] + 1,
-        matched[1].filter((d) => d !== adjDeleted),
-        insNode.content as ExposedFragment,
-        newTr,
-        schema
-      )
-    } else {
-      matched = [matched[0] + insNode.nodeSize, matched[1].filter((d) => d !== adjDeleted)]
-    }
-    matched[1].push({
-      pos: adjDeleted.pos,
-      type: 'update-node-attrs',
-      node: adjDeleted.node,
-      // Should check the attrs for equality in fixInconsistentChanges? to remove dataTracked completely
-      newAttrs: insNode.attrs || {},
-    })
-  }
-}
+import { ChangeStep, InsertSliceStep } from '../types/step'
 
 /**
  * Cuts a fragment similar to Fragment.cut but also removes the parent node.
@@ -115,8 +41,8 @@ function cutFragment(matched: number, deleted: number, content: Fragment) {
       matched = cut[0]
       newContent.push(...cut[1].content)
     } else if (child.isText && matched + child.nodeSize > deleted) {
-      if (matched - deleted + 1 > 0) {
-        newContent.push(child.cut(0, matched - deleted + 1))
+      if (deleted - matched > 0) {
+        newContent.push(child.cut(deleted - matched))
       } else {
         newContent.push(child)
       }
@@ -155,7 +81,7 @@ export function diffChangeSteps(
       return
     }
     // Start diffing from the start of the deleted range
-    const deleteStart = deleted.reduce((acc, cur) => {
+    const deleteStart = updatedDeleted.reduce((acc, cur) => {
       if (cur.type === 'delete-node') {
         return Math.min(acc, cur.pos)
       } else if (cur.type === 'delete-text') {
@@ -163,19 +89,13 @@ export function diffChangeSteps(
       }
       return acc
     }, Number.MAX_SAFE_INTEGER)
-    const [inDeleted, updatedDel] = matchInserted(
-      deleteStart,
-      updatedDeleted,
-      ins.slice.content,
-      newTr,
-      schema
-    )
-    if (inDeleted === deleteStart) {
+    const [matchedDeleted, updatedDel] = matchInserted(deleteStart, updatedDeleted, ins.slice.content)
+    if (matchedDeleted === deleteStart) {
       updated.push(ins)
       return
     }
     updatedDeleted = updatedDel
-    const newInserted = cutFragment(0, inDeleted, ins.slice.content)[1]
+    const [_, newInserted] = cutFragment(0, matchedDeleted - deleteStart, ins.slice.content)
     if (newInserted.size > 0) {
       updated.push({
         ...ins,

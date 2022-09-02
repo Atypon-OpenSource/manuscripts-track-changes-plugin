@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import paragraph from './paragraph.json'
+import equation from './equation.json'
 import manuscriptSimple from './manuscript-simple.json'
 import manyParagraphs from './many-paragraphs.json'
 import blockquoteMarks from './blockquote-marks.json'
@@ -22,6 +23,7 @@ import paragraphsMarksOldDeleted from './paragraphs-marks-old-deleted.json'
 
 export default {
   paragraph,
+  equation,
   manyParagraphs,
   manuscriptSimple,
   blockquoteMarks,

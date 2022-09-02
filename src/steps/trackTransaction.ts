@@ -101,7 +101,7 @@ export function trackTransaction(
       log.info('DIFFED STEPS: ', steps)
       const [mapping, selectionPos] = processChangeSteps(
         steps,
-        startPos,
+        startPos || tr.selection.head, // Incase startPos is it's default value 0, use the old selection head
         newTr,
         emptyAttrs,
         oldState.schema

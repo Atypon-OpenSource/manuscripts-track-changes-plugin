@@ -26,7 +26,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -109,7 +109,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -135,7 +135,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -167,7 +167,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -187,7 +187,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -222,27 +222,31 @@
           "content": [
             {
               "type": "text",
-              "text": "This is a partial"
+              "text": "This is a "
             },
             {
               "type": "text",
               "marks": [
                 {
-                  "type": "tracked_delete",
+                  "type": "tracked_insert",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-3",
+                      "id": "MOCK-ID-1",
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "pending",
-                      "operation": "delete"
+                      "operation": "insert"
                     }
                   }
                 }
               ],
-              "text": "ly"
+              "text": "partial"
+            },
+            {
+              "type": "text",
+              "text": "partial"
             },
             {
               "type": "text",
@@ -256,13 +260,13 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
                 }
               ],
-              "text": " delete"
+              "text": "ly delete"
             },
             {
               "type": "text",
@@ -339,7 +343,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -365,7 +369,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -397,7 +401,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -417,7 +421,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -435,8 +439,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 1,
-      "head": 1
+      "anchor": 18,
+      "head": 18
     }
   },
   {
@@ -461,7 +465,7 @@
                   "type": "tracked_delete",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-3",
+                      "id": "MOCK-ID-7",
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
@@ -481,7 +485,7 @@
                   "type": "tracked_insert",
                   "attrs": {
                     "dataTracked": {
-                      "id": "MOCK-ID-4",
+                      "id": "MOCK-ID-5",
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
@@ -506,7 +510,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -589,7 +593,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -615,7 +619,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -647,7 +651,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }
@@ -667,7 +671,7 @@
                       "authorID": "none",
                       "createdAt": 1661509955426,
                       "operation": "delete",
-                      "updatedAt": 1661509955426,
+                      "updatedAt": 1577836800000,
                       "reviewedByID": "none"
                     }
                   }

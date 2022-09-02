@@ -27,6 +27,7 @@ import { setupEditor } from '../utils/setupEditor'
 
 import { log } from '../../src/utils/logger'
 import textDiff from './text-diff.json'
+import nodeDiff from './node-diff.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -54,9 +55,10 @@ describe('diff.test', () => {
   test('should diff text starting from the start of the deleted range', async () => {
     const tester = setupEditor({
       doc: docs.paragraphsMarksOldDeleted[0],
-      schema: schema as unknown as Schema,
+      useDefaultPlugins: true,
+      schema,
     }).paste(
-      // Replace 'This is a partial' with 'This is a partial'
+      // Replace 'This is a partial' with 'This is a partial' -> ins ''
       new Slice(Fragment.from([schema.text('This is a partial')]), 0, 0),
       1,
       18
@@ -64,8 +66,17 @@ describe('diff.test', () => {
     // The doc should stay the same as the text content being replace is equal
     expect(tester.toJSON()).toEqual(textDiff[0])
 
-    // Replace 'partially' with 'partially'
     tester.paste(
+      // Replace 'This is a ' with 'This is a partial' -> ins 'partial'
+      new Slice(Fragment.from([schema.text('This is a partial')]), 0, 0),
+      1,
+      11
+    )
+
+    expect(tester.toJSON()).toEqual(textDiff[1])
+
+    // Replace 'partially' with 'partially' -> ins ''
+    tester.cmd(undo).paste(
       new Slice(
         Fragment.from([
           schema.text('partial'),
@@ -84,7 +95,7 @@ describe('diff.test', () => {
       11,
       20
     )
-    expect(tester.toJSON()).toEqual(textDiff[1])
+    expect(tester.toJSON()).toEqual(textDiff[0])
 
     tester.cmd(undo).paste(
       // Replace 'ally' with 'partially'
@@ -109,13 +120,41 @@ describe('diff.test', () => {
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
     expect(tester.toJSON()).toEqual(textDiff[2])
-    expect(uuidv4Mock.mock.calls.length).toBe(6)
+    expect(uuidv4Mock.mock.calls.length).toBe(8)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  // test('should diff text starting from the start of the deleted range', async () => {
+  test('should diff node delete + inserts as node updates and delete them if oldAttrs match newAttrs', async () => {
+    const tester = setupEditor({
+      doc: docs.equation,
+      schema,
+    })
 
-  // })
+    expect(tester.toJSON()).toEqual(nodeDiff[0])
+
+    tester
+      .setNodeMarkup(14, { TeXRepresentation: '1+1=2' })
+      .setChangeStatuses(CHANGE_STATUS.accepted)
+
+    expect(tester.toJSON()).toEqual(nodeDiff[1])
+
+    tester.setNodeMarkup(14, { TeXRepresentation: '' })
+
+    expect(tester.toJSON()).toEqual(nodeDiff[0])
+
+    tester
+      .setNodeMarkup(14, { TeXRepresentation: '1+2=3' })
+      .delete(13, 15)
+      .setChangeStatuses(CHANGE_STATUS.rejected)
+      .cmd(trackCommands.applyAndRemoveChanges())
+      .moveCursor('start')
+
+    expect(tester.toJSON()).toEqual(nodeDiff[0])
+    expect(uuidv4Mock.mock.calls.length).toBe(6)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 })

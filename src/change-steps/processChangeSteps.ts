@@ -18,7 +18,7 @@ import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { log } from '../utils/logger'
-import { CHANGE_OPERATION } from '../types/change'
+import { CHANGE_OPERATION, UpdateAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
@@ -110,24 +110,21 @@ export function processChangeSteps(
       const oldDataTracked = getBlockInlineTrackedData(c.node) || []
       const oldUpdate = oldDataTracked.find(
         (d) => d.operation === CHANGE_OPERATION.set_node_attributes
-      )
-      let newDataTracked = oldDataTracked
-      if (oldUpdate) {
-        newDataTracked = [
-          ...oldDataTracked.filter((d) => d === oldUpdate),
-          {
+      ) as UpdateAttrs
+      const { dataTracked, ...oldAttrs } = oldUpdate?.oldAttrs || c.node.attrs
+      const newDataTracked = [...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id)]
+      const newUpdate = oldUpdate
+        ? {
             ...oldUpdate,
             updatedAt: emptyAttrs.updatedAt,
-          },
-        ]
-      } else if (
-        oldDataTracked.length === 0 ||
-        oldDataTracked.find((d) => d.operation === CHANGE_OPERATION.delete)
+          }
+        : addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs))
+      // Dont add update changes if there exists already an insert change for this node
+      if (
+        JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) &&
+        !oldDataTracked.find((d) => d.operation === CHANGE_OPERATION.insert)
       ) {
-        newDataTracked = [
-          ...oldDataTracked,
-          addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs)),
-        ]
+        newDataTracked.push(newUpdate)
       }
       newTr.setNodeMarkup(
         mapping.map(c.pos),

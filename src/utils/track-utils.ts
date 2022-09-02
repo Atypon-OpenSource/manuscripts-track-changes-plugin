@@ -34,9 +34,11 @@ export function createNewUpdateAttrs(
   attrs: NewEmptyAttrs,
   oldAttrs: Record<string, any>
 ): NewUpdateAttrs {
+  // Omit dataTracked
+  const { dataTracked, ...restAttrs } = oldAttrs
   return {
     ...attrs,
     operation: CHANGE_OPERATION.set_node_attributes,
-    oldAttrs,
+    oldAttrs: restAttrs,
   }
 }

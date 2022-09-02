@@ -159,6 +159,13 @@ export class ProsemirrorTestChain {
     return this
   }
 
+  setNodeMarkup(pos: number, attrs?: Record<string, any>) {
+    this.cmd((state, dispatch) => {
+      dispatch(state.tr.setNodeMarkup(pos, undefined, attrs))
+    })
+    return this
+  }
+
   wrapIn(nodeType: NodeType, attrs?: { [key: string]: any }) {
     this.cmd(wrapIn(nodeType, attrs))
     return this

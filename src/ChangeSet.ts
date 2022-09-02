@@ -104,6 +104,10 @@ export class ChangeSet {
     return this.changes.filter((c) => c.type === 'node-attr-change')
   }
 
+  get bothNodeChanges() {
+    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
+  }
+
   get isEmpty() {
     return this.#changes.length === 0
   }

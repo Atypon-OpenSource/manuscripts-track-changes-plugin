@@ -21,8 +21,7 @@
                   "oldAttrs": {
                     "src": "https://i.imgur.com/lFAxY.png",
                     "alt": null,
-                    "title": "Image",
-                    "dataTracked": null
+                    "title": "Image"
                   },
                   "authorID": "1-mike",
                   "reviewedByID": null,
@@ -44,7 +43,7 @@
   },
   "selection": {
     "type": "text",
-    "anchor": 1,
-    "head": 1
+    "anchor": 2,
+    "head": 2
   }
 }

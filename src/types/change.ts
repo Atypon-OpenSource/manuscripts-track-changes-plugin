@@ -36,7 +36,7 @@ type InsertDeleteAttrs = {
   createdAt: number
   updatedAt: number
 }
-type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
   oldAttrs: Record<string, any>
 }

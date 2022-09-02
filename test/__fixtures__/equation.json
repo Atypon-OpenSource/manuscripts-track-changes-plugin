@@ -1,0 +1,43 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": {
+        "dataTracked": null,
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hello world"
+        }
+      ]
+    },
+    {
+      "type": "equation_wrapper",
+      "attrs": {
+        "id": "",
+        "class": "equation-wrapper",
+        "dataTracked": null
+      },
+      "content": [
+        {
+          "type": "equation",
+          "attrs": {
+            "id": "",
+            "class": "equation",
+            "TeXRepresentation": "",
+            "dataTracked": null
+          }
+        },
+        {
+          "type": "figcaption",
+          "attrs": {
+            "dataTracked": null
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -133,7 +133,7 @@ export const trackChangesPlugin = (
           const mapping = applyAcceptedRejectedChanges(
             createdTr,
             oldState.schema,
-            changeSet.nodeChanges
+            changeSet.bothNodeChanges
           )
           applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)

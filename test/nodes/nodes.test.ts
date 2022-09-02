@@ -85,7 +85,7 @@ describe('nodes.test', () => {
     // not ideal but it's not fixed for now, since deleting the whole doc at once can't be done by user.
     expect(tester.toJSON()).toEqual(basicNodeDelete[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(10)
+    expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
@@ -149,7 +149,7 @@ describe('nodes.test', () => {
     expect(tester.toJSON()).toEqual(wrapWithLink[1])
 
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(2)
+    expect(uuidv4Mock.mock.calls.length).toBe(3)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
