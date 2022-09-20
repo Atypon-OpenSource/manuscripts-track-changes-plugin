@@ -24,16 +24,13 @@ import { ChangeStep, InsertSliceStep } from '../types/step'
 /**
  * Cuts a fragment similar to Fragment.cut but also removes the parent node.
  *
- * @TODO there is however, some silly calculation mistake so that I need to use matched - deleted + 1 > 0
- * inside it to check whether to actually cut a text node. The offset might be cascading, therefore it should
- * be fixed at some point.
  * @param matched
  * @param deleted
  * @param content
  * @returns
  */
 function cutFragment(matched: number, deleted: number, content: Fragment) {
-  let newContent: PMNode[] = []
+  const newContent: PMNode[] = []
   for (let i = 0; matched <= deleted && i < content.childCount; i += 1) {
     const child = content.child(i)
     if (!child.isText && child.content.size > 0) {
@@ -54,12 +51,7 @@ function cutFragment(matched: number, deleted: number, content: Fragment) {
   return [matched, Fragment.fromArray(newContent)] as [number, ExposedFragment]
 }
 
-export function diffChangeSteps(
-  deleted: ChangeStep[],
-  inserted: InsertSliceStep[],
-  newTr: Transaction,
-  schema: Schema
-) {
+export function diffChangeSteps(deleted: ChangeStep[], inserted: InsertSliceStep[]) {
   const updated: ChangeStep[] = []
   let updatedDeleted = [...deleted]
   inserted.forEach((ins) => {
@@ -89,7 +81,11 @@ export function diffChangeSteps(
       }
       return acc
     }, Number.MAX_SAFE_INTEGER)
-    const [matchedDeleted, updatedDel] = matchInserted(deleteStart, updatedDeleted, ins.slice.content)
+    const [matchedDeleted, updatedDel] = matchInserted(
+      deleteStart,
+      updatedDeleted,
+      ins.slice.content
+    )
     if (matchedDeleted === deleteStart) {
       updated.push(ins)
       return

@@ -52,7 +52,7 @@ export function getTextNodeTrackedMarkData(node: PMNode | undefined | null, sche
 }
 
 export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[] | undefined {
-  let { dataTracked } = node.attrs
+  const { dataTracked } = node.attrs
   if (dataTracked && !Array.isArray(dataTracked)) {
     return [dataTracked]
   }

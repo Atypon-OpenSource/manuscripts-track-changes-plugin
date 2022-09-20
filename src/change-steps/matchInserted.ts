@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
-import type { Transaction } from 'prosemirror-state'
+import { Node as PMNode } from 'prosemirror-model'
 
 import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { ChangeStep, DeleteNodeStep, DeleteTextStep, InsertSliceStep } from '../types/step'
+import { ChangeStep, DeleteNodeStep, DeleteTextStep } from '../types/step'
 
+/**
+ * Matches deleted-text recursively to inserted text
+ *
+ * This is needed as text containing various marks is split into multiple parts even though it's
+ * continously deleted. Therefore, we need to find the next part if there is any and keep going until
+ * we've reached the end of the deleted text or inserted content.
+ * @param adjDeleted
+ * @param insNode
+ * @param offset
+ * @param matchedDeleted
+ * @param deleted
+ * @returns
+ */
 function matchText(
   adjDeleted: DeleteTextStep,
   insNode: PMNode,
@@ -65,6 +77,16 @@ function matchText(
   return [matchedDeleted, deleted]
 }
 
+/**
+ * Matches deleted to inserted content and returns the first pos they differ and the updated
+ * ChangeStep list.
+ *
+ * Based on https://github.com/ProseMirror/prosemirror-model/blob/master/src/diff.ts
+ * @param matchedDeleted
+ * @param deleted
+ * @param inserted
+ * @returns
+ */
 export function matchInserted(
   matchedDeleted: number,
   deleted: ChangeStep[],
@@ -72,10 +94,12 @@ export function matchInserted(
 ): [number, ChangeStep[]] {
   let matched: [number, ChangeStep[]] = [matchedDeleted, deleted]
   for (let i = 0; ; i += 1) {
-    if (inserted.childCount === i) return matched
+    if (inserted.childCount === i) {
+      return matched
+    }
     const insNode = inserted.child(i)
     // @ts-ignore
-    let adjDeleted: DeleteTextStep | DeleteNodeStep | undefined = matched[1].find(
+    const adjDeleted: DeleteTextStep | DeleteNodeStep | undefined = matched[1].find(
       (d) =>
         (d.type === 'delete-text' && Math.max(d.pos, d.from) === matched[0]) ||
         (d.type === 'delete-node' && d.pos === matched[0])

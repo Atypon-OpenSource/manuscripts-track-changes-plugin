@@ -68,14 +68,14 @@ export const trackChangesPlugin = (
           return {
             ...pluginState,
             status: setStatus,
-            changeSet: findChanges(newState),
+            changeSet:
+              setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState),
           }
         } else if (pluginState.status === TrackChangesStatus.disabled) {
           return { ...pluginState, changeSet: new ChangeSet() }
         }
         let { changeSet, ...rest } = pluginState
-        const updatedChangeIds = getAction(tr, TrackChangesAction.updateChanges)
-        if (updatedChangeIds || getAction(tr, TrackChangesAction.refreshChanges)) {
+        if (getAction(tr, TrackChangesAction.refreshChanges)) {
           changeSet = findChanges(newState)
         }
         return {
@@ -128,7 +128,6 @@ export const trackChangesPlugin = (
               )
             }
           })
-          setAction(createdTr, TrackChangesAction.updateChanges, ids)
         } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
           const mapping = applyAcceptedRejectedChanges(
             createdTr,

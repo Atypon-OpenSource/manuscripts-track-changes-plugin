@@ -1,0 +1,139 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "1st paragraph"
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "blockquote",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "paragraph",
+                  "attrs": {
+                    "dataTracked": null,
+                    "testAttribute": null
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "2nd paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "3rd paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockquote",
+          "attrs": {
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-2",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "insert"
+              }
+            ]
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "dataTracked": [
+                  {
+                    "id": "MOCK-ID-1",
+                    "authorID": "1-mike",
+                    "reviewedByID": null,
+                    "createdAt": 1577836800000,
+                    "updatedAt": 1577836800000,
+                    "status": "pending",
+                    "operation": "insert"
+                  }
+                ],
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "tracked_insert",
+                      "attrs": {
+                        "dataTracked": {
+                          "id": "MOCK-ID-0",
+                          "authorID": "1-mike",
+                          "reviewedByID": null,
+                          "createdAt": 1577836800000,
+                          "updatedAt": 1577836800000,
+                          "status": "pending",
+                          "operation": "insert"
+                        }
+                      }
+                    }
+                  ],
+                  "text": "3rd"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "4th paragraph"
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 54,
+      "head": 54
+    }
+  }
+]

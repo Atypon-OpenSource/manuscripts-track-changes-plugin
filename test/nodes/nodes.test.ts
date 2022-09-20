@@ -132,6 +132,7 @@ describe('nodes.test', () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
+      // Wrap 'Hello' with link
       .selectText(1, 6)
       .wrapInInline(schema.nodes.link)
 

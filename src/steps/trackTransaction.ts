@@ -97,7 +97,7 @@ export function trackTransaction(
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
-      steps = diffChangeSteps(deleted, inserted, newTr, oldState.schema)
+      steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
       const [mapping, selectionPos] = processChangeSteps(
         steps,
@@ -119,7 +119,7 @@ export function trackTransaction(
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       log.info('INSERT STEPS: ', inserted)
-      steps = diffChangeSteps(deleted, inserted, newTr, oldState.schema)
+      steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
       const [mapping, selectionPos] = processChangeSteps(
         steps,

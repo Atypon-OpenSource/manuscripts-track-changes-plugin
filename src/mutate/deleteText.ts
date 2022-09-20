@@ -32,6 +32,7 @@ import { addTrackIdIfDoesntExist, getMergeableMarkTrackedAttrs } from '../comput
  * @param deleteAttrs
  * @param from
  * @param to
+ * @returns position at the end of the possibly deleted text
  */
 export function deleteTextIfInserted(
   node: PMNode,

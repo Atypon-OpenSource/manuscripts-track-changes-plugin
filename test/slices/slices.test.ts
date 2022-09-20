@@ -26,6 +26,8 @@ import { Fragment, Slice } from 'prosemirror-model'
 
 import { log } from '../../src/utils/logger'
 import variousOpenEndedSlices from './various-open-ended-slices.json'
+import blockquotes from './blockquotes.json'
+import { ReplaceAroundStep } from 'prosemirror-transform'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -143,6 +145,36 @@ describe('slices.test', () => {
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(16)
     expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test.skip('should track inserted partial blockquote that wraps a paragraph', async () => {
+    const tester = setupEditor({
+      doc: docs.nestedBlockquotes,
+    })
+      // .paste(, 49, 49)
+      .cmd((state, dispatch) => {
+        const slice = new Slice(Fragment.from(utils.createBlockquote(schema, '3rd')), 0, 0)
+        const step = new ReplaceAroundStep(49, 64, 50, 63, slice, 5, false)
+        dispatch(state.tr.step(step))
+      })
+    // const step = {
+    //   from: 49,
+    //   to: 64,
+    //   gapFrom: 50,
+    //   gapTo: 63,
+    //   insert: 5,
+    //   structure: false,
+    //   slice: 'blockquote paragraph 3rd open 0 0'
+    // }
+
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+    // expect(tester.toJSON()).toEqual(blockquotes[0])
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    // expect(uuidv4Mock.mock.calls.length).toBe(16)
+    // expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledWith('hello')
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 

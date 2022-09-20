@@ -87,28 +87,6 @@ export const applyAndRemoveChanges = (): Command => (state, dispatch) => {
  * Runs `findChanges` to iterate over the document to collect changes into a new ChangeSet.
  */
 export const refreshChanges = (): Command => (state, dispatch) => {
-  dispatch && dispatch(setAction(state.tr, TrackChangesAction.updateChanges, []))
+  dispatch && dispatch(setAction(state.tr, TrackChangesAction.refreshChanges, true))
   return true
 }
-
-/**
- * Adds track attributes for a block node. For testing puroses
- */
-export const setParagraphTestAttribute =
-  (val = 'changed'): Command =>
-  (state, dispatch) => {
-    const cursor = state.selection.head
-    const blockNodePos = state.doc.resolve(cursor).start(1) - 1
-    if (
-      state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph &&
-      dispatch
-    ) {
-      dispatch(
-        state.tr.setNodeMarkup(blockNodePos, undefined, {
-          testAttribute: val,
-        })
-      )
-      return true
-    }
-    return false
-  }

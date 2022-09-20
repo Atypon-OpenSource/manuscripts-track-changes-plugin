@@ -30,9 +30,9 @@ import { getNodeTrackedData, equalMarks } from '../compute/nodeHelpers'
 /**
  * Finds all changes (basically text marks or node attributes) from document
  *
- * This could be possibly made more efficient by only iterating the sections of doc
- * where changes have been applied. This could attempted with eg findDiffStart
- * but it might be less robust than just using doc.descendants
+ * This could be possibly made more efficient by only iterating the sections of doc where changes have
+ * been applied. This could attempted with eg findDiffStart but it might be less robust than just using
+ * doc.descendants
  * @param state
  * @returns
  */

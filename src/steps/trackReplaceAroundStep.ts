@@ -93,7 +93,7 @@ export function trackReplaceAroundStep(
     attrs,
     slice
   )
-  let steps: ChangeStep[] = deleteSteps
+  const steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
   // We only want to insert when there something inside the gap (actually would this be always true?)
@@ -129,8 +129,8 @@ export function trackReplaceAroundStep(
     })
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
-    mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)
-    mergeTrackedMarks(gapTo, newTr.doc, newTr, oldState.schema)
+    // mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)
+    // mergeTrackedMarks(gapTo, newTr.doc, newTr, oldState.schema)
   }
   return steps
 }

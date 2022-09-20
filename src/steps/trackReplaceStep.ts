@@ -65,7 +65,7 @@ export function trackReplaceStep(
     changeSteps.push(...deleteSteps)
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', changeSteps)
-    const adjustedInsertPos = toA // deleteMap.map(toA)
+    const adjustedInsertPos = toA
     if (newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
@@ -89,7 +89,7 @@ export function trackReplaceStep(
       })
     } else {
       // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
-      mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
+      // mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
       selectionPos = fromA
     }
   })
