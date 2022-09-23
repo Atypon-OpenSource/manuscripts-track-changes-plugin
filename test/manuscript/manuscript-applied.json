@@ -40,7 +40,7 @@
                 "expandListing": false,
                 "dataTracked": [
                   {
-                    "id": "MOCK-ID-9",
+                    "id": "MOCK-ID-5",
                     "authorID": "1-mike",
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
@@ -59,7 +59,7 @@
                     "footerRows": 1,
                     "dataTracked": [
                       {
-                        "id": "MOCK-ID-7",
+                        "id": "MOCK-ID-3",
                         "authorID": "1-mike",
                         "reviewedByID": null,
                         "createdAt": 1577836800000,
@@ -73,52 +73,6 @@
                     {
                       "type": "table_body",
                       "content": [
-                        {
-                          "type": "table_row",
-                          "attrs": {
-                            "placeholder": ""
-                          },
-                          "content": [
-                            {
-                              "type": "table_cell",
-                              "attrs": {
-                                "celltype": "td",
-                                "colspan": 1,
-                                "rowspan": 1,
-                                "colwidth": null,
-                                "placeholder": "Data",
-                                "styles": {},
-                                "valign": null,
-                                "align": null,
-                                "scope": null,
-                                "style": null
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "type": "table_row",
-                          "attrs": {
-                            "placeholder": ""
-                          },
-                          "content": [
-                            {
-                              "type": "table_cell",
-                              "attrs": {
-                                "celltype": "td",
-                                "colspan": 1,
-                                "rowspan": 1,
-                                "colwidth": null,
-                                "placeholder": "Data",
-                                "styles": {},
-                                "valign": null,
-                                "align": null,
-                                "scope": null,
-                                "style": null
-                              }
-                            }
-                          ]
-                        },
                         {
                           "type": "table_row",
                           "attrs": {
@@ -157,7 +111,7 @@
                     "isExecuting": false,
                     "dataTracked": [
                       {
-                        "id": "MOCK-ID-8",
+                        "id": "MOCK-ID-4",
                         "authorID": "1-mike",
                         "reviewedByID": null,
                         "createdAt": 1577836800000,
@@ -277,7 +231,6 @@
                   "type": "figure",
                   "attrs": {
                     "id": "MPFigure:7AA967A7-BF9E-4B67-8B1D-11CB4DA2A660",
-                    "label": "",
                     "src": "",
                     "contentType": "",
                     "dataTracked": null
@@ -339,8 +292,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 10,
-      "head": 10
+      "anchor": 16,
+      "head": 16
     }
   }
 ]
