@@ -1,5 +1,12 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.3
+
+### Patch Changes
+
+- 5e392d2: fix(track): dont delete table content when attribute updated
+- ed33757: refactor(track): remove unneeded merge marks, add failing test case for a bug that I found
+
 ## 0.4.2
 
 ### Patch Changes
