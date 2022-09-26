@@ -6,6 +6,7 @@
         {
           "type": "table",
           "attrs": {
+            "testAttribute": null,
             "dataTracked": [
               {
                 "id": "MOCK-ID-25",
@@ -529,6 +530,7 @@
         {
           "type": "table",
           "attrs": {
+            "testAttribute": null,
             "dataTracked": null
           },
           "content": [

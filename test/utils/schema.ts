@@ -308,7 +308,7 @@ export const schema = new Schema({
       isolating: true,
       group: 'block',
       selectable: false,
-      attrs: { dataTracked: { default: null } },
+      attrs: { dataTracked: { default: null }, testAttribute: { default: null } },
       parseDOM: [
         {
           tag: 'table',

@@ -453,7 +453,7 @@
                           "type": "tracked_delete",
                           "attrs": {
                             "dataTracked": {
-                              "id": "MOCK-ID-9",
+                              "id": "MOCK-ID-14",
                               "authorID": "1-mike",
                               "reviewedByID": null,
                               "createdAt": 1577836800000,
@@ -516,7 +516,7 @@
           "attrs": {
             "dataTracked": [
               {
-                "id": "MOCK-ID-15",
+                "id": "MOCK-ID-16",
                 "authorID": "1-mike",
                 "reviewedByID": null,
                 "createdAt": 1577836800000,
@@ -568,7 +568,7 @@
                       "type": "tracked_insert",
                       "attrs": {
                         "dataTracked": {
-                          "id": "MOCK-ID-14",
+                          "id": "MOCK-ID-15",
                           "authorID": "1-mike",
                           "reviewedByID": null,
                           "createdAt": 1577836800000,

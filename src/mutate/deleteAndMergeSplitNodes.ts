@@ -89,8 +89,7 @@ export function deleteAndMergeSplitNodes(
     const wasWithinGap =
       gap &&
       ((!node.isText && pos >= gap.start) ||
-        (node.isText && pos <= gap.start && nodeEnd >= gap.start))
-
+        (node.isText && pos >= gap.start && nodeEnd <= gap.end))
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     if (nodeEnd > from && !wasWithinGap) {

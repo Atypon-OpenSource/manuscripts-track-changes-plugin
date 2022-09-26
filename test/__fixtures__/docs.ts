@@ -20,6 +20,7 @@ import manyParagraphs from './many-paragraphs.json'
 import blockquoteMarks from './blockquote-marks.json'
 import nestedBlockquotes from './nested-blockquotes.json'
 import paragraphsMarksOldDeleted from './paragraphs-marks-old-deleted.json'
+import table from './table.json'
 
 export default {
   paragraph,
@@ -29,4 +30,5 @@ export default {
   blockquoteMarks,
   nestedBlockquotes,
   paragraphsMarksOldDeleted,
+  table,
 }

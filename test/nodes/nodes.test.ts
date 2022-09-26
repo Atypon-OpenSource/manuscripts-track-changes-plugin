@@ -15,6 +15,7 @@
  */
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
+import { NodeSelection } from 'prosemirror-state'
 
 import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
 import docs from '../__fixtures__/docs'
@@ -28,7 +29,7 @@ import basicNodeInsert from './basic-node-ins.json'
 import blockNodeAttrUpdate from './block-node-attr-update.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import wrapWithLink from './wrap-with-link.json'
-import { NodeSelection } from 'prosemirror-state'
+import tableDiff from './table-attr-update.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -150,7 +151,7 @@ describe('nodes.test', () => {
     expect(tester.toJSON()).toEqual(wrapWithLink[1])
 
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(uuidv4Mock.mock.calls.length).toBe(4)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
@@ -187,6 +188,21 @@ describe('nodes.test', () => {
 
     // await fs.writeFile('todo.json', JSON.stringify(tester.toJSON()))
     expect(tester.toJSON()).toEqual(blockNodeAttrUpdate[1])
+  })
+
+  test('should avoid deleting table content between gap, generating one node update', async () => {
+    const tester = setupEditor({
+      doc: docs.table,
+      useDefaultPlugins: true,
+      schema,
+    })
+      .setNodeMarkup(13, { testAttribute: 'changed' })
+
+    expect(tester.toJSON()).toEqual(tableDiff[0])
+    expect(uuidv4Mock.mock.calls.length).toBe(2)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test.skip('should track node attribute updates', async () => {

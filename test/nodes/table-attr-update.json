@@ -1,0 +1,130 @@
+[
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello World"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "attrs": {
+            "dataTracked": [
+              {
+                "id": "MOCK-ID-1",
+                "authorID": "1-mike",
+                "reviewedByID": null,
+                "createdAt": 1577836800000,
+                "updatedAt": 1577836800000,
+                "status": "pending",
+                "operation": "set_attrs",
+                "oldAttrs": {
+                  "testAttribute": null
+                }
+              }
+            ],
+            "testAttribute": "changed"
+          },
+          "content": [
+            {
+              "type": "table_body",
+              "content": [
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": null
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "1st row 1st cell"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "1st row 2nd cell"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "table_row",
+                  "attrs": {
+                    "dataTracked": null
+                  },
+                  "content": [
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "2nd row 1st cell"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "table_cell",
+                      "attrs": {
+                        "dataTracked": null,
+                        "celltype": "td",
+                        "colspan": 1,
+                        "rowspan": 1
+                      },
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "2nd row 2nd cell"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 1,
+      "head": 1
+    }
+  }
+]

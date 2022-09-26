@@ -1,0 +1,100 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "attrs": {
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Hello World"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "attrs": {
+        "testAttribute": null
+      },
+      "content": [
+        {
+          "type": "table_body",
+          "content": [
+            {
+              "type": "table_row",
+              "content": [
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "celltype": "td",
+                    "colspan": 1,
+                    "rowspan": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "1st row 1st cell"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "celltype": "td",
+                    "colspan": 1,
+                    "rowspan": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "1st row 2nd cell"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "table_row",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "dataTracked": null,
+                    "celltype": "td",
+                    "colspan": 1,
+                    "rowspan": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "2nd row 1st cell"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "celltype": "td",
+                    "colspan": 1,
+                    "rowspan": 1
+                  },
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "2nd row 2nd cell"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
