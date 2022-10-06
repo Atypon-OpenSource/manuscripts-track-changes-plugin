@@ -11,7 +11,10 @@
   "exports": {
     "./package.json": "./package.json",
     "./src/styles.css": "./src/styles.css",
-    ".": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
   "files": [
     "dist",
