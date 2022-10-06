@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.4
+
+### Patch Changes
+
+- 5818070: fix(track): add cjs to package.json exports
+
 ## 0.4.3
 
 ### Patch Changes
