@@ -72,7 +72,6 @@ describe('manuscript.test', () => {
         }
       })
 
-
     tester.cmd(trackCommands.applyAndRemoveChanges())
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))

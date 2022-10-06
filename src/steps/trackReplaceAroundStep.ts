@@ -51,23 +51,6 @@ export function trackReplaceAroundStep(
     structure?: boolean
     slice: ExposedSlice
   } = step
-  if (from === gapFrom && to === gapTo) {
-    log.info('WRAPPED IN SOMETHING')
-  } else if (!slice.size || slice.content.content.length === 2) {
-    log.info('UNWRAPPED FROM SOMETHING')
-  } else if (slice.size === 2 && gapFrom - from === 1 && to - gapTo === 1) {
-    log.info('REPLACED WRAPPING')
-  } else {
-    log.info('????')
-  }
-  if (gapFrom - from > to - gapTo) {
-    log.info('DELETED BEFORE GAP FROM')
-  } else if (gapFrom - from < to - gapTo) {
-    log.info('DELETED AFTER GAP TO')
-  } else {
-    log.info('EQUAL REPLACE BETWEEN GAPS')
-  }
-
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   const newStep = step.invert(oldState.doc)
   const stepResult = newTr.maybeStep(newStep)

@@ -195,8 +195,7 @@ describe('nodes.test', () => {
       doc: docs.table,
       useDefaultPlugins: true,
       schema,
-    })
-      .setNodeMarkup(13, { testAttribute: 'changed' })
+    }).setNodeMarkup(13, { testAttribute: 'changed' })
 
     expect(tester.toJSON()).toEqual(tableDiff[0])
     expect(uuidv4Mock.mock.calls.length).toBe(2)
