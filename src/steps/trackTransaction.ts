@@ -42,6 +42,9 @@ import { InsertSliceStep } from '../types/step'
  */
 const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
 
+const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
+  node.type === node.type.schema.nodes.highlight_marker
+
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
  *
@@ -90,6 +93,12 @@ export function trackTransaction(
         '@manuscripts/track-changes-plugin: Multiple prosemirror-transform packages imported, alias/dedupe them ' +
           'or instanceof checks fail as well as creating new steps'
       )
+      return
+    } else if (
+      step?.slice?.content?.content?.length === 1 &&
+      isHighlightMarkerNode(step.slice.content.content[0])
+    ) {
+      // don't track highlight marker nodes
       return
     } else if (step instanceof ReplaceStep) {
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
