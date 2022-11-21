@@ -31,7 +31,7 @@ import { trackReplaceStep } from './trackReplaceStep'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { InsertSliceStep } from '../types/step'
-
+import { ExposedReplaceStep } from '../types/pm'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -94,14 +94,16 @@ export function trackTransaction(
           'or instanceof checks fail as well as creating new steps'
       )
       return
-    } else if (
-      step?.slice?.content?.content?.length === 1 &&
-      isHighlightMarkerNode(step.slice.content.content[0])
-    ) {
-      // don't track highlight marker nodes
-      return
     } else if (step instanceof ReplaceStep) {
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
+      const { slice } = step as ExposedReplaceStep
+      if (
+        slice?.content?.content?.length === 1 &&
+        isHighlightMarkerNode(slice.content.content[0])
+      ) {
+        // don't track highlight marker nodes
+        return
+      }
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
