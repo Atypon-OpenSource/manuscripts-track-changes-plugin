@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.4-LEAN-1839
+
+### Minor Changes
+
+- 9dddd9f: LEAN-1839 - Fix for comment markers
+
 ## 0.4.4
 
 ### Patch Changes
