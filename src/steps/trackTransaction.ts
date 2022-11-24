@@ -31,7 +31,7 @@ import { trackReplaceStep } from './trackReplaceStep'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { InsertSliceStep } from '../types/step'
-
+import { ExposedReplaceStep } from '../types/pm'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -41,6 +41,9 @@ import { InsertSliceStep } from '../types/step'
  * @returns
  */
 const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
+
+const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
+  node.type === node.type.schema.nodes.highlight_marker
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -93,6 +96,14 @@ export function trackTransaction(
       return
     } else if (step instanceof ReplaceStep) {
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
+      const { slice } = step as ExposedReplaceStep
+      if (
+        slice?.content?.content?.length === 1 &&
+        isHighlightMarkerNode(slice.content.content[0])
+      ) {
+        // don't track highlight marker nodes
+        return
+      }
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
