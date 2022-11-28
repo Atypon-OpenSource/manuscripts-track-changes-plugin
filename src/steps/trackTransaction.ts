@@ -43,7 +43,7 @@ import { ExposedReplaceStep } from '../types/pm'
 const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
 
 const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
-  node.type === node.type.schema.nodes.highlight_marker
+  node && node.type === node.type.schema.nodes.highlight_marker
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -104,6 +104,13 @@ export function trackTransaction(
         return
       }
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
+      if (steps.length === 1) {
+        const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
+        if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {
+          // don't track deleted highlight marker nodes
+          return
+        }
+      }
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
