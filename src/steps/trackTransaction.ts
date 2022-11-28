@@ -95,7 +95,6 @@ export function trackTransaction(
       )
       return
     } else if (step instanceof ReplaceStep) {
-      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
       const { slice } = step as ExposedReplaceStep
       if (
         slice?.content?.content?.length === 1 &&
@@ -104,6 +103,7 @@ export function trackTransaction(
         // don't track highlight marker nodes
         return
       }
+      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs)
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
