@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.5
+
+### Patch Changes
+
+- 3db2ab4: LEAN-1839 - Fix for comment markers
+
 ## 0.4.4-LEAN-1839-v3
 
 ### Minor Changes
