@@ -21,6 +21,7 @@ import type {
   Selection,
   Transaction,
 } from 'prosemirror-state'
+import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
 import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { log } from '../utils/logger'
@@ -75,7 +76,7 @@ export function trackTransaction(
   }
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform
-  const wasNodeSelection = tr.selection.constructor.name === 'NodeSelection'
+  const wasNodeSelection = tr.selection instanceof NodeSelectionClass
   let iters = 0
   log.info('ORIGINAL transaction', tr)
   tr.steps.forEach((step) => {
