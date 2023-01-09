@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.6
+
+### Patch Changes
+
+- b4be932: LEAN-1998 - Fix node selection check
+
 ## 0.4.5
 
 ### Patch Changes
