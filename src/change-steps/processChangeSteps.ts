@@ -18,7 +18,7 @@ import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { log } from '../utils/logger'
-import { CHANGE_OPERATION, UpdateAttrs } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
@@ -109,7 +109,8 @@ export function processChangeSteps(
     } else if (c.type === 'update-node-attrs') {
       const oldDataTracked = getBlockInlineTrackedData(c.node) || []
       const oldUpdate = oldDataTracked.find(
-        (d) => d.operation === CHANGE_OPERATION.set_node_attributes
+        (d) =>
+          d.operation === CHANGE_OPERATION.set_node_attributes && d.status === CHANGE_STATUS.pending
       ) as UpdateAttrs
       const { dataTracked, ...oldAttrs } = oldUpdate?.oldAttrs || c.node.attrs
       const newDataTracked = [...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id)]

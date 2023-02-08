@@ -187,5 +187,84 @@
       "anchor": 12,
       "head": 12
     }
+  },
+  {
+    "doc": {
+      "type": "doc",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "dataTracked": null,
+            "testAttribute": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Hello world"
+            }
+          ]
+        },
+        {
+          "type": "equation_wrapper",
+          "attrs": {
+            "id": "",
+            "class": "equation-wrapper",
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "equation",
+              "attrs": {
+                "id": "",
+                "class": "equation",
+                "TeXRepresentation": "",
+                "dataTracked": [
+                  {
+                    "authorID": "1-mike",
+                    "createdAt": 1577836800000,
+                    "id": "MOCK-ID-1",
+                    "oldAttrs": {
+                      "TeXRepresentation": "",
+                      "class": "equation",
+                      "id": ""
+                    },
+                    "operation": "set_attrs",
+                    "reviewedByID": "1-mike",
+                    "status": "accepted",
+                    "updatedAt": 1577836800000
+                  },
+                  {
+                    "authorID": "1-mike",
+                    "createdAt": 1577836800000,
+                    "id": "MOCK-ID-3",
+                    "oldAttrs": {
+                      "TeXRepresentation": "1+1=2",
+                      "class": "equation",
+                      "id": ""
+                    },
+                    "operation": "set_attrs",
+                    "reviewedByID": null,
+                    "status": "pending",
+                    "updatedAt": 1577836800000
+                  }
+                ]
+              }
+            },
+            {
+              "type": "figcaption",
+              "attrs": {
+                "dataTracked": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "selection": {
+      "type": "text",
+      "anchor": 1,
+      "head": 1
+    }
   }
 ]

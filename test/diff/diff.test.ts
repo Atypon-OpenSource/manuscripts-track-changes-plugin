@@ -142,7 +142,7 @@ describe('diff.test', () => {
 
     tester.setNodeMarkup(14, { TeXRepresentation: '' })
 
-    expect(tester.toJSON()).toEqual(nodeDiff[0])
+    expect(tester.toJSON()).toEqual(nodeDiff[3])
 
     tester
       .setNodeMarkup(14, { TeXRepresentation: '1+2=3' })
