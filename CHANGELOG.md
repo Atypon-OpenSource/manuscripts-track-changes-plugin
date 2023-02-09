@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.0.0
+
+### Major Changes
+
+- 10d9758: Update json-schema and transform versions
+
 ## 0.4.7
 
 ### Patch Changes
