@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 0.4.7
+
+### Patch Changes
+
+- 351c53e: LEAN-2099 - LW-R8: No new Suggestion appears in the History for the detach after replace from editor
+
 ## 0.4.6
 
 ### Patch Changes
