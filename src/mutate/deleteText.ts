@@ -64,12 +64,14 @@ export function deleteTextIfInserted(
       rightMarks?.createdAt || Number.MAX_VALUE,
       deleteAttrs.createdAt
     )
+
     const dataTracked = addTrackIdIfDoesntExist({
       ...leftMarks,
       ...rightMarks,
       ...deleteAttrs,
       createdAt,
     })
+
     newTr.addMark(
       fromStartOfMark,
       toEndOfMark,

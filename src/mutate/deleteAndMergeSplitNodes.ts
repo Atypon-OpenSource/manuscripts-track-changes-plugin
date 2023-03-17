@@ -142,6 +142,7 @@ export function deleteAndMergeSplitNodes(
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
         const mergeEndNode =
           startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent !== undefined
+
         if (mergeStartNode || mergeEndNode) {
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps
           // it into a new paragraph(!). So that's why you always offset your positions to insert it _inside_

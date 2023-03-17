@@ -15,7 +15,7 @@
  */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceStep, ReplaceAroundStep } from 'prosemirror-transform'
+import { ReplaceStep, ReplaceAroundStep, StepResult } from 'prosemirror-transform'
 
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
@@ -30,24 +30,27 @@ export function trackReplaceStep(
   step: ReplaceStep,
   oldState: EditorState,
   newTr: Transaction,
-  attrs: NewEmptyAttrs
+  attrs: NewEmptyAttrs,
+  stepResult: StepResult,
+  currentStepDoc: PMNode
 ) {
   log.info('###### ReplaceStep ######')
   let selectionPos = 0,
     changeSteps: ChangeStep[] = []
+
+  // Invert the transaction step to prevent it from actually deleting or inserting anything
   step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
     log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
     const { slice } = step as ExposedReplaceStep
-    // Invert the transaction step to prevent it from actually deleting or inserting anything
-    const newStep = step.invert(oldState.doc)
-    const stepResult = newTr.maybeStep(newStep)
-    if (stepResult.failed) {
-      log.error(`invert ReplaceStep failed: "${stepResult.failed}"`, newStep)
-      return
-    }
     log.info('TR: steps before applying delete', [...newTr.steps])
     // First apply the deleted range and update the insert slice to not include content that was deleted,
     // eg partial nodes in an open-ended slice
+
+    if (stepResult.failed) {
+      log.error(`invert ReplaceStep failed: "${stepResult.failed}"`)
+      return
+    }
+
     const {
       sliceWasSplit,
       newSliceContent,
@@ -56,7 +59,7 @@ export function trackReplaceStep(
       fromA,
       toA,
       undefined,
-      oldState.doc,
+      currentStepDoc,
       newTr,
       oldState.schema,
       attrs,
