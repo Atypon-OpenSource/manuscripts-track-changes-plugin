@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.1.0
+
+### Minor Changes
+
+- 6184cb2: LEAN-1967 - Fix: Multiple steps tracking
+
 ## 1.0.0
 
 ### Major Changes
