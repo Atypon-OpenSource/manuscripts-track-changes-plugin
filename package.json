@@ -1,6 +1,6 @@
 {
   "name": "@manuscripts/track-changes-plugin",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/quarterback-packages/track-changes-plugin",
@@ -42,7 +42,7 @@
     "@types/node": "^18.7.18",
     "jest": "27.5.1",
     "jest-environment-jsdom": "27.5.1",
-    "jsdom": "^20.0.0",    
+    "jsdom": "^20.0.0",
     "rollup": "^2.79.0",
     "rollup-plugin-typescript2": "^0.34.0",
     "ts-jest": "27.1.4",

@@ -1,5 +1,15 @@
 # @manuscripts/track-changes-plugin
 
+## 1.2.0
+
+### Minor Changes
+
+- f543f1b: LEAN-1967 - Fix: Multiple steps tracking
+
+### Patch Changes
+
+- 250d6d4: Dependencies to normals
+
 ## 1.1.0
 
 ### Minor Changes
