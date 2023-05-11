@@ -33,9 +33,9 @@
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
   },
   "devDependencies": {
-    "@manuscripts/data": "^0.1.12",
-    "@manuscripts/json-schema": "^2.0.0",
-    "@manuscripts/transform": "^1.2.0",
+    "@manuscripts/data": "^1.0.2",
+    "@manuscripts/json-schema": "^2.0.1",
+    "@manuscripts/transform": "^1.2.3",
     "@rollup/plugin-commonjs": "^22.0.2",
     "@types/debug": "^4.1.7",
     "@types/jest": "27.5.1",
