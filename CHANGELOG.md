@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.4.0
+
+### Minor Changes
+
+- 3a3bd11: LEAN-2430
+
 ## 1.3.1
 
 ### Patch Changes
