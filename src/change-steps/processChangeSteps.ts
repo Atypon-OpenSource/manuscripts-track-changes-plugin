@@ -104,7 +104,8 @@ export function processChangeSteps(
         return
       }
       mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
-      mergeTrackedMarks(mapping.map(c.to), newTr.doc, newTr, schema)
+      const to = mapping.map(c.to) + c.slice.size
+      mergeTrackedMarks(mapping.map(c.to) + (to < newTr.doc.nodeSize ? c.slice.size : 0), newTr.doc, newTr, schema)
       selectionPos = mapping.map(c.to) + c.slice.size
     } else if (c.type === 'update-node-attrs') {
       const oldDataTracked = getBlockInlineTrackedData(c.node) || []
