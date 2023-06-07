@@ -110,7 +110,13 @@ export const trackChangesPlugin = (
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
-        if (tr.docChanged && !skipMetaUsed && !skipTrackUsed && !tr.getMeta('history$')) {
+        if (
+          tr.docChanged &&
+          !skipMetaUsed &&
+          !skipTrackUsed &&
+          !tr.getMeta('history$') &&
+          !(wasAppended && tr.getMeta('origin') === 'paragraphs')
+        ) {
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
         }
         docChanged = docChanged || tr.docChanged
