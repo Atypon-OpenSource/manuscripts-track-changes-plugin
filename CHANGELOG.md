@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.5.0
+
+### Minor Changes
+
+- a860547: update json-schema and transform version
+
 ## 1.4.1
 
 ### Minor Changes
