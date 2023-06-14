@@ -18,26 +18,6 @@
               "type": "text",
               "marks": [
                 {
-                  "type": "tracked_delete",
-                  "attrs": {
-                    "dataTracked": {
-                      "id": "MOCK-ID-2",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "delete"
-                    }
-                  }
-                }
-              ],
-              "text": "paragraph"
-            },
-            {
-              "type": "text",
-              "marks": [
-                {
                   "type": "tracked_insert",
                   "attrs": {
                     "dataTracked": {
@@ -53,6 +33,26 @@
                 }
               ],
               "text": "replaced"
+            },
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "MOCK-ID-2",
+                      "authorID": "1-mike",
+                      "reviewedByID": null,
+                      "createdAt": 1577836800000,
+                      "updatedAt": 1577836800000,
+                      "status": "pending",
+                      "operation": "delete"
+                    }
+                  }
+                }
+              ],
+              "text": "ph"
             }
           ]
         },
@@ -135,8 +135,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 22,
-      "head": 22
+      "anchor": 20,
+      "head": 20
     }
   },
   {
@@ -146,38 +146,12 @@
         {
           "type": "paragraph",
           "attrs": {
-            "dataTracked": [
-              {
-                "id": "MOCK-ID-2",
-                "authorID": "1-mike",
-                "reviewedByID": null,
-                "createdAt": 1577836800000,
-                "updatedAt": 1577836800000,
-                "status": "pending",
-                "operation": "delete"
-              }
-            ],
+            "dataTracked": null,
             "testAttribute": null
           },
           "content": [
             {
               "type": "text",
-              "marks": [
-                {
-                  "type": "tracked_delete",
-                  "attrs": {
-                    "dataTracked": {
-                      "id": "MOCK-ID-3",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "delete"
-                    }
-                  }
-                }
-              ],
               "text": "1st paragraph"
             }
           ]
@@ -197,20 +171,34 @@
                 {
                   "type": "paragraph",
                   "attrs": {
-                    "dataTracked": [
-                      {
-                        "id": "MOCK-ID-1",
-                        "authorID": "1-mike",
-                        "reviewedByID": null,
-                        "createdAt": 1577836800000,
-                        "updatedAt": 1577836800000,
-                        "status": "pending",
-                        "operation": "insert"
-                      }
-                    ],
+                    "dataTracked": null,
                     "testAttribute": null
                   },
                   "content": [
+                    {
+                      "type": "text",
+                      "text": "2n"
+                    },
+                    {
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "tracked_delete",
+                          "attrs": {
+                            "dataTracked": {
+                              "id": "MOCK-ID-1",
+                              "authorID": "1-mike",
+                              "reviewedByID": null,
+                              "createdAt": 1577836800000,
+                              "updatedAt": 1577836800000,
+                              "status": "pending",
+                              "operation": "delete"
+                            }
+                          }
+                        }
+                      ],
+                      "text": "d paragrap"
+                    },
                     {
                       "type": "text",
                       "marks": [
@@ -229,20 +217,11 @@
                           }
                         }
                       ],
-                      "text": "open-end blockquote"
-                    }
-                  ]
-                },
-                {
-                  "type": "paragraph",
-                  "attrs": {
-                    "dataTracked": null,
-                    "testAttribute": null
-                  },
-                  "content": [
+                      "text": "open-start blockquote"
+                    },
                     {
                       "type": "text",
-                      "text": "2nd paragraph"
+                      "text": "h"
                     }
                   ]
                 }
@@ -262,7 +241,7 @@
                       "type": "tracked_delete",
                       "attrs": {
                         "dataTracked": {
-                          "id": "MOCK-ID-5",
+                          "id": "MOCK-ID-2",
                           "authorID": "1-mike",
                           "reviewedByID": null,
                           "createdAt": 1577836800000,
@@ -273,27 +252,11 @@
                       }
                     }
                   ],
-                  "text": "3rd paragraph"
+                  "text": "3rd p"
                 },
                 {
                   "type": "text",
-                  "marks": [
-                    {
-                      "type": "tracked_insert",
-                      "attrs": {
-                        "dataTracked": {
-                          "id": "MOCK-ID-4",
-                          "authorID": "1-mike",
-                          "reviewedByID": null,
-                          "createdAt": 1577836800000,
-                          "updatedAt": 1577836800000,
-                          "status": "pending",
-                          "operation": "insert"
-                        }
-                      }
-                    }
-                  ],
-                  "text": "open-start blockquote"
+                  "text": "aragraph"
                 }
               ]
             }
@@ -308,27 +271,7 @@
           "content": [
             {
               "type": "text",
-              "marks": [
-                {
-                  "type": "tracked_delete",
-                  "attrs": {
-                    "dataTracked": {
-                      "id": "MOCK-ID-6",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "delete"
-                    }
-                  }
-                }
-              ],
-              "text": "4th"
-            },
-            {
-              "type": "text",
-              "text": " paragraph"
+              "text": "4th paragraph"
             }
           ]
         }
@@ -336,8 +279,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 55,
-      "head": 55
+      "anchor": 20,
+      "head": 20
     }
   },
   {

@@ -17,7 +17,7 @@
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import { undo } from 'prosemirror-history'
 
-import { promises as fs } from 'fs'
+import fs from 'fs'
 
 import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
 import docs from '../__fixtures__/docs'
@@ -64,6 +64,7 @@ describe('diff.test', () => {
       18
     )
     // The doc should stay the same as the text content being replace is equal
+
     expect(tester.toJSON()).toEqual(textDiff[0])
 
     tester.paste(

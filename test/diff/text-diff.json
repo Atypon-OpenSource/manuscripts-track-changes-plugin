@@ -222,10 +222,6 @@
           "content": [
             {
               "type": "text",
-              "text": "This is a "
-            },
-            {
-              "type": "text",
               "marks": [
                 {
                   "type": "tracked_insert",
@@ -246,7 +242,7 @@
             },
             {
               "type": "text",
-              "text": "partial"
+              "text": "l"
             },
             {
               "type": "text",
@@ -439,8 +435,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 18,
-      "head": 18
+      "anchor": 24,
+      "head": 24
     }
   },
   {
@@ -457,26 +453,6 @@
             {
               "type": "text",
               "text": "This is a parti"
-            },
-            {
-              "type": "text",
-              "marks": [
-                {
-                  "type": "tracked_delete",
-                  "attrs": {
-                    "dataTracked": {
-                      "id": "MOCK-ID-7",
-                      "authorID": "1-mike",
-                      "reviewedByID": null,
-                      "createdAt": 1577836800000,
-                      "updatedAt": 1577836800000,
-                      "status": "pending",
-                      "operation": "delete"
-                    }
-                  }
-                }
-              ],
-              "text": "ally"
             },
             {
               "type": "text",
@@ -516,7 +492,7 @@
                   }
                 }
               ],
-              "text": " delete"
+              "text": "ete"
             },
             {
               "type": "text",
@@ -689,8 +665,8 @@
     },
     "selection": {
       "type": "text",
-      "anchor": 29,
-      "head": 29
+      "anchor": 33,
+      "head": 33
     }
   }
 ]
