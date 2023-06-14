@@ -1,5 +1,12 @@
 # @manuscripts/track-changes-plugin
 
+## 1.5.2
+
+### Patch Changes
+
+- f0dff85: LEAN-2431 Text editing fixes
+- f0dff85: LEAN-2431
+
 ## 1.5.0
 
 ### Minor Changes
