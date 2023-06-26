@@ -1,6 +1,6 @@
 {
   "name": "@manuscripts/track-changes-plugin",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/quarterback-packages/track-changes-plugin",
@@ -26,6 +26,7 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -cw",
+    "dev": "yarn run watch",
     "test": "jest --runInBand",
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",

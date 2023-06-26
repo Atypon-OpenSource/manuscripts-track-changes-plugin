@@ -108,10 +108,7 @@ export function trackReplaceStep(
       changeSteps.push({
         type: 'insert-slice',
         from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-        to: textWasDeleted ? toB - 1 : toA,
-        /* it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before
-            - it will gointo infinite loop if toB -1 is used
-        */
+        to: textWasDeleted ? toB - 1 : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
         sliceWasSplit,
         slice: new Slice(
           setFragmentAsInserted(
@@ -126,7 +123,11 @@ export function trackReplaceStep(
     } else {
       // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
       // mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
-      selectionPos = fromA
+      
+      // When DEL is used, the selection is set to the end of the deleted content
+      // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion
+      // @ts-ignore
+      selectionPos = window.event?.code === 'Delete' || window.event?.inputType === 'deleteContentForward' ? toA : fromA
     }
   })
   return [changeSteps, selectionPos] as [ChangeStep[], number]
