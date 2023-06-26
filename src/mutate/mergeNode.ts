@@ -27,9 +27,9 @@ import { canJoin } from 'prosemirror-transform'
 export function mergeNode(node: PMNode, pos: number, tr: Transaction) {
   if (canJoin(tr.doc, pos)) {
     return tr.join(pos)
-  } else if (canJoin(tr.doc, pos + node.nodeSize)) {
-    // TODO should copy the attributes from the merged node below
-    return tr.join(pos + node.nodeSize)
+  } else if (!tr.doc.resolve(pos).nodeBefore) {
+    // for this case will just delete that node in `deleteNode.ts` as the join will not work
+    return undefined
   }
   // TODO is this the same thing as join to above?
   const resPos = tr.doc.resolve(pos)
