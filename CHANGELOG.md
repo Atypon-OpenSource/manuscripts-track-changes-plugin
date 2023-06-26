@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.6.0
+
+### Minor Changes
+
+- 75916fa: LEAN-2508
+
 ## 1.5.2
 
 ### Patch Changes
