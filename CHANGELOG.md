@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.7.0
+
+### Minor Changes
+
+- 2577694: LEAN-2737
+
 ## 1.6.0
 
 ### Minor Changes
