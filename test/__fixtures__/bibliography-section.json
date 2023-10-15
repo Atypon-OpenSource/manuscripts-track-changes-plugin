@@ -1,0 +1,56 @@
+{
+  "attrs": {
+    "id": "MPManuscript:A05A2501-8BE3-44C8-AA30-B148444FDC18"
+  },
+  "type": "manuscript",
+  "content": [
+    {
+      "type": "bibliography_section",
+      "attrs": {
+        "id": "MPSection:07686627-C659-4EAE-8ED5-6A4E30116D6B",
+        "dataTracked": null
+      },
+      "content": [
+        {
+          "type": "section_title",
+          "attrs": {
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "REFERENCES"
+            }
+          ]
+        },
+        {
+          "type": "bibliography_element",
+          "attrs": {
+            "id": "MPBibliographyElement:F186E678-952E-4733-87EB-93CA74D89E41",
+            "contents": "",
+            "paragraphStyle": "",
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "bibliography_item",
+              "attrs": {
+                "id": "MPBibliographyItem:01E85B21-64E0-4816-BA36-6BFA1466A584",
+                "type": "article-journal",
+                "author": ["Caldwell","Gottesman"],
+                "issued": "1992",
+                "containerTitle": "Suicide Life Threat Behav.",
+                "volume": "22",
+                "issue": "4",
+                "page": "479-493",
+                "title": "Schizophrenia-a high-risk factor for suicide: clues to risk reduction.",
+                "paragraphStyle": "",
+                "dataTracked": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -17,19 +17,26 @@
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
 
-import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
+import {
+  CHANGE_STATUS,
+  trackChangesPluginKey,
+  trackCommands,
+  ChangeSet,
+  NodeAttrChange,
+} from '../../src'
 import docs from '../__fixtures__/docs'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 
 import { log } from '../../src/utils/logger'
-
+import { schema as manuscriptSchema } from '@manuscripts/transform'
 import basicNodeDelete from './basic-node-del.json'
 import basicNodeInsert from './basic-node-ins.json'
 import blockNodeAttrUpdate from './block-node-attr-update.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import wrapWithLink from './wrap-with-link.json'
 import tableDiff from './table-attr-update.json'
+import { TrackChangesAction } from '../../src/actions'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -200,6 +207,33 @@ describe('nodes.test', () => {
     expect(tester.toJSON()).toEqual(tableDiff[0])
     expect(uuidv4Mock.mock.calls.length).toBe(2)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should track meta node attribute updates', async () => {
+    const tester = setupEditor({
+      doc: docs.bibliographySection,
+      schema: manuscriptSchema,
+    }).cmd((state, dispatch) => {
+      const node = state.doc.resolve(14).node()
+      dispatch(
+        state.tr
+          .setNodeMarkup(14, undefined, {
+            ...node.attrs,
+            title: 'Schizophrenia-a',
+          })
+          .setMeta(TrackChangesAction.updateMetaNode, true)
+      )
+      return true
+    })
+
+    const nodeAttrChange = tester.trackState()?.changeSet.nodeAttrChanges[0] as NodeAttrChange
+    expect(nodeAttrChange.oldAttrs['title']).toEqual(
+      'Schizophrenia-a high-risk factor for suicide: clues to risk reduction.'
+    )
+    expect(nodeAttrChange.newAttrs['title']).toEqual('Schizophrenia-a')
+    expect(uuidv4Mock.mock.calls.length).toBe(2)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

@@ -25,10 +25,12 @@ import { ExposedSlice } from '../types/pm'
 import { NewEmptyAttrs } from '../types/track'
 import * as trackUtils from '../utils/track-utils'
 import { ChangeStep } from '../types/step'
+import { TrackChangesAction } from '../actions'
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
   oldState: EditorState,
+  tr: Transaction,
   newTr: Transaction,
   attrs: NewEmptyAttrs
 ) {
@@ -81,7 +83,13 @@ export function trackReplaceAroundStep(
   log.info('DELETE STEPS: ', deleteSteps)
   // We only want to insert when there something inside the gap (actually would this be always true?)
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
-  if (gap.size > 0 || (!structure && newSliceContent.size > 0)) {
+  // ^^answering above comment we could have meta node like(bibliography_item, contributor) will not have content at all,
+  // and that case gap will be 0, for that will use updateMetaNode to indicate that we are going just to update that node
+  if (
+    gap.size > 0 ||
+    (!structure && newSliceContent.size > 0) ||
+    tr.getMeta(TrackChangesAction.updateMetaNode)
+  ) {
     log.info('newSliceContent', newSliceContent)
     // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
     // the sides should be equal. TODO can they be other than 0?
@@ -98,7 +106,7 @@ export function trackReplaceAroundStep(
       openStart,
       openEnd
     ) as ExposedSlice
-    if (gap.size > 0) {
+    if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
       insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)
       log.info('insertedSlice after inserted gap', insertedSlice)

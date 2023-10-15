@@ -16,6 +16,7 @@
 import paragraph from './paragraph.json'
 import equation from './equation.json'
 import manuscriptSimple from './manuscript-simple.json'
+import bibliographySection from './bibliography-section.json'
 import manyParagraphs from './many-paragraphs.json'
 import blockquoteMarks from './blockquote-marks.json'
 import nestedBlockquotes from './nested-blockquotes.json'
@@ -25,6 +26,7 @@ import table from './table.json'
 export default {
   paragraph,
   equation,
+  bibliographySection,
   manyParagraphs,
   manuscriptSimple,
   blockquoteMarks,
