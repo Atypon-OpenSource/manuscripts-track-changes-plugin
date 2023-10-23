@@ -20,11 +20,7 @@ import { Mapping } from 'prosemirror-transform'
 import { log } from '../utils/logger'
 import { ChangeSet } from '../ChangeSet'
 import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
-import {
-  getNodeTrackedData,
-  getTextNodeTrackedMarkData,
-  getBlockInlineTrackedData,
-} from '../compute/nodeHelpers'
+import { getNodeTrackedData, getTextNodeTrackedMarkData, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 
 export function updateChangeAttrs(
   tr: Transaction,
@@ -39,9 +35,7 @@ export function updateChangeAttrs(
   }
   const { operation } = trackedAttrs
   const oldTrackData =
-    change.type === 'text-change'
-      ? getTextNodeTrackedMarkData(node, schema)
-      : getBlockInlineTrackedData(node)
+    change.type === 'text-change' ? getTextNodeTrackedMarkData(node, schema) : getBlockInlineTrackedData(node)
   if (!operation) {
     log.warn('updateChangeAttrs: unable to determine operation of change ', change)
   } else if (!oldTrackData) {
@@ -65,7 +59,16 @@ export function updateChangeAttrs(
     // Very weird edge-case if this happens
     tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
   } else if (change.type === 'node-change' || change.type === 'node-attr-change') {
-    const newDataTracked = (getBlockInlineTrackedData(node) || []).map((oldTrack) => {
+    const trackedDataSource = getBlockInlineTrackedData(node) || []
+    const targetDataTracked = trackedDataSource.find((t) => change.id === t.id)
+    const newDataTracked = trackedDataSource.map((oldTrack) => {
+      if (targetDataTracked) {
+        if (oldTrack.id === targetDataTracked.id) {
+          return { ...oldTrack, ...trackedAttrs }
+        }
+        return oldTrack
+      }
+
       if (oldTrack.operation === operation) {
         return { ...oldTrack, ...trackedAttrs }
       }
@@ -81,11 +84,7 @@ export function updateChangeAttrs(
   return tr
 }
 
-export function updateChangeChildrenAttributes(
-  changes: TrackedChange[],
-  tr: Transaction,
-  mapping: Mapping
-) {
+export function updateChangeChildrenAttributes(changes: TrackedChange[], tr: Transaction, mapping: Mapping) {
   changes.forEach((c) => {
     if (c.type === 'node-change' && !ChangeSet.shouldDeleteChange(c)) {
       const from = mapping.map(c.from)

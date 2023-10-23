@@ -35,8 +35,8 @@ export function trackReplaceStep(
   currentStepDoc: PMNode
 ) {
   log.info('###### ReplaceStep ######')
-  let selectionPos = 0,
-    changeSteps: ChangeStep[] = []
+  let selectionPos = 0
+  const changeSteps: ChangeStep[] = []
 
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
@@ -55,16 +55,7 @@ export function trackReplaceStep(
       sliceWasSplit,
       newSliceContent,
       steps: deleteSteps,
-    } = deleteAndMergeSplitNodes(
-      fromA,
-      toA,
-      undefined,
-      currentStepDoc,
-      newTr,
-      oldState.schema,
-      attrs,
-      slice
-    )
+    } = deleteAndMergeSplitNodes(fromA, toA, undefined, currentStepDoc, newTr, oldState.schema, attrs, slice)
     changeSteps.push(...deleteSteps)
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', changeSteps)
@@ -111,11 +102,7 @@ export function trackReplaceStep(
         to: textWasDeleted ? toB - 1 : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
         sliceWasSplit,
         slice: new Slice(
-          setFragmentAsInserted(
-            newSliceContent,
-            trackUtils.createNewInsertAttrs(attrs),
-            oldState.schema
-          ),
+          setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema),
           openStart,
           openEnd
         ) as ExposedSlice,
@@ -123,7 +110,7 @@ export function trackReplaceStep(
     } else {
       // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
       // mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
-      
+
       // When DEL is used, the selection is set to the end of the deleted content
       // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion
       // @ts-ignore

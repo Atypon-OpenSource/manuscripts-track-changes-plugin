@@ -39,6 +39,6 @@ export function createNewUpdateAttrs(
   return {
     ...attrs,
     operation: CHANGE_OPERATION.set_node_attributes,
-    oldAttrs: restAttrs,
+    oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
   }
 }

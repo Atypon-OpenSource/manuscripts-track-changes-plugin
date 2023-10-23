@@ -97,35 +97,45 @@ export function processChangeSteps(
       const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.slice, false)
       const stepResult = newTr.maybeStep(newStep)
       if (stepResult.failed) {
-        log.error(
-          `processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`,
-          newStep
-        )
+        log.error(`processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`, newStep)
         return
       }
       mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
       const to = mapping.map(c.to) + c.slice.size
-      mergeTrackedMarks(
-        mapping.map(c.to) + (to < newTr.doc.nodeSize ? c.slice.size : 0),
-        newTr.doc,
-        newTr,
-        schema
-      )
+      mergeTrackedMarks(mapping.map(c.to) + (to < newTr.doc.nodeSize ? c.slice.size : 0), newTr.doc, newTr, schema)
       selectionPos = mapping.map(c.to) + c.slice.size
     } else if (c.type === 'update-node-attrs') {
       const oldDataTracked = getBlockInlineTrackedData(c.node) || []
-      const oldUpdate = oldDataTracked.find(
-        (d) =>
-          d.operation === CHANGE_OPERATION.set_node_attributes && d.status === CHANGE_STATUS.pending
-      ) as UpdateAttrs
-      const { dataTracked, ...oldAttrs } = oldUpdate?.oldAttrs || c.node.attrs
-      const newDataTracked = [...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id)]
-      const newUpdate = oldUpdate
-        ? {
-            ...oldUpdate,
-            updatedAt: emptyAttrs.updatedAt,
-          }
-        : addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs))
+      const oldUpdate = oldDataTracked.reverse().find((d) => {
+        // reversing to start from the most recent change
+        if (
+          d.operation === CHANGE_OPERATION.set_node_attributes &&
+          (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.rejected)
+        ) {
+          return true
+        }
+        return false
+      }) as UpdateAttrs
+
+      // if the selected last change is with status "rejected" we need to use oldAttrs from it because
+      // node's actual attributes represent the "rejected" values
+      const lastChangeRejected = oldUpdate && oldUpdate.status === CHANGE_STATUS.rejected
+
+      const sourceAttrs = oldUpdate?.oldAttrs || c.node.attrs
+      const { dataTracked, ...restAttrs } = sourceAttrs
+      const oldAttrs = lastChangeRejected ? oldUpdate.oldAttrs : restAttrs
+      const newDataTracked = [
+        ...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected),
+      ]
+      const newUpdate =
+        oldUpdate && oldUpdate.status !== CHANGE_STATUS.rejected
+          ? {
+              ...oldUpdate,
+              updatedAt: emptyAttrs.updatedAt,
+            }
+          : addTrackIdIfDoesntExist(
+              trackUtils.createNewUpdateAttrs(emptyAttrs, lastChangeRejected ? oldAttrs : c.node.attrs)
+            )
       // Dont add update changes if there exists already an insert change for this node
       if (
         JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) &&

@@ -44,11 +44,7 @@ function matchText(
     d = from - pos,
     maxSteps = to - Math.max(pos, from)
   // Match text inside the inserted text node to the deleted text node
-  for (
-    ;
-    maxSteps !== j && insNode.text![j] !== undefined && insNode.text![j] === delNode.text![d];
-    j += 1, d += 1
-  ) {
+  for (; maxSteps !== j && insNode.text![j] !== undefined && insNode.text![j] === delNode.text![d]; j += 1, d += 1) {
     matchedDeleted += 1
   }
   // this is needed incase diffing tr.doc
