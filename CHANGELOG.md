@@ -1,5 +1,11 @@
 # @manuscripts/track-changes-plugin
 
+## 1.7.1
+
+### Patch Changes
+
+- d0f6665: LEAN-2752 Attributes tracking improvements
+
 ## 1.7.0
 
 ### Minor Changes
