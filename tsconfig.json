@@ -1,11 +1,26 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2018",
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["node", "jest"],
-    "declaration": true,
-    "declarationDir": "./dist"
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2017", "dom", "dom.iterable", "es2019"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2015",
+    "typeRoots" : [
+      "./node_modules/@types",
+      "./stories/types"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "./src/**/*",
+    "./stories/**/*"
+  ]
 }
