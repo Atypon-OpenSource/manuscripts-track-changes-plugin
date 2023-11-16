@@ -3,7 +3,7 @@
   "version": "1.7.2",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/Atypon-OpenSource/manuscripts-quarterback/tree/main/quarterback-packages/track-changes-plugin",
+  "homepage": "https://github.com/Atypon-OpenSource/manuscripts-track-changes-plugin",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "type": "module",
@@ -20,9 +20,6 @@
     "dist",
     "src/styles.css"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "npm-run-all --parallel 'build:* --project tsconfig.json'",
     "build:cjs": "tsc --outDir dist/cjs --module commonjs",
@@ -35,9 +32,7 @@
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
   },
   "devDependencies": {
-    "@manuscripts/data": "^1.0.2",
-    "@manuscripts/json-schema": "^2.0.2",
-    "@manuscripts/transform": "^1.2.5",
+    "@manuscripts/transform": "^1.5.1",
     "@types/debug": "^4.1.7",
     "@types/jest": "27.5.1",
     "@types/node": "^18.7.18",
@@ -48,12 +43,6 @@
     "ts-jest": "27.1.4",
     "tslib": "^2.4.0",
     "typescript": "^4.8.3"
-  },
-  "peerDependencies": {
-    "prosemirror-model": ">=1.14.0",
-    "prosemirror-state": ">=1.3.0",
-    "prosemirror-transform": ">=1.3.0",
-    "prosemirror-view": ">=1.18.0"
   },
   "dependencies": {
     "prosemirror-commands": "^1.5.0",

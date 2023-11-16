@@ -516,25 +516,20 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@manuscripts/data@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@manuscripts/data/-/data-1.0.2.tgz#daf61fe1dfa47503afb4ca0f72540091e6576caf"
-  integrity sha512-mEZM3bkHYGkgz7DK92+6jhOlqmufoKqAK166YlO7GswKspzcg1bM+2+T8O9QuMhYGcma1mnC93EwLPhOFJ5Vjw==
-
-"@manuscripts/json-schema@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@manuscripts/json-schema/-/json-schema-2.0.2.tgz#f4ae1606bfa009905070378477422b35b209329a"
-  integrity sha512-kgKtJ+Ny8CRqWiuUFBk9WJVqR2a4WsZzoFqZMuDRzoUeL4CcCtILAAS6d+9uKSV6cTh4gLJGrhDqeQnMRm0HMg==
+"@manuscripts/json-schema@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@manuscripts/json-schema/-/json-schema-2.2.0.tgz#8507707f00c0e6cead4f4e2f2e1797f9bccec4af"
+  integrity sha512-2ooif0jtIld5bA44DHPpsNbDvdoQWaFcNXiBlc7OQ0znY37e5juMipknEtNTvdHCtHpzBkrLJt7k77bBT7VaVQ==
   dependencies:
     ajv "^8.12.0"
     deepmerge "^4.3.1"
 
-"@manuscripts/transform@^1.2.5":
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/@manuscripts/transform/-/transform-1.2.5.tgz#f5e1867992e58fba41fdb0a3c4f67f74ae855372"
-  integrity sha512-Oe/AdoGRNnTH/6jlZIstohUK6azK2gDugXw1Swgy54yVlPYwqpK+064NpdARXRVrwFyCcWXJt7tqbPvFh96dpA==
+"@manuscripts/transform@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@manuscripts/transform/-/transform-1.5.1.tgz#5c6829e8707a8aa2b793232148f08ee6816137dc"
+  integrity sha512-VQ6igUK3RrQRrZeFrR809a1HZbvsqfOEZGWdtHZhJVQkd60/woEDa6DDY+iHxl1V1KBCm5ifjsIykFQZ3Cq0bg==
   dependencies:
-    "@manuscripts/json-schema" "^2.0.2"
+    "@manuscripts/json-schema" "^2.2.0"
     debug "^4.3.4"
     jszip "^3.10.1"
     mathjax-full "^3.2.2"
