@@ -17,6 +17,7 @@ import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { liftTarget } from 'prosemirror-transform'
 
+import { log } from '../utils/logger'
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { NewDeleteAttrs } from '../types/track'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
@@ -73,9 +74,14 @@ export function deleteOrSetNodeDeleted(
   if (inserted && inserted.authorID === deleteAttrs.authorID) {
     return deleteNode(node, pos, newTr)
   }
+  if (!newTr.doc.nodeAt(pos)) {
+    log.error(`deleteOrSetNodeDeleted: no node found for deletion`, { pos, node, newTr })
+    return
+  }
   const newDeleted = deleted
     ? { ...deleted, updatedAt: deleteAttrs.updatedAt }
     : addTrackIdIfDoesntExist(deleteAttrs)
+
   newTr.setNodeMarkup(
     pos,
     undefined,
