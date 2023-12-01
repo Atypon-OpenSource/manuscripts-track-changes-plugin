@@ -17,6 +17,7 @@ import { Fragment, Node as PMNode } from 'prosemirror-model';
 import { Transaction } from 'prosemirror-state';
 import { liftTarget } from 'prosemirror-transform';
 
+import { log } from '../utils/logger';
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change';
 import { NewDeleteAttrs } from '../types/track';
 import {
@@ -35,14 +36,23 @@ import {
  */
 export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
   const startPos = tr.doc.resolve(pos + 1);
-  const range = startPos.blockRange(
-    tr.doc.resolve(startPos.pos - 2 + node.nodeSize)
-  );
-  const targetDepth = range && liftTarget(range);
+
+  /*
+    The following code is commented out due the fact that it provides an unclear behaviour and causes bugs but
+    since its original purpose is unclear it is not deleted and should be check in cases of bugs related to deleting
+    of entire content of a block level node.
+  */
+  // Checking if the content deleted is the entire content of a block parent element
+  // const range = startPos.blockRange(
+  //   tr.doc.resolve(startPos.pos - 2 + node.nodeSize)
+  // );
+  // Checking if the original content can be lifted up a level
+  // const targetDepth = range && liftTarget(range);
   // Check with typeof since with prosemirror-transform pre 1.6.0 targetDepth is undefined
-  if (range && typeof targetDepth === 'number') {
-    return tr.lift(range, targetDepth);
-  }
+  // if (range && typeof targetDepth === 'number') {
+  //   return tr.lift(range, targetDepth);
+  // }
+
   const resPos = tr.doc.resolve(pos);
   // Block nodes can be deleted by just removing their start token which should then merge the text
   // content to above node's content (if there is one)
@@ -89,9 +99,18 @@ export function deleteOrSetNodeDeleted(
   if (inserted && inserted.authorID === deleteAttrs.authorID) {
     return deleteNode(node, pos, newTr);
   }
+  if (!newTr.doc.nodeAt(pos)) {
+    log.error(`deleteOrSetNodeDeleted: no node found for deletion`, {
+      pos,
+      node,
+      newTr,
+    });
+    return;
+  }
   const newDeleted = deleted
     ? { ...deleted, updatedAt: deleteAttrs.updatedAt }
     : addTrackIdIfDoesntExist(deleteAttrs);
+
   newTr.setNodeMarkup(
     pos,
     undefined,
