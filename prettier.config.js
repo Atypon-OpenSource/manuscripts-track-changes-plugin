@@ -18,7 +18,7 @@ module.exports = {
       },
     },
   ],
-  printWidth: 100,
+  printWidth: 130,
   semi: false,
   singleQuote: true,
   trailingComma: 'es5',

@@ -1,38 +1,18 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Node as PMNode } from 'prosemirror-model'
-import type {
-  EditorState,
-  NodeSelection,
-  TextSelection,
-  Selection,
-  Transaction,
-} from 'prosemirror-state'
+import type { EditorState, NodeSelection, Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
 import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
+import { diffChangeSteps } from '../change-steps/diffChangeSteps'
+import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { CHANGE_STATUS } from '../types/change'
+import { ExposedReplaceStep } from '../types/pm'
+import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
-import { processChangeSteps } from '../change-steps/processChangeSteps'
-import { diffChangeSteps } from '../change-steps/diffChangeSteps'
-import { InsertSliceStep } from '../types/step'
-import { ExposedReplaceStep } from '../types/pm'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -43,8 +23,7 @@ import { ExposedReplaceStep } from '../types/pm'
  */
 const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
 
-const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
-  node && node.type === node.type.schema.nodes.highlight_marker
+const isHighlightMarkerNode = (node: PMNode): node is PMNode => node && node.type === node.type.schema.nodes.highlight_marker
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -61,12 +40,7 @@ const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
  * @param authorID User id
  * @returns newTr that inverts the initial tr and applies track attributes/marks
  */
-export function trackTransaction(
-  tr: Transaction,
-  oldState: EditorState,
-  newTr: Transaction,
-  authorID: string
-) {
+export function trackTransaction(tr: Transaction, oldState: EditorState, newTr: Transaction, authorID: string) {
   const emptyAttrs: NewEmptyAttrs = {
     authorID,
     reviewedByID: null,
@@ -100,23 +74,13 @@ export function trackTransaction(
       continue
     } else if (step instanceof ReplaceStep) {
       const { slice } = step as ExposedReplaceStep
-      if (
-        slice?.content?.content?.length === 1 &&
-        isHighlightMarkerNode(slice.content.content[0])
-      ) {
+      if (slice?.content?.content?.length === 1 && isHighlightMarkerNode(slice.content.content[0])) {
         // don't track highlight marker nodes
         continue
       }
       const newStep = step.invert(tr.docs[i])
       const stepResult = newTr.maybeStep(newStep)
-      let [steps, startPos] = trackReplaceStep(
-        step,
-        oldState,
-        newTr,
-        emptyAttrs,
-        stepResult,
-        tr.docs[i]
-      )
+      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i])
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
         if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {
@@ -152,13 +116,7 @@ export function trackTransaction(
       log.info('INSERT STEPS: ', inserted)
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
-      const [mapping, selectionPos] = processChangeSteps(
-        steps,
-        tr.selection.from,
-        newTr,
-        emptyAttrs,
-        oldState.schema
-      )
+      const [mapping, selectionPos] = processChangeSteps(steps, tr.selection.from, newTr, emptyAttrs, oldState.schema)
     }
     // } else if (step instanceof AddMarkStep) {
     // } else if (step instanceof RemoveMarkStep) {

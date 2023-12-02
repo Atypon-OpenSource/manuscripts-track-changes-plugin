@@ -1,27 +1,13 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
-import { log } from '../utils/logger'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
+import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { log } from '../utils/logger'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -74,15 +60,8 @@ export function applyAcceptedRejectedChanges(
         const { dataTracked, ...attrs } = change.newAttrs
         const changeLog = attrsChangesLog.get(node.attrs.id)
         const newDataTracked =
-          changeLog && changeLog.length
-            ? (dataTracked as TrackedAttrs[]).filter((c) => !changeLog.includes(c.id))
-            : dataTracked
-        tr.setNodeMarkup(
-          from,
-          undefined,
-          { ...attrs, dataTracked: newDataTracked.length ? newDataTracked : null },
-          node.marks
-        )
+          changeLog && changeLog.length ? (dataTracked as TrackedAttrs[]).filter((c) => !changeLog.includes(c.id)) : dataTracked
+        tr.setNodeMarkup(from, undefined, { ...attrs, dataTracked: newDataTracked.length ? newDataTracked : null }, node.marks)
         // default is "null" for dataTracked in attrs in pm schema, so codebase generally relies on it being null when empty
       }
       return
@@ -107,10 +86,7 @@ export function applyAcceptedRejectedChanges(
         deleteNode(node, from, tr)
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-    } else if (
-      ChangeSet.isNodeAttrChange(change) &&
-      change.dataTracked.status === CHANGE_STATUS.accepted
-    ) {
+    } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.accepted) {
       tr.setNodeMarkup(
         from,
         undefined,
@@ -121,10 +97,7 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
-    } else if (
-      ChangeSet.isNodeAttrChange(change) &&
-      change.dataTracked.status === CHANGE_STATUS.rejected
-    ) {
+    } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.rejected) {
       tr.setNodeMarkup(
         from,
         undefined,

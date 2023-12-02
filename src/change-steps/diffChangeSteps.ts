@@ -1,25 +1,11 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
-import { matchInserted } from './matchInserted'
-import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
+import { log } from '../utils/logger'
+import { matchInserted } from './matchInserted'
 
 /**
  * Cuts a fragment similar to Fragment.cut but also removes the parent node.
@@ -81,11 +67,7 @@ export function diffChangeSteps(deleted: ChangeStep[], inserted: InsertSliceStep
       }
       return acc
     }, Number.MAX_SAFE_INTEGER)
-    const [matchedDeleted, updatedDel] = matchInserted(
-      deleteStart,
-      updatedDeleted,
-      ins.slice.content
-    )
+    const [matchedDeleted, updatedDel] = matchInserted(deleteStart, updatedDeleted, ins.slice.content)
     if (matchedDeleted === deleteStart) {
       updated.push(ins)
       return

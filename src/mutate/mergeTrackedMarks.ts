@@ -1,18 +1,4 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
@@ -56,9 +42,5 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
 
-  newTr.addMark(
-    fromStartOfMark,
-    toEndOfMark,
-    leftMark.type.create({ ...leftMark.attrs, dataTracked })
-  )
+  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create({ ...leftMark.attrs, dataTracked }))
 }

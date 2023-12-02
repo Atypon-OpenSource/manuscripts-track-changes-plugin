@@ -1,42 +1,21 @@
-/*!
- * © 2022 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 /// <reference types="@types/jest" />;
+import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
 
-import {
-  CHANGE_STATUS,
-  trackChangesPluginKey,
-  trackCommands,
-  ChangeSet,
-  NodeAttrChange,
-} from '../../src'
+import { CHANGE_STATUS, ChangeSet, NodeAttrChange, trackChangesPluginKey, trackCommands } from '../../src'
+import { TrackChangesAction } from '../../src/actions'
+import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
-
-import { log } from '../../src/utils/logger'
-import { schema as manuscriptSchema } from '@manuscripts/transform'
 import basicNodeDelete from './basic-node-del.json'
 import basicNodeInsert from './basic-node-ins.json'
 import blockNodeAttrUpdate from './block-node-attr-update.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
-import wrapWithLink from './wrap-with-link.json'
 import tableDiff from './table-attr-update.json'
-import { TrackChangesAction } from '../../src/actions'
+import wrapWithLink from './wrap-with-link.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -229,9 +208,7 @@ describe('nodes.test', () => {
     })
 
     const nodeAttrChange = tester.trackState()?.changeSet.nodeAttrChanges[0] as NodeAttrChange
-    expect(nodeAttrChange.oldAttrs['title']).toEqual(
-      'Schizophrenia-a high-risk factor for suicide: clues to risk reduction.'
-    )
+    expect(nodeAttrChange.oldAttrs['title']).toEqual('Schizophrenia-a high-risk factor for suicide: clues to risk reduction.')
     expect(nodeAttrChange.newAttrs['title']).toEqual('Schizophrenia-a')
     expect(uuidv4Mock.mock.calls.length).toBe(2)
     expect(log.warn).toHaveBeenCalledTimes(0)
@@ -244,10 +221,7 @@ describe('nodes.test', () => {
     }).cmd((state, dispatch) => {
       const cursor = state.selection.head
       const blockNodePos = state.doc.resolve(cursor).start(1) - 1
-      if (
-        state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph &&
-        dispatch
-      ) {
+      if (state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph && dispatch) {
         dispatch(
           state.tr.setNodeMarkup(blockNodePos, undefined, {
             testAttribute: 'changed',

@@ -1,23 +1,9 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Node as PMNode } from 'prosemirror-model'
 
-import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep, DeleteNodeStep, DeleteTextStep } from '../types/step'
+import { log } from '../utils/logger'
 
 /**
  * Matches deleted-text recursively to inserted text
@@ -83,11 +69,7 @@ function matchText(
  * @param inserted
  * @returns
  */
-export function matchInserted(
-  matchedDeleted: number,
-  deleted: ChangeStep[],
-  inserted: ExposedFragment
-): [number, ChangeStep[]] {
+export function matchInserted(matchedDeleted: number, deleted: ChangeStep[], inserted: ExposedFragment): [number, ChangeStep[]] {
   let matched: [number, ChangeStep[]] = [matchedDeleted, deleted]
   for (let i = 0; ; i += 1) {
     if (inserted.childCount === i) {
@@ -97,8 +79,7 @@ export function matchInserted(
     // @ts-ignore
     const adjDeleted: DeleteTextStep | DeleteNodeStep | undefined = matched[1].find(
       (d) =>
-        (d.type === 'delete-text' && Math.max(d.pos, d.from) === matched[0]) ||
-        (d.type === 'delete-node' && d.pos === matched[0])
+        (d.type === 'delete-text' && Math.max(d.pos, d.from) === matched[0]) || (d.type === 'delete-node' && d.pos === matched[0])
     )
     if (insNode.type !== adjDeleted?.node?.type) {
       return matched

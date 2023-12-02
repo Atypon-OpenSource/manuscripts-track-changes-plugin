@@ -1,29 +1,15 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
-import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { NewEmptyAttrs } from '../types/track'
-import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import * as trackUtils from '../utils/track-utils'
+import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
+import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted
@@ -70,10 +56,7 @@ export function deleteAndMergeSplitNodes(
     }
   }
   const { openStart, openEnd } = insertSlice
-  const { updatedSliceNodes, firstMergedNode, lastMergedNode } = splitSliceIntoMergedParts(
-    insertSlice,
-    gap !== undefined
-  )
+  const { updatedSliceNodes, firstMergedNode, lastMergedNode } = splitSliceIntoMergedParts(insertSlice, gap !== undefined)
   let mergingStartSide = true
   startDoc.nodesBetween(from, to, (node, pos) => {
     const nodeEnd = pos + node.nodeSize
@@ -86,10 +69,7 @@ export function deleteAndMergeSplitNodes(
     // eg. pos 10 when gap is (8, 18) BUT if their nodeEnd goes past the gap's end eg nodeEnd 20 they actually
     // are altered and should not be skipped.
     // @TODO ATM 20.7.2022 there doesn't seem to be tests that capture this.
-    const wasWithinGap =
-      gap &&
-      ((!node.isText && pos >= gap.start) ||
-        (node.isText && pos >= gap.start && nodeEnd <= gap.end))
+    const wasWithinGap = gap && ((!node.isText && pos >= gap.start) || (node.isText && pos >= gap.start && nodeEnd <= gap.end))
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     if (nodeEnd > from && !wasWithinGap) {
@@ -115,11 +95,7 @@ export function deleteAndMergeSplitNodes(
       // (<p2> pos 6) >= (from 0) && (nodeEnd 12) - 1 > (to 7) == true
       //
       const startTokenDeleted = pos >= from // && nodeEnd - 1 > offsetTo
-      if (
-        node.isText ||
-        (!endTokenDeleted && startTokenDeleted) ||
-        (endTokenDeleted && !startTokenDeleted)
-      ) {
+      if (node.isText || (!endTokenDeleted && startTokenDeleted) || (endTokenDeleted && !startTokenDeleted)) {
         // Since we don't know which side to merge with wholly deleted TextNodes, we use this boolean to remember
         // whether we have entered the endSide of the mergeable blockNodes. Also applies for partial TextNodes
         // (which we could determine without this).
@@ -129,19 +105,15 @@ export function deleteAndMergeSplitNodes(
         // Depth is often 1 when merging paragraphs or 2 for fully open blockquotes.
         // Incase of merging text within a ReplaceAroundStep the depth might be 1
         const depth = newTr.doc.resolve(pos).depth
-        const mergeContent = mergingStartSide
-          ? firstMergedNode?.mergedNodeContent
-          : lastMergedNode?.mergedNodeContent
+        const mergeContent = mergingStartSide ? firstMergedNode?.mergedNodeContent : lastMergedNode?.mergedNodeContent
         // Insert inside a merged node only if the slice was open (openStart > 0) and there exists mergedNodeContent.
         // Then we only have to ensure the depth is at the right level, so say a fully open blockquote insert will
         // be merged at the lowest, paragraph level, instead of blockquote level.
-        const mergeStartNode =
-          endTokenDeleted && openStart > 0 && depth === openStart && mergeContent !== undefined
+        const mergeStartNode = endTokenDeleted && openStart > 0 && depth === openStart && mergeContent !== undefined
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
-        const mergeEndNode =
-          startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent !== undefined
+        const mergeEndNode = startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent !== undefined
 
         if (mergeStartNode || mergeEndNode) {
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps
@@ -154,11 +126,7 @@ export function deleteAndMergeSplitNodes(
             from,
             to,
             node,
-            fragment: setFragmentAsInserted(
-              mergeContent,
-              trackUtils.createNewInsertAttrs(trackAttrs),
-              schema
-            ) as ExposedFragment,
+            fragment: setFragmentAsInserted(mergeContent, trackUtils.createNewInsertAttrs(trackAttrs), schema) as ExposedFragment,
           })
           // Okay this is a bit ridiculous but it's used to adjust the insert pos when track changes prevents deletions
           // of merged nodes & content, as just using mapped toA in that case isn't the same.
@@ -198,9 +166,7 @@ export function deleteAndMergeSplitNodes(
   })
   return {
     sliceWasSplit: !!(firstMergedNode || lastMergedNode),
-    newSliceContent: updatedSliceNodes
-      ? Fragment.fromArray(updatedSliceNodes)
-      : insertSlice.content,
+    newSliceContent: updatedSliceNodes ? Fragment.fromArray(updatedSliceNodes) : insertSlice.content,
     steps,
   }
 }

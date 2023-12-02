@@ -1,30 +1,16 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, setAction, TrackChangesAction } from './actions'
-import { ChangeSet } from './ChangeSet'
-import { log, enableDebug } from './utils/logger'
 import { applyAcceptedRejectedChanges } from './changes/applyChanges'
 import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
-import { trackTransaction } from './steps/trackTransaction'
 import { updateChangeAttrs } from './changes/updateChangeAttrs'
+import { ChangeSet } from './ChangeSet'
+import { trackTransaction } from './steps/trackTransaction'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
+import { enableDebug, log } from './utils/logger'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -34,9 +20,7 @@ export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-cha
  * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as the default userID.
  * @param opts
  */
-export const trackChangesPlugin = (
-  opts: TrackChangesOptions = { userID: 'anonymous:Anonymous' }
-) => {
+export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonymous:Anonymous' }) => {
   const { userID, debug, skipTrsWithMetas = [] } = opts
   let editorView: EditorView | undefined
   if (debug) {
@@ -68,8 +52,7 @@ export const trackChangesPlugin = (
           return {
             ...pluginState,
             status: setStatus,
-            changeSet:
-              setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState),
+            changeSet: setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState),
           }
         } else if (pluginState.status === TrackChangesStatus.disabled) {
           return { ...pluginState, changeSet: new ChangeSet() }
@@ -93,11 +76,7 @@ export const trackChangesPlugin = (
     },
     appendTransaction(trs, oldState, newState) {
       const pluginState = trackChangesPluginKey.getState(newState)
-      if (
-        !pluginState ||
-        pluginState.status === TrackChangesStatus.disabled ||
-        !editorView?.editable
-      ) {
+      if (!pluginState || pluginState.status === TrackChangesStatus.disabled || !editorView?.editable) {
         return null
       }
       const { userID, changeSet } = pluginState
@@ -108,8 +87,7 @@ export const trackChangesPlugin = (
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
         const skipTrackUsed =
-          getAction(tr, TrackChangesAction.skipTrack) ||
-          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
+          getAction(tr, TrackChangesAction.skipTrack) || (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (
           tr.docChanged &&
           !skipMetaUsed &&
@@ -142,11 +120,7 @@ export const trackChangesPlugin = (
             }
           })
         } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
-          const mapping = applyAcceptedRejectedChanges(
-            createdTr,
-            oldState.schema,
-            changeSet.bothNodeChanges
-          )
+          const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.bothNodeChanges)
           applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }

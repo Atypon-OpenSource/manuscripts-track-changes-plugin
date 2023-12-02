@@ -1,27 +1,13 @@
-/*!
- * © 2021 Atypon Systems LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*!,* © 2023 Atypon Systems LLC,*,* Licensed under the Apache License, Version 2.0 (the "License");,* you may not use this file except in compliance with the License.,* You may obtain a copy of the License at,*,*    http://www.apache.org/licenses/LICENSE-2.0,*,* Unless required by applicable law or agreed to in writing, software,* distributed under the License is distributed on an "AS IS" BASIS,,* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.,* See the License for the specific language governing permissions and,* limitations under the License., */
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
-  NodeChange,
   IncompleteChange,
+  NodeAttrChange,
+  NodeChange,
   TextChange,
   TrackedAttrs,
   TrackedChange,
-  NodeAttrChange,
 } from './types/change'
 import { log } from './utils/logger'
 
@@ -43,8 +29,7 @@ export class ChangeSet {
   get changes(): TrackedChange[] {
     const iteratedIds = new Set()
     return this.#changes.filter((c) => {
-      const valid =
-        !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
+      const valid = !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
       iteratedIds.add(c.dataTracked.id)
       return valid
     }) as TrackedChange[]
@@ -64,8 +49,7 @@ export class ChangeSet {
     this.changes.forEach((c) => {
       if (
         currentNodeChange &&
-        (c.from >= currentNodeChange.to ||
-          c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt)
+        (c.from >= currentNodeChange.to || c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt)
       ) {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
@@ -73,10 +57,7 @@ export class ChangeSet {
       if (
         currentNodeChange &&
         c.from < currentNodeChange.to &&
-        !(
-          this.#isSameNodeChange(currentNodeChange, c) &&
-          this.#isNotPendingOrDeleted(currentNodeChange)
-        )
+        !(this.#isSameNodeChange(currentNodeChange, c) && this.#isNotPendingOrDeleted(currentNodeChange))
       ) {
         currentNodeChange.children.push(c)
       } else if (c.type === 'node-change') {
@@ -150,9 +131,10 @@ export class ChangeSet {
   }
 
   getIn(ids: string[]) {
-    return ids
-      .map((id) => this.#changes.find((c) => c.id === id))
-      .filter((c) => c !== undefined) as (TrackedChange | IncompleteChange)[]
+    return ids.map((id) => this.#changes.find((c) => c.id === id)).filter((c) => c !== undefined) as (
+      | TrackedChange
+      | IncompleteChange
+    )[]
   }
 
   getNotIn(ids: string[]) {
@@ -164,9 +146,7 @@ export class ChangeSet {
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) =>
-      this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
-    )
+    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
   }
 
   /**
@@ -189,31 +169,16 @@ export class ChangeSet {
     if ('dataTracked' in dataTracked) {
       log.warn('passed "dataTracked" as property to isValidTrackedAttrs()', dataTracked)
     }
-    const trackedKeys: (keyof TrackedAttrs)[] = [
-      'id',
-      'authorID',
-      'operation',
-      'status',
-      'createdAt',
-      'updatedAt',
-    ]
+    const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'authorID', 'operation', 'status', 'createdAt', 'updatedAt']
     // reviewedByID is set optional since either ProseMirror or Yjs doesn't like persisting null values inside attributes objects
     // So it can be either omitted completely or at least be null or string
     const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID']
-    const entries = Object.entries(dataTracked).filter(([key, val]) =>
-      trackedKeys.includes(key as keyof TrackedAttrs)
-    )
-    const optionalEntries = Object.entries(dataTracked).filter(([key, val]) =>
-      optionalKeys.includes(key as keyof TrackedAttrs)
-    )
+    const entries = Object.entries(dataTracked).filter(([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs))
+    const optionalEntries = Object.entries(dataTracked).filter(([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs))
     return (
       entries.length === trackedKeys.length &&
-      entries.every(
-        ([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
-      ) &&
-      optionalEntries.every(
-        ([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
-      ) &&
+      entries.every(([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined) &&
+      optionalEntries.every(([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined) &&
       (dataTracked.id || '').length > 0 // Changes created with undefined id have '' as placeholder
     )
   }
@@ -235,9 +200,6 @@ export class ChangeSet {
   }
 
   #isNotPendingOrDeleted(change: TrackedChange) {
-    return (
-      change.dataTracked.operation !== CHANGE_OPERATION.delete &&
-      change.dataTracked.status !== CHANGE_STATUS.pending
-    )
+    return change.dataTracked.operation !== CHANGE_OPERATION.delete && change.dataTracked.status !== CHANGE_STATUS.pending
   }
 }
