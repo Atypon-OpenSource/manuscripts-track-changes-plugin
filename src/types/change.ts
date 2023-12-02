@@ -33,6 +33,7 @@ type InsertDeleteAttrs = {
   reviewedByID: string | null
   operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.delete
   status: CHANGE_STATUS
+  statusUpdateAt: number
   createdAt: number
   updatedAt: number
 }
@@ -70,7 +71,12 @@ export type WrapChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
-export type TrackedChange = TextChange | NodeChange | NodeAttrChange | WrapChange | MarkChange
+export type TrackedChange =
+  | TextChange
+  | NodeChange
+  | NodeAttrChange
+  | WrapChange
+  | MarkChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }
