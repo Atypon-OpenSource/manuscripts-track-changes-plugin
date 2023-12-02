@@ -9,7 +9,7 @@
  *
  * All portions of the code written by Atypon Systems LLC are Copyright (c) 2020 Atypon Systems LLC. All Rights Reserved.
  */
-const cpalLicense = require('@manuscripts/eslint-config/config/cpal-license');
+const cpalLicense = require('@manuscripts/eslint-config/config/cpal-license')
 
 module.exports = {
   extends: '@manuscripts/eslint-config',
@@ -28,4 +28,4 @@ module.exports = {
     'jsx-a11y/no-autofocus': 'off',
     'jsx-a11y/no-onchange': 'off',
   },
-};
+}

@@ -22,12 +22,7 @@ import type {
   Transaction,
 } from 'prosemirror-state'
 import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
-import {
-  AddMarkStep,
-  RemoveMarkStep,
-  ReplaceAroundStep,
-  ReplaceStep,
-} from 'prosemirror-transform'
+import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { log } from '../utils/logger'
 import { CHANGE_STATUS } from '../types/change'
@@ -46,8 +41,7 @@ import { ExposedReplaceStep } from '../types/pm'
  * @param sel
  * @returns
  */
-const getSelectionStaticConstructor = (sel: Selection) =>
-  Object.getPrototypeOf(sel).constructor
+const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
 
 const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
   node && node.type === node.type.schema.nodes.highlight_marker
@@ -98,10 +92,7 @@ export function trackTransaction(
         newTr
       )
       continue
-    } else if (
-      !(step instanceof ReplaceStep) &&
-      step.constructor.name === 'ReplaceStep'
-    ) {
+    } else if (!(step instanceof ReplaceStep) && step.constructor.name === 'ReplaceStep') {
       console.error(
         '@manuscripts/track-changes-plugin: Multiple prosemirror-transform packages imported, alias/dedupe them ' +
           'or instanceof checks fail as well as creating new steps'
@@ -128,9 +119,7 @@ export function trackTransaction(
       )
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
-        if (
-          isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])
-        ) {
+        if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {
           // don't track deleted highlight marker nodes
           continue
         }
@@ -138,9 +127,7 @@ export function trackTransaction(
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
-      const inserted = steps.filter(
-        (s) => s.type === 'insert-slice'
-      ) as InsertSliceStep[]
+      const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
       const [mapping, selectionPos] = processChangeSteps(
@@ -151,9 +138,7 @@ export function trackTransaction(
         oldState.schema
       )
       if (!wasNodeSelection) {
-        const sel: typeof Selection = getSelectionStaticConstructor(
-          tr.selection
-        )
+        const sel: typeof Selection = getSelectionStaticConstructor(tr.selection)
         // Use Selection.near to fix selections that point to a block node instead of inline content
         // eg when inserting a complete new paragraph. -1 finds the first valid position moving backwards
         // inside the content
@@ -163,9 +148,7 @@ export function trackTransaction(
     } else if (step instanceof ReplaceAroundStep) {
       let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs)
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
-      const inserted = steps.filter(
-        (s) => s.type === 'insert-slice'
-      ) as InsertSliceStep[]
+      const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       log.info('INSERT STEPS: ', inserted)
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
@@ -187,23 +170,17 @@ export function trackTransaction(
     // when a single meta-field is expected to having been processed / removed. Generic input meta keys,
     // inputType and uiEvent, are re-added since some plugins might depend on them and process the transaction
     // after track-changes plugin.
-    tr.getMeta('inputType') &&
-      newTr.setMeta('inputType', tr.getMeta('inputType'))
+    tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
   // These are required by at least cross-references and links to activate their selector pop-ups
   if (wasNodeSelection) {
-    console.log(
-      '%c Getting into node select! ',
-      'background: #222; color: #bada55'
-    )
+    console.log('%c Getting into node select! ', 'background: #222; color: #bada55')
     // And -1 here is necessary to keep the selection pointing at the start of the node
     // (or something, breaks with cross-references otherwise)
     const mappedPos = newTr.mapping.map(tr.selection.from, -1)
-    const sel: typeof NodeSelection = getSelectionStaticConstructor(
-      tr.selection
-    )
+    const sel: typeof NodeSelection = getSelectionStaticConstructor(tr.selection)
     newTr.setSelection(sel.create(newTr.doc, mappedPos))
   }
   log.info('NEW transaction', newTr)

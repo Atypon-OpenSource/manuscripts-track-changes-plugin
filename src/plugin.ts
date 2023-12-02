@@ -24,15 +24,9 @@ import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
 import { trackTransaction } from './steps/trackTransaction'
 import { updateChangeAttrs } from './changes/updateChangeAttrs'
-import {
-  TrackChangesOptions,
-  TrackChangesState,
-  TrackChangesStatus,
-} from './types/track'
+import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 
-export const trackChangesPluginKey = new PluginKey<TrackChangesState>(
-  'track-changes'
-)
+export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
 /**
  * The ProseMirror plugin needed to enable track-changes.
@@ -53,10 +47,7 @@ export const trackChangesPlugin = (
     key: trackChangesPluginKey,
     props: {
       editable(state) {
-        return (
-          trackChangesPluginKey.getState(state)?.status !==
-          TrackChangesStatus.viewSnapshots
-        )
+        return trackChangesPluginKey.getState(state)?.status !== TrackChangesStatus.viewSnapshots
       },
     } as EditorProps,
     state: {
@@ -78,9 +69,7 @@ export const trackChangesPlugin = (
             ...pluginState,
             status: setStatus,
             changeSet:
-              setStatus === TrackChangesStatus.disabled
-                ? new ChangeSet()
-                : findChanges(newState),
+              setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState),
           }
         } else if (pluginState.status === TrackChangesStatus.disabled) {
           return { ...pluginState, changeSet: new ChangeSet() }
@@ -116,12 +105,8 @@ export const trackChangesPlugin = (
         docChanged = false
       log.info('TRS', trs)
       trs.forEach((tr) => {
-        const wasAppended = tr.getMeta('appendedTransaction') as
-          | Transaction
-          | undefined
-        const skipMetaUsed = skipTrsWithMetas.some(
-          (m) => tr.getMeta(m) || wasAppended?.getMeta(m)
-        )
+        const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
+        const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
@@ -135,10 +120,7 @@ export const trackChangesPlugin = (
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
         }
         docChanged = docChanged || tr.docChanged
-        const setChangeStatuses = getAction(
-          tr,
-          TrackChangesAction.setChangeStatuses
-        )
+        const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
 
         if (setChangeStatuses) {
           const { status, ids } = setChangeStatuses
@@ -165,23 +147,13 @@ export const trackChangesPlugin = (
             oldState.schema,
             changeSet.bothNodeChanges
           )
-          applyAcceptedRejectedChanges(
-            createdTr,
-            oldState.schema,
-            changeSet.textChanges,
-            mapping
-          )
+          applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
       const changed =
         pluginState.changeSet.hasInconsistentData &&
-        fixInconsistentChanges(
-          pluginState.changeSet,
-          userID,
-          createdTr,
-          oldState.schema
-        )
+        fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
       if (changed) {
         log.warn('had to fix inconsistent changes in', createdTr)
       }

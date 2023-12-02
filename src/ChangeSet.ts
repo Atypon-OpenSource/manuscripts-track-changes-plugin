@@ -44,17 +44,14 @@ export class ChangeSet {
     const iteratedIds = new Set()
     return this.#changes.filter((c) => {
       const valid =
-        !iteratedIds.has(c.dataTracked.id) &&
-        ChangeSet.isValidDataTracked(c.dataTracked)
+        !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
       iteratedIds.add(c.dataTracked.id)
       return valid
     }) as TrackedChange[]
   }
 
   get invalidChanges() {
-    return this.#changes.filter(
-      (c) => !this.changes.find((cc) => c.id === cc.id)
-    )
+    return this.#changes.filter((c) => !this.changes.find((cc) => c.id === cc.id))
   }
 
   /**
@@ -68,8 +65,7 @@ export class ChangeSet {
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
-          c.dataTracked.statusUpdateAt !==
-            currentNodeChange.dataTracked.statusUpdateAt)
+          c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt)
       ) {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
@@ -96,21 +92,15 @@ export class ChangeSet {
   }
 
   get pending() {
-    return this.changeTree.filter(
-      (c) => c.dataTracked.status === CHANGE_STATUS.pending
-    )
+    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
   }
 
   get accepted() {
-    return this.changeTree.filter(
-      (c) => c.dataTracked.status === CHANGE_STATUS.accepted
-    )
+    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.accepted)
   }
 
   get rejected() {
-    return this.changeTree.filter(
-      (c) => c.dataTracked.status === CHANGE_STATUS.rejected
-    )
+    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.rejected)
   }
 
   get textChanges() {
@@ -126,9 +116,7 @@ export class ChangeSet {
   }
 
   get bothNodeChanges() {
-    return this.changes.filter(
-      (c) => c.type === 'node-change' || c.type === 'node-attr-change'
-    )
+    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
   }
 
   get isEmpty() {
@@ -154,9 +142,7 @@ export class ChangeSet {
   }
 
   get hasIncompleteAttrs() {
-    return this.#changes.some(
-      (c) => !ChangeSet.isValidDataTracked(c.dataTracked)
-    )
+    return this.#changes.some((c) => !ChangeSet.isValidDataTracked(c.dataTracked))
   }
 
   get(id: string) {
@@ -190,10 +176,8 @@ export class ChangeSet {
   static shouldDeleteChange(change: TrackedChange) {
     const { status, operation } = change.dataTracked
     return (
-      (operation === CHANGE_OPERATION.insert &&
-        status === CHANGE_STATUS.rejected) ||
-      (operation === CHANGE_OPERATION.delete &&
-        status === CHANGE_STATUS.accepted)
+      (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.rejected) ||
+      (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
     )
   }
 
@@ -203,10 +187,7 @@ export class ChangeSet {
    */
   static isValidDataTracked(dataTracked: Partial<TrackedAttrs> = {}): boolean {
     if ('dataTracked' in dataTracked) {
-      log.warn(
-        'passed "dataTracked" as property to isValidTrackedAttrs()',
-        dataTracked
-      )
+      log.warn('passed "dataTracked" as property to isValidTrackedAttrs()', dataTracked)
     }
     const trackedKeys: (keyof TrackedAttrs)[] = [
       'id',
@@ -228,12 +209,10 @@ export class ChangeSet {
     return (
       entries.length === trackedKeys.length &&
       entries.every(
-        ([key, val]) =>
-          trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
+        ([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&
       optionalEntries.every(
-        ([key, val]) =>
-          optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
+        ([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&
       (dataTracked.id || '').length > 0 // Changes created with undefined id have '' as placeholder
     )
@@ -252,10 +231,7 @@ export class ChangeSet {
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
-    return (
-      currentChange.from === nextChange.from &&
-      currentChange.to === nextChange.to
-    )
+    return currentChange.from === nextChange.from && currentChange.to === nextChange.to
   }
 
   #isNotPendingOrDeleted(change: TrackedChange) {
