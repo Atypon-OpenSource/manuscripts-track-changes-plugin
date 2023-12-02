@@ -27,6 +27,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -110,6 +111,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -136,6 +138,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -168,6 +171,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -188,6 +192,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -233,6 +238,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "pending",
+                      "statusUpdateAt": 0,
                       "operation": "insert"
                     }
                   }
@@ -257,6 +263,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -340,6 +347,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -366,6 +374,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -398,6 +407,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -418,6 +428,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -466,6 +477,7 @@
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "status": "pending",
                       "operation": "insert"
                     }
@@ -487,6 +499,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -570,6 +583,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -596,6 +610,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -628,6 +643,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }
@@ -648,6 +664,7 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
                   }

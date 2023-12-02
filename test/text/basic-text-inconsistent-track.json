@@ -53,6 +53,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "pending",
+                      "statusUpdateAt": 0,
                       "operation": "insert"
                     }
                   }
@@ -96,6 +97,7 @@
                       "operation": "delete",
                       "authorID": "1-mike",
                       "status": "pending",
+                      "statusUpdateAt": 0,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "reviewedByID": null
@@ -117,6 +119,7 @@
                       "authorID": "1-mike",
                       "reviewedByID": null,
                       "status": "pending",
+                      "statusUpdateAt": 0,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000
                     }
@@ -137,6 +140,7 @@
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "status": "pending",
                       "operation": "insert"
                     }

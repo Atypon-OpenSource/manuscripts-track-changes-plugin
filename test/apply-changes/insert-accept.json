@@ -15,6 +15,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ]
@@ -34,6 +35,7 @@
                         "createdAt": 1577836800000,
                         "updatedAt": 1577836800000,
                         "status": "accepted",
+                        "statusUpdateAt": 1577836800000,
                         "operation": "insert"
                       }
                     ]
@@ -50,6 +52,7 @@
                             "createdAt": 1577836800000,
                             "updatedAt": 1577836800000,
                             "status": "accepted",
+                            "statusUpdateAt": 1577836800000,
                             "operation": "insert"
                           }
                         ],
@@ -71,6 +74,7 @@
                         "createdAt": 1577836800000,
                         "updatedAt": 1577836800000,
                         "status": "accepted",
+                        "statusUpdateAt": 1577836800000,
                         "operation": "insert"
                       }
                     ]
@@ -86,6 +90,7 @@
                             "reviewedByID": "1-mike",
                             "createdAt": 1577836800000,
                             "updatedAt": 1577836800000,
+                            "statusUpdateAt": 1577836800000,
                             "status": "accepted",
                             "operation": "insert"
                           }
@@ -108,6 +113,7 @@
                         "createdAt": 1577836800000,
                         "updatedAt": 1577836800000,
                         "status": "accepted",
+                        "statusUpdateAt": 1577836800000,
                         "operation": "insert"
                       }
                     ]
@@ -124,6 +130,7 @@
                             "createdAt": 1577836800000,
                             "updatedAt": 1577836800000,
                             "status": "accepted",
+                            "statusUpdateAt": 1577836800000,
                             "operation": "insert"
                           }
                         ],
@@ -149,6 +156,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ]
@@ -165,6 +173,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "accepted",
+                    "statusUpdateAt": 1577836800000,
                     "operation": "insert"
                   }
                 ]
@@ -181,6 +190,7 @@
                         "createdAt": 1577836800000,
                         "updatedAt": 1577836800000,
                         "status": "accepted",
+                        "statusUpdateAt": 1577836800000,
                         "operation": "insert"
                       }
                     ],
@@ -200,6 +210,7 @@
                               "createdAt": 1577836800000,
                               "updatedAt": 1577836800000,
                               "status": "accepted",
+                              "statusUpdateAt": 1577836800000,
                               "operation": "insert"
                             }
                           }
@@ -224,6 +235,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ],
@@ -241,6 +253,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "accepted",
+                    "statusUpdateAt": 1577836800000,
                     "operation": "insert"
                   }
                 ]
@@ -259,6 +272,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ]
@@ -277,6 +291,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
+                      "statusUpdateAt": 1577836800000,
                       "operation": "insert"
                     }
                   }
@@ -297,6 +312,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ]
@@ -314,6 +330,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ]
@@ -332,6 +349,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
+                      "statusUpdateAt": 1577836800000,
                       "operation": "insert"
                     }
                   }
@@ -352,6 +370,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ]
@@ -368,6 +387,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "accepted",
+                    "statusUpdateAt": 1577836800000,
                     "operation": "insert"
                   }
                 ],
@@ -387,6 +407,7 @@
                           "createdAt": 1577836800000,
                           "updatedAt": 1577836800000,
                           "status": "accepted",
+                          "statusUpdateAt": 1577836800000,
                           "operation": "insert"
                         }
                       }
@@ -409,6 +430,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "accepted",
+                "statusUpdateAt": 1577836800000,
                 "operation": "insert"
               }
             ],
@@ -434,6 +456,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
+                      "statusUpdateAt": 1577836800000,
                       "operation": "insert"
                     }
                   }
@@ -454,6 +477,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
+                      "statusUpdateAt": 1577836800000,
                       "operation": "insert"
                     }
                   }
@@ -475,6 +499,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "accepted",
+                    "statusUpdateAt": 1577836800000,
                     "operation": "insert"
                   }
                 ]
@@ -493,6 +518,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "status": "accepted",
+                      "statusUpdateAt": 1577836800000,
                       "operation": "insert"
                     }
                   }

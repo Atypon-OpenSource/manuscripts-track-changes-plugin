@@ -14,6 +14,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "pending",
+                "statusUpdateAt": 0,
                 "operation": "insert"
               }
             ]
@@ -30,6 +31,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "pending",
+                    "statusUpdateAt": 0,
                     "operation": "insert"
                   }
                 ]
@@ -46,6 +48,7 @@
                         "createdAt": 1577836800000,
                         "updatedAt": 1577836800000,
                         "status": "pending",
+                        "statusUpdateAt": 0,
                         "operation": "insert"
                       }
                     ],

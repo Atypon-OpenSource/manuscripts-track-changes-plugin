@@ -33,6 +33,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "pending",
+                    "statusUpdateAt": 0,
                     "operation": "delete"
                   }
                 ]
@@ -50,6 +51,18 @@
                       "text": "2nd paragraph"
                     }
                   ]
+                }
+              ]
+            },
+            {
+              "attrs": {
+                "dataTracked": null,
+                "testAttribute": null
+              },
+              "content": [
+                {
+                  "text": "2nd paragraph",
+                  "type": "text"
                 }
               ]
             },
@@ -79,6 +92,7 @@
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
                 "status": "pending",
+                "statusUpdateAt": 0,
                 "operation": "insert"
               }
             ]

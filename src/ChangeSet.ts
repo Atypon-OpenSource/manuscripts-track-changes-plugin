@@ -169,7 +169,15 @@ export class ChangeSet {
     if ('dataTracked' in dataTracked) {
       log.warn('passed "dataTracked" as property to isValidTrackedAttrs()', dataTracked)
     }
-    const trackedKeys: (keyof TrackedAttrs)[] = ['id', 'authorID', 'operation', 'status', 'createdAt', 'updatedAt']
+    const trackedKeys: (keyof TrackedAttrs)[] = [
+      'id',
+      'authorID',
+      'operation',
+      'status',
+      'createdAt',
+      'statusUpdateAt',
+      'updatedAt',
+    ]
     // reviewedByID is set optional since either ProseMirror or Yjs doesn't like persisting null values inside attributes objects
     // So it can be either omitted completely or at least be null or string
     const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID']

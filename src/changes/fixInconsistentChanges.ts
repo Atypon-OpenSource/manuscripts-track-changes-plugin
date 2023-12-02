@@ -21,7 +21,7 @@ export function fixInconsistentChanges(changeSet: ChangeSet, currentUserID: stri
   const iteratedIds = new Set()
   let changed = false
   changeSet.invalidChanges.forEach((c) => {
-    const { id, authorID, operation, reviewedByID, status, createdAt, updatedAt } = c.dataTracked
+    const { id, authorID, operation, reviewedByID, status, createdAt, statusUpdateAt, updatedAt } = c.dataTracked
     const newAttrs = {
       ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
       ...(!authorID && { authorID: currentUserID }),
@@ -31,6 +31,7 @@ export function fixInconsistentChanges(changeSet: ChangeSet, currentUserID: stri
       ...(!status && { status: CHANGE_STATUS.pending }),
       ...(!createdAt && { createdAt: Date.now() }),
       ...(!updatedAt && { updatedAt: Date.now() }),
+      ...(!statusUpdateAt && { statusUpdateAt: 0 }),
     }
     if (Object.keys(newAttrs).length > 0) {
       updateChangeAttrs(newTr, c, { ...c.dataTracked, ...newAttrs }, schema)
