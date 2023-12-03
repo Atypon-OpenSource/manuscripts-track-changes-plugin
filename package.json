@@ -21,7 +21,6 @@
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test",
-    "postinstall": "husky install",
     "prepack": "pinst --disable",
     "postpack": "pinst --enable"
   },
@@ -31,7 +30,6 @@
     "@types/debug": "^4.1.7",
     "@types/jest": "27.5.1",
     "@types/node": "^18.7.18",
-    "husky": "^8.0.0",
     "jest": "27.5.1",
     "jest-environment-jsdom": "27.5.1",
     "jsdom": "^20.0.0",
