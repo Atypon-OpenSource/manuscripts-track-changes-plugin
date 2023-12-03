@@ -88,6 +88,7 @@
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
                     "status": "accepted",
+                    "statusUpdateAt": 1577836800000,
                     "operation": "set_attrs",
                     "oldAttrs": {
                       "id": "",
@@ -152,6 +153,7 @@
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "status": "pending",
                     "operation": "delete"
                   },
@@ -161,6 +163,7 @@
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "status": "pending",
                     "operation": "set_attrs",
                     "oldAttrs": {
@@ -232,6 +235,7 @@
                     "operation": "set_attrs",
                     "reviewedByID": "1-mike",
                     "status": "accepted",
+                    "statusUpdateAt": 1577836800000,
                     "updatedAt": 1577836800000
                   },
                   {
@@ -246,6 +250,7 @@
                     "operation": "set_attrs",
                     "reviewedByID": null,
                     "status": "pending",
+                    "statusUpdateAt": 0,
                     "updatedAt": 1577836800000
                   }
                 ]

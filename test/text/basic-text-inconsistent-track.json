@@ -52,6 +52,7 @@
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "status": "pending",
                       "operation": "insert"
                     }
@@ -98,6 +99,7 @@
                       "status": "pending",
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "reviewedByID": null
                     }
                   }
@@ -118,6 +120,7 @@
                       "reviewedByID": null,
                       "status": "pending",
                       "createdAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "updatedAt": 1577836800000
                     }
                   }
@@ -137,6 +140,7 @@
                       "reviewedByID": null,
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
+                      "statusUpdateAt": 0,
                       "status": "pending",
                       "operation": "insert"
                     }
