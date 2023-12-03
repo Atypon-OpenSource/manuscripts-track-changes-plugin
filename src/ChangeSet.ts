@@ -111,6 +111,11 @@ export class ChangeSet {
   get hasInconsistentData() {
     return this.hasDuplicateIds || this.hasIncompleteAttrs
   }
+  hasIncData() {
+    console.log('hasDuplicateIds ' + this.hasDuplicateIds)
+    console.log('hasIncompleteAttrs ' + this.hasIncompleteAttrs)
+    return this.hasDuplicateIds || this.hasIncompleteAttrs
+  }
 
   get hasDuplicateIds() {
     const iterated = new Set()

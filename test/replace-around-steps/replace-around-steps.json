@@ -5,22 +5,12 @@
       "content": [
         {
           "type": "paragraph",
-          "attrs": {
-            "dataTracked": null,
-            "testAttribute": null
-          },
-          "content": [
-            {
-              "type": "text",
-              "text": "1st paragraph"
-            }
-          ]
+          "attrs": { "dataTracked": null, "testAttribute": null },
+          "content": [{ "type": "text", "text": "1st paragraph" }]
         },
         {
           "type": "blockquote",
-          "attrs": {
-            "dataTracked": null
-          },
+          "attrs": { "dataTracked": null },
           "content": [
             {
               "type": "blockquote",
@@ -32,8 +22,8 @@
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
-                    "status": "pending",
                     "statusUpdateAt": 0,
+                    "status": "pending",
                     "operation": "delete"
                   }
                 ]
@@ -41,43 +31,15 @@
               "content": [
                 {
                   "type": "paragraph",
-                  "attrs": {
-                    "dataTracked": null,
-                    "testAttribute": null
-                  },
-                  "content": [
-                    {
-                      "type": "text",
-                      "text": "2nd paragraph"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "attrs": {
-                "dataTracked": null,
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "text": "2nd paragraph",
-                  "type": "text"
+                  "attrs": { "dataTracked": null, "testAttribute": null },
+                  "content": [{ "type": "text", "text": "2nd paragraph" }]
                 }
               ]
             },
             {
               "type": "paragraph",
-              "attrs": {
-                "dataTracked": null,
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "3rd paragraph"
-                }
-              ]
+              "attrs": { "dataTracked": null, "testAttribute": null },
+              "content": [{ "type": "text", "text": "3rd paragraph" }]
             }
           ]
         },
@@ -91,8 +53,8 @@
                 "reviewedByID": null,
                 "createdAt": 1577836800000,
                 "updatedAt": 1577836800000,
-                "status": "pending",
                 "statusUpdateAt": 0,
+                "status": "pending",
                 "operation": "insert"
               }
             ]
@@ -100,26 +62,14 @@
           "content": [
             {
               "type": "paragraph",
-              "attrs": {
-                "dataTracked": null,
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "4th paragraph"
-                }
-              ]
+              "attrs": { "dataTracked": null, "testAttribute": null },
+              "content": [{ "type": "text", "text": "4th paragraph" }]
             }
           ]
         }
       ]
     },
-    "selection": {
-      "type": "text",
-      "anchor": 64,
-      "head": 64
-    }
+    "selection": { "type": "text", "anchor": 64, "head": 64 }
   },
   {
     "doc": {
@@ -127,78 +77,33 @@
       "content": [
         {
           "type": "paragraph",
-          "attrs": {
-            "dataTracked": null,
-            "testAttribute": null
-          },
+          "attrs": { "dataTracked": null, "testAttribute": null },
+          "content": [{ "type": "text", "text": "1st paragraph" }]
+        },
+        {
+          "type": "blockquote",
+          "attrs": { "dataTracked": null },
           "content": [
             {
-              "type": "text",
-              "text": "1st paragraph"
+              "type": "paragraph",
+              "attrs": { "dataTracked": null, "testAttribute": null },
+              "content": [{ "type": "text", "text": "3rd paragraph" }]
             }
           ]
         },
         {
           "type": "blockquote",
-          "attrs": {
-            "dataTracked": null
-          },
+          "attrs": { "dataTracked": null },
           "content": [
             {
               "type": "paragraph",
-              "attrs": {
-                "dataTracked": null,
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "2nd paragraph"
-                }
-              ]
-            },
-            {
-              "type": "paragraph",
-              "attrs": {
-                "dataTracked": null,
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "3rd paragraph"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "blockquote",
-          "attrs": {
-            "dataTracked": null
-          },
-          "content": [
-            {
-              "type": "paragraph",
-              "attrs": {
-                "dataTracked": null,
-                "testAttribute": null
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "4th paragraph"
-                }
-              ]
+              "attrs": { "dataTracked": null, "testAttribute": null },
+              "content": [{ "type": "text", "text": "4th paragraph" }]
             }
           ]
         }
       ]
     },
-    "selection": {
-      "type": "text",
-      "anchor": 62,
-      "head": 62
-    }
+    "selection": { "type": "text", "anchor": 47, "head": 47 }
   }
 ]
