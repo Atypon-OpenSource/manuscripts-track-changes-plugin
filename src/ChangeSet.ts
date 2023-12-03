@@ -22,18 +22,18 @@ import {
   TrackedAttrs,
   TrackedChange,
   NodeAttrChange,
-} from './types/change'
-import { log } from './utils/logger'
+} from './types/change';
+import { log } from './utils/logger';
 
 /**
  * ChangeSet is a data structure to contain the tracked changes with some utility methods and computed
  * values to allow easier operability.
  */
 export class ChangeSet {
-  #changes: (TrackedChange | IncompleteChange)[]
+  #changes: (TrackedChange | IncompleteChange)[];
 
   constructor(changes: (TrackedChange | IncompleteChange)[] = []) {
-    this.#changes = changes
+    this.#changes = changes;
   }
 
   /**
@@ -41,17 +41,20 @@ export class ChangeSet {
    * in the UI, causing errors.
    */
   get changes(): TrackedChange[] {
-    const iteratedIds = new Set()
+    const iteratedIds = new Set();
     return this.#changes.filter((c) => {
       const valid =
-        !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
-      iteratedIds.add(c.dataTracked.id)
-      return valid
-    }) as TrackedChange[]
+        !iteratedIds.has(c.dataTracked.id) &&
+        ChangeSet.isValidDataTracked(c.dataTracked);
+      iteratedIds.add(c.dataTracked.id);
+      return valid;
+    }) as TrackedChange[];
   }
 
   get invalidChanges() {
-    return this.#changes.filter((c) => !this.changes.find((cc) => c.id === cc.id))
+    return this.#changes.filter(
+      (c) => !this.changes.find((cc) => c.id === cc.id)
+    );
   }
 
   /**
@@ -59,16 +62,18 @@ export class ChangeSet {
    * and end position. This is useful for showing the changes as groups in the UI.
    */
   get changeTree() {
-    const rootNodes: TrackedChange[] = []
-    let currentNodeChange: NodeChange | undefined
+    const rootNodes: TrackedChange[] = [];
+    let currentNodeChange: NodeChange | undefined;
+    console.log(JSON.stringify(this.changes));
     this.changes.forEach((c) => {
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
-          c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt)
+          c.dataTracked.statusUpdateAt !==
+            currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
       ) {
-        rootNodes.push(currentNodeChange)
-        currentNodeChange = undefined
+        rootNodes.push(currentNodeChange);
+        currentNodeChange = undefined;
       }
       if (
         currentNodeChange &&
@@ -78,49 +83,58 @@ export class ChangeSet {
           this.#isNotPendingOrDeleted(currentNodeChange)
         )
       ) {
-        currentNodeChange.children.push(c)
+        currentNodeChange.children.push(c);
       } else if (c.type === 'node-change') {
-        currentNodeChange = { ...c, children: [] }
+        currentNodeChange = { ...c, children: [] };
       } else {
-        rootNodes.push(c)
+        rootNodes.push(c);
       }
-    })
+    });
     if (currentNodeChange) {
-      rootNodes.push(currentNodeChange)
+      rootNodes.push(currentNodeChange);
     }
-    return rootNodes
+
+    return rootNodes;
   }
 
   get pending() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
+    return this.changeTree.filter(
+      (c) => c.dataTracked.status === CHANGE_STATUS.pending
+    );
   }
 
   get accepted() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.accepted)
+    return this.changeTree.filter(
+      (c) => c.dataTracked.status === CHANGE_STATUS.accepted
+    );
   }
 
   get rejected() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.rejected)
+    return this.changeTree.filter(
+      (c) => c.dataTracked.status === CHANGE_STATUS.rejected
+    );
   }
 
   get textChanges() {
-    return this.changes.filter((c) => c.type === 'text-change')
+    return this.changes.filter((c) => c.type === 'text-change');
   }
 
   get nodeChanges() {
-    return this.changes.filter((c) => c.type === 'node-change')
+    return this.changes.filter((c) => c.type === 'node-change');
   }
 
   get nodeAttrChanges() {
-    return this.changes.filter((c) => c.type === 'node-attr-change')
+    return this.changes.filter((c) => c.type === 'node-attr-change');
   }
 
   get bothNodeChanges() {
-    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
+    return this.changes.filter(
+      (c) => c.type === 'node-change' || c.type === 'node-attr-change'
+    );
   }
 
   get isEmpty() {
-    return this.#changes.length === 0
+    return this.#changes.length === 0;
   }
 
   /**
@@ -128,35 +142,37 @@ export class ChangeSet {
    * changes that are missing attributes.
    */
   get hasInconsistentData() {
-    return this.hasDuplicateIds || this.hasIncompleteAttrs
+    return this.hasDuplicateIds || this.hasIncompleteAttrs;
   }
 
   get hasDuplicateIds() {
-    const iterated = new Set()
+    const iterated = new Set();
     return this.#changes.some((c) => {
       if (iterated.has(c.id)) {
-        return true
+        return true;
       }
-      iterated.add(c.id)
-    })
+      iterated.add(c.id);
+    });
   }
 
   get hasIncompleteAttrs() {
-    return this.#changes.some((c) => !ChangeSet.isValidDataTracked(c.dataTracked))
+    return this.#changes.some(
+      (c) => !ChangeSet.isValidDataTracked(c.dataTracked)
+    );
   }
 
   get(id: string) {
-    return this.#changes.find((c) => c.id === id)
+    return this.#changes.find((c) => c.id === id);
   }
 
   getIn(ids: string[]) {
     return ids
       .map((id) => this.#changes.find((c) => c.id === id))
-      .filter((c) => c !== undefined) as (TrackedChange | IncompleteChange)[]
+      .filter((c) => c !== undefined) as (TrackedChange | IncompleteChange)[];
   }
 
   getNotIn(ids: string[]) {
-    return this.#changes.filter((c) => ids.includes(c.id))
+    return this.#changes.filter((c) => ids.includes(c.id));
   }
 
   /**
@@ -166,7 +182,7 @@ export class ChangeSet {
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
     return changes.flatMap((c) =>
       this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
-    )
+    );
   }
 
   /**
@@ -174,11 +190,13 @@ export class ChangeSet {
    * @param change
    */
   static shouldDeleteChange(change: TrackedChange) {
-    const { status, operation } = change.dataTracked
+    const { status, operation } = change.dataTracked;
     return (
-      (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.rejected) ||
-      (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
-    )
+      (operation === CHANGE_OPERATION.insert &&
+        status === CHANGE_STATUS.rejected) ||
+      (operation === CHANGE_OPERATION.delete &&
+        status === CHANGE_STATUS.accepted)
+    );
   }
 
   /**
@@ -187,7 +205,10 @@ export class ChangeSet {
    */
   static isValidDataTracked(dataTracked: Partial<TrackedAttrs> = {}): boolean {
     if ('dataTracked' in dataTracked) {
-      log.warn('passed "dataTracked" as property to isValidTrackedAttrs()', dataTracked)
+      log.warn(
+        'passed "dataTracked" as property to isValidTrackedAttrs()',
+        dataTracked
+      );
     }
     const trackedKeys: (keyof TrackedAttrs)[] = [
       'id',
@@ -196,48 +217,53 @@ export class ChangeSet {
       'status',
       'createdAt',
       'updatedAt',
-    ]
+    ];
     // reviewedByID is set optional since either ProseMirror or Yjs doesn't like persisting null values inside attributes objects
     // So it can be either omitted completely or at least be null or string
-    const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID']
+    const optionalKeys: (keyof TrackedAttrs)[] = ['reviewedByID'];
     const entries = Object.entries(dataTracked).filter(([key, val]) =>
       trackedKeys.includes(key as keyof TrackedAttrs)
-    )
+    );
     const optionalEntries = Object.entries(dataTracked).filter(([key, val]) =>
       optionalKeys.includes(key as keyof TrackedAttrs)
-    )
+    );
     return (
       entries.length === trackedKeys.length &&
       entries.every(
-        ([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
+        ([key, val]) =>
+          trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&
       optionalEntries.every(
-        ([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
+        ([key, val]) =>
+          optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&
       (dataTracked.id || '').length > 0 // Changes created with undefined id have '' as placeholder
-    )
+    );
   }
 
   static isTextChange(change: TrackedChange): change is TextChange {
-    return change.type === 'text-change'
+    return change.type === 'text-change';
   }
 
   static isNodeChange(change: TrackedChange): change is NodeChange {
-    return change.type === 'node-change'
+    return change.type === 'node-change';
   }
 
   static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
-    return change.type === 'node-attr-change'
+    return change.type === 'node-attr-change';
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
-    return currentChange.from === nextChange.from && currentChange.to === nextChange.to
+    return (
+      currentChange.from === nextChange.from &&
+      currentChange.to === nextChange.to
+    );
   }
 
   #isNotPendingOrDeleted(change: TrackedChange) {
     return (
       change.dataTracked.operation !== CHANGE_OPERATION.delete &&
       change.dataTracked.status !== CHANGE_STATUS.pending
-    )
+    );
   }
 }

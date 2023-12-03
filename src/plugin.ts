@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
-import type { EditorProps, EditorView } from 'prosemirror-view'
+import { Plugin, PluginKey, Transaction } from 'prosemirror-state';
+import type { EditorProps, EditorView } from 'prosemirror-view';
 
-import { getAction, setAction, TrackChangesAction } from './actions'
-import { ChangeSet } from './ChangeSet'
-import { log, enableDebug } from './utils/logger'
-import { applyAcceptedRejectedChanges } from './changes/applyChanges'
-import { findChanges } from './changes/findChanges'
-import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
-import { trackTransaction } from './steps/trackTransaction'
-import { updateChangeAttrs } from './changes/updateChangeAttrs'
-import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
+import { getAction, setAction, TrackChangesAction } from './actions';
+import { ChangeSet } from './ChangeSet';
+import { log, enableDebug } from './utils/logger';
+import { applyAcceptedRejectedChanges } from './changes/applyChanges';
+import { findChanges } from './changes/findChanges';
+import { fixInconsistentChanges } from './changes/fixInconsistentChanges';
+import { trackTransaction } from './steps/trackTransaction';
+import { updateChangeAttrs } from './changes/updateChangeAttrs';
+import {
+  TrackChangesOptions,
+  TrackChangesState,
+  TrackChangesStatus,
+} from './types/track';
 
-export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
+export const trackChangesPluginKey = new PluginKey<TrackChangesState>(
+  'track-changes'
+);
 
 /**
  * The ProseMirror plugin needed to enable track-changes.
@@ -37,17 +43,20 @@ export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-cha
 export const trackChangesPlugin = (
   opts: TrackChangesOptions = { userID: 'anonymous:Anonymous' }
 ) => {
-  const { userID, debug, skipTrsWithMetas = [] } = opts
-  let editorView: EditorView | undefined
+  const { userID, debug, skipTrsWithMetas = [] } = opts;
+  let editorView: EditorView | undefined;
   if (debug) {
-    enableDebug(true)
+    enableDebug(true);
   }
 
   return new Plugin<TrackChangesState>({
     key: trackChangesPluginKey,
     props: {
       editable(state) {
-        return trackChangesPluginKey.getState(state)?.status !== TrackChangesStatus.viewSnapshots
+        return (
+          trackChangesPluginKey.getState(state)?.status !==
+          TrackChangesStatus.viewSnapshots
+        );
       },
     } as EditorProps,
     state: {
@@ -56,60 +65,66 @@ export const trackChangesPlugin = (
           status: TrackChangesStatus.enabled,
           userID,
           changeSet: findChanges(state),
-        }
+        };
       },
 
       apply(tr, pluginState, _oldState, newState): TrackChangesState {
-        const setUserID = getAction(tr, TrackChangesAction.setUserID)
-        const setStatus = getAction(tr, TrackChangesAction.setPluginStatus)
+        const setUserID = getAction(tr, TrackChangesAction.setUserID);
+        const setStatus = getAction(tr, TrackChangesAction.setPluginStatus);
         if (setUserID) {
-          return { ...pluginState, userID: setUserID }
+          return { ...pluginState, userID: setUserID };
         } else if (setStatus) {
           return {
             ...pluginState,
             status: setStatus,
             changeSet:
-              setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState),
-          }
+              setStatus === TrackChangesStatus.disabled
+                ? new ChangeSet()
+                : findChanges(newState),
+          };
         } else if (pluginState.status === TrackChangesStatus.disabled) {
-          return { ...pluginState, changeSet: new ChangeSet() }
+          return { ...pluginState, changeSet: new ChangeSet() };
         }
-        let { changeSet, ...rest } = pluginState
+        let { changeSet, ...rest } = pluginState;
         if (getAction(tr, TrackChangesAction.refreshChanges)) {
-          changeSet = findChanges(newState)
+          changeSet = findChanges(newState);
         }
         return {
           changeSet,
           ...rest,
-        }
+        };
       },
     },
     view(p) {
-      editorView = p
+      editorView = p;
       return {
         update: undefined,
         destroy: undefined,
-      }
+      };
     },
     appendTransaction(trs, oldState, newState) {
-      const pluginState = trackChangesPluginKey.getState(newState)
+      const pluginState = trackChangesPluginKey.getState(newState);
       if (
         !pluginState ||
         pluginState.status === TrackChangesStatus.disabled ||
         !editorView?.editable
       ) {
-        return null
+        return null;
       }
-      const { userID, changeSet } = pluginState
+      const { userID, changeSet } = pluginState;
       let createdTr: Transaction = newState.tr,
-        docChanged = false
-      log.info('TRS', trs)
+        docChanged = false;
+      log.info('TRS', trs);
       trs.forEach((tr) => {
-        const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
-        const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
+        const wasAppended = tr.getMeta('appendedTransaction') as
+          | Transaction
+          | undefined;
+        const skipMetaUsed = skipTrsWithMetas.some(
+          (m) => tr.getMeta(m) || wasAppended?.getMeta(m)
+        );
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
-          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
+          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack));
         if (
           tr.docChanged &&
           !skipMetaUsed &&
@@ -117,16 +132,19 @@ export const trackChangesPlugin = (
           !tr.getMeta('history$') &&
           !(wasAppended && tr.getMeta('origin') === 'paragraphs')
         ) {
-          createdTr = trackTransaction(tr, oldState, createdTr, userID)
+          createdTr = trackTransaction(tr, oldState, createdTr, userID);
         }
-        docChanged = docChanged || tr.docChanged
-        const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
+        docChanged = docChanged || tr.docChanged;
+        const setChangeStatuses = getAction(
+          tr,
+          TrackChangesAction.setChangeStatuses
+        );
 
         if (setChangeStatuses) {
-          const { status, ids } = setChangeStatuses
-          const changeTime = new Date().getTime()
+          const { status, ids } = setChangeStatuses;
+          const changeTime = new Date().getTime();
           ids.forEach((changeId: string) => {
-            const change = changeSet?.get(changeId)
+            const change = changeSet?.get(changeId);
             if (change) {
               createdTr = updateChangeAttrs(
                 createdTr,
@@ -138,30 +156,40 @@ export const trackChangesPlugin = (
                   reviewedByID: userID,
                 },
                 oldState.schema
-              )
+              );
             }
-          })
+          });
         } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
           const mapping = applyAcceptedRejectedChanges(
             createdTr,
             oldState.schema,
             changeSet.bothNodeChanges
-          )
-          applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)
-          setAction(createdTr, TrackChangesAction.refreshChanges, true)
+          );
+          applyAcceptedRejectedChanges(
+            createdTr,
+            oldState.schema,
+            changeSet.textChanges,
+            mapping
+          );
+          setAction(createdTr, TrackChangesAction.refreshChanges, true);
         }
-      })
+      });
       const changed =
         pluginState.changeSet.hasInconsistentData &&
-        fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
+        fixInconsistentChanges(
+          pluginState.changeSet,
+          userID,
+          createdTr,
+          oldState.schema
+        );
       if (changed) {
-        log.warn('had to fix inconsistent changes in', createdTr)
+        log.warn('had to fix inconsistent changes in', createdTr);
       }
       if (docChanged || createdTr.docChanged || changed) {
-        createdTr.setMeta('origin', trackChangesPluginKey)
-        return setAction(createdTr, TrackChangesAction.refreshChanges, true)
+        createdTr.setMeta('origin', trackChangesPluginKey);
+        return setAction(createdTr, TrackChangesAction.refreshChanges, true);
       }
-      return null
+      return null;
     },
-  })
-}
+  });
+};

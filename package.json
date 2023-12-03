@@ -17,6 +17,7 @@
     "build:es": "tsc --outDir dist/es --declarationDir dist/types --declaration",
     "dev": "npm-run-all --parallel 'build:* --project tsconfig.json --watch'",
     "test": "jest --runInBand",
+    "test-rs": "jest -i test/diff/diff.test.ts",
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",

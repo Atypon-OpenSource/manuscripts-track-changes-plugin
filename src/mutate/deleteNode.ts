@@ -43,15 +43,15 @@ export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
     of entire content of a block level node.
   */
   // Checking if the content deleted is the entire content of a block parent element
-  // const range = startPos.blockRange(
-  //   tr.doc.resolve(startPos.pos - 2 + node.nodeSize)
-  // );
+  const range = startPos.blockRange(
+    tr.doc.resolve(startPos.pos - 2 + node.nodeSize)
+  );
   // Checking if the original content can be lifted up a level
-  // const targetDepth = range && liftTarget(range);
+  const targetDepth = range && liftTarget(range);
   // Check with typeof since with prosemirror-transform pre 1.6.0 targetDepth is undefined
-  // if (range && typeof targetDepth === 'number') {
-  //   return tr.lift(range, targetDepth);
-  // }
+  if (range && typeof targetDepth === 'number') {
+    return tr.lift(range, targetDepth);
+  }
 
   const resPos = tr.doc.resolve(pos);
   // Block nodes can be deleted by just removing their start token which should then merge the text
