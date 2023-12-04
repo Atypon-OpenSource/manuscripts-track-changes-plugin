@@ -15,12 +15,15 @@
     "build": "npm-run-all --parallel 'build:* --project tsconfig.json'",
     "build:cjs": "tsc --outDir dist/cjs --module commonjs",
     "build:es": "tsc --outDir dist/es --declarationDir dist/types --declaration",
-    "dev": "npm-run-all --parallel 'build:* --project tsconfig.build.json --watch'",
+    "dev": "npm-run-all --parallel 'build:* --project tsconfig.json --watch'",
     "test": "jest --runInBand",
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
-    "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
+    "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test",
+    "postinstall": "husky install",
+    "prepack": "pinst --disable",
+    "postpack": "pinst --enable"
   },
   "devDependencies": {
     "@manuscripts/transform": "^1.5.1",
@@ -33,7 +36,23 @@
     "npm-run-all": "^4.1.5",
     "ts-jest": "27.1.4",
     "tslib": "^2.4.0",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.3",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-header": "^3.1.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.1.7",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-mdx": "^2.0.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.31.11",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "husky": "^8.0.0",
+    "pinst": "^3.0.0"
   },
   "dependencies": {
     "prosemirror-commands": "^1.5.0",
