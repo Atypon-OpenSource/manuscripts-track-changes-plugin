@@ -20,7 +20,8 @@
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
-    "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test"
+    "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test",
+    "prepare": "husky install"
   },
   "devDependencies": {
     "@manuscripts/eslint-config": "^0.5.1",
