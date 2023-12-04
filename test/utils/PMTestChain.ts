@@ -143,9 +143,7 @@ export class ProsemirrorTestChain {
   moveCursor(moved: 'start' | 'end' | number) {
     const { from } = this.view.state.selection
     if (moved === 'start') {
-      this.view.dispatch(
-        this.view.state.tr.setSelection(TextSelection.atStart(this.view.state.doc))
-      )
+      this.view.dispatch(this.view.state.tr.setSelection(TextSelection.atStart(this.view.state.doc)))
     } else if (moved === 'end') {
       this.view.dispatch(this.view.state.tr.setSelection(TextSelection.atEnd(this.view.state.doc)))
     } else {
@@ -173,11 +171,7 @@ export class ProsemirrorTestChain {
 
   wrapInInline(nodeType: NodeType, attrs?: { [key: string]: any }) {
     this.cmd((state, dispatch) => {
-      const range = new NodeRange(
-          state.selection.$from,
-          state.selection.$to,
-          state.selection.$from.depth
-        ),
+      const range = new NodeRange(state.selection.$from, state.selection.$to, state.selection.$from.depth),
         wrapping = findWrapping(range, nodeType, attrs)
       wrapping && dispatch(state.tr.wrap(range, wrapping))
     })

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 const headerString = () => {
-  const year = new Date().getFullYear();
+  const year = new Date().getFullYear()
 
   return [
     '!',
@@ -32,8 +32,8 @@ const headerString = () => {
     '* See the License for the specific language governing permissions and',
     '* limitations under the License.',
     ' ',
-  ];
-};
+  ]
+}
 
 module.exports = {
   extends: '@manuscripts/eslint-config',
@@ -54,4 +54,4 @@ module.exports = {
     'jsx-a11y/no-onchange': 'off',
     'prefer-const': 0,
   },
-};
+}

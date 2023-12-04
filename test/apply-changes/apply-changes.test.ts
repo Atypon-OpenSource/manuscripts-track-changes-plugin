@@ -116,9 +116,7 @@ describe('apply-changes.test', () => {
           return
         }
         const { changeSet } = trackChangesState
-        const change = changeSet.pending.find(
-          (c) => c.type === 'node-change' && c.nodeType === 'table'
-        )
+        const change = changeSet.pending.find((c) => c.type === 'node-change' && c.nodeType === 'table')
         if (change && ChangeSet.isNodeChange(change)) {
           // const ids = [change.id, ...change.children.map(c => c.id)]
           const ids = [change.id]

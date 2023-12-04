@@ -24,8 +24,5 @@ export function createBlockquote(schema: Schema, text = '') {
 }
 
 export function createParagraph(schema: Schema, text = '') {
-  return schema.nodes.paragraph.createChecked(
-    undefined,
-    text.length > 0 ? schema.text(text) : undefined
-  )
+  return schema.nodes.paragraph.createChecked(undefined, text.length > 0 ? schema.text(text) : undefined)
 }

@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 import { Node as PMNode } from 'prosemirror-model'
-import type {
-  EditorState,
-  NodeSelection,
-  TextSelection,
-  Selection,
-  Transaction,
-} from 'prosemirror-state'
+import type { EditorState, NodeSelection, TextSelection, Selection, Transaction } from 'prosemirror-state'
 import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
 import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
@@ -99,23 +93,13 @@ export function trackTransaction(
       continue
     } else if (step instanceof ReplaceStep) {
       const { slice } = step as ExposedReplaceStep
-      if (
-        slice?.content?.content?.length === 1 &&
-        isHighlightMarkerNode(slice.content.content[0])
-      ) {
+      if (slice?.content?.content?.length === 1 && isHighlightMarkerNode(slice.content.content[0])) {
         // don't track highlight marker nodes
         continue
       }
       const newStep = step.invert(tr.docs[i])
       const stepResult = newTr.maybeStep(newStep)
-      let [steps, startPos] = trackReplaceStep(
-        step,
-        oldState,
-        newTr,
-        emptyAttrs,
-        stepResult,
-        tr.docs[i]
-      )
+      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i])
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
         if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {

@@ -48,9 +48,7 @@ export function setupEditor(opts?: SetupEditorOptions): ProsemirrorTestChain {
   }
   polyfillDom()
   const div = document.createElement('div')
-  const editorPlugins = (
-    useDefaultPlugins ? exampleSetup({ schema: schema || defaultSchema }) : []
-  ).concat(
+  const editorPlugins = (useDefaultPlugins ? exampleSetup({ schema: schema || defaultSchema }) : []).concat(
     plugins || [
       trackChangesPlugin({
         userID: DEFAULT_USER.id,
@@ -71,8 +69,6 @@ export function setupEditor(opts?: SetupEditorOptions): ProsemirrorTestChain {
 
 export function createSimpleDoc(text: string) {
   return defaultSchema.nodeFromJSON(
-    JSON.parse(
-      `{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"${text}"}]}]}`
-    )
+    JSON.parse(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"${text}"}]}]}`)
   )
 }

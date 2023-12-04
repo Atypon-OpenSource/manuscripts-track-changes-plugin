@@ -43,8 +43,7 @@ export class ChangeSet {
   get changes(): TrackedChange[] {
     const iteratedIds = new Set()
     return this.#changes.filter((c) => {
-      const valid =
-        !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
+      const valid = !iteratedIds.has(c.dataTracked.id) && ChangeSet.isValidDataTracked(c.dataTracked)
       iteratedIds.add(c.dataTracked.id)
       return valid
     }) as TrackedChange[]
@@ -69,10 +68,7 @@ export class ChangeSet {
       if (
         currentNodeChange &&
         c.from < currentNodeChange.to &&
-        !(
-          this.#isSameNodeChange(currentNodeChange, c) &&
-          this.#isNotPendingOrDeleted(currentNodeChange)
-        )
+        !(this.#isSameNodeChange(currentNodeChange, c) && this.#isNotPendingOrDeleted(currentNodeChange))
       ) {
         currentNodeChange.children.push(c)
       } else if (c.type === 'node-change') {
@@ -146,9 +142,10 @@ export class ChangeSet {
   }
 
   getIn(ids: string[]) {
-    return ids
-      .map((id) => this.#changes.find((c) => c.id === id))
-      .filter((c) => c !== undefined) as (TrackedChange | IncompleteChange)[]
+    return ids.map((id) => this.#changes.find((c) => c.id === id)).filter((c) => c !== undefined) as (
+      | TrackedChange
+      | IncompleteChange
+    )[]
   }
 
   getNotIn(ids: string[]) {
@@ -160,9 +157,7 @@ export class ChangeSet {
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) =>
-      this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
-    )
+    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
   }
 
   /**
@@ -204,9 +199,7 @@ export class ChangeSet {
     )
     return (
       entries.length === trackedKeys.length &&
-      entries.every(
-        ([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined
-      ) &&
+      entries.every(([key, val]) => trackedKeys.includes(key as keyof TrackedAttrs) && val !== undefined) &&
       optionalEntries.every(
         ([key, val]) => optionalKeys.includes(key as keyof TrackedAttrs) && val !== undefined
       ) &&

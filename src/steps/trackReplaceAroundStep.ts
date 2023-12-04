@@ -93,16 +93,10 @@ export function trackReplaceAroundStep(
     log.info('newSliceContent', newSliceContent)
     // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
     // the sides should be equal. TODO can they be other than 0?
-    const openStart =
-      slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openStart
-    const openEnd =
-      slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openEnd
+    const openStart = slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openStart
+    const openEnd = slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openEnd
     let insertedSlice = new Slice(
-      setFragmentAsInserted(
-        newSliceContent,
-        trackUtils.createNewInsertAttrs(attrs),
-        oldState.schema
-      ),
+      setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema),
       openStart,
       openEnd
     ) as ExposedSlice

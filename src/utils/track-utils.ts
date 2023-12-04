@@ -30,10 +30,7 @@ export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
   }
 }
 
-export function createNewUpdateAttrs(
-  attrs: NewEmptyAttrs,
-  oldAttrs: Record<string, any>
-): NewUpdateAttrs {
+export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<string, any>): NewUpdateAttrs {
   // Omit dataTracked
   const { dataTracked, ...restAttrs } = oldAttrs
   return {

@@ -74,8 +74,15 @@ export function applyAcceptedRejectedChanges(
         const { dataTracked, ...attrs } = change.newAttrs
         const changeLog = attrsChangesLog.get(node.attrs.id)
         const newDataTracked =
-          changeLog && changeLog.length ? (dataTracked as TrackedAttrs[]).filter((c) => !changeLog.includes(c.id)) : dataTracked
-        tr.setNodeMarkup(from, undefined, { ...attrs, dataTracked: newDataTracked.length ? newDataTracked : null }, node.marks)
+          changeLog && changeLog.length
+            ? (dataTracked as TrackedAttrs[]).filter((c) => !changeLog.includes(c.id))
+            : dataTracked
+        tr.setNodeMarkup(
+          from,
+          undefined,
+          { ...attrs, dataTracked: newDataTracked.length ? newDataTracked : null },
+          node.marks
+        )
         // default is "null" for dataTracked in attrs in pm schema, so codebase generally relies on it being null when empty
       }
       return

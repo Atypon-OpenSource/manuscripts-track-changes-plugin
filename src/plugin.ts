@@ -100,8 +100,16 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
-        const skipTrackUsed = getAction(tr, TrackChangesAction.skipTrack) || (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
-        if (tr.docChanged && !skipMetaUsed && !skipTrackUsed && !tr.getMeta('history$') && !(wasAppended && tr.getMeta('origin') === 'paragraphs')) {
+        const skipTrackUsed =
+          getAction(tr, TrackChangesAction.skipTrack) ||
+          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
+        if (
+          tr.docChanged &&
+          !skipMetaUsed &&
+          !skipTrackUsed &&
+          !tr.getMeta('history$') &&
+          !(wasAppended && tr.getMeta('origin') === 'paragraphs')
+        ) {
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
         }
         docChanged = docChanged || tr.docChanged
@@ -112,7 +120,12 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
           ids.forEach((changeId: string) => {
             const change = changeSet?.get(changeId)
             if (change) {
-              createdTr = updateChangeAttrs(createdTr, change, { ...change.dataTracked, status, reviewedByID: userID }, oldState.schema)
+              createdTr = updateChangeAttrs(
+                createdTr,
+                change,
+                { ...change.dataTracked, status, reviewedByID: userID },
+                oldState.schema
+              )
             }
           })
         } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
@@ -121,7 +134,9 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
-      const changed = pluginState.changeSet.hasInconsistentData && fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
+      const changed =
+        pluginState.changeSet.hasInconsistentData &&
+        fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
       if (changed) {
         log.warn('had to fix inconsistent changes in', createdTr)
       }

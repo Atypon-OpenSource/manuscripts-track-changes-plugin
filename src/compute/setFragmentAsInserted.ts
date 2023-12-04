@@ -44,11 +44,7 @@ function markInlineNodeChange(node: PMNode, newTrackAttrs: NewTrackedAttrs, sche
  * @param schema
  * @returns
  */
-function loopContentAndMergeText(
-  content: Fragment,
-  newTrackAttrs: NewTrackedAttrs,
-  schema: Schema
-) {
+function loopContentAndMergeText(content: Fragment, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
   const updatedChildren: PMNode[] = []
   for (let i = 0; i < content.childCount; i += 1) {
     const recursed = recurseNodeContent(content.child(i), newTrackAttrs, schema)
@@ -86,11 +82,7 @@ function recurseNodeContent(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema
   }
 }
 
-export function setFragmentAsInserted(
-  inserted: Fragment,
-  insertAttrs: NewInsertAttrs,
-  schema: Schema
-) {
+export function setFragmentAsInserted(inserted: Fragment, insertAttrs: NewInsertAttrs, schema: Schema) {
   // Recurse the content in the inserted slice and either mark it tracked_insert or set node attrs
   const updatedInserted = loopContentAndMergeText(inserted, insertAttrs, schema)
   return updatedInserted.length === 0 ? Fragment.empty : Fragment.fromArray(updatedInserted)

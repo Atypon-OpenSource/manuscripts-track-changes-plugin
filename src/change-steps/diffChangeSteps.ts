@@ -81,11 +81,7 @@ export function diffChangeSteps(deleted: ChangeStep[], inserted: InsertSliceStep
       }
       return acc
     }, Number.MAX_SAFE_INTEGER)
-    const [matchedDeleted, updatedDel] = matchInserted(
-      deleteStart,
-      updatedDeleted,
-      ins.slice.content
-    )
+    const [matchedDeleted, updatedDel] = matchInserted(deleteStart, updatedDeleted, ins.slice.content)
     if (matchedDeleted === deleteStart) {
       updated.push(ins)
       return

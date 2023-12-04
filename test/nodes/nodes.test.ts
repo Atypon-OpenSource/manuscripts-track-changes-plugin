@@ -17,13 +17,7 @@
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
 
-import {
-  CHANGE_STATUS,
-  trackChangesPluginKey,
-  trackCommands,
-  ChangeSet,
-  NodeAttrChange,
-} from '../../src'
+import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet, NodeAttrChange } from '../../src'
 import docs from '../__fixtures__/docs'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
@@ -244,10 +238,7 @@ describe('nodes.test', () => {
     }).cmd((state, dispatch) => {
       const cursor = state.selection.head
       const blockNodePos = state.doc.resolve(cursor).start(1) - 1
-      if (
-        state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph &&
-        dispatch
-      ) {
+      if (state.doc.resolve(blockNodePos).nodeAfter?.type === state.schema.nodes.paragraph && dispatch) {
         dispatch(
           state.tr.setNodeMarkup(blockNodePos, undefined, {
             testAttribute: 'changed',

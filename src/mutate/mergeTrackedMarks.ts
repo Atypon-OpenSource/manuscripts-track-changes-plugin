@@ -56,9 +56,5 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
 
-  newTr.addMark(
-    fromStartOfMark,
-    toEndOfMark,
-    leftMark.type.create({ ...leftMark.attrs, dataTracked })
-  )
+  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create({ ...leftMark.attrs, dataTracked }))
 }
