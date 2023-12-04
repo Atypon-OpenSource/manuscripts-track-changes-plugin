@@ -64,7 +64,6 @@ export class ChangeSet {
   get changeTree() {
     const rootNodes: TrackedChange[] = [];
     let currentNodeChange: NodeChange | undefined;
-    console.log(JSON.stringify(this.changes));
     this.changes.forEach((c) => {
       if (
         currentNodeChange &&
