@@ -114,8 +114,10 @@ export function trackReplaceStep(
       // When DEL is used, the selection is set to the end of the deleted content
       // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion
       // @ts-ignore
-      selectionPos =
-        window.event?.code === 'Delete' || window.event?.inputType === 'deleteContentForward' ? toA : fromA
+      const isDeleteEvent = window.event?.code === 'Delete'
+      // @ts-ignore
+      const isDeleteContentForward = window.event?.inputType === 'deleteContentForward'
+      selectionPos = isDeleteEvent || isDeleteContentForward ? toA : fromA
     }
   })
   return [changeSteps, selectionPos] as [ChangeStep[], number]
