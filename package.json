@@ -26,6 +26,7 @@
     "postpack": "pinst --enable"
   },
   "devDependencies": {
+    "@manuscripts/eslint-config": "^0.5.1",
     "@manuscripts/transform": "^1.5.1",
     "@types/debug": "^4.1.7",
     "@types/jest": "27.5.1",
