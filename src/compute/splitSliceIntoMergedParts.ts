@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 
-import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
+import { log } from '../utils/logger'
 
 /**
  * Recurses node children and returns the merged first/last node's content and the unmerged children

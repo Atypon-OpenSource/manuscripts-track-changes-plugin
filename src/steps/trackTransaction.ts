@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 import { Node as PMNode } from 'prosemirror-model'
-import type { EditorState, NodeSelection, TextSelection, Selection, Transaction } from 'prosemirror-state'
+import type { EditorState, NodeSelection, Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
 import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
+import { diffChangeSteps } from '../change-steps/diffChangeSteps'
+import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { CHANGE_STATUS } from '../types/change'
+import { ExposedReplaceStep } from '../types/pm'
+import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
-import { processChangeSteps } from '../change-steps/processChangeSteps'
-import { diffChangeSteps } from '../change-steps/diffChangeSteps'
-import { InsertSliceStep } from '../types/step'
-import { ExposedReplaceStep } from '../types/pm'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *

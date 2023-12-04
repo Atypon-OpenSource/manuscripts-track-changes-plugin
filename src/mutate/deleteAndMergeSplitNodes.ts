@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
-import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { NewEmptyAttrs } from '../types/track'
-import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import * as trackUtils from '../utils/track-utils'
+import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
+import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted

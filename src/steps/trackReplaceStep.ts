@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceStep, ReplaceAroundStep, StepResult } from 'prosemirror-transform'
+import { ReplaceAroundStep, ReplaceStep, StepResult } from 'prosemirror-transform'
 
+import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import { log } from '../utils/logger'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
-import { NewEmptyAttrs } from '../types/track'
-import * as trackUtils from '../utils/track-utils'
 import { ChangeStep, InsertSliceStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,

@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ import { wrapIn } from 'prosemirror-commands'
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
 import { EditorState, Plugin, TextSelection, Transaction } from 'prosemirror-state'
-import { EditorView } from 'prosemirror-view'
 import { findWrapping } from 'prosemirror-transform'
+import { EditorView } from 'prosemirror-view'
 
-import { ChangeSet, CHANGE_STATUS, trackChangesPluginKey, trackCommands } from '../../src'
+import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
 import * as cmds from './commands'
 
 export class ProsemirrorTestChain {

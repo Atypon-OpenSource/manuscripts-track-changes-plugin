@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
-  NodeChange,
   IncompleteChange,
+  NodeAttrChange,
+  NodeChange,
   TextChange,
   TrackedAttrs,
   TrackedChange,
-  NodeAttrChange,
 } from './types/change'
 import { log } from './utils/logger'
 

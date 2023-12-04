@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EditorState } from 'prosemirror-state'
 import { Node as PMNode } from 'prosemirror-model'
+import { EditorState } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
+import { equalMarks, getNodeTrackedData } from '../compute/nodeHelpers'
 import {
   CHANGE_OPERATION,
   IncompleteChange,
@@ -25,7 +26,6 @@ import {
   PartialChange,
   TextChange,
 } from '../types/change'
-import { getNodeTrackedData, equalMarks } from '../compute/nodeHelpers'
 
 /**
  * Finds all changes (basically text marks or node attributes) from document

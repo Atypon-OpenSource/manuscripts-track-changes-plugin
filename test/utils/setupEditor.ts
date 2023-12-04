@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ import { Node as PMNode, Schema } from 'prosemirror-model'
 import { EditorState, Plugin } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 
-import { DEFAULT_USER } from '../__fixtures__/users'
 import { trackChangesPlugin } from '../../src'
 import { enableDebug } from '../../src/utils/logger'
+import { DEFAULT_USER } from '../__fixtures__/users'
 import { ProsemirrorTestChain } from './PMTestChain'
 import { polyfillDom } from './polyfillDom'
 import { schema as defaultSchema } from './schema'

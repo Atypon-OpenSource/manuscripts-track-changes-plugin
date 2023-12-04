@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
-import { undo } from 'prosemirror-history'
-
 import fs from 'fs'
+import { undo } from 'prosemirror-history'
+import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 
-import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
+import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
+import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
-
-import { log } from '../../src/utils/logger'
-import textDiff from './text-diff.json'
 import nodeDiff from './node-diff.json'
+import textDiff from './text-diff.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization

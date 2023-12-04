@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 import { Node as PMNode } from 'prosemirror-model'
 
-import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep, DeleteNodeStep, DeleteTextStep } from '../types/step'
+import { log } from '../utils/logger'
 
 /**
  * Matches deleted-text recursively to inserted text

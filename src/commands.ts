@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { Command } from 'prosemirror-state'
+
 import { setAction, TrackChangesAction } from './actions'
 import { trackChangesPluginKey } from './plugin'
 import { CHANGE_STATUS } from './types/change'

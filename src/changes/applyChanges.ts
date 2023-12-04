@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
-import { log } from '../utils/logger'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
+import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { log } from '../utils/logger'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {

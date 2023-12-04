@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
-import { matchInserted } from './matchInserted'
-import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
+import { log } from '../utils/logger'
+import { matchInserted } from './matchInserted'
 
 /**
  * Cuts a fragment similar to Fragment.cut but also removes the parent node.
