@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model';
-import type { EditorState, Transaction } from 'prosemirror-state';
-import {
-  ReplaceStep,
-  ReplaceAroundStep,
-  StepResult,
-} from 'prosemirror-transform';
+import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
+import type { EditorState, Transaction } from 'prosemirror-state'
+import { ReplaceAroundStep, ReplaceStep, StepResult } from 'prosemirror-transform'
 
-import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes';
-import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks';
-import { setFragmentAsInserted } from '../compute/setFragmentAsInserted';
-import { log } from '../utils/logger';
-import { ExposedReplaceStep, ExposedSlice } from '../types/pm';
-import { NewEmptyAttrs } from '../types/track';
-import * as trackUtils from '../utils/track-utils';
-import { ChangeStep, InsertSliceStep } from '../types/step';
+import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
+import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
+import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
+import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
+import { ChangeStep, InsertSliceStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -128,15 +124,14 @@ export function trackReplaceStep(
         // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
         // mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
 
-        // When DEL is used, the selection is set to the end of the deleted content
-        // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion
-        // @ts-ignore
-        selectionPos =
-          window.event?.code === 'Delete' ||
-          window.event?.inputType === 'deleteContentForward'
-            ? toA
-            : fromA;
-      }
-    });
-  return [changeSteps, selectionPos] as [ChangeStep[], number];
+      // When DEL is used, the selection is set to the end of the deleted content
+      // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion
+      // @ts-ignore
+      const isDeleteEvent = window.event?.code === 'Delete'
+      // @ts-ignore
+      const isDeleteContentForward = window.event?.inputType === 'deleteContentForward'
+      selectionPos = isDeleteEvent || isDeleteContentForward ? toA : fromA
+    }
+  })
+  return [changeSteps, selectionPos] as [ChangeStep[], number]
 }

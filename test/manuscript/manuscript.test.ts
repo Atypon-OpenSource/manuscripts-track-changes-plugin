@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,14 @@
  */
 /// <reference types="@types/jest" />;
 import { schema } from '@manuscripts/transform'
+import { promises as fs } from 'fs'
 import { Node as PMNode, Schema } from 'prosemirror-model'
 
-import { promises as fs } from 'fs'
-
-import { CHANGE_STATUS, trackChangesPluginKey, trackCommands, ChangeSet } from '../../src'
+import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
+import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
 import { setupEditor } from '../utils/setupEditor'
-
-import { log } from '../../src/utils/logger'
 import manuscriptApplied from './manuscript-applied.json'
 
 let counter = 0

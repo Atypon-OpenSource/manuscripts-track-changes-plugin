@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,8 @@ export function processChangeSteps(
   const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs);
   let selectionPos = startPos;
   // @TODO add custom handler / condition?
-  let deletesCounter = 0; // counter for deletion
-  let isInserted: boolean = false; // flag for inserted node
+  let deletesCounter = 0 // counter for deletion
+  let isInserted = false // flag for inserted node
 
   changes.forEach((c) => {
     let step = newTr.steps[newTr.steps.length - 1];
@@ -138,16 +138,16 @@ export function processChangeSteps(
           );
           return;
         }
-        mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema);
-        const to = mapping.map(c.to) + c.slice.size;
+        mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
+        const to = mapping.map(c.to) + c.slice.size
         mergeTrackedMarks(
           mapping.map(c.to) + (to < newTr.doc.nodeSize ? c.slice.size : 0),
           newTr.doc,
           newTr,
           schema
-        );
-        selectionPos = mapping.map(c.to) + c.slice.size;
-        break;
+        )
+        selectionPos = mapping.map(c.to) + c.slice.size
+        break
 
       case 'update-node-attrs':
         const oldDataTracked = getBlockInlineTrackedData(c.node) || [];
@@ -219,7 +219,7 @@ export function processChangeSteps(
     if (step !== newestStep) {
       mapping.appendMap(newestStep.getMap());
     }
-  });
+  })
 
-  return [mapping, selectionPos] as [Mapping, number];
+  return [mapping, selectionPos] as [Mapping, number]
 }

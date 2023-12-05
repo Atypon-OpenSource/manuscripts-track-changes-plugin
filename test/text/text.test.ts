@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,10 @@
 import { promises as fs } from 'fs'
 
 import { skipTracking, trackCommands } from '../../src'
+import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
 import { setupEditor } from '../utils/setupEditor'
-
-import { log } from '../../src/utils/logger'
 import basicTextDelete from './basic-text-del.json'
 import basicTextInconsistent from './basic-text-inconsistent-track.json'
 import basicTextInsert from './basic-text-ins.json'

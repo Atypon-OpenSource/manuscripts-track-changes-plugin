@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,15 @@
 import { Plugin, PluginKey, Transaction } from 'prosemirror-state';
 import type { EditorProps, EditorView } from 'prosemirror-view';
 
-import { getAction, setAction, TrackChangesAction } from './actions';
-import { ChangeSet } from './ChangeSet';
-import { log, enableDebug } from './utils/logger';
-import { applyAcceptedRejectedChanges } from './changes/applyChanges';
-import { findChanges } from './changes/findChanges';
-import { fixInconsistentChanges } from './changes/fixInconsistentChanges';
-import { trackTransaction } from './steps/trackTransaction';
-import { updateChangeAttrs } from './changes/updateChangeAttrs';
-import {
-  TrackChangesOptions,
-  TrackChangesState,
-  TrackChangesStatus,
-} from './types/track';
+import { getAction, setAction, TrackChangesAction } from './actions'
+import { applyAcceptedRejectedChanges } from './changes/applyChanges'
+import { findChanges } from './changes/findChanges'
+import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
+import { updateChangeAttrs } from './changes/updateChangeAttrs'
+import { ChangeSet } from './ChangeSet'
+import { trackTransaction } from './steps/trackTransaction'
+import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
+import { enableDebug, log } from './utils/logger'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>(
   'track-changes'
@@ -116,15 +112,11 @@ export const trackChangesPlugin = (
         docChanged = false;
       log.info('TRS', trs);
       trs.forEach((tr) => {
-        const wasAppended = tr.getMeta('appendedTransaction') as
-          | Transaction
-          | undefined;
-        const skipMetaUsed = skipTrsWithMetas.some(
-          (m) => tr.getMeta(m) || wasAppended?.getMeta(m)
-        );
+        const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
+        const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
-          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack));
+          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (
           tr.docChanged &&
           !skipMetaUsed &&
@@ -132,7 +124,7 @@ export const trackChangesPlugin = (
           !tr.getMeta('history$') &&
           !(wasAppended && tr.getMeta('origin') === 'paragraphs')
         ) {
-          createdTr = trackTransaction(tr, oldState, createdTr, userID);
+          createdTr = trackTransaction(tr, oldState, createdTr, userID)
         }
         docChanged = docChanged || tr.docChanged;
         const setChangeStatuses = getAction(
@@ -173,15 +165,10 @@ export const trackChangesPlugin = (
           );
           setAction(createdTr, TrackChangesAction.refreshChanges, true);
         }
-      });
+      })
       const changed =
         pluginState.changeSet.hasInconsistentData &&
-        fixInconsistentChanges(
-          pluginState.changeSet,
-          userID,
-          createdTr,
-          oldState.schema
-        );
+        fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
       if (changed) {
         log.warn('had to fix inconsistent changes in', createdTr);
       }

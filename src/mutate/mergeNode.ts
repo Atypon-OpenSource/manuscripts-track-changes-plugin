@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,7 @@ export function mergeNode(node: PMNode, pos: number, tr: Transaction) {
   }
   // TODO is this the same thing as join to above?
   const resPos = tr.doc.resolve(pos)
-  const canMergeToNodeAbove =
-    (resPos.parent !== tr.doc || resPos.nodeBefore) && node.firstChild?.isText
+  const canMergeToNodeAbove = (resPos.parent !== tr.doc || resPos.nodeBefore) && node.firstChild?.isText
   if (canMergeToNodeAbove) {
     return tr.replaceWith(pos - 1, pos + 1, Fragment.empty)
   }

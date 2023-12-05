@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,7 @@ export function getTextNodeTrackedMarkData(node: PMNode | undefined | null, sche
   node.marks.forEach((mark) => {
     if (mark.type === schema.marks.tracked_insert || mark.type === schema.marks.tracked_delete) {
       const operation =
-        mark.type === schema.marks.tracked_insert
-          ? CHANGE_OPERATION.insert
-          : CHANGE_OPERATION.delete
+        mark.type === schema.marks.tracked_insert ? CHANGE_OPERATION.insert : CHANGE_OPERATION.delete
       marksTrackedData.push({ ...mark.attrs.dataTracked, operation })
     }
   })
@@ -82,10 +80,7 @@ export function equalMarks(n1: PMNode, n2: PMNode) {
   )
 }
 
-export function shouldMergeTrackedAttributes(
-  left?: Partial<TrackedAttrs>,
-  right?: Partial<TrackedAttrs>
-) {
+export function shouldMergeTrackedAttributes(left?: Partial<TrackedAttrs>, right?: Partial<TrackedAttrs>) {
   if (!left || !right) {
     log.warn('passed undefined dataTracked attributes to shouldMergeTrackedAttributes', {
       left,
@@ -94,9 +89,7 @@ export function shouldMergeTrackedAttributes(
     return false
   }
   return (
-    left.status === right.status &&
-    left.operation === right.operation &&
-    left.authorID === right.authorID
+    left.status === right.status && left.operation === right.operation && left.authorID === right.authorID
   )
 }
 
