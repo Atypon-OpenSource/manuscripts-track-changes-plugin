@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,5 @@ export function createBlockquote(schema: Schema, text = '') {
 }
 
 export function createParagraph(schema: Schema, text = '') {
-  return schema.nodes.paragraph.createChecked(
-    undefined,
-    text.length > 0 ? schema.text(text) : undefined
-  )
+  return schema.nodes.paragraph.createChecked(undefined, text.length > 0 ? schema.text(text) : undefined)
 }

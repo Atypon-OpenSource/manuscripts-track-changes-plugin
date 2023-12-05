@@ -14,13 +14,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2015",
-    "typeRoots" : [
-      "./node_modules/@types",
-      "./stories/types"
-    ]
+    "typeRoots": ["./node_modules/@types", "./stories/types"]
   },
-  "include": [
-    "./src/**/*",
-    "./stories/**/*"
-  ]
+  "include": ["./src/**/*", "./stories/**/*"]
 }

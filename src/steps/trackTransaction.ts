@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 import { Node as PMNode } from 'prosemirror-model'
-import type {
-  EditorState,
-  NodeSelection,
-  TextSelection,
-  Selection,
-  Transaction,
-} from 'prosemirror-state'
+import type { EditorState, NodeSelection, Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
 import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
+import { diffChangeSteps } from '../change-steps/diffChangeSteps'
+import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { CHANGE_STATUS } from '../types/change'
+import { ExposedReplaceStep } from '../types/pm'
+import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
-import { processChangeSteps } from '../change-steps/processChangeSteps'
-import { diffChangeSteps } from '../change-steps/diffChangeSteps'
-import { InsertSliceStep } from '../types/step'
-import { ExposedReplaceStep } from '../types/pm'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -99,23 +93,13 @@ export function trackTransaction(
       continue
     } else if (step instanceof ReplaceStep) {
       const { slice } = step as ExposedReplaceStep
-      if (
-        slice?.content?.content?.length === 1 &&
-        isHighlightMarkerNode(slice.content.content[0])
-      ) {
+      if (slice?.content?.content?.length === 1 && isHighlightMarkerNode(slice.content.content[0])) {
         // don't track highlight marker nodes
         continue
       }
       const newStep = step.invert(tr.docs[i])
       const stepResult = newTr.maybeStep(newStep)
-      let [steps, startPos] = trackReplaceStep(
-        step,
-        oldState,
-        newTr,
-        emptyAttrs,
-        stepResult,
-        tr.docs[i]
-      )
+      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i])
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
         if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {

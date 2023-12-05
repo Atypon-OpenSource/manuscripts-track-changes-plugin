@@ -1,5 +1,5 @@
 /*!
- * © 2022 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import paragraph from './paragraph.json'
+import bibliographySection from './bibliography-section.json'
+import blockquoteMarks from './blockquote-marks.json'
 import equation from './equation.json'
 import manuscriptSimple from './manuscript-simple.json'
-import bibliographySection from './bibliography-section.json'
 import manyParagraphs from './many-paragraphs.json'
-import blockquoteMarks from './blockquote-marks.json'
 import nestedBlockquotes from './nested-blockquotes.json'
+import paragraph from './paragraph.json'
 import paragraphsMarksOldDeleted from './paragraphs-marks-old-deleted.json'
 import table from './table.json'
 

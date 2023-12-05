@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,16 @@
  */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceStep, ReplaceAroundStep, StepResult } from 'prosemirror-transform'
+import { ReplaceAroundStep, ReplaceStep, StepResult } from 'prosemirror-transform'
 
+import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import { log } from '../utils/logger'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
-import { NewEmptyAttrs } from '../types/track'
-import * as trackUtils from '../utils/track-utils'
 import { ChangeStep, InsertSliceStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -114,7 +114,10 @@ export function trackReplaceStep(
       // When DEL is used, the selection is set to the end of the deleted content
       // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion
       // @ts-ignore
-      selectionPos = window.event?.code === 'Delete' || window.event?.inputType === 'deleteContentForward' ? toA : fromA
+      const isDeleteEvent = window.event?.code === 'Delete'
+      // @ts-ignore
+      const isDeleteContentForward = window.event?.inputType === 'deleteContentForward'
+      selectionPos = isDeleteEvent || isDeleteContentForward ? toA : fromA
     }
   })
   return [changeSteps, selectionPos] as [ChangeStep[], number]

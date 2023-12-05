@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
-import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { NewEmptyAttrs } from '../types/track'
-import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import * as trackUtils from '../utils/track-utils'
+import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
+import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted
@@ -87,9 +87,7 @@ export function deleteAndMergeSplitNodes(
     // are altered and should not be skipped.
     // @TODO ATM 20.7.2022 there doesn't seem to be tests that capture this.
     const wasWithinGap =
-      gap &&
-      ((!node.isText && pos >= gap.start) ||
-        (node.isText && pos >= gap.start && nodeEnd <= gap.end))
+      gap && ((!node.isText && pos >= gap.start) || (node.isText && pos >= gap.start && nodeEnd <= gap.end))
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
     if (nodeEnd > from && !wasWithinGap) {
@@ -115,11 +113,7 @@ export function deleteAndMergeSplitNodes(
       // (<p2> pos 6) >= (from 0) && (nodeEnd 12) - 1 > (to 7) == true
       //
       const startTokenDeleted = pos >= from // && nodeEnd - 1 > offsetTo
-      if (
-        node.isText ||
-        (!endTokenDeleted && startTokenDeleted) ||
-        (endTokenDeleted && !startTokenDeleted)
-      ) {
+      if (node.isText || (!endTokenDeleted && startTokenDeleted) || (endTokenDeleted && !startTokenDeleted)) {
         // Since we don't know which side to merge with wholly deleted TextNodes, we use this boolean to remember
         // whether we have entered the endSide of the mergeable blockNodes. Also applies for partial TextNodes
         // (which we could determine without this).
@@ -198,9 +192,7 @@ export function deleteAndMergeSplitNodes(
   })
   return {
     sliceWasSplit: !!(firstMergedNode || lastMergedNode),
-    newSliceContent: updatedSliceNodes
-      ? Fragment.fromArray(updatedSliceNodes)
-      : insertSlice.content,
+    newSliceContent: updatedSliceNodes ? Fragment.fromArray(updatedSliceNodes) : insertSlice.content,
     steps,
   }
 }

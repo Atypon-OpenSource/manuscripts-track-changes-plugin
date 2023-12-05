@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,9 +56,5 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
 
-  newTr.addMark(
-    fromStartOfMark,
-    toEndOfMark,
-    leftMark.type.create({ ...leftMark.attrs, dataTracked })
-  )
+  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create({ ...leftMark.attrs, dataTracked }))
 }

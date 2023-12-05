@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 
-import { log } from '../utils/logger'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
+import { log } from '../utils/logger'
 
 /**
  * Recurses node children and returns the merged first/last node's content and the unmerged children
@@ -53,12 +53,7 @@ function getMergedNode(
   let merged = Fragment.empty as ExposedFragment
   node.content.forEach((n, _, i) => {
     if ((first && i === 0) || (!first && i === node.childCount - 1)) {
-      const { mergedNodeContent, unmergedContent } = getMergedNode(
-        n,
-        currentDepth + 1,
-        depth,
-        first
-      )
+      const { mergedNodeContent, unmergedContent } = getMergedNode(n, currentDepth + 1, depth, first)
       merged = mergedNodeContent
       if (unmergedContent) {
         result.push(...unmergedContent.content)
@@ -69,8 +64,7 @@ function getMergedNode(
   })
   return {
     mergedNodeContent: merged,
-    unmergedContent:
-      result.length > 0 ? (Fragment.fromArray(result) as ExposedFragment) : undefined,
+    unmergedContent: result.length > 0 ? (Fragment.fromArray(result) as ExposedFragment) : undefined,
   }
 }
 
@@ -96,9 +90,7 @@ export function splitSliceIntoMergedParts(insertSlice: ExposedSlice, mergeEqualS
   let updatedSliceNodes = nodes
   const mergeSides = openStart !== openEnd || mergeEqualSides
   const firstMergedNode =
-    openStart > 0 && mergeSides && firstChild
-      ? getMergedNode(firstChild, 1, openStart, true)
-      : undefined
+    openStart > 0 && mergeSides && firstChild ? getMergedNode(firstChild, 1, openStart, true) : undefined
   const lastMergedNode =
     openEnd > 0 && mergeSides && lastChild ? getMergedNode(lastChild, 1, openEnd, false) : undefined
   if (firstMergedNode) {

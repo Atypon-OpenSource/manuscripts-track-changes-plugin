@@ -12,17 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
-import { ReplaceStep } from 'prosemirror-transform'
-
-export type ExposedReplaceStep = ReplaceStep & {
-  slice: ExposedSlice
-}
-export type ExposedSlice = Slice & {
-  content: ExposedFragment
-  insertAt(pos: number, fragment: Fragment | ExposedFragment): ExposedSlice
-}
-export type ExposedFragment = Fragment & {
-  content: PMNode[]
+module.exports = {
+  overrides: [
+    {
+      files: '*.css',
+      options: {
+        singleQuote: false,
+      },
+    },
+  ],
+  printWidth: 110,
+  semi: false,
+  singleQuote: true,
+  trailingComma: 'es5',
 }

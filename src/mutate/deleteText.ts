@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
-import { log } from '../utils/logger'
-import { NewDeleteAttrs } from '../types/track'
 import { addTrackIdIfDoesntExist, getMergeableMarkTrackedAttrs } from '../compute/nodeHelpers'
+import { NewDeleteAttrs } from '../types/track'
+import { log } from '../utils/logger'
 
 /**
  * Deletes inserted text directly, otherwise wraps it with tracked_delete mark

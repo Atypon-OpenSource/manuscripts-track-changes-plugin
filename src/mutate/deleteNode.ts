@@ -1,5 +1,5 @@
 /*!
- * © 2021 Atypon Systems LLC
+ * © 2023 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@ import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { liftTarget } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { NewDeleteAttrs } from '../types/track'
-import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import { log } from '../utils/logger'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first
