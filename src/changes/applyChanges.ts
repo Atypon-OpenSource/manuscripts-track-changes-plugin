@@ -18,10 +18,10 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
-import { log } from '../utils/logger'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
+import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { log } from '../utils/logger'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {

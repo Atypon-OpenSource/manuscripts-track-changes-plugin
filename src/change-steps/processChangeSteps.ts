@@ -17,14 +17,14 @@ import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
-import { log } from '../utils/logger'
-import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
-import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
+import { ChangeStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 
 export function processChangeSteps(
@@ -54,7 +54,9 @@ export function processChangeSteps(
         isInserted = !!inserted || (!trackedData && isInserted)
 
         // For inserted node: the top node and its content (children nodes) is deleted in the first step
-        if (isInserted && deletesCounter > 1) return false
+        if (isInserted && deletesCounter > 1) {
+          return false
+        }
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
         const newestStep = newTr.steps[newTr.steps.length - 1]
 
