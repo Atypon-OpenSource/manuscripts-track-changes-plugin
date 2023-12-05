@@ -38,7 +38,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^27.1.7",
     "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-mdx": "^2.0.5",
+    "eslint-plugin-mdx": "2.0.4",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.31.11",
@@ -65,5 +65,8 @@
     "prosemirror-state": "^1.4.2",
     "prosemirror-transform": "^1.7.0",
     "prosemirror-view": "^1.29.1"
+  },
+  "resolutions": {
+    "eslint-mdx": "2.0.5"
   }
 }
