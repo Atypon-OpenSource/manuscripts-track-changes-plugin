@@ -25,28 +25,28 @@ import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 import replaceAroundSteps from './replace-around-steps.json'
 
-let counter = 0;
+let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
-var uuidv4Mock: jest.Mock;
+var uuidv4Mock: jest.Mock
 
 jest.mock('../../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../../src/utils/uuidv4');
-  uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`);
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
+  uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
     ...mockOriginal,
     uuidv4: uuidv4Mock,
-  };
-});
-jest.mock('../../src/utils/logger');
-jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime());
+  }
+})
+jest.mock('../../src/utils/logger')
+jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
 describe('replace-around-steps.test', () => {
   afterEach(() => {
-    counter = 0;
-    jest.clearAllMocks();
-  });
+    counter = 0
+    jest.clearAllMocks()
+  })
 
   test('should track basic wrapping and unwrapping of blockquotes', async () => {
     const tester = setupEditor({
@@ -79,21 +79,21 @@ describe('replace-around-steps.test', () => {
       // Wrap the 4th paragraph in a blockquote and see whether track-changes-plugin correctly handles the positions
       // when adjacent to blockquote above and end of doc at the bottom
       .selectText(50)
-      .wrapIn(schema.nodes.blockquote);
+      .wrapIn(schema.nodes.blockquote)
 
     // move at the start of 3rd paragraph, hit backspace -> should wrap inside the nested blockquote
     // same would happen with 4th paragraph
-    expect(tester.toJSON()).toEqual(replaceAroundSteps[0]);
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false);
+    expect(tester.toJSON()).toEqual(replaceAroundSteps[0])
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester.setChangeStatuses().cmd(trackCommands.applyAndRemoveChanges());
+    tester.setChangeStatuses().cmd(trackCommands.applyAndRemoveChanges())
 
     // expect(tester.toJSON()).toEqual(replaceAroundSteps[1])
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false);
-    expect(uuidv4Mock.mock.calls.length).toBe(3);
-    expect(log.warn).toHaveBeenCalledTimes(0);
-    expect(log.error).toHaveBeenCalledTimes(0);
-  });
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(3)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 
   test.skip('should mark text inserted/deleted when selection spans various nodes', async () => {
     const tester = setupEditor({
@@ -102,14 +102,14 @@ describe('replace-around-steps.test', () => {
       .selectText(5, 21)
       .insertText('ab')
       .selectText(32, 48)
-      .insertText('c');
+      .insertText('c')
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
     // expect(tester.toJSON()).toEqual(basicTextInconsistent[0])
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false);
-    expect(uuidv4Mock.mock.calls.length).toBe(4);
-    expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.error).toHaveBeenCalledTimes(0);
-  });
-});
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(log.warn).toHaveBeenCalledTimes(1)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+})

@@ -31,11 +31,17 @@ import { updateChangeAttrs } from './updateChangeAttrs'
  * @param schema
  * @return docWasChanged, a boolean
  */
-export function fixInconsistentChanges(changeSet: ChangeSet, currentUserID: string, newTr: Transaction, schema: Schema) {
+export function fixInconsistentChanges(
+  changeSet: ChangeSet,
+  currentUserID: string,
+  newTr: Transaction,
+  schema: Schema
+) {
   const iteratedIds = new Set()
   let changed = false
   changeSet.invalidChanges.forEach((c) => {
-    const { id, authorID, operation, reviewedByID, status, createdAt, statusUpdateAt, updatedAt } = c.dataTracked
+    const { id, authorID, operation, reviewedByID, status, createdAt, statusUpdateAt, updatedAt } =
+      c.dataTracked
     const newAttrs = {
       ...((!id || iteratedIds.has(id) || id.length === 0) && { id: uuidv4() }),
       ...(!authorID && { authorID: currentUserID }),

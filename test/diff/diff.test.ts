@@ -30,25 +30,25 @@ import textDiff from './text-diff.json'
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
-var uuidv4Mock: jest.Mock;
+var uuidv4Mock: jest.Mock
 
 jest.mock('../../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../../src/utils/uuidv4');
-  uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`);
+  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
+  uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
   return {
     __esModule: true,
     ...mockOriginal,
     uuidv4: uuidv4Mock,
-  };
-});
-jest.mock('../../src/utils/logger');
-jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime());
+  }
+})
+jest.mock('../../src/utils/logger')
+jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
 describe('diff.test', () => {
   afterEach(() => {
-    counter = 0;
-    jest.clearAllMocks();
-  });
+    counter = 0
+    jest.clearAllMocks()
+  })
 
   // test('should diff text starting from the start of the deleted range', async () => {
   //   const tester = setupEditor({
@@ -131,28 +131,28 @@ describe('diff.test', () => {
     const tester = setupEditor({
       doc: docs.equation,
       schema,
-    });
+    })
 
-    expect(tester.toJSON()).toEqual(nodeDiff[0]);
+    expect(tester.toJSON()).toEqual(nodeDiff[0])
 
-    jest.useFakeTimers().setSystemTime(new Date('2020-05-05').getTime());
+    jest.useFakeTimers().setSystemTime(new Date('2020-05-05').getTime())
 
     tester.setNodeMarkup(14, { TeXRepresentation: '1+1=2' }).setChangeStatuses(CHANGE_STATUS.accepted)
 
-    expect(tester.toJSON()).toEqual(nodeDiff[1]);
+    expect(tester.toJSON()).toEqual(nodeDiff[1])
 
-    tester.setNodeMarkup(14, { TeXRepresentation: '' });
+    tester.setNodeMarkup(14, { TeXRepresentation: '' })
 
-    expect(tester.toJSON()).toEqual(nodeDiff[3]);
+    expect(tester.toJSON()).toEqual(nodeDiff[3])
 
-    jest.useFakeTimers().setSystemTime(new Date('2020-09-09').getTime());
+    jest.useFakeTimers().setSystemTime(new Date('2020-09-09').getTime())
 
     const x = tester
       .setNodeMarkup(14, { TeXRepresentation: '1+2=3' })
       .delete(13, 15)
-      .setChangeStatuses(CHANGE_STATUS.rejected);
+      .setChangeStatuses(CHANGE_STATUS.rejected)
 
-    x.cmd(trackCommands.applyAndRemoveChanges()).moveCursor('start');
+    x.cmd(trackCommands.applyAndRemoveChanges()).moveCursor('start')
 
     // @TODO fix bug for this usecase (that's what this test does):
     /* 
@@ -169,9 +169,9 @@ describe('diff.test', () => {
       This test should be uncommented and fixed after it's done --> expect(tester.toJSON()).toEqual(nodeDiff[0]);
     
     */
-    expect(uuidv4Mock.mock.calls.length).toBe(6);
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false);
-    expect(log.warn).toHaveBeenCalledTimes(0);
-    expect(log.error).toHaveBeenCalledTimes(0);
-  });
-});
+    expect(uuidv4Mock.mock.calls.length).toBe(6)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+})

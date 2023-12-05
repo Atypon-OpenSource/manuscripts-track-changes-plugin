@@ -34,45 +34,34 @@ export function trackReplaceStep(
   stepResult: StepResult,
   currentStepDoc: PMNode
 ) {
-  log.info('###### ReplaceStep ######');
-  let selectionPos = 0;
-  const changeSteps: ChangeStep[] = [];
+  log.info('###### ReplaceStep ######')
+  let selectionPos = 0
+  const changeSteps: ChangeStep[] = []
 
   // Invert the transaction step to prevent it from actually deleting or inserting anything
-  step
-    .getMap()
-    .forEach((fromA: number, toA: number, fromB: number, toB: number) => {
-      log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`);
-      const { slice } = step as ExposedReplaceStep;
-      log.info('TR: steps before applying delete', [...newTr.steps]);
-      // First apply the deleted range and update the insert slice to not include content that was deleted,
-      // eg partial nodes in an open-ended slice
+  step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
+    log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
+    const { slice } = step as ExposedReplaceStep
+    log.info('TR: steps before applying delete', [...newTr.steps])
+    // First apply the deleted range and update the insert slice to not include content that was deleted,
+    // eg partial nodes in an open-ended slice
 
-      if (stepResult.failed) {
-        log.error(`invert ReplaceStep failed: "${stepResult.failed}"`);
-        return;
-      }
+    if (stepResult.failed) {
+      log.error(`invert ReplaceStep failed: "${stepResult.failed}"`)
+      return
+    }
 
-      const {
-        sliceWasSplit,
-        newSliceContent,
-        steps: deleteSteps,
-      } = deleteAndMergeSplitNodes(
-        fromA,
-        toA,
-        undefined,
-        currentStepDoc,
-        newTr,
-        oldState.schema,
-        attrs,
-        slice
-      );
-      changeSteps.push(...deleteSteps);
-      log.info('TR: steps after applying delete', [...newTr.steps]);
-      log.info('DELETE STEPS: ', changeSteps);
+    const {
+      sliceWasSplit,
+      newSliceContent,
+      steps: deleteSteps,
+    } = deleteAndMergeSplitNodes(fromA, toA, undefined, currentStepDoc, newTr, oldState.schema, attrs, slice)
+    changeSteps.push(...deleteSteps)
+    log.info('TR: steps after applying delete', [...newTr.steps])
+    log.info('DELETE STEPS: ', changeSteps)
 
-      function sameThingBackSpaced() {
-        /*
+    function sameThingBackSpaced() {
+      /*
       When deleting text with backspace and getting to the point of when a space and a character before a deleted piece of text is deleted
       the prosemirror would interpret it as moving the <del> node (this is a tracked deletion) one characted behind.       
       It normally results in [delete, delete, insert] set of ChangSteps where the 1st delete is for the delete done by
@@ -80,49 +69,44 @@ export function trackReplaceStep(
       and removed as they are not meaningful.
       */
 
-        if (changeSteps.length == 2 && newSliceContent.size > 0) {
-          const correspondingDeletion = changeSteps.find(
-            // @ts-ignore
-            (step) => step.node.text === newSliceContent.content[0].text //  @TODO - get more precise proof of match. E.g.: position approximation
-          );
-          return correspondingDeletion;
-        }
-        return undefined;
+      if (changeSteps.length == 2 && newSliceContent.size > 0) {
+        const correspondingDeletion = changeSteps.find(
+          // @ts-ignore
+          (step) => step.node.text === newSliceContent.content[0].text //  @TODO - get more precise proof of match. E.g.: position approximation
+        )
+        return correspondingDeletion
       }
+      return undefined
+    }
 
-      const backSpacedText = sameThingBackSpaced();
-      if (backSpacedText) {
-        changeSteps.splice(changeSteps.indexOf(backSpacedText));
-      }
+    const backSpacedText = sameThingBackSpaced()
+    if (backSpacedText) {
+      changeSteps.splice(changeSteps.indexOf(backSpacedText))
+    }
 
-      const textWasDeleted = !!changeSteps.length;
-      if (!backSpacedText && newSliceContent.size > 0) {
-        log.info('newSliceContent', newSliceContent);
+    const textWasDeleted = !!changeSteps.length
+    if (!backSpacedText && newSliceContent.size > 0) {
+      log.info('newSliceContent', newSliceContent)
 
-        // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
-        // the sides should be equal. TODO can they be other than 0?
+      // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
+      // the sides should be equal. TODO can they be other than 0?
 
-        const openStart =
-          slice.openStart !== slice.openEnd ? 0 : slice.openStart;
-        const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd;
-        changeSteps.push({
-          type: 'insert-slice',
-          from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-          to: textWasDeleted ? toB - 1 : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
-          sliceWasSplit,
-          slice: new Slice(
-            setFragmentAsInserted(
-              newSliceContent,
-              trackUtils.createNewInsertAttrs(attrs),
-              oldState.schema
-            ),
-            openStart,
-            openEnd
-          ) as ExposedSlice,
-        });
-      } else {
-        // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
-        // mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
+      const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
+      const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
+      changeSteps.push({
+        type: 'insert-slice',
+        from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
+        to: textWasDeleted ? toB - 1 : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
+        sliceWasSplit,
+        slice: new Slice(
+          setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema),
+          openStart,
+          openEnd
+        ) as ExposedSlice,
+      })
+    } else {
+      // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
+      // mergeTrackedMarks(adjustedInsertPos, newTr.doc, newTr, oldState.schema)
 
       // When DEL is used, the selection is set to the end of the deleted content
       // TODO: 'window.event' is deprecated, find a better way to detect the key used for deletion

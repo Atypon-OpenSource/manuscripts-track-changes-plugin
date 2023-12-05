@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode } from 'prosemirror-model';
-import { Transaction } from 'prosemirror-state';
-import { liftTarget } from 'prosemirror-transform';
+import { Fragment, Node as PMNode } from 'prosemirror-model'
+import { Transaction } from 'prosemirror-state'
+import { liftTarget } from 'prosemirror-transform'
 
-import { log } from '../utils/logger';
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change';
-import { NewDeleteAttrs } from '../types/track';
-import {
-  addTrackIdIfDoesntExist,
-  getBlockInlineTrackedData,
-} from '../compute/nodeHelpers';
+import { log } from '../utils/logger'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
+import { NewDeleteAttrs } from '../types/track'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first
@@ -35,7 +32,7 @@ import {
  * @returns
  */
 export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
-  const startPos = tr.doc.resolve(pos + 1);
+  const startPos = tr.doc.resolve(pos + 1)
 
   /*
     The following code is commented out due the fact that it provides an unclear behaviour and causes bugs but
@@ -53,21 +50,18 @@ export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
   //   return tr.lift(range, targetDepth);
   // }
 
-  const resPos = tr.doc.resolve(pos);
+  const resPos = tr.doc.resolve(pos)
   // Block nodes can be deleted by just removing their start token which should then merge the text
   // content to above node's content (if there is one)
   // this will work just for the node after the first child
   const canMergeToNodeAbove =
-    resPos.parent !== tr.doc &&
-    resPos.nodeBefore &&
-    node.isBlock &&
-    node.firstChild?.isText;
+    resPos.parent !== tr.doc && resPos.nodeBefore && node.isBlock && node.firstChild?.isText
   if (canMergeToNodeAbove) {
-    return tr.replaceWith(pos - 1, pos + 1, Fragment.empty);
+    return tr.replaceWith(pos - 1, pos + 1, Fragment.empty)
   } else {
     // NOTE: there's an edge case where moving content is not possible but because the immediate
     // child, say some wrapper blockNode, is also deleted the content could be retained. TODO I guess.
-    return tr.delete(pos, pos + node.nodeSize);
+    return tr.delete(pos, pos + node.nodeSize)
   }
 }
 
@@ -84,32 +78,26 @@ export function deleteOrSetNodeDeleted(
   newTr: Transaction,
   deleteAttrs: NewDeleteAttrs
 ) {
-  const dataTracked = getBlockInlineTrackedData(node);
+  const dataTracked = getBlockInlineTrackedData(node)
   const inserted = dataTracked?.find(
-    (d) =>
-      d.operation === CHANGE_OPERATION.insert &&
-      d.status === CHANGE_STATUS.pending
-  );
-  const deleted = dataTracked?.find(
-    (d) => d.operation === CHANGE_OPERATION.delete
-  );
-  const updated = dataTracked?.find(
-    (d) => d.operation === CHANGE_OPERATION.set_node_attributes
-  );
+    (d) => d.operation === CHANGE_OPERATION.insert && d.status === CHANGE_STATUS.pending
+  )
+  const deleted = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.delete)
+  const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
   if (inserted && inserted.authorID === deleteAttrs.authorID) {
-    return deleteNode(node, pos, newTr);
+    return deleteNode(node, pos, newTr)
   }
   if (!newTr.doc.nodeAt(pos)) {
     log.error(`deleteOrSetNodeDeleted: no node found for deletion`, {
       pos,
       node,
       newTr,
-    });
-    return;
+    })
+    return
   }
   const newDeleted = deleted
     ? { ...deleted, updatedAt: deleteAttrs.updatedAt }
-    : addTrackIdIfDoesntExist(deleteAttrs);
+    : addTrackIdIfDoesntExist(deleteAttrs)
 
   newTr.setNodeMarkup(
     pos,
@@ -119,5 +107,5 @@ export function deleteOrSetNodeDeleted(
       dataTracked: updated ? [newDeleted, updated] : [newDeleted],
     },
     node.marks
-  );
+  )
 }

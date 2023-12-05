@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Schema } from 'prosemirror-model';
-import type { Transaction } from 'prosemirror-state';
-import { Mapping, ReplaceStep } from 'prosemirror-transform';
+import { Schema } from 'prosemirror-model'
+import type { Transaction } from 'prosemirror-state'
+import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
-import { log } from '../utils/logger';
-import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change';
-import { ChangeStep } from '../types/step';
-import { NewEmptyAttrs } from '../types/track';
-import { deleteOrSetNodeDeleted } from '../mutate/deleteNode';
-import { deleteTextIfInserted } from '../mutate/deleteText';
-import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks';
-import {
-  addTrackIdIfDoesntExist,
-  getBlockInlineTrackedData,
-} from '../compute/nodeHelpers';
-import * as trackUtils from '../utils/track-utils';
+import { log } from '../utils/logger'
+import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
+import { ChangeStep } from '../types/step'
+import { NewEmptyAttrs } from '../types/track'
+import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
+import { deleteTextIfInserted } from '../mutate/deleteText'
+import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import * as trackUtils from '../utils/track-utils'
 
 export function processChangeSteps(
   changes: ChangeStep[],
@@ -37,48 +34,43 @@ export function processChangeSteps(
   emptyAttrs: NewEmptyAttrs,
   schema: Schema
 ) {
-  const mapping = new Mapping();
-  const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs);
-  let selectionPos = startPos;
+  const mapping = new Mapping()
+  const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs)
+  let selectionPos = startPos
   // @TODO add custom handler / condition?
   let deletesCounter = 0 // counter for deletion
   let isInserted = false // flag for inserted node
 
   changes.forEach((c) => {
-    let step = newTr.steps[newTr.steps.length - 1];
+    let step = newTr.steps[newTr.steps.length - 1]
 
     switch (c.type) {
       case 'delete-node':
-        deletesCounter++; // increase the counter for deleted nodes
-        const trackedData = getBlockInlineTrackedData(c.node);
-        const inserted = trackedData?.find(
-          (d) => d.operation === CHANGE_OPERATION.insert
-        );
+        deletesCounter++ // increase the counter for deleted nodes
+        const trackedData = getBlockInlineTrackedData(c.node)
+        const inserted = trackedData?.find((d) => d.operation === CHANGE_OPERATION.insert)
         // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
         // if yes, we can suppose that the current node was inserted too
-        isInserted = !!inserted || (!trackedData && isInserted);
+        isInserted = !!inserted || (!trackedData && isInserted)
 
         // For inserted node: the top node and its content (children nodes) is deleted in the first step
-        if (isInserted && deletesCounter > 1) return false;
-        deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs);
-        const newestStep = newTr.steps[newTr.steps.length - 1];
+        if (isInserted && deletesCounter > 1) return false
+        deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
+        const newestStep = newTr.steps[newTr.steps.length - 1]
 
         if (step !== newestStep) {
-          mapping.appendMap(newestStep.getMap());
-          step = newestStep;
+          mapping.appendMap(newestStep.getMap())
+          step = newestStep
         }
 
-        mergeTrackedMarks(mapping.map(c.pos), newTr.doc, newTr, schema);
-        break;
+        mergeTrackedMarks(mapping.map(c.pos), newTr.doc, newTr, schema)
+        break
 
       case 'delete-text':
-        const node = newTr.doc.nodeAt(mapping.map(c.pos));
+        const node = newTr.doc.nodeAt(mapping.map(c.pos))
         if (!node) {
-          log.error(
-            `processChangeSteps: no text node found for text-change`,
-            c
-          );
-          return;
+          log.error(`processChangeSteps: no text node found for text-change`, c)
+          return
         }
 
         const where = deleteTextIfInserted(
@@ -89,13 +81,13 @@ export function processChangeSteps(
           deleteAttrs,
           mapping.map(c.from),
           mapping.map(c.to)
-        );
+        )
 
-        mergeTrackedMarks(where, newTr.doc, newTr, schema);
-        break;
+        mergeTrackedMarks(where, newTr.doc, newTr, schema)
+        break
 
       case 'merge-fragment':
-        let insertPos = mapping.map(c.mergePos);
+        let insertPos = mapping.map(c.mergePos)
         // The default insert position for block nodes is either the start of the merged content or the end.
         // Incase text was merged, this must be updated as the start or end of the node doesn't map to the
         // actual position of the merge. Currently the inserted content is inserted at the start or end
@@ -111,32 +103,24 @@ export function processChangeSteps(
             deleteAttrs,
             mapping.map(c.from),
             mapping.map(c.to)
-          );
-          const newestStep = newTr.steps[newTr.steps.length - 1];
+          )
+          const newestStep = newTr.steps[newTr.steps.length - 1]
           if (step !== newestStep) {
-            mapping.appendMap(newestStep.getMap());
-            step = newestStep;
+            mapping.appendMap(newestStep.getMap())
+            step = newestStep
           }
         }
         if (c.fragment.size > 0) {
-          newTr.insert(insertPos, c.fragment);
+          newTr.insert(insertPos, c.fragment)
         }
-        break;
+        break
 
       case 'insert-slice':
-        const newStep = new ReplaceStep(
-          mapping.map(c.from),
-          mapping.map(c.to),
-          c.slice,
-          false
-        );
-        const stepResult = newTr.maybeStep(newStep);
+        const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.slice, false)
+        const stepResult = newTr.maybeStep(newStep)
         if (stepResult.failed) {
-          log.error(
-            `processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`,
-            newStep
-          );
-          return;
+          log.error(`processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`, newStep)
+          return
         }
         mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
         const to = mapping.map(c.to) + c.slice.size
@@ -150,32 +134,28 @@ export function processChangeSteps(
         break
 
       case 'update-node-attrs':
-        const oldDataTracked = getBlockInlineTrackedData(c.node) || [];
+        const oldDataTracked = getBlockInlineTrackedData(c.node) || []
         const oldUpdate = oldDataTracked.reverse().find((d) => {
           // reversing to start from the most recent change
           if (
             d.operation === CHANGE_OPERATION.set_node_attributes &&
-            (d.status === CHANGE_STATUS.pending ||
-              d.status === CHANGE_STATUS.rejected)
+            (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.rejected)
           ) {
-            return true;
+            return true
           }
-          return false;
-        }) as UpdateAttrs;
+          return false
+        }) as UpdateAttrs
 
         // if the selected last change is with status "rejected" we need to use oldAttrs from it because
         // node's actual attributes represent the "rejected" values
-        const lastChangeRejected =
-          oldUpdate && oldUpdate.status === CHANGE_STATUS.rejected;
+        const lastChangeRejected = oldUpdate && oldUpdate.status === CHANGE_STATUS.rejected
 
-        const sourceAttrs = oldUpdate?.oldAttrs || c.node.attrs;
-        const { dataTracked, ...restAttrs } = sourceAttrs;
-        const oldAttrs = lastChangeRejected ? oldUpdate.oldAttrs : restAttrs;
+        const sourceAttrs = oldUpdate?.oldAttrs || c.node.attrs
+        const { dataTracked, ...restAttrs } = sourceAttrs
+        const oldAttrs = lastChangeRejected ? oldUpdate.oldAttrs : restAttrs
         const newDataTracked = [
-          ...oldDataTracked.filter(
-            (d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected
-          ),
-        ];
+          ...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected),
+        ]
         const newUpdate =
           oldUpdate && oldUpdate.status !== CHANGE_STATUS.rejected
             ? {
@@ -183,22 +163,17 @@ export function processChangeSteps(
                 updatedAt: emptyAttrs.updatedAt,
               }
             : addTrackIdIfDoesntExist(
-                trackUtils.createNewUpdateAttrs(
-                  emptyAttrs,
-                  lastChangeRejected ? oldAttrs : c.node.attrs
-                )
-              );
+                trackUtils.createNewUpdateAttrs(emptyAttrs, lastChangeRejected ? oldAttrs : c.node.attrs)
+              )
         // Dont add update changes if there exists already an insert change for this node
         if (
           (JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) ||
             c.node.type === c.node.type.schema.nodes.citation) &&
           !oldDataTracked.find(
-            (d) =>
-              d.operation === CHANGE_OPERATION.insert &&
-              d.status === CHANGE_STATUS.pending
+            (d) => d.operation === CHANGE_OPERATION.insert && d.status === CHANGE_STATUS.pending
           )
         ) {
-          newDataTracked.push(newUpdate);
+          newDataTracked.push(newUpdate)
         }
         newTr.setNodeMarkup(
           mapping.map(c.pos),
@@ -208,16 +183,16 @@ export function processChangeSteps(
             dataTracked: newDataTracked.length > 0 ? newDataTracked : null,
           },
           c.node.marks
-        );
-        break;
+        )
+        break
       default:
-        log.error(`processChangeSteps: unknown change type`, c);
-        return;
+        log.error(`processChangeSteps: unknown change type`, c)
+        return
     }
 
-    const newestStep = newTr.steps[newTr.steps.length - 1];
+    const newestStep = newTr.steps[newTr.steps.length - 1]
     if (step !== newestStep) {
-      mapping.appendMap(newestStep.getMap());
+      mapping.appendMap(newestStep.getMap())
     }
   })
 
