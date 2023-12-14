@@ -60,9 +60,6 @@ export function trackReplaceStep(
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', changeSteps)
 
-    // console.log('CHANGE STEPS AT THIS POINT:')
-    // console.log(JSON.parse(JSON.stringify(changeSteps)))
-
     function sameThingBackSpaced() {
       /*
       When deleting text with backspace and getting to the point of when a space and a character before a deleted piece of text is deleted

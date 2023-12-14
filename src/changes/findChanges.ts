@@ -42,6 +42,7 @@ export function findChanges(state: EditorState) {
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
     const tracked = getNodeTrackedData(node, state.schema) || []
+
     for (let i = 0; i < tracked.length; i += 1) {
       const dataTracked = tracked[i]
       const id = dataTracked.id || ''

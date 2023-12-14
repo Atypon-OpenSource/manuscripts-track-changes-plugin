@@ -1,6 +1,6 @@
 {
   "name": "@manuscripts/track-changes-plugin",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-track-changes-plugin",
@@ -17,6 +17,7 @@
     "build:es": "tsc --outDir dist/es --declarationDir dist/types --declaration",
     "dev": "npm-run-all --parallel 'build:* --project tsconfig.json --watch'",
     "test": "jest --runInBand",
+    "test-rs": "jest -i test/diff/diff.test.ts",
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
@@ -37,13 +38,13 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^27.1.7",
     "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-mdx": "^2.0.5",
+    "eslint-plugin-mdx": "2.0.4",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
-    "husky": "^8.0.2",
+    "husky": "^8.0.1",
     "jest": "27.5.1",
     "jest-environment-jsdom": "27.5.1",
     "jsdom": "^20.0.0",
@@ -64,5 +65,8 @@
     "prosemirror-state": "^1.4.2",
     "prosemirror-transform": "^1.7.0",
     "prosemirror-view": "^1.29.1"
+  },
+  "resolutions": {
+    "eslint-mdx": "2.0.5"
   }
 }

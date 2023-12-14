@@ -33,6 +33,7 @@ type InsertDeleteAttrs = {
   reviewedByID: string | null
   operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.delete
   status: CHANGE_STATUS
+  statusUpdateAt: number
   createdAt: number
   updatedAt: number
 }

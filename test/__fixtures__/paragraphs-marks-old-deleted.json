@@ -25,6 +25,7 @@
                     "createdAt": 1661509955426,
                     "operation": "delete",
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "reviewedByID": "none"
                   }
                 }
@@ -95,6 +96,7 @@
                     "createdAt": 1661509955426,
                     "operation": "delete",
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "reviewedByID": "none"
                   }
                 }
@@ -118,6 +120,7 @@
                     "createdAt": 1661509955426,
                     "operation": "delete",
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "reviewedByID": "none"
                   }
                 }
@@ -144,6 +147,7 @@
                     "createdAt": 1661509955426,
                     "operation": "delete",
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "reviewedByID": "none"
                   }
                 }
@@ -164,6 +168,7 @@
                     "createdAt": 1661509955426,
                     "operation": "delete",
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "reviewedByID": "none"
                   }
                 }

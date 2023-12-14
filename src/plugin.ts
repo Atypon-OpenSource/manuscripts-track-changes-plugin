@@ -117,13 +117,19 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
 
         if (setChangeStatuses) {
           const { status, ids } = setChangeStatuses
+          const changeTime = new Date().getTime()
           ids.forEach((changeId: string) => {
             const change = changeSet?.get(changeId)
             if (change) {
               createdTr = updateChangeAttrs(
                 createdTr,
                 change,
-                { ...change.dataTracked, status, reviewedByID: userID },
+                {
+                  ...change.dataTracked,
+                  status,
+                  statusUpdateAt: changeTime,
+                  reviewedByID: userID,
+                },
                 oldState.schema
               )
             }

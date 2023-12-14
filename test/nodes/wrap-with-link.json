@@ -22,6 +22,7 @@
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "status": "pending",
                     "operation": "insert"
                   }
@@ -71,6 +72,7 @@
                     "reviewedByID": null,
                     "createdAt": 1577836800000,
                     "updatedAt": 1577836800000,
+                    "statusUpdateAt": 0,
                     "status": "pending",
                     "operation": "insert"
                   }

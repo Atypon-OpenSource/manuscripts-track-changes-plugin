@@ -28,6 +28,7 @@ function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: str
   if (!dataTracked) {
     return null
   }
+  console.log(dataTracked)
   const newDataTracked = dataTracked.filter((c) => c.id !== changeId)
   return newDataTracked.length ? newDataTracked : null
 }
@@ -80,7 +81,10 @@ export function applyAcceptedRejectedChanges(
         tr.setNodeMarkup(
           from,
           undefined,
-          { ...attrs, dataTracked: newDataTracked.length ? newDataTracked : null },
+          {
+            ...attrs,
+            dataTracked: newDataTracked.length ? newDataTracked : null,
+          },
           node.marks
         )
         // default is "null" for dataTracked in attrs in pm schema, so codebase generally relies on it being null when empty
@@ -111,15 +115,23 @@ export function applyAcceptedRejectedChanges(
       tr.setNodeMarkup(
         from,
         undefined,
-        { ...change.newAttrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+        {
+          ...change.newAttrs,
+          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+        },
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
     } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.rejected) {
+      console.log('GETTING IN ---- CHANGE_STATUS.rejected')
+
       tr.setNodeMarkup(
         from,
         undefined,
-        { ...change.oldAttrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+        {
+          ...change.oldAttrs,
+          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+        },
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)

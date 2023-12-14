@@ -11,6 +11,7 @@
               "authorID": "1-mike",
               "reviewedByID": null,
               "createdAt": 1577836800000,
+              "statusUpdateAt": 0,
               "updatedAt": 1577836800000,
               "status": "pending",
               "operation": "insert"

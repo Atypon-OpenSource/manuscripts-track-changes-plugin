@@ -61,7 +61,11 @@ export class ChangeSet {
     const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
     this.changes.forEach((c) => {
-      if (currentNodeChange && c.from >= currentNodeChange.to) {
+      if (
+        currentNodeChange &&
+        (c.from >= currentNodeChange.to ||
+          c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
+      ) {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
       }
@@ -80,6 +84,7 @@ export class ChangeSet {
     if (currentNodeChange) {
       rootNodes.push(currentNodeChange)
     }
+
     return rootNodes
   }
 
