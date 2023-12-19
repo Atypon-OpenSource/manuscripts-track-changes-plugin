@@ -96,7 +96,7 @@ export function deleteOrSetNodeDeleted(
     return
   }
   const newDeleted = deleted
-    ? { ...deleted, updatedAt: deleteAttrs.updatedAt }
+    ? { ...deleted, updatedAt: deleteAttrs.updatedAt, status: deleted.status === CHANGE_STATUS.rejected ? CHANGE_STATUS.pending : deleted.status }
     : addTrackIdIfDoesntExist(deleteAttrs)
 
   newTr.setNodeMarkup(
