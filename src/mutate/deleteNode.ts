@@ -15,10 +15,9 @@
  */
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
-import { liftTarget } from 'prosemirror-transform'
 
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { NewDeleteAttrs } from '../types/track'
 import { log } from '../utils/logger'
 
@@ -82,7 +81,6 @@ export function deleteOrSetNodeDeleted(
   const inserted = dataTracked?.find(
     (d) => d.operation === CHANGE_OPERATION.insert && d.status === CHANGE_STATUS.pending
   )
-  const deleted = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.delete)
   const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
   if (inserted && inserted.authorID === deleteAttrs.authorID) {
     return deleteNode(node, pos, newTr)
@@ -95,9 +93,7 @@ export function deleteOrSetNodeDeleted(
     })
     return
   }
-  const newDeleted = deleted
-    ? { ...deleted, updatedAt: deleteAttrs.updatedAt, status: deleted.status === CHANGE_STATUS.rejected ? CHANGE_STATUS.pending : deleted.status }
-    : addTrackIdIfDoesntExist(deleteAttrs)
+  const newDeleted = addTrackIdIfDoesntExist(deleteAttrs)
 
   newTr.setNodeMarkup(
     pos,
