@@ -53,6 +53,9 @@ export function applyAcceptedRejectedChanges(
     arr!.push(changeId)
   }
 
+  // will apply node-attr-change before we start to delete nodes, as this will give us right position of nodes in the tr.doc
+  changes.sort((c1) => (c1.type === 'node-attr-change' ? -1 : 0))
+
   changes.forEach((change) => {
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete

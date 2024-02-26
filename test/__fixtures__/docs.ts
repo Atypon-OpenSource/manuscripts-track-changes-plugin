@@ -15,6 +15,7 @@
  */
 import bibliographySection from './bibliography-section.json'
 import blockquoteMarks from './blockquote-marks.json'
+import contributorsAndAffiliation from './contributors-affiliation.json'
 import equation from './equation.json'
 import manuscriptSimple from './manuscript-simple.json'
 import manyParagraphs from './many-paragraphs.json'
@@ -24,6 +25,7 @@ import paragraphsMarksOldDeleted from './paragraphs-marks-old-deleted.json'
 import table from './table.json'
 
 export default {
+  contributorsAndAffiliation,
   paragraph,
   equation,
   bibliographySection,
