@@ -28,7 +28,6 @@ function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: str
   if (!dataTracked) {
     return null
   }
-  console.log(dataTracked)
   const newDataTracked = dataTracked.filter((c) => c.id !== changeId)
   return newDataTracked.length ? newDataTracked : null
 }

@@ -93,65 +93,6 @@
         {
           "type": "contributor",
           "attrs": {
-            "id": "MPContributor:EBBDF1DC-0AF6-4908-9743-E22FAA53DF01",
-            "role": "author",
-            "email": "",
-            "corresp": [
-              {
-                "correspID": "MPCorresponding:03F92983-90C8-49AD-AD21-9C7762245FF2",
-                "correspLabel": "*"
-              }
-            ],
-            "contents": "",
-            "priority": 0,
-            "dataTracked": null,
-            "affiliations": [
-              "MPAffiliation:EB35F6E8-535E-4E59-B338-6CC92155AEB1"
-            ],
-            "isCorresponding": true,
-            "bibliographicName": {
-              "_id": "MPBibliographicName:21A793A7-4DA8-4271-BAB8-26F38AAA7BE0",
-              "given": "Li",
-              "family": "Hui",
-              "objectType": "MPBibliographicName"
-            }
-          },
-          "content": [
-            {
-              "text": "_",
-              "type": "text"
-            }
-          ]
-        },
-        {
-          "type": "contributor",
-          "attrs": {
-            "id": "MPContributor:12B65FC3-8B74-4D56-9CC3-DECBF4B3E63E",
-            "role": "author",
-            "email": "",
-            "contents": "",
-            "priority": 2,
-            "dataTracked": null,
-            "affiliations": [
-              "MPAffiliation:EB35F6E8-535E-4E59-B338-6CC92155AEB1"
-            ],
-            "bibliographicName": {
-              "_id": "MPBibliographicName:01D7EE1D-631A-4AE4-9096-1F5C4B0D130F",
-              "given": "Zhen Hua",
-              "family": "Zhu",
-              "objectType": "MPBibliographicName"
-            }
-          },
-          "content": [
-            {
-              "text": "_",
-              "type": "text"
-            }
-          ]
-        },
-        {
-          "type": "contributor",
-          "attrs": {
             "id": "MPContributor:E8677996-A321-469B-9E10-263CF534324C",
             "role": "author",
             "email": "",
@@ -280,30 +221,6 @@
                   }
                 }
               ]
-            }
-          ]
-        },
-        {
-          "type": "affiliation",
-          "attrs": {
-            "id": "MPAffiliation:EB35F6E8-535E-4E59-B338-6CC92155AEB1",
-            "city": "",
-            "email": {},
-            "county": "",
-            "country": "China",
-            "postCode": "",
-            "priority": 0,
-            "department": "Research Center of Biological Psychiatry",
-            "dataTracked": null,
-            "institution": "The Affiliated Guangji Hospital of Soochow University",
-            "addressLine1": "Suzhou, Jiangsu",
-            "addressLine2": "",
-            "addressLine3": ""
-          },
-          "content": [
-            {
-              "text": "_",
-              "type": "text"
             }
           ]
         }
