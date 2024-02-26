@@ -135,22 +135,7 @@ describe('apply-changes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should apply changes correctly', async () => {
-    const tester = setupEditor({
-      doc: docs.nestedBlockquotes,
-    })
-
-    expect(tester.toJSON()).toEqual(insertAccept[0])
-    expect(uuidv4Mock.mock.calls.length).toBe(26)
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-
-    tester.cmd(trackCommands.applyAndRemoveChanges())
-
-    expect(tester.toJSON()).toEqual(insertAccept[1])
-    expect(uuidv4Mock.mock.calls.length).toBe(26)
-  })
-
-  test.skip('should apply deleting and set attribute for both contributor & affiliation', async () => {
+  test('should apply deleting and set attribute for both contributor & affiliation', async () => {
     const tester = setupEditor({
       schema: manuscriptSchema,
       doc: docs.contributorsAndAffiliation,
@@ -171,5 +156,20 @@ describe('apply-changes.test', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(0)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test.skip('should apply changes correctly', async () => {
+    const tester = setupEditor({
+      doc: docs.nestedBlockquotes,
+    })
+
+    expect(tester.toJSON()).toEqual(insertAccept[0])
+    expect(uuidv4Mock.mock.calls.length).toBe(26)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+
+    tester.cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(tester.toJSON()).toEqual(insertAccept[1])
+    expect(uuidv4Mock.mock.calls.length).toBe(26)
   })
 })
