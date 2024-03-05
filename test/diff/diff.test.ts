@@ -155,7 +155,7 @@ describe('diff.test', () => {
     x.cmd(trackCommands.applyAndRemoveChanges()).moveCursor('start')
 
     // @TODO fix bug for this usecase (that's what this test does):
-    /* 
+    /*
       1. change attributes on a node with no changes,
       2. accept changes,
       3. change attributes again,
@@ -167,9 +167,9 @@ describe('diff.test', () => {
       Note: This was only discovered in this commit but inotroduced sometime earlier
 
       This test should be uncommented and fixed after it's done --> expect(tester.toJSON()).toEqual(nodeDiff[0]);
-    
+
     */
-    expect(uuidv4Mock.mock.calls.length).toBe(6)
+    expect(uuidv4Mock.mock.calls.length).toBe(7)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)

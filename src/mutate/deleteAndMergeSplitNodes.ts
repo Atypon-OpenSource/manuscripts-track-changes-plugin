@@ -120,9 +120,6 @@ export function deleteAndMergeSplitNodes(
         if (!endTokenDeleted && startTokenDeleted) {
           mergingStartSide = false
         }
-        // Depth is often 1 when merging paragraphs or 2 for fully open blockquotes.
-        // Incase of merging text within a ReplaceAroundStep the depth might be 1
-        const depth = newTr.doc.resolve(pos).depth
         const mergeContent = mergingStartSide
           ? firstMergedNode?.mergedNodeContent
           : lastMergedNode?.mergedNodeContent
@@ -130,12 +127,12 @@ export function deleteAndMergeSplitNodes(
         // Then we only have to ensure the depth is at the right level, so say a fully open blockquote insert will
         // be merged at the lowest, paragraph level, instead of blockquote level.
         const mergeStartNode =
-          endTokenDeleted && openStart > 0 && depth === openStart && mergeContent !== undefined
+          endTokenDeleted && openStart > 0 && mergeContent !== undefined
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
         const mergeEndNode =
-          startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent !== undefined
+          startTokenDeleted && openEnd > 0 && mergeContent !== undefined
 
         if (mergeStartNode || mergeEndNode) {
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps

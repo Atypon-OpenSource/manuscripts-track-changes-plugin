@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Schema } from 'prosemirror-model'
+import {Schema, Slice} from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
@@ -22,7 +22,7 @@ import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
-import { ChangeStep } from '../types/step'
+import {ChangeStep, MergeFragmentStep} from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
@@ -118,12 +118,17 @@ export function processChangeSteps(
         break
 
       case 'insert-slice':
-        const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.slice, false)
+        const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.sliceWasSplit ? Slice.empty : c.slice, false)
         const stepResult = newTr.maybeStep(newStep)
         if (stepResult.failed) {
           log.error(`processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`, newStep)
           return
         }
+
+        if (c.sliceWasSplit) {
+            newTr.insert(c.from, c.slice.content)
+        }
+
         mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
         const to = mapping.map(c.to) + c.slice.size
         mergeTrackedMarks(
