@@ -52,8 +52,8 @@ export function applyAcceptedRejectedChanges(
     arr!.push(changeId)
   }
 
-  // will apply node-attr-change before we start to delete nodes, as this will give us right position of nodes in the tr.doc
-  changes.sort((c1) => (c1.type === 'node-attr-change' ? -1 : 0))
+  // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
+  changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
     // Map change.from and skip those which dont need to be applied
