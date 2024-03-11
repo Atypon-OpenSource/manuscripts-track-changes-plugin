@@ -100,6 +100,14 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
+
+        // track changes allows free reign for client sync, because, if the changes was supposed to be tracked it should've been done on the respective client.
+        const collabRebased = tr.getMeta('rebased')
+        if (collabRebased !== undefined) {
+          setAction(createdTr, TrackChangesAction.refreshChanges, true)
+          docChanged = true
+          return
+        }
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
