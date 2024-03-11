@@ -34,7 +34,9 @@ export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-cha
  * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as the default userID.
  * @param opts
  */
-export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonymous:Anonymous' }) => {
+export const trackChangesPlugin = (
+  opts: TrackChangesOptions = { userID: 'anonymous:Anonymous', initialStatus: TrackChangesStatus.enabled }
+) => {
   const { userID, debug, skipTrsWithMetas = [] } = opts
   let editorView: EditorView | undefined
   if (debug) {
@@ -51,7 +53,7 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
     state: {
       init(_config, state) {
         return {
-          status: TrackChangesStatus.enabled,
+          status: opts.initialStatus || TrackChangesStatus.enabled,
           userID,
           changeSet: findChanges(state),
         }
