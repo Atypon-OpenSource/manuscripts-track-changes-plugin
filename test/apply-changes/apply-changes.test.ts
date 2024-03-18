@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
+import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
 
 import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
@@ -130,6 +131,29 @@ describe('apply-changes.test', () => {
     expect(tester.toJSON()).toEqual(insertReject[0])
     expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should apply deleting and set attribute for both contributor & affiliation', async () => {
+    const tester = setupEditor({
+      schema: manuscriptSchema,
+      doc: docs.contributorsAndAffiliation,
+    }).cmd((state, dispatch) => {
+      const trackChangesState = trackChangesPluginKey.getState(state)
+      if (!trackChangesState) {
+        return false
+      }
+      const ids = ChangeSet.flattenTreeToIds(trackChangesState.changeSet.pending)
+      trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
+      return true
+    })
+
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+
+    tester.cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(uuidv4Mock.mock.calls.length).toBe(0)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

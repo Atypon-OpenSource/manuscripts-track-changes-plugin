@@ -1,0 +1,230 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "contributors",
+      "attrs": {
+        "id": ""
+      },
+      "content": [
+        {
+          "type": "contributor",
+          "attrs": {
+            "id": "MPContributor:44FCCD30-B87D-4E0C-90E7-6577BA778D30",
+            "role": "author",
+            "email": "",
+            "contents": "",
+            "priority": 1,
+            "dataTracked": [
+              {
+                "id": "91c30efa-5c1b-46c3-911c-d72e7b0f3a74",
+                "status": "accepted",
+                "authorID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "createdAt": 1708932406241,
+                "operation": "delete",
+                "updatedAt": 1708932406241,
+                "reviewedByID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "statusUpdateAt": 1708932415886
+              },
+              {
+                "id": "8dd4d9ac-c9fb-41f5-aa02-04f8090f151f",
+                "status": "accepted",
+                "authorID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "oldAttrs": {
+                  "id": "MPContributor:44FCCD30-B87D-4E0C-90E7-6577BA778D30",
+                  "role": "author",
+                  "email": "",
+                  "contents": "",
+                  "priority": 1,
+                  "affiliations": [
+                    "MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC"
+                  ],
+                  "bibliographicName": {
+                    "_id": "MPBibliographicName:DF6D079F-BD5D-4BC7-9F82-2F35C590D8C1",
+                    "given": "Wei Ming",
+                    "family": "Hu",
+                    "objectType": "MPBibliographicName"
+                  }
+                },
+                "createdAt": 1708932401860,
+                "operation": "set_attrs",
+                "updatedAt": 1708932404264,
+                "reviewedByID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "statusUpdateAt": 1708932415886
+              }
+            ],
+            "affiliations": [
+              "MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC"
+            ],
+            "ORCIDIdentifier": "",
+            "isCorresponding": false,
+            "bibliographicName": {
+              "_id": "MPBibliographicName:DF6D079F-BD5D-4BC7-9F82-2F35C590D8C1",
+              "given": "Wei Ming",
+              "family": "Hu",
+              "suffix": "",
+              "objectType": "MPBibliographicName"
+            }
+          },
+          "content": [
+            {
+              "text": "_",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "def2b714-efbf-4da1-b5ab-ef63790c6340",
+                      "status": "accepted",
+                      "authorID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                      "createdAt": 1708932406241,
+                      "operation": "delete",
+                      "updatedAt": 1708932406241,
+                      "reviewedByID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                      "statusUpdateAt": 1708932415886
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "contributor",
+          "attrs": {
+            "id": "MPContributor:E8677996-A321-469B-9E10-263CF534324C",
+            "role": "author",
+            "email": "",
+            "contents": "",
+            "priority": 3,
+            "dataTracked": null,
+            "affiliations": [
+              "MPAffiliation:E5DA0604-8C6E-4D68-9E48-B0E6E70E7332"
+            ],
+            "bibliographicName": {
+              "_id": "MPBibliographicName:EA68A19F-6CF7-458F-968C-BD176A77E3B5",
+              "given": "Song Tian",
+              "family": "Gao",
+              "objectType": "MPBibliographicName"
+            }
+          },
+          "content": [
+            {
+              "text": "_",
+              "type": "text"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "affiliations",
+      "attrs": {
+        "id": ""
+      },
+      "content": [
+        {
+          "type": "affiliation",
+          "attrs": {
+            "id": "MPAffiliation:E5DA0604-8C6E-4D68-9E48-B0E6E70E7332",
+            "city": "",
+            "email": {},
+            "county": "",
+            "country": "China",
+            "postCode": "",
+            "priority": 2,
+            "department": "",
+            "dataTracked": null,
+            "institution": "Xinghua Forth People’s Hospital",
+            "addressLine1": "Xinghua, Jiangsu",
+            "addressLine2": "",
+            "addressLine3": ""
+          },
+          "content": [
+            {
+              "text": "_",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "type": "affiliation",
+          "attrs": {
+            "id": "MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC",
+            "city": "",
+            "email": {},
+            "county": "",
+            "country": "China",
+            "postCode": "",
+            "priority": 1,
+            "department": "",
+            "dataTracked": [
+              {
+                "id": "85c11314-cae0-4253-831c-48db8c8e8417",
+                "status": "accepted",
+                "authorID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "createdAt": 1708932406268,
+                "operation": "delete",
+                "updatedAt": 1708932406268,
+                "reviewedByID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "statusUpdateAt": 1708932414693
+              },
+              {
+                "id": "37f3603f-849c-49f8-a912-76adadf23966",
+                "status": "accepted",
+                "authorID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "oldAttrs": {
+                  "id": "MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC",
+                  "city": "",
+                  "email": {},
+                  "county": "",
+                  "country": "China",
+                  "postCode": "",
+                  "priority": 1,
+                  "department": "",
+                  "institution": "",
+                  "addressLine1": "Mental Health Center of Yanqing District",
+                  "addressLine2": "Beijing",
+                  "addressLine3": ""
+                },
+                "createdAt": 1708932399384,
+                "operation": "set_attrs",
+                "updatedAt": 1708932399384,
+                "reviewedByID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                "statusUpdateAt": 1708932414693
+              }
+            ],
+            "institution": "test",
+            "addressLine1": "Mental Health Center of Yanqing District",
+            "addressLine2": "Beijing",
+            "addressLine3": ""
+          },
+          "content": [
+            {
+              "text": "_",
+              "type": "text",
+              "marks": [
+                {
+                  "type": "tracked_delete",
+                  "attrs": {
+                    "dataTracked": {
+                      "id": "520be88b-69c5-4876-bad8-805f8cccdeec",
+                      "status": "accepted",
+                      "authorID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                      "createdAt": 1708932406268,
+                      "operation": "delete",
+                      "updatedAt": 1708932406268,
+                      "reviewedByID": "MPUserProfile:ddad2a3616e3544858312ed01c1626293937e990",
+                      "statusUpdateAt": 1708932414693
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

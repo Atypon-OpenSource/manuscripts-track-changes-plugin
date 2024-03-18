@@ -28,7 +28,6 @@ function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: str
   if (!dataTracked) {
     return null
   }
-  console.log(dataTracked)
   const newDataTracked = dataTracked.filter((c) => c.id !== changeId)
   return newDataTracked.length ? newDataTracked : null
 }
@@ -52,6 +51,9 @@ export function applyAcceptedRejectedChanges(
     const arr = attrsChangesLog.get(nodeId) || attrsChangesLog.set(nodeId, []).get(nodeId)
     arr!.push(changeId)
   }
+
+  // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
+  changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
     // Map change.from and skip those which dont need to be applied

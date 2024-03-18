@@ -1,6 +1,6 @@
 {
   "name": "@manuscripts/track-changes-plugin",
-  "version": "1.7.5-LEAN-3278",
+  "version": "1.7.6-LEAN-3278",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-track-changes-plugin",
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@manuscripts/eslint-config": "^0.5.1",
-    "@manuscripts/transform": "^1.5.1",
+    "@manuscripts/transform": "2.1.1",
     "@types/debug": "^4.1.7",
     "@types/jest": "27.5.1",
     "@types/node": "^18.7.18",
