@@ -50,7 +50,10 @@ export class ChangeSet {
   }
 
   get invalidChanges() {
-    return this.#changes.filter((c) => !this.changes.find((cc) => c.id === cc.id))
+    const invalid = this.#changes.filter((c) => {
+      return !this.changes.includes(c as TrackedChange)
+    })
+    return invalid
   }
 
   /**
@@ -131,6 +134,7 @@ export class ChangeSet {
   get hasDuplicateIds() {
     const iterated = new Set()
     return this.#changes.some((c) => {
+      // console.log(c)
       if (iterated.has(c.id)) {
         return true
       }
