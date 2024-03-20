@@ -134,7 +134,6 @@ export class ChangeSet {
   get hasDuplicateIds() {
     const iterated = new Set()
     return this.#changes.some((c) => {
-      // console.log(c)
       if (iterated.has(c.id)) {
         return true
       }
