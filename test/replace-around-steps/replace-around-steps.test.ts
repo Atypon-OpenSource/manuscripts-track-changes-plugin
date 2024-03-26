@@ -113,11 +113,12 @@ describe('replace-around-steps.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-
   test.skip('should track list indent', async () => {
     const tester = setupEditor({
-      doc: docs.list
-    }).selectText(31).sinkInList(schema)
+      doc: docs.list,
+    })
+      .selectText(31)
+      .sinkInList(schema)
 
     // TODO:: assert will be based on what we decided to do with Replaced Around step for open end slice,
     //        track it as insert/delete!
@@ -125,8 +126,10 @@ describe('replace-around-steps.test', () => {
 
   test.skip('should track undent list', async () => {
     const tester = setupEditor({
-      doc: docs.list
-    }).selectText(9).liftListItem(schema)
+      doc: docs.list,
+    })
+      .selectText(9)
+      .liftListItem(schema)
 
     // TODO:: assert will be based on what we decided to do with Replaced Around step for open end slice,
     //        track it as insert/delete!

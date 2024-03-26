@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 import { wrapIn } from 'prosemirror-commands'
-import { sinkListItem, liftListItem } from 'prosemirror-schema-list'
-
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
+import { liftListItem, sinkListItem } from 'prosemirror-schema-list'
 import { EditorState, Plugin, TextSelection, Transaction } from 'prosemirror-state'
 import { findWrapping } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
