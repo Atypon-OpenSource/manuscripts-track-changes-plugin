@@ -23,6 +23,7 @@ import nestedBlockquotes from './nested-blockquotes.json'
 import paragraph from './paragraph.json'
 import paragraphsMarksOldDeleted from './paragraphs-marks-old-deleted.json'
 import table from './table.json'
+import list from './list.json'
 
 export default {
   contributorsAndAffiliation,
@@ -35,4 +36,5 @@ export default {
   nestedBlockquotes,
   paragraphsMarksOldDeleted,
   table,
+  list,
 }

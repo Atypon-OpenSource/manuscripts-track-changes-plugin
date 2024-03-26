@@ -1,0 +1,176 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "bullet_list",
+      "attrs": {
+        "id": "MPListElement:5FA8E030-1275-485A-910F-4D3541AC11BE",
+        "dataTracked": null,
+        "paragraphStyle": ""
+      },
+      "content": [
+        {
+          "type": "list_item",
+          "attrs": {
+            "dataTracked": null,
+            "placeholder": "List item"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "id": "MPParagraphElement:77962805-18AA-4706-AEDC-129FEF1DE422",
+                "comments": null,
+                "dataTracked": null,
+                "placeholder": "",
+                "paragraphStyle": ""
+              },
+              "content": [
+                {
+                  "text": "B1",
+                  "type": "text"
+                }
+              ]
+            },
+            {
+              "type": "bullet_list",
+              "attrs": {
+                "id": "MPListElement:3240ADB5-0EDE-47AB-9DD5-663F821AC771",
+                "dataTracked": null,
+                "paragraphStyle": ""
+              },
+              "content": [
+                {
+                  "type": "list_item",
+                  "attrs": {
+                    "dataTracked": null,
+                    "placeholder": "List item"
+                  },
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "attrs": {
+                        "id": "MPParagraphElement:560F6E90-E2C8-44EA-9E35-077EF92C29FE",
+                        "comments": null,
+                        "dataTracked": null,
+                        "placeholder": "",
+                        "paragraphStyle": ""
+                      },
+                      "content": [
+                        {
+                          "text": "B2",
+                          "type": "text"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list_item",
+          "attrs": {
+            "dataTracked": null,
+            "placeholder": "List item"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "id": "MPParagraphElement:72B8C5F8-09DA-4066-9341-7D575D5F4367",
+                "comments": null,
+                "dataTracked": null,
+                "placeholder": "",
+                "paragraphStyle": ""
+              },
+              "content": [
+                {
+                  "text": "B3",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "bullet_list",
+      "attrs": {
+        "id": "MPListElement:3FA8E030-1275-485A-910F-4D3541AC11BE",
+        "dataTracked": null,
+        "paragraphStyle": ""
+      },
+      "content": [
+        {
+          "type": "list_item",
+          "attrs": {
+            "dataTracked": null,
+            "placeholder": "List item"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "id": "MPParagraphElement:37962805-18AA-4706-AEDC-129FEF1DE422",
+                "comments": null,
+                "dataTracked": null,
+                "placeholder": "",
+                "paragraphStyle": ""
+              },
+              "content": [
+                {
+                  "text": "B1",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "list_item",
+          "attrs": {
+            "dataTracked": null,
+            "placeholder": "List item"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "id": "MPParagraphElement:76B8C5F8-09DA-4066-9341-7D575D5F4367",
+                "comments": null,
+                "dataTracked": null,
+                "placeholder": "",
+                "paragraphStyle": ""
+              },
+              "content": [
+                {
+                  "text": "B2",
+                  "type": "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "id": "MPParagraphElement:AB306236-74E2-4FE5-976D-7A1B6CD94D5F",
+        "comments": [],
+        "dataTracked": null,
+        "placeholder": "",
+        "paragraphStyle": ""
+      },
+      "content": [
+        {
+          "text": "Patients with schizophrenia are at a higher risk for suicide compared with the general population. Dopamine-beta-hydroxylase (DβH) plays a key role in the conversion of dopamine to norepinephrine, which is related to suicidal behavior and cognitive regulation.",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

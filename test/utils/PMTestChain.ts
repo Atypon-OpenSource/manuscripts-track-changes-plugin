@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import { wrapIn } from 'prosemirror-commands'
+import { sinkListItem, liftListItem } from 'prosemirror-schema-list'
+
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
@@ -154,6 +156,16 @@ export class ProsemirrorTestChain {
 
   selectText(start: number, end?: number) {
     this.cmd(cmds.selectText(start, end))
+    return this
+  }
+
+  sinkInList(schema: Schema) {
+    this.cmd(sinkListItem(schema.nodes.list_item))
+    return this
+  }
+
+  liftListItem(schema: Schema) {
+    this.cmd(liftListItem(schema.nodes.list_item))
     return this
   }
 
