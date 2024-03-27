@@ -22,6 +22,7 @@ export interface TrackChangesOptions {
   debug?: boolean
   userID: string
   skipTrsWithMetas?: (PluginKey | string)[]
+  initialStatus?: TrackChangesStatus
 }
 
 export interface TrackChangesState {

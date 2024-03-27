@@ -34,7 +34,9 @@ export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-cha
  * Accepts an empty options object as an argument but note that this uses 'anonymous:Anonymous' as the default userID.
  * @param opts
  */
-export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonymous:Anonymous' }) => {
+export const trackChangesPlugin = (
+  opts: TrackChangesOptions = { userID: 'anonymous:Anonymous', initialStatus: TrackChangesStatus.enabled }
+) => {
   const { userID, debug, skipTrsWithMetas = [] } = opts
   let editorView: EditorView | undefined
   if (debug) {
@@ -51,7 +53,7 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
     state: {
       init(_config, state) {
         return {
-          status: TrackChangesStatus.enabled,
+          status: opts.initialStatus || TrackChangesStatus.enabled,
           userID,
           changeSet: findChanges(state),
         }
@@ -100,6 +102,14 @@ export const trackChangesPlugin = (opts: TrackChangesOptions = { userID: 'anonym
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
+
+        // track changes allows free reign for client sync, because, if the changes was supposed to be tracked it should've been done on the respective client.
+        const collabRebased = tr.getMeta('rebased')
+        if (collabRebased !== undefined) {
+          setAction(createdTr, TrackChangesAction.refreshChanges, true)
+          docChanged = true
+          return
+        }
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
