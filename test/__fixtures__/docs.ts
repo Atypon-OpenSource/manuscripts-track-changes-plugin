@@ -17,6 +17,7 @@ import bibliographySection from './bibliography-section.json'
 import blockquoteMarks from './blockquote-marks.json'
 import contributorsAndAffiliation from './contributors-affiliation.json'
 import equation from './equation.json'
+import list from './list.json'
 import manuscriptSimple from './manuscript-simple.json'
 import manyParagraphs from './many-paragraphs.json'
 import nestedBlockquotes from './nested-blockquotes.json'
@@ -35,4 +36,5 @@ export default {
   nestedBlockquotes,
   paragraphsMarksOldDeleted,
   table,
+  list,
 }
