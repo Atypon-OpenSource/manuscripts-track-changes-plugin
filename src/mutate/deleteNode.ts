@@ -79,7 +79,7 @@ export function deleteOrSetNodeDeleted(
 ) {
   const dataTracked = getBlockInlineTrackedData(node)
   const inserted = dataTracked?.find(
-    (d) => d.operation === CHANGE_OPERATION.insert && d.status === CHANGE_STATUS.pending
+    (d) => d.operation === CHANGE_OPERATION.insert && (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
   )
   const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
   if (inserted && inserted.authorID === deleteAttrs.authorID) {
