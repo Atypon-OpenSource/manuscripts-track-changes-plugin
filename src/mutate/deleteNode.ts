@@ -79,10 +79,17 @@ export function deleteOrSetNodeDeleted(
 ) {
   const dataTracked = getBlockInlineTrackedData(node)
   const inserted = dataTracked?.find(
-    (d) => d.operation === CHANGE_OPERATION.insert && (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
+    (d) =>
+      d.operation === CHANGE_OPERATION.insert &&
+      (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
   )
   const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
-  if (inserted && inserted.authorID === deleteAttrs.authorID) {
+
+  /*
+    Removed condition "inserted.authorID === deleteAttrs.authorID" for this check because it resulted in a weird behaviour of deletion of approved changes
+    Approved changes handling are in the process of revision at the time of writing this comment.
+  */
+  if (inserted) {
     return deleteNode(node, pos, newTr)
   }
   if (!newTr.doc.nodeAt(pos)) {
