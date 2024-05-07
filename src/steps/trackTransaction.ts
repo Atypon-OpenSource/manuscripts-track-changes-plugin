@@ -170,7 +170,7 @@ export function trackTransaction(
     console.log('%c Getting into node select! ', 'background: #222; color: #bada55')
     // And -1 here is necessary to keep the selection pointing at the start of the node
     // (or something, breaks with cross-references otherwise)
-    const mappedPos = newTr.mapping.map(tr.selection.from)
+    const mappedPos = newTr.mapping.map(tr.selection.from, -1)
     const sel: typeof NodeSelection = getSelectionStaticConstructor(tr.selection)
     newTr.setSelection(sel.create(newTr.doc, mappedPos))
   }
