@@ -16,17 +16,18 @@
 import { Node as PMNode } from 'prosemirror-model'
 import { EditorState, NodeSelection, Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
-import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
-import { InsertSliceStep } from '../types/step'
+import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
+import { mapChangeSteps } from '../utils/mapChangeStep'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -80,6 +81,10 @@ export function trackTransaction(
     const step = tr.steps[i]
     log.info('transaction step', step)
     iters += 1
+    // if (iters == 1) {
+    //   console.log('skipping first step')
+    //   continue
+    // }
     if (iters > 20) {
       console.error(
         '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
@@ -99,9 +104,28 @@ export function trackTransaction(
         // don't track highlight marker nodes
         continue
       }
-      const newStep = step.invert(tr.docs[i])
+      const invertedStep = step.invert(tr.docs[i])
+
+      const thisStepMapping = tr.mapping.slice(i + 1)
+      /* 
+      In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
+      Remember that every step in a transaction is applied on top of the previous step in that transaction.
+      So here, during tracking processing, each step is intended for its own document but not for the final document - the tr.doc
+      Because of that when a step is processed it has to be remapped to all the steps that occured after it or it will be mismatched as if there were no steps after it.
+      This is apparent only in transactions with multiple insertions/deletions across the document and, withtout such mapping, if the last
+      step adds content before the first step, the plugin will attempt to insert tracked replacement for the first change at a position
+      that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
+      */
+      // @TODO - check if needed to be done for other types of steps
+      const newStep = new ReplaceStep(
+        thisStepMapping.map(invertedStep.from),
+        thisStepMapping.map(invertedStep.to),
+        invertedStep.slice
+      )
       const stepResult = newTr.maybeStep(newStep)
+
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i])
+
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
         if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {
@@ -109,6 +133,10 @@ export function trackTransaction(
           continue
         }
       }
+
+      startPos = thisStepMapping.map(startPos)
+      steps = mapChangeSteps(steps, thisStepMapping)
+
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
