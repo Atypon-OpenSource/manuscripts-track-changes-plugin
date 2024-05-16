@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 import { Node as PMNode } from 'prosemirror-model'
-import { EditorState, NodeSelection, Selection, TextSelection, Transaction } from 'prosemirror-state'
-import { NodeSelection as NodeSelectionClass } from 'prosemirror-state'
+import {
+  EditorState,
+  NodeSelection,
+  NodeSelection as NodeSelectionClass,
+  Selection,
+  TextSelection,
+  Transaction,
+} from 'prosemirror-state'
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
@@ -25,9 +31,9 @@ import { ExposedReplaceStep } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
+import { mapChangeSteps } from '../utils/mapChangeStep'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
-import { mapChangeSteps } from '../utils/mapChangeStep'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
