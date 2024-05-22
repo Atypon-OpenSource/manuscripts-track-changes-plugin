@@ -169,8 +169,9 @@ export function processChangeSteps(
               )
 
         if (c.node.type === c.node.type.schema.nodes.table_header) {
-          newUpdate.oldAttrs = { ...c.node.attrs, updated_colspan: c.newAttrs.colspan }
-          c.newAttrs = { ...c.node.attrs }
+          // this will just revert colspan update, and update it on apply changes
+          newUpdate.oldAttrs = { ...newUpdate.oldAttrs, updated_colspan: c.newAttrs.colspan }
+          c.newAttrs = { ...c.newAttrs, colspan: c.node.attrs.colspan, updated_colspan: c.newAttrs.colspan }
         }
 
         // Dont add update changes if there exists already an insert change for this node
