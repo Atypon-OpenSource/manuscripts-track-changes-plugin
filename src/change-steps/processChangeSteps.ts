@@ -21,7 +21,7 @@ import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/n
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
+import {CHANGE_OPERATION, CHANGE_STATUS, NodeAttrChange, UpdateAttrs} from '../types/change'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
@@ -158,7 +158,7 @@ export function processChangeSteps(
         const newDataTracked = [
           ...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected),
         ]
-        const newUpdate =
+        const newUpdate: Partial<NodeAttrChange> =
           oldUpdate && oldUpdate.status !== CHANGE_STATUS.rejected
             ? {
                 ...oldUpdate,
@@ -167,6 +167,12 @@ export function processChangeSteps(
             : addTrackIdIfDoesntExist(
                 trackUtils.createNewUpdateAttrs(emptyAttrs, lastChangeRejected ? oldAttrs : c.node.attrs)
               )
+
+        if (c.node.type === c.node.type.schema.nodes.table_header) {
+          newUpdate.oldAttrs = { ...c.node.attrs, updated_colspan: c.newAttrs.colspan }
+          c.newAttrs = { ...c.node.attrs }
+        }
+
         // Dont add update changes if there exists already an insert change for this node
         if (
           (JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) ||

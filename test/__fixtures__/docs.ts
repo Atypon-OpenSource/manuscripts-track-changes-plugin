@@ -19,6 +19,7 @@ import contributorsAndAffiliation from './contributors-affiliation.json'
 import equation from './equation.json'
 import list from './list.json'
 import manuscriptSimple from './manuscript-simple.json'
+import manuscriptTable from './manuscript-table.json'
 import manyParagraphs from './many-paragraphs.json'
 import nestedBlockquotes from './nested-blockquotes.json'
 import paragraph from './paragraph.json'
@@ -32,6 +33,7 @@ export default {
   bibliographySection,
   manyParagraphs,
   manuscriptSimple,
+  manuscriptTable,
   blockquoteMarks,
   nestedBlockquotes,
   paragraphsMarksOldDeleted,

@@ -18,7 +18,14 @@ import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
 
-import { CHANGE_STATUS, ChangeSet, NodeAttrChange, trackChangesPluginKey, trackCommands } from '../../src'
+import {
+  CHANGE_STATUS,
+  ChangeSet,
+  NodeAttrChange,
+  trackChangesPlugin,
+  trackChangesPluginKey,
+  trackCommands
+} from '../../src'
 import { TrackChangesAction } from '../../src/actions'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
@@ -30,6 +37,8 @@ import blockNodeAttrUpdate from './block-node-attr-update.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import tableDiff from './table-attr-update.json'
 import wrapWithLink from './wrap-with-link.json'
+import {deleteColumn, tableEditing} from "prosemirror-tables";
+import {DEFAULT_USER} from "../__fixtures__/users";
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -229,6 +238,34 @@ describe('nodes.test', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(2)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should not track colspan attribute update when we delete column, and update colspan when apply changes', async () => {
+    const tester = setupEditor({
+      doc: docs.manuscriptTable,
+      schema: manuscriptSchema,
+      plugins: [tableEditing() as any,trackChangesPlugin({
+        userID: DEFAULT_USER.id,
+      })]
+    }).selectText(107)
+
+    // @ts-ignore
+    tester.cmd((state,dispatch) => deleteColumn(state,dispatch))
+
+    const nodeAttrChange = tester.trackState()?.changeSet.nodeAttrChanges[0] as NodeAttrChange
+    expect(nodeAttrChange.oldAttrs['updated_colspan']).toEqual(1)
+
+    tester.cmd((state,dispatch) => {
+      const trackChangesState = trackChangesPluginKey.getState(state)
+      if (trackChangesState) {
+        const ids = ChangeSet.flattenTreeToIds(trackChangesState.changeSet.pending)
+        trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
+      }
+    })
+
+    tester.cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(tester.view.state.doc.nodeAt(29)?.attrs.colspan).toBe(1)
   })
 
   test.skip('should track node attribute updates', async () => {

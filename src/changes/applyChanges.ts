@@ -114,6 +114,11 @@ export function applyAcceptedRejectedChanges(
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.accepted) {
+
+      if (change.nodeType === 'table_header' && change.oldAttrs['updated_colspan']) {
+        change.newAttrs = { ...change.newAttrs, colspan: change.oldAttrs['updated_colspan'] }
+      }
+
       tr.setNodeMarkup(
         from,
         undefined,
