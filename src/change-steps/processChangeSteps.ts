@@ -21,7 +21,7 @@ import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/n
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import {CHANGE_OPERATION, CHANGE_STATUS, NodeAttrChange, UpdateAttrs} from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, NodeAttrChange, UpdateAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'

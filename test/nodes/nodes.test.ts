@@ -17,6 +17,7 @@
 import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
+import { deleteColumn, tableEditing } from 'prosemirror-tables'
 
 import {
   CHANGE_STATUS,
@@ -24,11 +25,12 @@ import {
   NodeAttrChange,
   trackChangesPlugin,
   trackChangesPluginKey,
-  trackCommands
+  trackCommands,
 } from '../../src'
 import { TrackChangesAction } from '../../src/actions'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
+import { DEFAULT_USER } from '../__fixtures__/users'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 import basicNodeDelete from './basic-node-del.json'
@@ -37,8 +39,6 @@ import blockNodeAttrUpdate from './block-node-attr-update.json'
 import inlineNodeAttrUpdate from './inline-node-attr-update.json'
 import tableDiff from './table-attr-update.json'
 import wrapWithLink from './wrap-with-link.json'
-import {deleteColumn, tableEditing} from "prosemirror-tables";
-import {DEFAULT_USER} from "../__fixtures__/users";
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -244,18 +244,21 @@ describe('nodes.test', () => {
     const tester = setupEditor({
       doc: docs.manuscriptTable,
       schema: manuscriptSchema,
-      plugins: [tableEditing() as any,trackChangesPlugin({
-        userID: DEFAULT_USER.id,
-      })]
+      plugins: [
+        tableEditing() as any,
+        trackChangesPlugin({
+          userID: DEFAULT_USER.id,
+        }),
+      ],
     }).selectText(107)
 
     // @ts-ignore
-    tester.cmd((state,dispatch) => deleteColumn(state,dispatch))
+    tester.cmd((state, dispatch) => deleteColumn(state, dispatch))
 
     const nodeAttrChange = tester.trackState()?.changeSet.nodeAttrChanges[0] as NodeAttrChange
     expect(nodeAttrChange.oldAttrs['updated_colspan']).toEqual(1)
 
-    tester.cmd((state,dispatch) => {
+    tester.cmd((state, dispatch) => {
       const trackChangesState = trackChangesPluginKey.getState(state)
       if (trackChangesState) {
         const ids = ChangeSet.flattenTreeToIds(trackChangesState.changeSet.pending)
