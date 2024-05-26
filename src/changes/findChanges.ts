@@ -23,6 +23,7 @@ import {
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
+  NodeTypeChange,
   PartialChange,
   TextChange,
 } from '../types/change'
@@ -83,6 +84,16 @@ export function findChanges(state: EditorState) {
           newAttrs: node.attrs,
           oldAttrs: dataTracked.oldAttrs,
         } as NodeAttrChange
+      } else if (dataTracked.operation === CHANGE_OPERATION.set_node_type) {
+        change = {
+          id,
+          type: 'node-type-change',
+          from: pos,
+          dataTracked,
+          nodeType: node.type.name,
+          newAttrs: node.attrs,
+          oldAttrs: dataTracked.oldAttrs,
+        } as NodeTypeChange
       } else {
         change = {
           id,

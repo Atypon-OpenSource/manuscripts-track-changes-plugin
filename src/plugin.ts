@@ -123,6 +123,7 @@ export const trackChangesPlugin = (
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
         }
         docChanged = docChanged || tr.docChanged
+
         const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
 
         if (setChangeStatuses) {

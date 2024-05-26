@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
+import { Node as PMNode, NodeType, Slice } from 'prosemirror-model'
 
 import { ExposedFragment, ExposedSlice } from './pm'
 
@@ -46,6 +46,13 @@ export interface InsertSliceStep {
   type: 'insert-slice'
   slice: ExposedSlice
 }
+
+export interface TypeSliceStep {
+  type: 'update-node-type'
+  from: number
+  nodeType: Slice
+  node: PMNode
+}
 export interface UpdateNodeAttrsStep {
   pos: number
   type: 'update-node-attrs'
@@ -58,3 +65,4 @@ export type ChangeStep =
   | MergeFragmentStep
   | InsertSliceStep
   | UpdateNodeAttrsStep
+  | TypeSliceStep

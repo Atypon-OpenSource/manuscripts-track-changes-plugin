@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { schema } from '@manuscripts/transform'
+import { NodeType } from 'prosemirror-model'
 import { Command } from 'prosemirror-state'
 
-import { setAction, TrackChangesAction } from './actions'
+import { setAction, skipTracking, TrackChangesAction } from './actions'
 import { trackChangesPluginKey } from './plugin'
-import { CHANGE_STATUS } from './types/change'
-import { TrackChangesStatus } from './types/track'
-
+import { CHANGE_STATUS, NodeTypeChange, TrackedChange } from './types/change'
+import { NewEmptyAttrs, TrackChangesStatus } from './types/track'
+import { createNewUpdateType } from './utils/track-utils'
 /**
  * Sets track-changes plugin's status to any of: 'enabled' 'disabled' 'viewSnapshots'. Passing undefined will
  * set 'enabled' status to 'disabled' and 'disabled' | 'viewSnapshots' status to 'enabled'.
@@ -55,9 +57,39 @@ export const setTrackingStatus =
 export const setChangeStatuses =
   (status: CHANGE_STATUS, ids: string[]): Command =>
   (state, dispatch) => {
+    const tr = state.tr
+    const nodeTypeChanges = trackChangesPluginKey.getState(state)?.changeSet.nodeTypeChange
+    if (nodeTypeChanges) {
+      nodeTypeChanges.map((change: TrackedChange) => {
+        if (ids.includes(change.id)) {
+          let node = state.doc.nodeAt(change.from)
+          if (status == 'pending' && node) {
+            console.log('is pending', change)
+            let oppositeType =
+              node?.type !== schema.nodes.bullet_list ? schema.nodes.bullet_list : schema.nodes.ordered_list
+            tr.setMeta(TrackChangesAction.updateNodeType, true).setNodeMarkup(
+              change.from,
+              oppositeType,
+              node.attrs,
+              node.marks
+            )
+          } else if (status == 'rejected' && node) {
+            skipTracking(
+              tr.setNodeMarkup(
+                change.from,
+                state.doc.nodeAt(change.from)?.type.schema.nodes[(change as NodeTypeChange).oldAttrs],
+                node.attrs,
+                node.marks
+              )
+            )
+          }
+        }
+      })
+    }
+
     dispatch &&
       dispatch(
-        setAction(state.tr, TrackChangesAction.setChangeStatuses, {
+        setAction(tr, TrackChangesAction.setChangeStatuses, {
           status,
           ids,
         })

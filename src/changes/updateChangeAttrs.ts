@@ -59,10 +59,19 @@ export function updateChangeAttrs(
       change.to,
       oldMark.type.create({ ...oldMark.attrs, dataTracked: { ...oldTrackData, ...trackedAttrs } })
     )
-  } else if ((change.type === 'node-change' || change.type === 'node-attr-change') && !operation) {
+  } else if (
+    (change.type === 'node-change' ||
+      change.type === 'node-attr-change' ||
+      change.type === 'node-type-change') &&
+    !operation
+  ) {
     // Very weird edge-case if this happens
     tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
-  } else if (change.type === 'node-change' || change.type === 'node-attr-change') {
+  } else if (
+    change.type === 'node-change' ||
+    change.type === 'node-attr-change' ||
+    change.type === 'node-type-change'
+  ) {
     const trackedDataSource = getBlockInlineTrackedData(node) || []
     const targetDataTracked = trackedDataSource.find((t) => change.id === t.id)
     const newDataTracked = trackedDataSource.map((oldTrack) => {
@@ -78,6 +87,7 @@ export function updateChangeAttrs(
       }
       return oldTrack
     })
+
     tr.setNodeMarkup(
       change.from,
       undefined,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { CHANGE_OPERATION } from '../types/change'
-import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs, NewUpdateAttrs } from '../types/track'
+import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs, NewUpdateAttrs, NewUpdateType } from '../types/track'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
@@ -37,5 +37,14 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
     ...attrs,
     operation: CHANGE_OPERATION.set_node_attributes,
     oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
+  }
+}
+
+export function createNewUpdateType(attrs: NewEmptyAttrs, oldAttrs: string): NewUpdateType {
+  // Omit dataTracked
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.set_node_type,
+    oldAttrs: oldAttrs,
   }
 }

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Schema } from 'prosemirror-model'
+import { schema } from '@manuscripts/transform'
+import { Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
@@ -21,7 +22,7 @@ import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/n
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs, UpdateType } from '../types/change'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
@@ -115,6 +116,16 @@ export function processChangeSteps(
         if (c.fragment.size > 0) {
           newTr.insert(insertPos, c.fragment)
         }
+        break
+
+      case 'update-node-type':
+        const nodeName = c.node.type.name
+        const attr = addTrackIdIfDoesntExist(trackUtils.createNewUpdateType(emptyAttrs, nodeName))
+        const newNode = c.nodeType.content.firstChild as PMNode
+        newTr.setNodeMarkup(c.from, newNode.type, {
+          ...newNode.attrs,
+          dataTracked: [attr],
+        })
         break
 
       case 'insert-slice':

@@ -42,6 +42,12 @@ export type NewUpdateAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
   oldAttrs: Record<string, any>
 }
+
+export type NewUpdateType = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.set_node_type
+  oldAttrs: string
+}
+
 export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs
 
 export enum TrackChangesStatus {

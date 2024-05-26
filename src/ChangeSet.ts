@@ -19,6 +19,7 @@ import {
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
+  NodeTypeChange,
   TextChange,
   TrackedAttrs,
   TrackedChange,
@@ -114,7 +115,9 @@ export class ChangeSet {
   get nodeAttrChanges() {
     return this.changes.filter((c) => c.type === 'node-attr-change')
   }
-
+  get nodeTypeChange() {
+    return this.changes.filter((c) => c.type === 'node-type-change')
+  }
   get bothNodeChanges() {
     return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
   }
@@ -225,6 +228,10 @@ export class ChangeSet {
 
   static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
     return change.type === 'node-attr-change'
+  }
+
+  static isNodeTypeChange(change: TrackedChange): change is NodeTypeChange {
+    return change.type === 'node-type-change'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {

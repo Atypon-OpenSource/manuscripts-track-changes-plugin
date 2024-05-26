@@ -26,6 +26,8 @@ export enum TrackChangesAction {
   refreshChanges = 'track-changes-refresh-changes',
   applyAndRemoveChanges = 'track-changes-apply-remove-changes',
   updateMetaNode = 'track-changes-update-meta-node',
+  updateNodeType = 'track-changes-update-node-type',
+  revertNodeTypeChange = 'track-changes-revert-node-type',
 }
 
 export type TrackChangesActionParams = {
@@ -39,6 +41,8 @@ export type TrackChangesActionParams = {
   [TrackChangesAction.refreshChanges]: boolean
   [TrackChangesAction.applyAndRemoveChanges]: boolean
   [TrackChangesAction.updateMetaNode]: boolean
+  [TrackChangesAction.updateNodeType]: boolean
+  [TrackChangesAction.revertNodeTypeChange]: boolean
 }
 
 /**
@@ -62,6 +66,7 @@ export function setAction<K extends keyof TrackChangesActionParams>(
   action: K,
   payload: TrackChangesActionParams[K]
 ) {
+  console.log('Action', action, payload)
   return tr.setMeta(action, payload)
 }
 

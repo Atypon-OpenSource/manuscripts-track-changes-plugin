@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Slice } from 'prosemirror-model'
+import { Slice, Node as PMNode } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
@@ -81,6 +81,7 @@ export function trackReplaceAroundStep(
   const steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
+
   // We only want to insert when there something inside the gap (actually would this be always true?)
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
   // ^^answering above comment we could have meta node like(bibliography_item, contributor) will not have content at all,
@@ -105,13 +106,23 @@ export function trackReplaceAroundStep(
       insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
-    deleteSteps.push({
-      type: 'insert-slice',
-      from: gapFrom,
-      to: gapTo,
-      slice: insertedSlice,
-      sliceWasSplit,
-    })
+    if (tr.getMeta(TrackChangesAction.updateNodeType)) {
+      console.log('steep', newTr.doc.nodeAt(from), slice)
+      deleteSteps.push({
+        type: 'update-node-type',
+        from: from,
+        nodeType: slice,
+        node: newTr.doc.nodeAt(from) as PMNode, // previous node type
+      })
+    } else {
+      deleteSteps.push({
+        type: 'insert-slice',
+        from: gapFrom,
+        to: gapTo,
+        slice: insertedSlice,
+        sliceWasSplit,
+      })
+    }
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
     // mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)

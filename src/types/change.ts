@@ -17,6 +17,7 @@ export enum CHANGE_OPERATION {
   insert = 'insert',
   delete = 'delete',
   set_node_attributes = 'set_attrs',
+  set_node_type = 'set_type',
   // wrap_with_node = 'wrap_with_node',
   // unwrap_from_node = 'unwrap_from_node',
   // add_mark = 'add_mark',
@@ -41,7 +42,13 @@ export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
   oldAttrs: Record<string, any>
 }
-export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs
+
+export type UpdateType = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.set_node_type
+  oldAttrs: string
+}
+
+export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs | UpdateType
 
 type Change = {
   id: string
@@ -64,6 +71,12 @@ export type NodeAttrChange = Change & {
   oldAttrs: Record<string, any>
   newAttrs: Record<string, any>
 }
+export type NodeTypeChange = Change & {
+  type: 'node-type-change'
+  nodeType: string
+  oldAttrs: string
+  newAttrs: Record<string, any>
+}
 export type WrapChange = Change & {
   type: 'wrap-change'
   wrapperNode: string
@@ -71,7 +84,13 @@ export type WrapChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
-export type TrackedChange = TextChange | NodeChange | NodeAttrChange | WrapChange | MarkChange
+export type TrackedChange =
+  | TextChange
+  | NodeChange
+  | NodeAttrChange
+  | WrapChange
+  | MarkChange
+  | NodeTypeChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }
