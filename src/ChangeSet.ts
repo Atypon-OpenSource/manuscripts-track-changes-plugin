@@ -181,7 +181,7 @@ export class ChangeSet {
       if (
         root.type === 'node-change' &&
         change.from < root.to &&
-        change.dataTracked.createdAt === root.children[0].dataTracked.createdAt
+        change.dataTracked.statusUpdateAt === root.dataTracked.statusUpdateAt
       ) {
         root.children.push(change)
         return { index: i, root }
