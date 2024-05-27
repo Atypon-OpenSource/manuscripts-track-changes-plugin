@@ -79,9 +79,23 @@ export class ChangeSet {
       ) {
         currentNodeChange.children.push(c)
       } else if (c.type === 'node-change') {
-        currentNodeChange = { ...c, children: [] }
+        // check if this change belongs to a previously pushed root
+        const result = this.matchAndAddToRootChange(rootNodes, c)
+        if (result) {
+          const { index, root } = result
+          rootNodes[index] = root
+        } else {
+          currentNodeChange = { ...c, children: [] }
+        }
       } else {
-        rootNodes.push(c)
+        // check if this change belongs to a previously pushed root
+        const result = this.matchAndAddToRootChange(rootNodes, c)
+        if (result) {
+          const { index, root } = result
+          rootNodes[index] = root
+        } else {
+          rootNodes.push(c)
+        }
       }
     })
     if (currentNodeChange) {
@@ -160,6 +174,20 @@ export class ChangeSet {
     return this.#changes.filter((c) => ids.includes(c.id))
   }
 
+  // Searches for a root change for the given change in the rootNodes and updates the root by pushing the new change if it belongs to it.
+  matchAndAddToRootChange(rootNodes: TrackedChange[], change: TrackedChange) {
+    for (let i = 0; i < rootNodes.length; i++) {
+      const root = rootNodes[i] as NodeChange
+      if (
+        root.type === 'node-change' &&
+        change.from < root.to &&
+        change.dataTracked.createdAt === root.children[0].dataTracked.createdAt
+      ) {
+        root.children.push(change)
+        return { index: i, root }
+      }
+    }
+  }
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes
