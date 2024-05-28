@@ -23,14 +23,15 @@ import {
   getNodeTrackedData,
   getTextNodeTrackedMarkData,
 } from '../compute/nodeHelpers'
-import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_STATUS, IncompleteChange, TrackedAttrs, TrackedChange, UpdateAttrs } from '../types/change'
 import { log } from '../utils/logger'
 
 export function updateChangeAttrs(
   tr: Transaction,
   change: IncompleteChange,
   trackedAttrs: Partial<TrackedAttrs>,
-  schema: Schema
+  schema: Schema,
+  status?: CHANGE_STATUS
 ): Transaction {
   const node = tr.doc.nodeAt(change.from)
   if (!node) {
@@ -66,24 +67,58 @@ export function updateChangeAttrs(
     const trackedDataSource = getBlockInlineTrackedData(node) || []
     const targetDataTracked = trackedDataSource.find((t) => change.id === t.id)
     const newDataTracked = trackedDataSource.map((oldTrack) => {
+      // Clone the current oldTrack object to avoid mutating the original
+      const updatedTrack = { ...oldTrack }
       if (targetDataTracked) {
         if (oldTrack.id === targetDataTracked.id) {
-          return { ...oldTrack, ...trackedAttrs }
+          return { ...updatedTrack, ...trackedAttrs }
         }
-        return oldTrack
+        return updatedTrack
       }
 
       if (oldTrack.operation === operation) {
-        return { ...oldTrack, ...trackedAttrs }
+        return { ...updatedTrack, ...trackedAttrs }
       }
-      return oldTrack
+
+      return updatedTrack
     })
-    tr.setNodeMarkup(
-      change.from,
-      undefined,
-      { ...node.attrs, dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
-      node.marks
-    )
+
+    if (
+      (status === 'pending' ||
+        status === 'rejected' ||
+        (status === 'accepted' && node.attrs.dataTracked[0].status === 'rejected')) &&
+      !(status === 'pending' && node.attrs.dataTracked[0].status === 'accepted') &&
+      node.type === schema.nodes.list
+    ) {
+      if (newDataTracked.length > 0) {
+        if (hasOldAttrs(newDataTracked[0])) {
+          newDataTracked[0].oldAttrs = {
+            ...newDataTracked[0].oldAttrs,
+            type: node.attrs.type,
+            listStyleType: node.attrs.listStyleType,
+          }
+        }
+      }
+      // Ensure oldAttrs is properly accessed and cloned
+      const oldDataAttrs = { ...node.attrs.dataTracked[0].oldAttrs }
+
+      // Use a safe copy of node.attrs and update it
+      const updatedAttrs = {
+        ...node.attrs,
+        type: oldDataAttrs.type,
+        listStyleType: oldDataAttrs.listStyleType,
+        dataTracked: newDataTracked.length === 0 ? null : newDataTracked,
+      }
+
+      tr.setNodeMarkup(change.from, undefined, updatedAttrs, node.marks)
+    } else {
+      tr.setNodeMarkup(
+        change.from,
+        undefined,
+        { ...node.attrs, dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
+        node.marks
+      )
+    }
   }
   return tr
 }
@@ -100,4 +135,8 @@ export function updateChangeChildrenAttributes(changes: TrackedChange[], tr: Tra
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
     }
   })
+}
+
+function hasOldAttrs(change: any): change is { oldAttrs: Record<string, any> } {
+  return change && typeof change === 'object' && 'oldAttrs' in change
 }

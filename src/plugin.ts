@@ -124,7 +124,6 @@ export const trackChangesPlugin = (
         }
         docChanged = docChanged || tr.docChanged
         const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
-
         if (setChangeStatuses) {
           const { status, ids } = setChangeStatuses
           const changeTime = new Date().getTime()
@@ -140,7 +139,8 @@ export const trackChangesPlugin = (
                   statusUpdateAt: changeTime,
                   reviewedByID: userID,
                 },
-                oldState.schema
+                oldState.schema,
+                status
               )
             }
           })
