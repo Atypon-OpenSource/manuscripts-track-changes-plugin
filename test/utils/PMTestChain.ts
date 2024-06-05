@@ -17,7 +17,7 @@ import { wrapIn } from 'prosemirror-commands'
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
 import { Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
-import { liftListItem, sinkListItem } from 'prosemirror-schema-list'
+import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list'
 import { EditorState, Plugin, TextSelection, Transaction } from 'prosemirror-state'
 import { findWrapping } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
@@ -186,6 +186,11 @@ export class ProsemirrorTestChain {
         wrapping = findWrapping(range, nodeType, attrs)
       wrapping && dispatch(state.tr.wrap(range, wrapping))
     })
+    return this
+  }
+
+  wrapInList(nodeType: NodeType) {
+    this.cmd(wrapInList(nodeType))
     return this
   }
 
