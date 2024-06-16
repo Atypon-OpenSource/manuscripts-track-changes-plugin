@@ -16,6 +16,7 @@
 import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
+import { removeColumnClosestToPos } from 'prosemirror-utils'
 
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode } from '../mutate/deleteNode'
@@ -24,7 +25,7 @@ import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
-function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
+export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
     return null
   }
@@ -58,7 +59,8 @@ export function applyAcceptedRejectedChanges(
   changes.forEach((change) => {
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete
-    const { pos: from, deleted } = deleteMap.mapResult(change.from),
+    let pos = (change.type === 'column-change' && change.tablePosition) || change.from
+    const { pos: from, deleted } = deleteMap.mapResult(pos),
       node = tr.doc.nodeAt(from),
       noChangeNeeded = deleted || !ChangeSet.shouldDeleteChange(change)
     if (!node) {
@@ -97,14 +99,14 @@ export function applyAcceptedRejectedChanges(
     if (ChangeSet.isTextChange(change) && noChangeNeeded) {
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
-    } else if (ChangeSet.isTextChange(change)) {
+    } else if (ChangeSet.isTextChange(change) && !change.dataTracked.column_change_id) {
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
-    } else if (ChangeSet.isNodeChange(change)) {
+    } else if (ChangeSet.isNodeChange(change) && !change.dataTracked.column_change_id) {
       // Try first moving the node children to either nodeAbove, nodeBelow or its parent.
       // Then try unwrapping it with lift or just hacky-joining by replacing the border between
       // it and its parent with Fragment.empty. If none of these apply, delete the content between the change.
@@ -137,6 +139,21 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
+    } else if (ChangeSet.isColumnChange(change)) {
+      tr.setNodeMarkup(
+        change.tablePosition,
+        undefined,
+        {
+          ...node.attrs,
+          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+        },
+        node.marks
+      )
+      if (!noChangeNeeded) {
+        const fromStep = tr.steps.length
+        removeColumnClosestToPos(tr.doc.resolve(change.from + 1))(tr)
+        tr.steps.slice(fromStep).map((step) => deleteMap.appendMap(step.getMap()))
+      }
     }
   })
   return deleteMap

@@ -20,6 +20,7 @@ import { ChangeSet } from '../ChangeSet'
 import { equalMarks, getNodeTrackedData } from '../compute/nodeHelpers'
 import {
   CHANGE_OPERATION,
+  ColumnChange,
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
@@ -38,6 +39,7 @@ import {
  */
 export function findChanges(state: EditorState) {
   const changes: IncompleteChange[] = []
+  const columnChanges = new Map<string, number>()
   // Store the last iterated change to join adjacent text changes
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
@@ -61,6 +63,22 @@ export function findChanges(state: EditorState) {
         current.node = node
         continue
       }
+
+      if (node.type === node.type.schema.nodes.table && dataTracked.column_change_id) {
+        changes.push({
+          id,
+          type: 'column-change',
+          tablePosition: pos,
+          from: 0,
+          to: 0,
+          dataTracked,
+          nodeType: 'table_column',
+          children: [],
+        } as PartialChange<ColumnChange>)
+        columnChanges.set(dataTracked.column_change_id, changes.length - 1)
+        continue
+      }
+
       current && changes.push(current.change)
       let change
       if (node.isText) {
@@ -94,6 +112,21 @@ export function findChanges(state: EditorState) {
           children: [],
         } as PartialChange<NodeChange>
       }
+
+      if (dataTracked.column_change_id && dataTracked.operation !== CHANGE_OPERATION.set_node_attributes) {
+        const columnChange = changes[
+          columnChanges.get(dataTracked.column_change_id) as number
+        ] as ColumnChange
+        if (columnChange && node.type.schema.nodes.table_row.contentMatch.matchType(node.type)) {
+          // position of first cell in column
+          if (!columnChange.from) {
+            columnChange.from = pos
+          }
+          // position of last cell in column
+          columnChange.to = pos
+        }
+      }
+
       current = {
         change,
         node,

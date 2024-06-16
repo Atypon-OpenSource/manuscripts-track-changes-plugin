@@ -16,6 +16,7 @@
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
+  ColumnChange,
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
@@ -62,9 +63,19 @@ export class ChangeSet {
    */
   get changeTree() {
     const rootNodes: TrackedChange[] = []
+    const columnChanges = new Map<string, number>()
     let currentNodeChange: NodeChange | undefined
-    this.changes.forEach((c) => {
-      if (
+    this.changes.forEach((c, index) => {
+      if (c.type === 'column-change') {
+        columnChanges.set(c.dataTracked.id, index)
+        c.children = []
+      } else if (c.dataTracked.column_change_id && columnChanges.has(c.dataTracked.column_change_id)) {
+        const columnChange = this.changes[
+          columnChanges.get(c.dataTracked.column_change_id) as number
+        ] as ColumnChange
+        columnChange.children.push(c)
+        return
+      } else if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
           c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
@@ -116,7 +127,9 @@ export class ChangeSet {
   }
 
   get bothNodeChanges() {
-    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
+    return this.changes.filter(
+      (c) => c.type === 'node-change' || c.type === 'column-change' || c.type === 'node-attr-change'
+    )
   }
 
   get isEmpty() {
@@ -165,7 +178,9 @@ export class ChangeSet {
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
+    return changes.flatMap((c) =>
+      this.isNodeChange(c) || this.isColumnChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
+    )
   }
 
   /**
@@ -226,7 +241,9 @@ export class ChangeSet {
   static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
     return change.type === 'node-attr-change'
   }
-
+  static isColumnChange(change: TrackedChange): change is ColumnChange {
+    return change.type === 'column-change'
+  }
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
     return currentChange.from === nextChange.from && currentChange.to === nextChange.to
   }

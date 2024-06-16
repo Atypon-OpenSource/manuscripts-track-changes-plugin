@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Selection, Transaction } from 'prosemirror-state'
+import { findTable } from 'prosemirror-utils'
 
+import { getUpdatedDataTracked } from '../changes/applyChanges'
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
+import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
+import { createNewDeleteAttrs, createNewInsertAttrs } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
@@ -100,4 +105,55 @@ export function getMergeableMarkTrackedAttrs(
 ) {
   const nodeAttrs = getTextNodeTrackedMarkData(node, schema)
   return nodeAttrs && shouldMergeTrackedAttributes(nodeAttrs, attrs) ? nodeAttrs : null
+}
+
+export function getCellChanged(node: PMNode): TrackedAttrs | undefined {
+  return node.attrs.dataTracked?.find((attr: TrackedAttrs) => attr.column_change_id)
+}
+
+export function addTableColumnChange(
+  tr: Transaction,
+  newTr: Transaction,
+  selection: Selection,
+  emptyAttrs: NewEmptyAttrs
+) {
+  const tableColumnChange = tr.getMeta('tableColumnChange')
+  if (tableColumnChange) {
+    const table = findTable(tr.selection)
+    const newAttr = addTrackIdIfDoesntExist(
+      tableColumnChange === 'delete' ? createNewDeleteAttrs(emptyAttrs) : createNewInsertAttrs(emptyAttrs)
+    )
+    newAttr.column_change_id = newAttr.id
+    emptyAttrs['column_change_id'] = newAttr.id
+
+    if (table) {
+      let dataTracked
+      const cellChanged = getCellChanged(selection.$from.node())
+      // if the user remove inserted column will remove change
+      if (
+        cellChanged?.column_change_id &&
+        cellChanged.operation === CHANGE_OPERATION.insert &&
+        tableColumnChange === 'delete'
+      ) {
+        dataTracked = getUpdatedDataTracked(table.node.attrs.dataTracked, cellChanged.column_change_id)
+      } else {
+        const tableChanges = getBlockInlineTrackedData(table.node) || []
+        const updateChanges =
+          cellChanged && tableColumnChange === 'delete'
+            ? tableChanges.filter((c) => c.id !== cellChanged.column_change_id)
+            : tableChanges
+        dataTracked = [...updateChanges, newAttr]
+      }
+
+      newTr.setNodeMarkup(
+        table.pos,
+        undefined,
+        {
+          ...table.node.attrs,
+          dataTracked,
+        },
+        table.node.marks
+      )
+    }
+  }
 }

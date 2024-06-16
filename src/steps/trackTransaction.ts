@@ -20,6 +20,7 @@ import { AddMarkStep, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'pro
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
+import { addTableColumnChange } from '../compute/nodeHelpers'
 import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { InsertSliceStep } from '../types/step'
@@ -69,6 +70,9 @@ export function trackTransaction(
     statusUpdateAt: 0, // has to be zero as first so changes are not differeniated at start
     status: CHANGE_STATUS.pending,
   }
+
+  addTableColumnChange(tr, newTr, oldState.selection, emptyAttrs)
+
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform
   const wasNodeSelection = tr.selection instanceof NodeSelectionClass

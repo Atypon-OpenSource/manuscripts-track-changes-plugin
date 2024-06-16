@@ -17,6 +17,8 @@
 import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
+import { addColumnAfter, CellSelection, deleteColumn } from 'prosemirror-tables'
+import { ReplaceStep } from 'prosemirror-transform'
 
 import { CHANGE_STATUS, ChangeSet, NodeAttrChange, trackChangesPluginKey, trackCommands } from '../../src'
 import { TrackChangesAction } from '../../src/actions'
@@ -254,5 +256,93 @@ describe('nodes.test', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(1)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should track table column delete/insert', async () => {
+    const tester = setupEditor({
+      doc: docs.table_share_header,
+      schema: manuscriptSchema,
+    })
+      .selectText(138)
+      .deleteTableColumn()
+      .selectText(140)
+      .addColumnAfter()
+
+    let changes = tester.trackState()?.changeSet.pending
+
+    expect(changes).not.toBe(undefined)
+    expect(changes?.map((c) => c.type)).toStrictEqual(['column-change', 'column-change'])
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should delete inserted table column change', async () => {
+    const tester = setupEditor({
+      doc: docs.table_share_header,
+      schema: manuscriptSchema,
+    })
+      .selectText(138)
+      .addColumnAfter()
+      .deleteTableColumn()
+
+    let changes = tester.trackState()?.changeSet.pending
+
+    expect(changes).not.toBe(undefined)
+    expect(changes?.length).toBe(0)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should delete rejected insert/delete table column change', async () => {
+    const tester = setupEditor({
+      doc: docs.table_share_header,
+      schema: manuscriptSchema,
+    })
+      .selectText(138)
+      .deleteTableColumn()
+      .selectText(140)
+      .addColumnAfter()
+
+    tester
+      .cmd((state, dispatch) => {
+        const trackChangesState = trackChangesPluginKey.getState(state)
+        if (!trackChangesState) {
+          return false
+        }
+        const { changeSet } = trackChangesState
+        const ids = ChangeSet.flattenTreeToIds(changeSet.pending)
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
+        return true
+      })
+      .cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(tester.view.state.doc.toJSON()).toEqual(docs.table_share_header)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+
+    //
+    // changes = tester.trackState()?.changeSet.accepted
+    //
+    // tester.cmd(trackCommands.applyAndRemoveChanges())
+
+    // tester.cmd((state, dispatch) => {
+    //   // @ts-ignore
+    //   addColumnAfter(state, (tr) => {
+    //     // @ts-ignore
+    //     dispatch && dispatch(tr.setMeta('tableColumnChange', true))
+    //     return true
+    //   })
+    // })
+
+    // tester.cmd((state, dispatch) => {
+    //   const trackChangesState = trackChangesPluginKey.getState(state)
+    //   if (!trackChangesState) {
+    //     return false
+    //   }
+    //   const { changeSet } = trackChangesState
+    //   const ids = ChangeSet.flattenTreeToIds(changeSet.pending)
+    //   trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
+    //   return true
+    // })
   })
 })
