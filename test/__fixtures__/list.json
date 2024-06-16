@@ -159,54 +159,6 @@
     {
       "type": "paragraph",
       "attrs": {
-        "id": "MPParagraphElement:6B541017-DC6A-44A7-A67A-DD599D171E64",
-        "comments": null,
-        "dataTracked": null,
-        "placeholder": "",
-        "paragraphStyle": ""
-      },
-      "content": [
-        {
-          "text": "1",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "attrs": {
-        "id": "MPParagraphElement:C6F0DA83-246A-460F-8D43-1E56C9027FFE",
-        "comments": null,
-        "dataTracked": null,
-        "placeholder": "",
-        "paragraphStyle": ""
-      },
-      "content": [
-        {
-          "text": "2",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "attrs": {
-        "id": "MPParagraphElement:9CFDF5FE-66D6-4726-A914-074D57B2DADB",
-        "comments": null,
-        "dataTracked": null,
-        "placeholder": "",
-        "paragraphStyle": ""
-      },
-      "content": [
-        {
-          "text": "3",
-          "type": "text"
-        }
-      ]
-    },
-    {
-      "type": "paragraph",
-      "attrs": {
         "id": "MPParagraphElement:AB306236-74E2-4FE5-976D-7A1B6CD94D5F",
         "comments": [],
         "dataTracked": null,

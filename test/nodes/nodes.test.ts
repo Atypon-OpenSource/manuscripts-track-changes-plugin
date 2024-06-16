@@ -17,8 +17,6 @@
 import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
 import { NodeSelection } from 'prosemirror-state'
-import { addColumnAfter, CellSelection, deleteColumn } from 'prosemirror-tables'
-import { ReplaceStep } from 'prosemirror-transform'
 
 import { CHANGE_STATUS, ChangeSet, NodeAttrChange, trackChangesPluginKey, trackCommands } from '../../src'
 import { TrackChangesAction } from '../../src/actions'
@@ -319,30 +317,5 @@ describe('nodes.test', () => {
     expect(tester.view.state.doc.toJSON()).toEqual(docs.table_share_header)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
-
-    //
-    // changes = tester.trackState()?.changeSet.accepted
-    //
-    // tester.cmd(trackCommands.applyAndRemoveChanges())
-
-    // tester.cmd((state, dispatch) => {
-    //   // @ts-ignore
-    //   addColumnAfter(state, (tr) => {
-    //     // @ts-ignore
-    //     dispatch && dispatch(tr.setMeta('tableColumnChange', true))
-    //     return true
-    //   })
-    // })
-
-    // tester.cmd((state, dispatch) => {
-    //   const trackChangesState = trackChangesPluginKey.getState(state)
-    //   if (!trackChangesState) {
-    //     return false
-    //   }
-    //   const { changeSet } = trackChangesState
-    //   const ids = ChangeSet.flattenTreeToIds(changeSet.pending)
-    //   trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
-    //   return true
-    // })
   })
 })
