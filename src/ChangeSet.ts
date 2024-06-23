@@ -99,7 +99,7 @@ export class ChangeSet {
         }
       } else {
         // check if this change belongs to a previously pushed root
-        const result = this.matchAndAddToRootChange(rootNodes, c)
+        const result = !c.isReferenceChange && this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
           rootNodes[index] = root
