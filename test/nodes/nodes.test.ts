@@ -264,7 +264,7 @@ describe('nodes.test', () => {
       .selectText(138)
       .deleteTableColumn()
       .selectText(140)
-    // .addColumnAfter()
+      .addColumnAfter()
 
     let changes = tester.trackState()?.changeSet.pending
 
