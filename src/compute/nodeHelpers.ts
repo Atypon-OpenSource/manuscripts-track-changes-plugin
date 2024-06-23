@@ -108,7 +108,7 @@ export function getMergeableMarkTrackedAttrs(
 }
 
 export function getCellChanged(node: PMNode): TrackedAttrs | undefined {
-  return node.attrs.dataTracked?.find((attr: TrackedAttrs) => attr.column_change_id)
+  return node.attrs.dataTracked?.find((attr: TrackedAttrs) => attr.referenceChangeId)
 }
 
 export function addTableColumnChange(
@@ -123,24 +123,24 @@ export function addTableColumnChange(
     const newAttr = addTrackIdIfDoesntExist(
       tableColumnChange === 'delete' ? createNewDeleteAttrs(emptyAttrs) : createNewInsertAttrs(emptyAttrs)
     )
-    newAttr.column_change_id = newAttr.id
-    emptyAttrs['column_change_id'] = newAttr.id
+    newAttr.referenceChangeId = newAttr.id
+    emptyAttrs['referenceChangeId'] = newAttr.id
 
     if (table) {
       let dataTracked
       const cellChanged = getCellChanged(selection.$from.node())
       // if the user remove inserted column will remove change
       if (
-        cellChanged?.column_change_id &&
+        cellChanged?.referenceChangeId &&
         cellChanged.operation === CHANGE_OPERATION.insert &&
         tableColumnChange === 'delete'
       ) {
-        dataTracked = getUpdatedDataTracked(table.node.attrs.dataTracked, cellChanged.column_change_id)
+        dataTracked = getUpdatedDataTracked(table.node.attrs.dataTracked, cellChanged.referenceChangeId)
       } else {
         const tableChanges = getBlockInlineTrackedData(table.node) || []
         const updateChanges =
           cellChanged && tableColumnChange === 'delete'
-            ? tableChanges.filter((c) => c.id !== cellChanged.column_change_id)
+            ? tableChanges.filter((c) => c.id !== cellChanged.referenceChangeId)
             : tableChanges
         dataTracked = [...updateChanges, newAttr]
       }

@@ -59,7 +59,7 @@ export function applyAcceptedRejectedChanges(
   changes.forEach((change) => {
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete
-    let pos = (change.type === 'column-change' && change.tablePosition) || change.from
+    let pos = change.isReferenceChange ? change.referencePosition : change.from
     const { pos: from, deleted } = deleteMap.mapResult(pos),
       node = tr.doc.nodeAt(from),
       noChangeNeeded = deleted || !ChangeSet.shouldDeleteChange(change)
@@ -99,14 +99,14 @@ export function applyAcceptedRejectedChanges(
     if (ChangeSet.isTextChange(change) && noChangeNeeded) {
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
-    } else if (ChangeSet.isTextChange(change) && !change.dataTracked.column_change_id) {
+    } else if (ChangeSet.isTextChange(change) && !change.dataTracked.referenceChangeId) {
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
-    } else if (ChangeSet.isNodeChange(change) && !change.dataTracked.column_change_id) {
+    } else if (ChangeSet.isNodeChange(change) && !change.dataTracked.referenceChangeId) {
       // Try first moving the node children to either nodeAbove, nodeBelow or its parent.
       // Then try unwrapping it with lift or just hacky-joining by replacing the border between
       // it and its parent with Fragment.empty. If none of these apply, delete the content between the change.
@@ -139,9 +139,9 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
-    } else if (ChangeSet.isColumnChange(change)) {
+    } else if (change.isReferenceChange) {
       tr.setNodeMarkup(
-        change.tablePosition,
+        change.referencePosition,
         undefined,
         {
           ...node.attrs,

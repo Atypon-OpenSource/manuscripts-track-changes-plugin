@@ -23,7 +23,7 @@ import {
   getNodeTrackedData,
   getTextNodeTrackedMarkData,
 } from '../compute/nodeHelpers'
-import { ColumnChange, IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
+import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 
 export function updateChangeAttrs(
@@ -32,7 +32,7 @@ export function updateChangeAttrs(
   trackedAttrs: Partial<TrackedAttrs>,
   schema: Schema
 ): Transaction {
-  const from = (change.type === 'column-change' && (change as ColumnChange).tablePosition) || change.from
+  const from = change.isReferenceChange ? change.referencePosition : change.from
   const node = tr.doc.nodeAt(from)
   if (!node) {
     log.error('updateChangeAttrs: no node at the from of change ', change)
@@ -63,11 +63,7 @@ export function updateChangeAttrs(
   } else if ((change.type === 'node-change' || change.type === 'node-attr-change') && !operation) {
     // Very weird edge-case if this happens
     tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
-  } else if (
-    change.type === 'node-change' ||
-    change.type === 'column-change' ||
-    change.type === 'node-attr-change'
-  ) {
+  } else if (change.type === 'node-change' || change.type === 'node-attr-change') {
     const trackedDataSource = getBlockInlineTrackedData(node) || []
     const targetDataTracked = trackedDataSource.find((t) => change.id === t.id)
     const newDataTracked = trackedDataSource.map((oldTrack) => {

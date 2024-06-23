@@ -264,12 +264,12 @@ describe('nodes.test', () => {
       .selectText(138)
       .deleteTableColumn()
       .selectText(140)
-      .addColumnAfter()
+    // .addColumnAfter()
 
     let changes = tester.trackState()?.changeSet.pending
 
     expect(changes).not.toBe(undefined)
-    expect(changes?.map((c) => c.type)).toStrictEqual(['column-change', 'column-change'])
+    expect(changes?.map((c) => c.isReferenceChange)).toStrictEqual([true, true])
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

@@ -20,7 +20,6 @@ import { ChangeSet } from '../ChangeSet'
 import { equalMarks, getNodeTrackedData } from '../compute/nodeHelpers'
 import {
   CHANGE_OPERATION,
-  ColumnChange,
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
@@ -64,18 +63,19 @@ export function findChanges(state: EditorState) {
         continue
       }
 
-      if (node.type === node.type.schema.nodes.table && dataTracked.column_change_id) {
+      if (node.type === node.type.schema.nodes.table && dataTracked.referenceChangeId) {
         changes.push({
           id,
-          type: 'column-change',
-          tablePosition: pos,
+          type: 'node-change',
+          isReferenceChange: true,
+          referencePosition: pos,
           from: 0,
           to: 0,
           dataTracked,
           nodeType: 'table_column',
           children: [],
-        } as PartialChange<ColumnChange>)
-        columnChanges.set(dataTracked.column_change_id, changes.length - 1)
+        } as PartialChange<NodeChange>)
+        columnChanges.set(dataTracked.referenceChangeId, changes.length - 1)
         continue
       }
 
@@ -107,23 +107,22 @@ export function findChanges(state: EditorState) {
           type: 'node-change',
           from: pos,
           to: pos + node.nodeSize,
+          referencePosition: 0,
           dataTracked,
           nodeType: node.type.name,
           children: [],
         } as PartialChange<NodeChange>
       }
 
-      if (dataTracked.column_change_id && dataTracked.operation !== CHANGE_OPERATION.set_node_attributes) {
-        const columnChange = changes[
-          columnChanges.get(dataTracked.column_change_id) as number
-        ] as ColumnChange
-        if (columnChange && node.type.schema.nodes.table_row.contentMatch.matchType(node.type)) {
+      if (dataTracked.referenceChangeId && dataTracked.operation !== CHANGE_OPERATION.set_node_attributes) {
+        const referenceChange = changes[columnChanges.get(dataTracked.referenceChangeId) as number]
+        if (referenceChange && node.type.schema.nodes.table_row.contentMatch.matchType(node.type)) {
           // position of first cell in column
-          if (!columnChange.from) {
-            columnChange.from = pos
+          if (!referenceChange.from) {
+            referenceChange.from = pos
           }
           // position of last cell in column
-          columnChange.to = pos
+          referenceChange.to = pos
         }
       }
 

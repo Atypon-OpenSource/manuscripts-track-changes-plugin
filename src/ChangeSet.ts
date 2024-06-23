@@ -16,7 +16,6 @@
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
-  ColumnChange,
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
@@ -63,17 +62,17 @@ export class ChangeSet {
    */
   get changeTree() {
     const rootNodes: TrackedChange[] = []
-    const columnChanges = new Map<string, number>()
+    const referenceChanges = new Map<string, number>()
     let currentNodeChange: NodeChange | undefined
     this.changes.forEach((c, index) => {
-      if (c.type === 'column-change') {
-        columnChanges.set(c.dataTracked.id, index)
+      if (c.isReferenceChange && c.type === 'node-change') {
+        referenceChanges.set(c.dataTracked.id, index)
         c.children = []
-      } else if (c.dataTracked.column_change_id && columnChanges.has(c.dataTracked.column_change_id)) {
-        const columnChange = this.changes[
-          columnChanges.get(c.dataTracked.column_change_id) as number
-        ] as ColumnChange
-        columnChange.children.push(c)
+      } else if (c.dataTracked.referenceChangeId && referenceChanges.has(c.dataTracked.referenceChangeId)) {
+        const referenceChange = this.changes[
+          referenceChanges.get(c.dataTracked.referenceChangeId) as number
+        ] as NodeChange
+        referenceChange.children.push(c)
         return
       } else if (
         currentNodeChange &&
@@ -89,7 +88,7 @@ export class ChangeSet {
         !(this.#isSameNodeChange(currentNodeChange, c) && this.#isNotPendingOrDeleted(currentNodeChange))
       ) {
         currentNodeChange.children.push(c)
-      } else if (c.type === 'node-change') {
+      } else if (c.type === 'node-change' && !c.isReferenceChange) {
         currentNodeChange = { ...c, children: [] }
       } else {
         rootNodes.push(c)
@@ -127,9 +126,7 @@ export class ChangeSet {
   }
 
   get bothNodeChanges() {
-    return this.changes.filter(
-      (c) => c.type === 'node-change' || c.type === 'column-change' || c.type === 'node-attr-change'
-    )
+    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
   }
 
   get isEmpty() {
@@ -178,9 +175,7 @@ export class ChangeSet {
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) =>
-      this.isNodeChange(c) || this.isColumnChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
-    )
+    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
   }
 
   /**
@@ -240,9 +235,6 @@ export class ChangeSet {
 
   static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
     return change.type === 'node-attr-change'
-  }
-  static isColumnChange(change: TrackedChange): change is ColumnChange {
-    return change.type === 'column-change'
   }
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
     return currentChange.from === nextChange.from && currentChange.to === nextChange.to
