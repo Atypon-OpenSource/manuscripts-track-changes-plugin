@@ -147,17 +147,17 @@ export function processChangeSteps(
           }
           return false
         }) as UpdateAttrs
-
         // if the selected last change is with status "rejected" we need to use oldAttrs from it because
         // node's actual attributes represent the "rejected" values
         const lastChangeRejected = oldUpdate && oldUpdate.status === CHANGE_STATUS.rejected
-
         const sourceAttrs = oldUpdate?.oldAttrs || c.node.attrs
         const { dataTracked, ...restAttrs } = sourceAttrs
         const oldAttrs = lastChangeRejected ? oldUpdate.oldAttrs : restAttrs
-        const newDataTracked = [
-          ...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected),
-        ]
+        // if the node is list, we need to track only the last change. TODO refactor the update-node-attrs to handle all edge cases such as lists.
+        const newDataTracked =
+          c.node.type != c.node.type.schema.nodes.list
+            ? [...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected)]
+            : []
         const newUpdate =
           oldUpdate && oldUpdate.status !== CHANGE_STATUS.rejected
             ? {
