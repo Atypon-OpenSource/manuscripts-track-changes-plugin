@@ -16,7 +16,7 @@
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
 import { Fragment, Slice } from 'prosemirror-model'
-import { ReplaceAroundStep } from 'prosemirror-transform'
+import { liftTarget } from 'prosemirror-transform'
 
 import { trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
@@ -110,6 +110,33 @@ describe('replace-around-steps.test', () => {
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(4)
     expect(log.warn).toHaveBeenCalledTimes(1)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('track multiple ReplaceAroundStep in the same transaction', async () => {
+    setupEditor({
+      doc: docs.list,
+    })
+      .selectText(26, 37)
+      .cmd((state, dispatch) => {
+        const { tr } = state
+        state.doc.nodesBetween(22, 22 + (state.doc.nodeAt(22)?.nodeSize || 0), (node, pos) => {
+          const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
+          const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
+          const nodeRange = $fromPos.blockRange($toPos)
+          if (!nodeRange) {
+            return
+          }
+
+          const targetLiftDepth = liftTarget(nodeRange)
+          if (targetLiftDepth || targetLiftDepth === 0) {
+            tr.lift(nodeRange, targetLiftDepth)
+          }
+        })
+        dispatch(tr)
+      })
+
+    expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 

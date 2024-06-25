@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Slice } from 'prosemirror-model'
+import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
@@ -32,7 +32,8 @@ export function trackReplaceAroundStep(
   oldState: EditorState,
   tr: Transaction,
   newTr: Transaction,
-  attrs: NewEmptyAttrs
+  attrs: NewEmptyAttrs,
+  currentStepDoc: PMNode
 ) {
   log.info('###### ReplaceAroundStep ######')
   // @ts-ignore
@@ -54,13 +55,13 @@ export function trackReplaceAroundStep(
     slice: ExposedSlice
   } = step
   // Invert the transaction step to prevent it from actually deleting or inserting anything
-  const newStep = step.invert(oldState.doc)
+  const newStep = step.invert(currentStepDoc)
   const stepResult = newTr.maybeStep(newStep)
   if (stepResult.failed) {
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
     return []
   }
-  const gap = oldState.doc.slice(gapFrom, gapTo)
+  const gap = currentStepDoc.slice(gapFrom, gapTo)
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
