@@ -166,7 +166,7 @@ export function trackTransaction(
         newTr.setSelection(near)
       }
     } else if (step instanceof ReplaceAroundStep) {
-      let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs)
+      let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       log.info('INSERT STEPS: ', inserted)
