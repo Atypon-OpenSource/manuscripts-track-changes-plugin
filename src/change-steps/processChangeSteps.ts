@@ -153,7 +153,7 @@ export function processChangeSteps(
         const sourceAttrs = oldUpdate?.oldAttrs || c.node.attrs
         const { dataTracked, ...restAttrs } = sourceAttrs
         const oldAttrs = lastChangeRejected ? oldUpdate.oldAttrs : restAttrs
-        // if the node is a list, we need to track only the last change. TODO refactor the update-node-attrs to handle all edge cases such as lists.
+        // if the node is list, we need to track only the last change. TODO refactor the update-node-attrs to handle all edge cases such as lists.
         const newDataTracked =
           c.node.type != c.node.type.schema.nodes.list
             ? [...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected)]
