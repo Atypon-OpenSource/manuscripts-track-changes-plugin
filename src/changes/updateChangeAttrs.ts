@@ -32,7 +32,8 @@ export function updateChangeAttrs(
   trackedAttrs: Partial<TrackedAttrs>,
   schema: Schema
 ): Transaction {
-  const node = tr.doc.nodeAt(change.from)
+  const from = change.isReferenceChange ? change.referencePosition : change.from
+  const node = tr.doc.nodeAt(from)
   if (!node) {
     log.error('updateChangeAttrs: no node at the from of change ', change)
     return tr
@@ -79,7 +80,7 @@ export function updateChangeAttrs(
       return oldTrack
     })
     tr.setNodeMarkup(
-      change.from,
+      from,
       undefined,
       { ...node.attrs, dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
       node.marks

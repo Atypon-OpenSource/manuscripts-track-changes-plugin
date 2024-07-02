@@ -16,13 +16,15 @@
 import { wrapIn } from 'prosemirror-commands'
 // import {lift, joinUp, selectParentNode, wrapIn, setBlockType} from "prosemirror-commands"
 import { exampleSetup } from 'prosemirror-example-setup'
-import { Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
-import { liftListItem, sinkListItem } from 'prosemirror-schema-list'
+import { Fragment, Mark, Node as PMNode, NodeRange, NodeType, Schema, Slice } from 'prosemirror-model'
+import { liftListItem, sinkListItem, wrapInList } from 'prosemirror-schema-list'
 import { EditorState, Plugin, TextSelection, Transaction } from 'prosemirror-state'
-import { findWrapping } from 'prosemirror-transform'
+import { addColumnAfter, deleteColumn } from 'prosemirror-tables'
+import { findWrapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
 
 import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
+import { getCellChanged } from '../../src/compute/nodeHelpers'
 import * as cmds from './commands'
 
 export class ProsemirrorTestChain {
@@ -165,6 +167,37 @@ export class ProsemirrorTestChain {
 
   liftListItem(schema: Schema) {
     this.cmd(liftListItem(schema.nodes.list_item))
+    return this
+  }
+
+  deleteTableColumn() {
+    this.cmd((state, dispatch) =>
+      deleteColumn(state, (tempTr) => {
+        const { tr } = state
+        const cellChanged = getCellChanged(state.selection.$from.node())
+        tempTr.steps.map((step) => {
+          if (
+            step instanceof ReplaceStep ||
+            // will not pass ReplaceAroundStep of delete, as we don't delete column until user accept changes
+            (step instanceof ReplaceAroundStep && cellChanged && cellChanged.operation === 'insert')
+          ) {
+            tr.step(step)
+          }
+        })
+        dispatch && dispatch(tr.setMeta('tableColumnChange', 'delete'))
+        return true
+      })
+    )
+    return this
+  }
+
+  addColumnAfter() {
+    this.cmd((state, dispatch) =>
+      addColumnAfter(state, (tr) => {
+        dispatch && dispatch(tr.setMeta('tableColumnChange', 'insert'))
+        return true
+      })
+    )
     return this
   }
 

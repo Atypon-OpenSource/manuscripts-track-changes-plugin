@@ -36,6 +36,7 @@ type InsertDeleteAttrs = {
   statusUpdateAt: number
   createdAt: number
   updatedAt: number
+  referenceChangeId?: string
 }
 export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
@@ -47,6 +48,8 @@ type Change = {
   id: string
   from: number
   to: number
+  isReferenceChange?: boolean
+  referencePosition: number | 0
   dataTracked: TrackedAttrs
 }
 export type TextChange = Change & {

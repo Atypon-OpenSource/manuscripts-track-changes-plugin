@@ -62,9 +62,20 @@ export class ChangeSet {
    */
   get changeTree() {
     const rootNodes: TrackedChange[] = []
+    // this is a reference to help us add children nodes to the main reference change
+    const referenceChanges = new Map<string, number>()
     let currentNodeChange: NodeChange | undefined
-    this.changes.forEach((c) => {
-      if (
+    this.changes.forEach((c, index) => {
+      if (c.isReferenceChange && c.type === 'node-change') {
+        referenceChanges.set(c.dataTracked.id, index)
+        c.children = []
+      } else if (c.dataTracked.referenceChangeId && referenceChanges.has(c.dataTracked.referenceChangeId)) {
+        const referenceChange = this.changes[
+          referenceChanges.get(c.dataTracked.referenceChangeId) as number
+        ] as NodeChange
+        referenceChange.children.push(c)
+        return
+      } else if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
           c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
@@ -78,7 +89,7 @@ export class ChangeSet {
         !(this.#isSameNodeChange(currentNodeChange, c) && this.#isNotPendingOrDeleted(currentNodeChange))
       ) {
         currentNodeChange.children.push(c)
-      } else if (c.type === 'node-change') {
+      } else if (c.type === 'node-change' && !c.isReferenceChange) {
         // check if this change belongs to a previously pushed root
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
@@ -89,7 +100,7 @@ export class ChangeSet {
         }
       } else {
         // check if this change belongs to a previously pushed root
-        const result = this.matchAndAddToRootChange(rootNodes, c)
+        const result = !c.isReferenceChange && this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
           rootNodes[index] = root

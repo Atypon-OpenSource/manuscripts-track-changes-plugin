@@ -1,0 +1,294 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "table_element",
+      "attrs": {
+        "id": "MPTableElement:8846ABC2-7A32-4F9F-B933-E72D1101F270",
+        "label": "",
+        "comments": [],
+        "tableStyle": "",
+        "dataTracked": null,
+        "expandListing": false,
+        "suppressTitle": true,
+        "paragraphStyle": "",
+        "suppressFooter": false,
+        "suppressHeader": false,
+        "suppressCaption": false
+      },
+      "content": [
+        {
+          "type": "table",
+          "attrs": {
+            "id": "MPTable:B43FDD06-757F-460B-9014-B28621F9D1F1",
+            "dataTracked": null
+          },
+          "content": [
+            {
+              "type": "table_row",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "col",
+                    "style": "border-top: solid 0.50pt; border-bottom: solid 1.50pt; background-color:rgb(255,255,255)",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Treatment 1",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "col",
+                    "style": "border-top: solid 0.50pt; border-bottom: solid 1.50pt; background-color:rgb(255,255,255)",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Treatment 2",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "colgroup",
+                    "style": "border-top: solid 0.50pt; border-bottom: solid 1.50pt; background-color:rgb(255,255,255)",
+                    "valign": "top",
+                    "colspan": 2,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Treatment effects - pairwise comparisons",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "table_row",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "col",
+                    "style": "border-bottom: solid 0.50pt; background-color:rgb(204,204,204)",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Filter fresh",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "col",
+                    "style": "border-bottom: solid 0.50pt; background-color:rgb(204,204,204)",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Longmire",
+                      "type": "text",
+                      "marks": [
+                        {
+                          "type": "bold"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "col",
+                    "style": "border-bottom: solid 0.50pt; background-color:rgb(204,204,204)",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "***",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_header",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "col",
+                    "style": "border-bottom: solid 0.50pt; background-color:rgb(204,204,204)",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "<0.001",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "table_row",
+              "attrs": {
+                "dataTracked": null
+              },
+              "content": [
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "align": "center",
+                    "scope": "row",
+                    "style": "border-top: solid 0.50pt",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Filter frozen",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "align": "center",
+                    "scope": null,
+                    "style": "border-top: solid 0.50pt",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "Longmire",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "align": "center",
+                    "scope": null,
+                    "style": "border-top: solid 0.50pt",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "ns",
+                      "type": "text"
+                    }
+                  ]
+                },
+                {
+                  "type": "table_cell",
+                  "attrs": {
+                    "align": "center",
+                    "scope": null,
+                    "style": "border-top: solid 0.50pt",
+                    "valign": "top",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "colwidth": null,
+                    "dataTracked": null,
+                    "placeholder": "Data"
+                  },
+                  "content": [
+                    {
+                      "text": "1",
+                      "type": "text"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listing",
+          "attrs": {
+            "id": "MPListing:917BC40C-4107-4530-901E-A2B7EB2F0504",
+            "comments": [],
+            "contents": "",
+            "language": "",
+            "isExpanded": false,
+            "dataTracked": null,
+            "isExecuting": false,
+            "languageKey": "null"
+          }
+        }
+      ]
+    }
+  ]
+}

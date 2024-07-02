@@ -38,6 +38,7 @@ import {
  */
 export function findChanges(state: EditorState) {
   const changes: IncompleteChange[] = []
+  const columnChanges = new Map<string, number>()
   // Store the last iterated change to join adjacent text changes
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
@@ -61,6 +62,23 @@ export function findChanges(state: EditorState) {
         current.node = node
         continue
       }
+
+      if (node.type === node.type.schema.nodes.table && dataTracked.referenceChangeId) {
+        changes.push({
+          id,
+          type: 'node-change',
+          isReferenceChange: true,
+          referencePosition: pos,
+          from: 0,
+          to: 0,
+          dataTracked,
+          nodeType: 'table_column',
+          children: [],
+        } as PartialChange<NodeChange>)
+        columnChanges.set(dataTracked.referenceChangeId, changes.length - 1)
+        continue
+      }
+
       current && changes.push(current.change)
       let change
       if (node.isText) {
@@ -89,11 +107,25 @@ export function findChanges(state: EditorState) {
           type: 'node-change',
           from: pos,
           to: pos + node.nodeSize,
+          referencePosition: 0,
           dataTracked,
           nodeType: node.type.name,
           children: [],
         } as PartialChange<NodeChange>
       }
+
+      if (dataTracked.referenceChangeId && dataTracked.operation !== CHANGE_OPERATION.set_node_attributes) {
+        const referenceChange = changes[columnChanges.get(dataTracked.referenceChangeId) as number]
+        if (referenceChange && node.type.schema.nodes.table_row.contentMatch.matchType(node.type)) {
+          // position of first cell in column
+          if (!referenceChange.from) {
+            referenceChange.from = pos
+          }
+          // position of last cell in column
+          referenceChange.to = pos
+        }
+      }
+
       current = {
         change,
         node,

@@ -255,4 +255,67 @@ describe('nodes.test', () => {
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
+
+  test('should track table column delete/insert', async () => {
+    const tester = setupEditor({
+      doc: docs.table_share_header,
+      schema: manuscriptSchema,
+    })
+      .selectText(138)
+      .deleteTableColumn()
+      .selectText(140)
+      .addColumnAfter()
+
+    let changes = tester.trackState()?.changeSet.pending
+
+    expect(changes).not.toBe(undefined)
+    expect(changes?.map((c) => c.isReferenceChange)).toStrictEqual([true, true])
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should delete inserted table column change', async () => {
+    const tester = setupEditor({
+      doc: docs.table_share_header,
+      schema: manuscriptSchema,
+    })
+      .selectText(138)
+      .addColumnAfter()
+      .deleteTableColumn()
+
+    let changes = tester.trackState()?.changeSet.pending
+
+    expect(changes).not.toBe(undefined)
+    expect(changes?.length).toBe(0)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should delete rejected insert/delete table column change', async () => {
+    const tester = setupEditor({
+      doc: docs.table_share_header,
+      schema: manuscriptSchema,
+    })
+      .selectText(138)
+      .deleteTableColumn()
+      .selectText(140)
+      .addColumnAfter()
+
+    tester
+      .cmd((state, dispatch) => {
+        const trackChangesState = trackChangesPluginKey.getState(state)
+        if (!trackChangesState) {
+          return false
+        }
+        const { changeSet } = trackChangesState
+        const ids = ChangeSet.flattenTreeToIds(changeSet.pending)
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
+        return true
+      })
+      .cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(tester.view.state.doc.toJSON()).toEqual(docs.table_share_header)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 })
