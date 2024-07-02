@@ -62,6 +62,7 @@ export class ChangeSet {
    */
   get changeTree() {
     const rootNodes: TrackedChange[] = []
+    // this is a reference to help us add children nodes to the main reference change
     const referenceChanges = new Map<string, number>()
     let currentNodeChange: NodeChange | undefined
     this.changes.forEach((c, index) => {
