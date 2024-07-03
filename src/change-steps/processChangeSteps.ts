@@ -85,6 +85,12 @@ export function processChangeSteps(
           mapping.map(c.to)
         )
 
+        const textNewestStep = newTr.steps[newTr.steps.length - 1]
+
+        if (step !== textNewestStep) {
+          mapping.appendMap(textNewestStep.getMap())
+          step = textNewestStep
+        }
         mergeTrackedMarks(where, newTr.doc, newTr, schema)
         break
 
