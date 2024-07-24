@@ -46,7 +46,7 @@ export type TrackChangesActionParams = {
  * @param tr
  */
 export function hasAction(tr: Transaction) {
-  return !!Object.values(TrackChangesAction).find((action) => !!tr.getMeta(action))
+  return Object.values(TrackChangesAction).some((action) => !!tr.getMeta(action))
 }
 
 /**
