@@ -15,12 +15,11 @@
  */
 import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
-import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
