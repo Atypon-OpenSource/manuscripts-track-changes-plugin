@@ -42,6 +42,14 @@ export type TrackChangesActionParams = {
 }
 
 /**
+ * Checks whether there is any relevant action on transaction and return true if there is.
+ * @param tr
+ */
+export function hasAction(tr: Transaction) {
+  return Object.values(TrackChangesAction).some((action) => !!tr.getMeta(action))
+}
+
+/**
  * Gets the value of a meta field, action payload, of a defined track-changes action.
  * @param tr
  * @param action

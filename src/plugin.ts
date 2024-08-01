@@ -16,7 +16,7 @@
 import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
-import { getAction, setAction, TrackChangesAction } from './actions'
+import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
 import { applyAcceptedRejectedChanges } from './changes/applyChanges'
 import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
@@ -60,6 +60,10 @@ export const trackChangesPlugin = (
       },
 
       apply(tr, pluginState, _oldState, newState): TrackChangesState {
+        if (!tr.docChanged && !hasAction(tr)) {
+          return pluginState
+        }
+
         const setUserID = getAction(tr, TrackChangesAction.setUserID)
         const setStatus = getAction(tr, TrackChangesAction.setPluginStatus)
         if (setUserID) {
