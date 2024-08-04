@@ -57,6 +57,7 @@ export function trackReplaceAroundStep(
   const newStep = step.invert(currentStepDoc)
   const stepResult = newTr.maybeStep(newStep)
   if (stepResult.failed) {
+    // for some cases invert will fail due to sending multiple steps that update the same nodes
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
     return []
   }
