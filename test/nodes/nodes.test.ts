@@ -231,6 +231,19 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
+  // TODO:: this example of sending multiple steps in one transaction for the same node. it's going to be a reference to fix it later
+  test.skip('should track inserting list with with multiple paragraph selected', async () => {
+    const tester = setupEditor({
+      doc: docs.list,
+    })
+      .selectText(37, 44)
+      .wrapInList(schema.nodes.bullet_list)
+
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
   test.skip('should track node attribute updates', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
