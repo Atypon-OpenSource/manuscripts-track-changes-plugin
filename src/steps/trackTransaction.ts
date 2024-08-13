@@ -227,13 +227,6 @@ export function trackTransaction(
           emptyAttrs,
           oldState.schema
         )
-
-        // 1. find the node on which attr was change
-        // 2. construct step change
-
-        // Invert the transaction step to prevent it from actually deleting or inserting anything
-
-        console.log('KINDA TRACKING ATTRS STEP!!!')
       }
       trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
     }
