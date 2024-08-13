@@ -22,7 +22,14 @@ import {
   TextSelection,
   Transaction,
 } from 'prosemirror-state'
-import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+import {
+  AddMarkStep,
+  AttrStep,
+  Mapping,
+  RemoveMarkStep,
+  ReplaceAroundStep,
+  ReplaceStep,
+} from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
@@ -179,6 +186,56 @@ export function trackTransaction(
         emptyAttrs,
         oldState.schema
       )
+    } else if (step instanceof AttrStep) {
+      function trackAttrsChange(
+        step: AttrStep,
+        oldState: EditorState,
+        tr: Transaction,
+        newTr: Transaction,
+        attrs: NewEmptyAttrs,
+        currentStepDoc: PMNode
+      ) {
+        console.log(step)
+        const newStep = step.invert(currentStepDoc)
+        const stepResult = newTr.maybeStep(newStep)
+        if (stepResult.failed) {
+          // for some cases invert will fail due to sending multiple steps that update the same nodes
+          log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
+          return []
+        }
+        const node = currentStepDoc.nodeAt(step.pos)
+
+        if (!node) {
+          return []
+        }
+
+        const { dataTracked, ...newAttrs } = node.attrs || {}
+
+        newAttrs[step.attr] = step.value
+
+        const changeStep = {
+          pos: step.pos,
+          type: 'update-node-attrs',
+          node,
+          newAttrs,
+        } as ChangeStep
+
+        const [mapping, selectionPos] = processChangeSteps(
+          [changeStep],
+          tr.selection.from,
+          newTr,
+          emptyAttrs,
+          oldState.schema
+        )
+
+        // 1. find the node on which attr was change
+        // 2. construct step change
+
+        // Invert the transaction step to prevent it from actually deleting or inserting anything
+
+        console.log('KINDA TRACKING ATTRS STEP!!!')
+      }
+      trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
     }
     // } else if (step instanceof AddMarkStep) {
     // } else if (step instanceof RemoveMarkStep) {
