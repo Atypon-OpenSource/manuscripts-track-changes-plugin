@@ -211,13 +211,14 @@ export function trackTransaction(
 
         const { dataTracked, ...newAttrs } = node.attrs || {}
 
-        newAttrs[step.attr] = step.value
-
         const changeStep = {
           pos: step.pos,
           type: 'update-node-attrs',
           node,
-          newAttrs,
+          newAttrs: {
+            ...newAttrs,
+            [step.attr]: step.value,
+          },
         } as ChangeStep
 
         const [mapping, selectionPos] = processChangeSteps(
