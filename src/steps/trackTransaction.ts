@@ -41,6 +41,7 @@ import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
+import trackAttrsChange from './trackAttrsChange'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -187,49 +188,15 @@ export function trackTransaction(
         oldState.schema
       )
     } else if (step instanceof AttrStep) {
-      function trackAttrsChange(
-        step: AttrStep,
-        oldState: EditorState,
-        tr: Transaction,
-        newTr: Transaction,
-        attrs: NewEmptyAttrs,
-        currentStepDoc: PMNode
-      ) {
-        console.log(step)
-        const newStep = step.invert(currentStepDoc)
-        const stepResult = newTr.maybeStep(newStep)
-        if (stepResult.failed) {
-          // for some cases invert will fail due to sending multiple steps that update the same nodes
-          log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
-          return []
-        }
-        const node = currentStepDoc.nodeAt(step.pos)
+      const chnageSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
 
-        if (!node) {
-          return []
-        }
-
-        const { dataTracked, ...newAttrs } = node.attrs || {}
-
-        const changeStep = {
-          pos: step.pos,
-          type: 'update-node-attrs',
-          node,
-          newAttrs: {
-            ...newAttrs,
-            [step.attr]: step.value,
-          },
-        } as ChangeStep
-
-        const [mapping, selectionPos] = processChangeSteps(
-          [changeStep],
-          tr.selection.from,
-          newTr,
-          emptyAttrs,
-          oldState.schema
-        )
-      }
-      trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
+      const [mapping, selectionPos] = processChangeSteps(
+        chnageSteps,
+        tr.selection.from,
+        newTr,
+        emptyAttrs,
+        oldState.schema
+      )
     }
     // } else if (step instanceof AddMarkStep) {
     // } else if (step instanceof RemoveMarkStep) {
