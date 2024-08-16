@@ -39,9 +39,9 @@ import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
-import trackAttrsChange from './trackAttrsChange'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
