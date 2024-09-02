@@ -63,6 +63,7 @@ export class ChangeSet {
   get changeTree() {
     const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
+    let currentTextChange: TextChange | undefined
     this.changes.forEach((c) => {
       if (
         currentNodeChange &&
@@ -87,7 +88,18 @@ export class ChangeSet {
         } else {
           currentNodeChange = { ...c, children: [] }
         }
+      } else if (c.type === 'text-change') {
+        // merge text changes in one single suggestion
+        if (!currentTextChange || !this.mergeTextChanges(currentTextChange, c)) {
+          currentTextChange = { ...c }
+          rootNodes.push(currentTextChange)
+        } else {
+          currentTextChange.to = c.to
+          currentTextChange.text += c.text
+        }
       } else {
+        // Reset currentTextChange for non-text changes and add the change to the root
+        currentTextChange = undefined
         // check if this change belongs to a previously pushed root
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
@@ -187,6 +199,15 @@ export class ChangeSet {
         return { index: i, root }
       }
     }
+  }
+  /* Checks if the `nextChange` immediately follows the `currentChange` (i.e., the start position of `nextChange` matches 
+ the end position of `currentChange`)and ensures both are text changes before merging. */
+  mergeTextChanges(currentChange: TrackedChange, nextChange: TrackedChange): boolean {
+    return (
+      currentChange.to === nextChange.from &&
+      ChangeSet.isTextChange(currentChange) &&
+      ChangeSet.isTextChange(nextChange)
+    )
   }
   /**
    * Flattens a changeTree into a list of IDs
