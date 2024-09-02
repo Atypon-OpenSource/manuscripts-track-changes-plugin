@@ -58,10 +58,12 @@ const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
  *
+ *
  * The main function of track changes that holds the most complex parts of this whole library.
  * Takes in as arguments the data from appendTransaction to reapply it with the track marks/attributes.
  * We could prevent the initial transaction from being applied all together but since invert works just
  * as well and we can use the intermediate doc for checking which nodes are changed, it's not prevented.
+ *
  *
  *
  * @param tr Original transaction
