@@ -206,7 +206,8 @@ export class ChangeSet {
     return (
       currentChange.to === nextChange.from &&
       ChangeSet.isTextChange(currentChange) &&
-      ChangeSet.isTextChange(nextChange)
+      ChangeSet.isTextChange(nextChange) &&
+      currentChange.dataTracked.status === nextChange.dataTracked.status
     )
   }
   /**
