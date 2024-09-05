@@ -203,7 +203,10 @@ export class ChangeSet {
   static shouldDeleteChange(change: TrackedChange) {
     const { status, operation } = change.dataTracked
     return (
-      (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.rejected) ||
+      ((operation === CHANGE_OPERATION.insert ||
+        operation === CHANGE_OPERATION.node_split ||
+        operation === CHANGE_OPERATION.wrap_with_node) &&
+        status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
     )
   }

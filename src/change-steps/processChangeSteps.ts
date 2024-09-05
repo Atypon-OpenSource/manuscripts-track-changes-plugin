@@ -75,6 +75,14 @@ export function processChangeSteps(
           return
         }
 
+        if (
+          node.marks.find(
+            (m) => m.attrs.dataTracked && m.attrs.dataTracked.operation === CHANGE_OPERATION.node_split
+          )
+        ) {
+          return
+        }
+
         const where = deleteTextIfInserted(
           node,
           mapping.map(c.pos),

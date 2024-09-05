@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Slice } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
-import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
+import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
+import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -79,6 +80,17 @@ export function trackReplaceAroundStep(
     attrs,
     slice
   )
+
+  let fragment = setFragmentAsInserted(
+    newSliceContent,
+    trackUtils.createNewInsertAttrs(attrs),
+    oldState.schema
+  )
+
+  if (step.from === step.gapFrom && step.to === step.gapTo) {
+    fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
+  }
+
   const steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
@@ -96,11 +108,7 @@ export function trackReplaceAroundStep(
     // the sides should be equal. TODO can they be other than 0?
     const openStart = slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openStart
     const openEnd = slice.openStart !== slice.openEnd || newSliceContent.size === 0 ? 0 : slice.openEnd
-    let insertedSlice = new Slice(
-      setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema),
-      openStart,
-      openEnd
-    ) as ExposedSlice
+    let insertedSlice = new Slice(fragment, openStart, openEnd) as ExposedSlice
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
       insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)

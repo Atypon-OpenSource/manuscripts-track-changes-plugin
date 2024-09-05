@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
+import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep, ReplaceStep, StepResult } from 'prosemirror-transform'
+import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
-import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
+import { setFragmentAsInserted, setFragmentAsNodeSplit } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
-import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
-import { ChangeStep, InsertSliceStep } from '../types/step'
+import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
+import { isSplitStep } from '../utils/track-utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -32,7 +32,8 @@ export function trackReplaceStep(
   newTr: Transaction,
   attrs: NewEmptyAttrs,
   stepResult: StepResult,
-  currentStepDoc: PMNode
+  currentStepDoc: PMNode,
+  tr: Transaction
 ) {
   log.info('###### ReplaceStep ######')
   let selectionPos = 0
@@ -88,6 +89,18 @@ export function trackReplaceStep(
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 
+      let fragment = setFragmentAsInserted(
+        newSliceContent,
+        trackUtils.createNewInsertAttrs(attrs),
+        oldState.schema
+      )
+
+      if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
+        fragment = setFragmentAsNodeSplit(fragment, attrs, oldState.schema)
+        // this for split mark we add
+        tr.mapping.appendMap(StepMap.offset(1))
+      }
+
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
@@ -98,11 +111,7 @@ export function trackReplaceStep(
         from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
         to: textWasDeleted ? toB - 1 : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
         sliceWasSplit,
-        slice: new Slice(
-          setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema),
-          openStart,
-          openEnd
-        ) as ExposedSlice,
+        slice: new Slice(fragment, openStart, openEnd) as ExposedSlice,
       })
     } else {
       // Incase only deletion was applied, check whether tracked marks around deleted content can be merged

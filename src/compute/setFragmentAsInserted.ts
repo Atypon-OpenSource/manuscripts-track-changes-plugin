@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
+import { EditorState } from 'prosemirror-state'
 
-import { CHANGE_OPERATION } from '../types/change'
-import { NewInsertAttrs, NewTrackedAttrs } from '../types/track'
+import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
+import { NewEmptyAttrs, NewInsertAttrs, NewTrackedAttrs } from '../types/track'
 import { log } from '../utils/logger'
+import * as trackUtils from '../utils/track-utils'
+import { uuidv4 } from '../utils/uuidv4'
 import { addTrackIdIfDoesntExist, equalMarks, getTextNodeTrackedMarkData } from './nodeHelpers'
 
 function markInlineNodeChange(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
@@ -86,4 +89,57 @@ export function setFragmentAsInserted(inserted: Fragment, insertAttrs: NewInsert
   // Recurse the content in the inserted slice and either mark it tracked_insert or set node attrs
   const updatedInserted = loopContentAndMergeText(inserted, insertAttrs, schema)
   return updatedInserted.length === 0 ? Fragment.empty : Fragment.fromArray(updatedInserted)
+}
+
+export function setFragmentAsWrapChange(inserted: Fragment, attrs: NewEmptyAttrs, schema: Schema) {
+  const content: PMNode[] = []
+
+  inserted.forEach((node) => {
+    content.push(
+      node.type.create(
+        {
+          ...node.attrs,
+          dataTracked: [addTrackIdIfDoesntExist(trackUtils.createNewWrapAttrs(attrs))],
+        },
+        setFragmentAsInserted(node.content, trackUtils.createNewInsertAttrs(attrs), schema),
+        node.marks
+      )
+    )
+  })
+
+  return Fragment.from(content)
+}
+
+/**
+ * Add split marker to first child and update last child to be as node split change
+ */
+export function setFragmentAsNodeSplit(inserted: Fragment, attrs: NewEmptyAttrs, schema: Schema) {
+  const firstChild = inserted.firstChild!,
+    lastChild = inserted.lastChild!
+  const splitMarkerId = uuidv4()
+  const splitMarker = schema.text('¶', [
+    schema.marks.tracked_insert.create({
+      dataTracked: {
+        ...trackUtils.createNewSplitAttrs({ ...attrs, status: CHANGE_STATUS.rejected }),
+        id: splitMarkerId,
+      },
+    }),
+  ])
+
+  inserted = inserted.replaceChild(
+    0,
+    firstChild.type.create(firstChild.attrs, firstChild.content.addToEnd(splitMarker))
+  )
+
+  inserted = inserted.replaceChild(
+    inserted.childCount - 1,
+    lastChild.type.create(
+      {
+        ...lastChild.attrs,
+        dataTracked: [{ ...trackUtils.createNewSplitAttrs({ ...attrs }), splitMarkerId }],
+      },
+      lastChild.content
+    )
+  )
+  return inserted
 }

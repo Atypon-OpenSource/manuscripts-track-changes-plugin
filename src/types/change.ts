@@ -17,7 +17,8 @@ export enum CHANGE_OPERATION {
   insert = 'insert',
   delete = 'delete',
   set_node_attributes = 'set_attrs',
-  // wrap_with_node = 'wrap_with_node',
+  node_split = 'node_split',
+  wrap_with_node = 'wrap_with_node',
   // unwrap_from_node = 'unwrap_from_node',
   // add_mark = 'add_mark',
   // remove_mark = 'remove_mark',
@@ -41,7 +42,17 @@ export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
   oldAttrs: Record<string, any>
 }
-export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs
+
+export type WrapAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.wrap_with_node
+}
+
+export type NodeSplitAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.node_split
+  splitMarkerId: string
+}
+
+export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs | WrapAttrs | NodeSplitAttrs
 
 type Change = {
   id: string

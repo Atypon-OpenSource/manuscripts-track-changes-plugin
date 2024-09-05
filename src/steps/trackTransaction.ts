@@ -130,7 +130,7 @@ export function trackTransaction(
       )
       const stepResult = newTr.maybeStep(newStep)
 
-      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i])
+      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i], tr)
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any

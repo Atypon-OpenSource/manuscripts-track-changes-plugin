@@ -33,7 +33,7 @@ export interface TrackChangesState {
 
 export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
 export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.insert
+  operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.wrap_with_node
 }
 export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.delete
@@ -41,6 +41,10 @@ export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 export type NewUpdateAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
   oldAttrs: Record<string, any>
+}
+export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.node_split
+  splitMarkerId?: string
 }
 export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs
 

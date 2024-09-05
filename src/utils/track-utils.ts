@@ -13,13 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Mark } from 'prosemirror-model'
+import { Selection, TextSelection } from 'prosemirror-state'
+import { ReplaceStep } from 'prosemirror-transform'
+
 import { CHANGE_OPERATION } from '../types/change'
-import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs, NewUpdateAttrs } from '../types/track'
+import {
+  NewDeleteAttrs,
+  NewEmptyAttrs,
+  NewInsertAttrs,
+  NewSplitNodeAttrs,
+  NewUpdateAttrs,
+} from '../types/track'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.insert,
+  }
+}
+
+export function createNewWrapAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.wrap_with_node,
+  }
+}
+
+export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.node_split,
   }
 }
 
@@ -38,4 +62,39 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
     operation: CHANGE_OPERATION.set_node_attributes,
     oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
   }
+}
+
+export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
+  const { from, to, slice } = step
+
+  if (from !== to || slice.content.childCount < 2) {
+    return false
+  }
+
+  if (uiEvent === 'paste') {
+    const {
+      $anchor: { parentOffset: startOffset },
+      $head: { parentOffset: endOffset },
+      $from,
+    } = selection
+    const parentSize = $from.node().content.size
+    // paste of content on the side of selection will not be considered as node split
+    return !(
+      (startOffset === 0 && endOffset === 0) ||
+      (startOffset === parentSize && endOffset === parentSize)
+    )
+  }
+
+  const {
+    content: { firstChild, lastChild },
+    openStart,
+    openEnd,
+  } = slice
+
+  return (
+    openStart === openEnd &&
+    firstChild!.type === lastChild!.type &&
+    firstChild!.inlineContent &&
+    lastChild!.inlineContent
+  )
 }
