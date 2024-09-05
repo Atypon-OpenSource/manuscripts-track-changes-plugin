@@ -87,7 +87,7 @@ export function trackReplaceAroundStep(
     oldState.schema
   )
 
-  if (step.from === step.gapFrom && step.to === step.gapTo) {
+  if (step.from === step.gapFrom && step.to === step.gapTo && newSliceContent.size === 0) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   }
 

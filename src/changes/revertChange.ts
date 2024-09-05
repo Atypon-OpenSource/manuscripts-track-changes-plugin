@@ -18,7 +18,7 @@ import { Fragment, Schema, Slice } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeSplitAttrs } from "../types/change";
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeSplitAttrs } from '../types/change'
 
 function revertSplitNodeChange(
   tr: Transaction,
@@ -46,19 +46,16 @@ function revertSplitNodeChange(
 
   if (splitPos && splitNode) {
     const node = tr.doc.nodeAt(change.from) as ManuscriptNode
-    if (status === CHANGE_STATUS.rejected) {
       tr.replaceWith(
         change.from,
         change.to,
         node.replace(0, node.content.size, Slice.maxOpen(Fragment.empty))
       )
       tr.replaceWith(splitPos, splitPos + 1, node.content)
-    }
   }
 }
 
 function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, status: CHANGE_STATUS) {
-  if (status === CHANGE_STATUS.rejected) {
     let content = Fragment.from()
     const node = tr.doc.nodeAt(change.from)!
     node.content.forEach((node) => {
@@ -66,7 +63,6 @@ function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, status:
     })
     tr.replaceWith(change.from, change.to, node.type.create(node.attrs, null, node.marks))
     tr.insert(tr.mapping.map(change.to), content)
-  }
 }
 
 export function revertRejectedChanges(
