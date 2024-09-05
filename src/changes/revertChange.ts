@@ -46,23 +46,19 @@ function revertSplitNodeChange(
 
   if (splitPos && splitNode) {
     const node = tr.doc.nodeAt(change.from) as ManuscriptNode
-      tr.replaceWith(
-        change.from,
-        change.to,
-        node.replace(0, node.content.size, Slice.maxOpen(Fragment.empty))
-      )
-      tr.replaceWith(splitPos, splitPos + 1, node.content)
+    tr.replaceWith(change.from, change.to, node.replace(0, node.content.size, Slice.maxOpen(Fragment.empty)))
+    tr.replaceWith(splitPos, splitPos + 1, node.content)
   }
 }
 
 function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, status: CHANGE_STATUS) {
-    let content = Fragment.from()
-    const node = tr.doc.nodeAt(change.from)!
-    node.content.forEach((node) => {
-      content = content.append(node.content)
-    })
-    tr.replaceWith(change.from, change.to, node.type.create(node.attrs, null, node.marks))
-    tr.insert(tr.mapping.map(change.to), content)
+  let content = Fragment.from()
+  const node = tr.doc.nodeAt(change.from)!
+  node.content.forEach((node) => {
+    content = content.append(node.content)
+  })
+  tr.replaceWith(change.from, change.to, node.type.create(node.attrs, null, node.marks))
+  tr.insert(tr.mapping.map(change.to), content)
 }
 
 export function revertRejectedChanges(
