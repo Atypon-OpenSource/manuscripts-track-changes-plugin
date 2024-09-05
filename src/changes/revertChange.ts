@@ -73,7 +73,7 @@ export function revertRejectedChanges(
   }
 
   ids.forEach((id) => {
-    const change = changeSet?.get(id)!
+    const change = changeSet.get(id)!
     if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
       revertSplitNodeChange(tr, change, status, schema)
     }
