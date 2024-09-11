@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Mark } from 'prosemirror-model'
+import { Fragment } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
-import { ReplaceStep } from 'prosemirror-transform'
+import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION } from '../types/change'
 import {
@@ -98,3 +98,6 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
     lastChild!.inlineContent
   )
 }
+
+export const isWrapStep = (step: ReplaceAroundStep, content: Fragment) =>
+  step.from === step.gapFrom && step.to === step.gapTo && content.size === 0

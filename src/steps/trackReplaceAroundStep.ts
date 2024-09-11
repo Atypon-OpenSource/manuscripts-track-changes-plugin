@@ -26,6 +26,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
+import { isWrapStep } from '../utils/track-utils'
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
@@ -87,9 +88,7 @@ export function trackReplaceAroundStep(
     oldState.schema
   )
 
-  const isWrapStep = step.from === step.gapFrom && step.to === step.gapTo && newSliceContent.size === 0;
-
-  if (isWrapStep) {
+  if (isWrapStep(step, newSliceContent)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   }
 
