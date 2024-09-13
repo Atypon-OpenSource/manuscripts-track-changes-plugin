@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
-import { EditorState } from 'prosemirror-state'
+import { Fragment, Node as PMNode, ResolvedPos, Schema } from 'prosemirror-model'
+import { Transaction } from 'prosemirror-state'
 
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { NewEmptyAttrs, NewInsertAttrs, NewTrackedAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
-import { addTrackIdIfDoesntExist, equalMarks, getTextNodeTrackedMarkData } from './nodeHelpers'
+import {
+  addTrackIdIfDoesntExist,
+  equalMarks,
+  getBlockInlineTrackedData,
+  getTextNodeTrackedMarkData,
+} from './nodeHelpers'
 
 function markInlineNodeChange(node: PMNode, newTrackAttrs: NewTrackedAttrs, schema: Schema) {
   const filtered = node.marks.filter(
@@ -111,32 +116,37 @@ export function setFragmentAsWrapChange(inserted: Fragment, attrs: NewEmptyAttrs
 }
 
 /**
- * Add split marker to first child and update last child to be as node split change
+ * Add split change to the source node parent, and to the last child which is the split content
  */
-export function setFragmentAsNodeSplit(inserted: Fragment, attrs: NewEmptyAttrs, schema: Schema) {
-  const firstChild = inserted.firstChild!,
-    lastChild = inserted.lastChild!
-  const splitMarkerId = uuidv4()
-  const splitMarker = schema.text('¶', [
-    schema.marks.tracked_insert.create({
-      dataTracked: {
-        ...trackUtils.createNewSplitAttrs({ ...attrs, status: CHANGE_STATUS.rejected }),
-        id: splitMarkerId,
-      },
-    }),
-  ])
+export function setFragmentAsNodeSplit(
+  $pos: ResolvedPos,
+  newTr: Transaction,
+  inserted: Fragment,
+  attrs: NewEmptyAttrs
+) {
+  const lastChild = inserted.lastChild!
+  const referenceId = uuidv4()
 
-  inserted = inserted.replaceChild(
-    0,
-    firstChild.type.create(firstChild.attrs, firstChild.content.addToEnd(splitMarker))
-  )
+  const parentPos = $pos.before($pos.depth)
+  const parent = $pos.node($pos.depth)
+  const oldDataTracked = getBlockInlineTrackedData(parent) || []
+  newTr.setNodeMarkup(parentPos, undefined, {
+    ...parent.attrs,
+    dataTracked: [
+      ...oldDataTracked.filter((c) => c.operation !== 'split_source'),
+      { ...trackUtils.createNewSplitSourceAttrs({ ...attrs, status: CHANGE_STATUS.rejected }, referenceId) },
+    ],
+  })
 
+  // if the node has already split reference will move it to the new split
+  const splitSource = oldDataTracked.find((c) => c.operation === 'split_source')
+  const dataTracked = { ...trackUtils.createNewSplitAttrs({ ...attrs }), id: referenceId }
   inserted = inserted.replaceChild(
     inserted.childCount - 1,
     lastChild.type.create(
       {
         ...lastChild.attrs,
-        dataTracked: [{ ...trackUtils.createNewSplitAttrs({ ...attrs }), splitMarkerId }],
+        dataTracked: splitSource ? [dataTracked, splitSource] : [dataTracked],
       },
       lastChild.content
     )

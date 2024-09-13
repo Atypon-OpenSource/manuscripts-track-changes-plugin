@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Slice } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
@@ -96,9 +96,7 @@ export function trackReplaceStep(
       )
 
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
-        fragment = setFragmentAsNodeSplit(fragment, attrs, oldState.schema)
-        // this for split mark we add
-        tr.mapping.appendMap(StepMap.offset(1))
+        fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
 
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,

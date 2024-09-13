@@ -18,40 +18,31 @@ import { Fragment, Schema, Slice } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeSplitAttrs } from '../types/change'
+import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange } from '../types/change'
 
-function revertSplitNodeChange(
-  tr: Transaction,
-  change: IncompleteChange,
-  status: CHANGE_STATUS,
-  schema: Schema
-) {
-  let splitPos, splitNode
+function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
+  const sourceChange = changeSet.changes.find(
+    (c) => c.dataTracked.operation === 'split_source' && c.dataTracked.referenceId === change.id
+  )!
+  const node = tr.doc.nodeAt(change.from) as ManuscriptNode
+  tr.replaceWith(change.from, change.to, node.replace(0, node.content.size, Slice.maxOpen(Fragment.empty)))
+  tr.replaceWith(sourceChange.to - 1, sourceChange.to, node.content)
 
-  tr.doc.content.descendants((node, pos, parent) => {
-    if (node.isText) {
-      const splitMark = node.marks.find(
-        (m) =>
-          m.type === schema.marks.tracked_insert &&
-          m.attrs.dataTracked &&
-          m.attrs.dataTracked.id === (change.dataTracked as NodeSplitAttrs).splitMarkerId
-      )
-      if (splitMark) {
-        splitPos = pos
-        splitNode = parent!
-      }
-      return false
-    }
-  })
-
-  if (splitPos && splitNode) {
-    const node = tr.doc.nodeAt(change.from) as ManuscriptNode
-    tr.replaceWith(change.from, change.to, node.replace(0, node.content.size, Slice.maxOpen(Fragment.empty)))
-    tr.replaceWith(splitPos, splitPos + 1, node.content)
+  // in case node split has another split will move source to the parent node
+  const childSource = changeSet.changes.find(
+    (c) => c.from === change.from && c.dataTracked.operation === 'split_source'
+  )
+  if (childSource) {
+    const node = tr.doc.nodeAt(sourceChange.from) as ManuscriptNode
+    const dataTracked = getBlockInlineTrackedData(node)!.map((c) =>
+      c.operation === 'split_source' ? childSource.dataTracked : c
+    )
+    tr.setNodeMarkup(sourceChange.from, undefined, { ...node.attrs, dataTracked }, node.marks)
   }
 }
 
-function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, status: CHANGE_STATUS) {
+function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
   let content = Fragment.from()
   const node = tr.doc.nodeAt(change.from)!
   node.content.forEach((node) => {
@@ -75,10 +66,10 @@ export function revertRejectedChanges(
   ids.forEach((id) => {
     const change = changeSet.get(id)!
     if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
-      revertSplitNodeChange(tr, change, status, schema)
+      revertSplitNodeChange(tr, change, changeSet)
     }
     if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-      revertWrapNodeChange(tr, change, status)
+      revertWrapNodeChange(tr, change)
     }
   })
 }
