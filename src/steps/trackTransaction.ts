@@ -22,7 +22,14 @@ import {
   TextSelection,
   Transaction,
 } from 'prosemirror-state'
-import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+import {
+  AddMarkStep,
+  AttrStep,
+  Mapping,
+  RemoveMarkStep,
+  ReplaceAroundStep,
+  ReplaceStep,
+} from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
@@ -32,6 +39,7 @@ import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
 /**
@@ -50,10 +58,12 @@ const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
  *
+ *
  * The main function of track changes that holds the most complex parts of this whole library.
  * Takes in as arguments the data from appendTransaction to reapply it with the track marks/attributes.
  * We could prevent the initial transaction from being applied all together but since invert works just
  * as well and we can use the intermediate doc for checking which nodes are changed, it's not prevented.
+ *
  *
  *
  * @param tr Original transaction
@@ -177,6 +187,16 @@ export function trackTransaction(
       log.info('DIFFED STEPS: ', steps)
       const [mapping, selectionPos] = processChangeSteps(
         steps,
+        tr.selection.from,
+        newTr,
+        emptyAttrs,
+        oldState.schema
+      )
+    } else if (step instanceof AttrStep) {
+      const chnageSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
+
+      const [mapping, selectionPos] = processChangeSteps(
+        chnageSteps,
         tr.selection.from,
         newTr,
         emptyAttrs,
