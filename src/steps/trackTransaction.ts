@@ -91,7 +91,8 @@ export function trackTransaction(
     //   console.log('skipping first step')
     //   continue
     // }
-    if (iters > 20) {
+    const uiEvent = tr.getMeta('uiEvent')
+    if (iters > 20 && uiEvent != 'cut') {
       console.error(
         '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
           'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
