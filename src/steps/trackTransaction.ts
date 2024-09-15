@@ -22,7 +22,6 @@ import {
   TextSelection,
   Transaction,
 } from 'prosemirror-state'
-import { isInTable } from 'prosemirror-tables'
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
@@ -92,7 +91,7 @@ export function trackTransaction(
     //   console.log('skipping first step')
     //   continue
     // }
-    if (iters > 20 && !isInTable(oldState)) {
+    if (iters > 20) {
       console.error(
         '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
           'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
@@ -124,15 +123,11 @@ export function trackTransaction(
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
       // @TODO - check if needed to be done for other types of steps
-      let newStep = step.invert(tr.docs[i])
-      if (!isInTable(oldState)) {
-        newStep = new ReplaceStep(
-          thisStepMapping.map(invertedStep.from),
-          thisStepMapping.map(invertedStep.to),
-          invertedStep.slice,
-          true
-        )
-      }
+      const newStep = new ReplaceStep(
+        thisStepMapping.map(invertedStep.from),
+        thisStepMapping.map(invertedStep.to),
+        invertedStep.slice
+      )
       const stepResult = newTr.maybeStep(newStep)
 
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i])
@@ -144,10 +139,10 @@ export function trackTransaction(
           continue
         }
       }
-      if (!isInTable(oldState)) {
-        startPos = thisStepMapping.map(startPos)
-        steps = mapChangeSteps(steps, thisStepMapping)
-      }
+
+      startPos = thisStepMapping.map(startPos)
+      steps = mapChangeSteps(steps, thisStepMapping)
+
       log.info('CHANGES: ', steps)
       // deleted and merged really...
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
