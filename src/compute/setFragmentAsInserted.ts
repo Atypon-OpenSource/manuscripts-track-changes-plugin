@@ -134,7 +134,11 @@ export function setFragmentAsNodeSplit(
     ...parent.attrs,
     dataTracked: [
       ...oldDataTracked.filter((c) => c.operation !== 'split_source'),
-      { ...trackUtils.createNewSplitSourceAttrs({ ...attrs, status: CHANGE_STATUS.rejected }, referenceId) },
+      {
+        ...addTrackIdIfDoesntExist(
+          trackUtils.createNewSplitSourceAttrs({ ...attrs, status: CHANGE_STATUS.rejected }, referenceId)
+        ),
+      },
     ],
   })
 

@@ -19,6 +19,7 @@ import {
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
+  SplitSourceChange,
   TextChange,
   TrackedAttrs,
   TrackedChange,
@@ -130,7 +131,9 @@ export class ChangeSet {
   }
 
   get bothNodeChanges() {
-    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
+    return this.changes.filter(
+      (c) => c.type === 'node-change' || c.type === 'split-source' || c.type === 'node-attr-change'
+    )
   }
 
   get isEmpty() {
@@ -256,6 +259,10 @@ export class ChangeSet {
 
   static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
     return change.type === 'node-attr-change'
+  }
+
+  static isSplitSourceChange(change: TrackedChange): change is SplitSourceChange {
+    return change.type === 'split-source'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {

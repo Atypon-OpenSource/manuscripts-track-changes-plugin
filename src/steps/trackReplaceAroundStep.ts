@@ -82,14 +82,11 @@ export function trackReplaceAroundStep(
     slice
   )
 
-  let fragment = setFragmentAsInserted(
-    newSliceContent,
-    trackUtils.createNewInsertAttrs(attrs),
-    oldState.schema
-  )
-
-  if (isWrapStep(step, newSliceContent)) {
+  let fragment
+  if (isWrapStep(step)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
+  } else {
+    fragment = setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
   }
 
   const steps: ChangeStep[] = deleteSteps

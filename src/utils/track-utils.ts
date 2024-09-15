@@ -76,7 +76,11 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
 export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
   const { from, to, slice } = step
 
-  if (from !== to || slice.content.childCount < 2) {
+  if (
+    from !== to ||
+    slice.content.childCount < 2 ||
+    (slice.content.firstChild?.isInline && slice.content.lastChild?.isInline)
+  ) {
     return false
   }
 
@@ -108,5 +112,8 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
   )
 }
 
-export const isWrapStep = (step: ReplaceAroundStep, content: Fragment) =>
-  step.from === step.gapFrom && step.to === step.gapTo && content.size === 0
+export const isWrapStep = (step: ReplaceAroundStep) =>
+  step.from === step.gapFrom &&
+  step.to === step.gapTo &&
+  step.slice.openStart === 0 &&
+  step.slice.openEnd === 0

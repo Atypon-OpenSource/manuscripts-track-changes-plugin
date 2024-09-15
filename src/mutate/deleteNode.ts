@@ -80,10 +80,13 @@ export function deleteOrSetNodeDeleted(
   const dataTracked = getBlockInlineTrackedData(node)
   const inserted = dataTracked?.find(
     (d) =>
-      d.operation === CHANGE_OPERATION.insert &&
+      (d.operation === CHANGE_OPERATION.insert || d.operation === CHANGE_OPERATION.wrap_with_node) &&
       (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
   )
-  const updated = dataTracked?.find((d) => d.operation === CHANGE_OPERATION.set_node_attributes)
+  const updated = dataTracked?.find(
+    (d) =>
+      d.operation === CHANGE_OPERATION.set_node_attributes || d.operation === CHANGE_OPERATION.split_source
+  )
 
   /*
     Removed condition "inserted.authorID === deleteAttrs.authorID" for this check because it resulted in a weird behaviour of deletion of approved changes

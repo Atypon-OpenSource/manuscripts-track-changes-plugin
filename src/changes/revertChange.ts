@@ -20,16 +20,22 @@ import { Transaction } from 'prosemirror-state'
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange } from '../types/change'
+import { getUpdatedDataTracked } from './applyChanges'
 
+/**
+ *  move split-ed content back to the original node. and will update original node dataTracked in these cases:
+ *  * the split-ed node has another split will move split_source attr to the original node.
+ *  * remove deleted track attr from original node
+ */
 function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
-  const sourceChange = changeSet.changes.find(
+  let sourceChange = changeSet.changes.find(
     (c) => c.dataTracked.operation === 'split_source' && c.dataTracked.referenceId === change.id
   )!
   const node = tr.doc.nodeAt(change.from) as ManuscriptNode
-  tr.replaceWith(change.from, change.to, node.replace(0, node.content.size, Slice.maxOpen(Fragment.empty)))
+  tr.replaceWith(change.from, change.to, Fragment.empty)
   tr.replaceWith(sourceChange.to - 1, sourceChange.to, node.content)
 
-  // in case node split has another split will move source to the parent node
+  // in case node split has another split will move source to the above node
   const childSource = changeSet.changes.find(
     (c) => c.from === change.from && c.dataTracked.operation === 'split_source'
   )
@@ -40,6 +46,19 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
     )
     tr.setNodeMarkup(sourceChange.from, undefined, { ...node.attrs, dataTracked }, node.marks)
   }
+
+  // This will remove delete attr from source node, to avoid conflict with the moved content
+  const deleteChange = changeSet.changes.find(
+    (c) => c.dataTracked.operation == 'delete' && c.from === sourceChange.from
+  )
+  if (deleteChange) {
+    const node = tr.doc.nodeAt(deleteChange.from) as ManuscriptNode
+    tr.setNodeMarkup(
+      deleteChange.from,
+      undefined,
+      getUpdatedDataTracked(node.attrs.dataTracked, deleteChange.id)
+    )
+  }
 }
 
 function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
@@ -48,7 +67,7 @@ function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
   node.content.forEach((node) => {
     content = content.append(node.content)
   })
-  tr.replaceWith(change.from, change.to, node.type.create(node.attrs, null, node.marks))
+  tr.replaceWith(change.from, change.to, Fragment.empty)
   tr.insert(tr.mapping.map(change.to), content)
 }
 

@@ -84,10 +84,19 @@ export type WrapChange = Change & {
   type: 'wrap-change'
   wrapperNode: string
 }
+export type SplitSourceChange = Change & {
+  type: 'split-source'
+}
 export type MarkChange = Change & {
   type: 'mark-change'
 }
-export type TrackedChange = TextChange | NodeChange | NodeAttrChange | WrapChange | MarkChange
+export type TrackedChange =
+  | TextChange
+  | NodeChange
+  | NodeAttrChange
+  | WrapChange
+  | SplitSourceChange
+  | MarkChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }
