@@ -62,7 +62,7 @@ describe('manuscript.test', () => {
         }
         const { changeSet } = trackChangesState
         const change = changeSet.pending.find(
-          (c) => c.type === 'node-change' && c.nodeType === 'figure_element'
+          (c) => c.type === 'node-change' && c.node.type.name === 'figure_element'
         )
         if (change && ChangeSet.isNodeChange(change)) {
           const ids = [change.id]
