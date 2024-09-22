@@ -17,9 +17,9 @@ export enum CHANGE_OPERATION {
   insert = 'insert',
   delete = 'delete',
   set_node_attributes = 'set_attrs',
-  node_split = 'node_split',
-  split_source = 'split_source',
   wrap_with_node = 'wrap_with_node',
+  node_split = 'node_split',
+  reference = 'reference',
   // unwrap_from_node = 'unwrap_from_node',
   // add_mark = 'add_mark',
   // remove_mark = 'remove_mark',
@@ -52,12 +52,12 @@ export type NodeSplitAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.node_split
 }
 
-export type SplitSourceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
-  operation: CHANGE_OPERATION.split_source
+export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.reference
   referenceId: string
 }
 
-export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs | WrapAttrs | NodeSplitAttrs | SplitSourceAttrs
+export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs | WrapAttrs | NodeSplitAttrs | ReferenceAttrs
 
 type Change = {
   id: string
@@ -84,8 +84,8 @@ export type WrapChange = Change & {
   type: 'wrap-change'
   wrapperNode: string
 }
-export type SplitSourceChange = Change & {
-  type: 'split-source'
+export type ReferenceChange = Change & {
+  type: 'reference-change'
 }
 export type MarkChange = Change & {
   type: 'mark-change'
@@ -95,7 +95,7 @@ export type TrackedChange =
   | NodeChange
   | NodeAttrChange
   | WrapChange
-  | SplitSourceChange
+  | ReferenceChange
   | MarkChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>

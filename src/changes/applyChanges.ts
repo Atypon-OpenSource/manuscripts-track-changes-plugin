@@ -137,7 +137,7 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
-    } else if (ChangeSet.isSplitSourceChange(change)) {
+    } else if (ChangeSet.isReferenceChange(change)) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(
         from,

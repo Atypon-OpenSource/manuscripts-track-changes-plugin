@@ -24,7 +24,7 @@ import {
   NodeAttrChange,
   NodeChange,
   PartialChange,
-  SplitSourceChange,
+  ReferenceChange,
   TextChange,
 } from '../types/change'
 
@@ -84,14 +84,14 @@ export function findChanges(state: EditorState) {
           newAttrs: node.attrs,
           oldAttrs: dataTracked.oldAttrs,
         } as NodeAttrChange
-      } else if (dataTracked.operation === CHANGE_OPERATION.split_source) {
+      } else if (dataTracked.operation === CHANGE_OPERATION.reference) {
         change = {
           id,
-          type: 'split-source',
+          type: 'reference-change',
           from: pos,
           to: pos + node.nodeSize,
           dataTracked,
-        } as SplitSourceChange
+        } as ReferenceChange
       } else {
         change = {
           id,

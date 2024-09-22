@@ -19,7 +19,7 @@ import { Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange } from '../types/change'
 import { getUpdatedDataTracked } from './applyChanges'
 
 /**
@@ -29,20 +29,24 @@ import { getUpdatedDataTracked } from './applyChanges'
  */
 function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
   let sourceChange = changeSet.changes.find(
-    (c) => c.dataTracked.operation === 'split_source' && c.dataTracked.referenceId === change.id
+    (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id
   )!
   const node = tr.doc.nodeAt(change.from) as ManuscriptNode
   tr.replaceWith(change.from, change.to, Fragment.empty)
   tr.replaceWith(sourceChange.to - 1, sourceChange.to, node.content)
 
+  if ((change as NodeChange).nodeType === 'list_item') {
+    tr.join(sourceChange.to - 1)
+  }
+
   // in case node split has another split will move source to the above node
   const childSource = changeSet.changes.find(
-    (c) => c.from === change.from && c.dataTracked.operation === 'split_source'
+    (c) => c.from === change.from && c.dataTracked.operation === 'reference'
   )
   if (childSource) {
     const node = tr.doc.nodeAt(sourceChange.from) as ManuscriptNode
     const dataTracked = getBlockInlineTrackedData(node)!.map((c) =>
-      c.operation === 'split_source' ? childSource.dataTracked : c
+      c.operation === 'reference' ? childSource.dataTracked : c
     )
     tr.setNodeMarkup(sourceChange.from, undefined, { ...node.attrs, dataTracked }, node.marks)
   }

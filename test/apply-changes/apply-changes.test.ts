@@ -16,6 +16,7 @@
 /// <reference types="@types/jest" />;
 import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
+import { baseKeymap } from 'prosemirror-commands'
 
 import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
@@ -171,5 +172,26 @@ describe('apply-changes.test', () => {
 
     expect(tester.toJSON()).toEqual(insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
+  })
+
+  test('should delete reference change', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .selectText(7)
+      .cmd(baseKeymap['Enter'])
+
+    tester.cmd((state, dispatch) => {
+      const nodeSplitChange = tester
+        .trackState()
+        ?.changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
+      if (nodeSplitChange) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
+      }
+    })
+
+    tester.cmd(trackCommands.applyAndRemoveChanges())
+
+    expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
   })
 })

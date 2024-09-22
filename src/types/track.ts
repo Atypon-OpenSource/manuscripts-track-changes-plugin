@@ -45,8 +45,8 @@ export type NewUpdateAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.node_split
 }
-export type NewSplitSourceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.split_source
+export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.reference
   referenceId: string
 }
 export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs

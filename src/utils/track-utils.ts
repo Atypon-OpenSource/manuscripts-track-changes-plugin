@@ -22,8 +22,8 @@ import {
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
+  NewReferenceAttrs,
   NewSplitNodeAttrs,
-  NewSplitSourceAttrs,
   NewUpdateAttrs,
 } from '../types/track'
 
@@ -48,10 +48,10 @@ export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
   }
 }
 
-export function createNewSplitSourceAttrs(attrs: NewEmptyAttrs, id: string): NewSplitSourceAttrs {
+export function createNewSplitSourceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
   return {
     ...attrs,
-    operation: CHANGE_OPERATION.split_source,
+    operation: CHANGE_OPERATION.reference,
     referenceId: id,
   }
 }

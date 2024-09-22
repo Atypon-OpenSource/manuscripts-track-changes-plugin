@@ -84,8 +84,7 @@ export function deleteOrSetNodeDeleted(
       (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
   )
   const updated = dataTracked?.find(
-    (d) =>
-      d.operation === CHANGE_OPERATION.set_node_attributes || d.operation === CHANGE_OPERATION.split_source
+    (d) => d.operation === CHANGE_OPERATION.set_node_attributes || d.operation === CHANGE_OPERATION.reference
   )
 
   /*

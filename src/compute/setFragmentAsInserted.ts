@@ -127,13 +127,14 @@ export function setFragmentAsNodeSplit(
   const lastChild = inserted.lastChild!
   const referenceId = uuidv4()
 
-  const parentPos = $pos.before($pos.depth)
-  const parent = $pos.node($pos.depth)
+  const listItemSplit = lastChild.type.name === 'list_item' ? 1 : 0
+  const parentPos = $pos.before($pos.depth - listItemSplit)
+  const parent = $pos.node($pos.depth - listItemSplit)
   const oldDataTracked = getBlockInlineTrackedData(parent) || []
   newTr.setNodeMarkup(parentPos, undefined, {
     ...parent.attrs,
     dataTracked: [
-      ...oldDataTracked.filter((c) => c.operation !== 'split_source'),
+      ...oldDataTracked.filter((c) => c.operation !== 'reference'),
       {
         ...addTrackIdIfDoesntExist(
           trackUtils.createNewSplitSourceAttrs({ ...attrs, status: CHANGE_STATUS.rejected }, referenceId)
@@ -143,7 +144,7 @@ export function setFragmentAsNodeSplit(
   })
 
   // if the node has already split reference will move it to the new split
-  const splitSource = oldDataTracked.find((c) => c.operation === 'split_source')
+  const splitSource = oldDataTracked.find((c) => c.operation === 'reference')
   const dataTracked = { ...trackUtils.createNewSplitAttrs({ ...attrs }), id: referenceId }
   inserted = inserted.replaceChild(
     inserted.childCount - 1,
