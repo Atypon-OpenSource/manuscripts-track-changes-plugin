@@ -104,6 +104,11 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
     openEnd,
   } = slice
 
+  // @ts-ignore
+  if (window.event.type === 'keydown' && firstChild?.type.name === 'list_item') {
+    return lastChild?.type.name === 'list_item'
+  }
+
   return (
     openStart === openEnd &&
     firstChild!.type === lastChild!.type &&
