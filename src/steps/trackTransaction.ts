@@ -101,7 +101,8 @@ export function trackTransaction(
     //   console.log('skipping first step')
     //   continue
     // }
-    if (iters > 20) {
+    const uiEvent = tr.getMeta('uiEvent')
+    if (iters > 20 && uiEvent != 'cut') {
       console.error(
         '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
           'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
@@ -121,6 +122,7 @@ export function trackTransaction(
         continue
       }
       const invertedStep = step.invert(tr.docs[i])
+      const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
       const thisStepMapping = tr.mapping.slice(i + 1)
       /* 
@@ -138,7 +140,7 @@ export function trackTransaction(
         thisStepMapping.map(invertedStep.to),
         invertedStep.slice
       )
-      const stepResult = newTr.maybeStep(newStep)
+      const stepResult = newTr.maybeStep(isDelete ? invertedStep : newStep)
 
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i], tr)
 
@@ -150,8 +152,10 @@ export function trackTransaction(
         }
       }
 
-      startPos = thisStepMapping.map(startPos)
-      steps = mapChangeSteps(steps, thisStepMapping)
+      if (!isDelete) {
+        startPos = thisStepMapping.map(startPos)
+        steps = mapChangeSteps(steps, thisStepMapping)
+      }
 
       log.info('CHANGES: ', steps)
       // deleted and merged really...

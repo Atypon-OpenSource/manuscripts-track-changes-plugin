@@ -72,6 +72,7 @@ export function findChanges(state: EditorState) {
           to: pos + node.nodeSize,
           dataTracked,
           text: node.text,
+          nodeType: node.type,
         } as PartialChange<TextChange>
       } else if (dataTracked.operation === CHANGE_OPERATION.set_node_attributes) {
         change = {
@@ -80,7 +81,7 @@ export function findChanges(state: EditorState) {
           from: pos,
           to: pos + node.nodeSize,
           dataTracked,
-          nodeType: node.type.name,
+          node: node,
           newAttrs: node.attrs,
           oldAttrs: dataTracked.oldAttrs,
         } as NodeAttrChange
@@ -99,8 +100,9 @@ export function findChanges(state: EditorState) {
           from: pos,
           to: pos + node.nodeSize,
           dataTracked,
-          nodeType: node.type.name,
+          node: node,
           children: [],
+          attrs: node.attrs,
         } as PartialChange<NodeChange>
       }
       current = {

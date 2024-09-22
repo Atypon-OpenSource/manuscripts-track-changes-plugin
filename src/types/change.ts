@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { Node, NodeType } from 'prosemirror-model'
+
 export enum CHANGE_OPERATION {
   insert = 'insert',
   delete = 'delete',
@@ -68,15 +71,17 @@ type Change = {
 export type TextChange = Change & {
   type: 'text-change'
   text: string
+  nodeType: NodeType
 }
 export type NodeChange = Change & {
   type: 'node-change'
-  nodeType: string
+  node: Node
+  attrs: Record<string, any>
   children: TrackedChange[]
 }
 export type NodeAttrChange = Change & {
   type: 'node-attr-change'
-  nodeType: string
+  node: Node
   oldAttrs: Record<string, any>
   newAttrs: Record<string, any>
 }
