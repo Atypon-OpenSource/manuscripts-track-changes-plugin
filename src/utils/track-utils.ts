@@ -84,13 +84,14 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
     return false
   }
 
+  const {
+    $anchor: { parentOffset: startOffset },
+    $head: { parentOffset: endOffset },
+    $from,
+  } = selection
+  const parentSize = $from.node().content.size
+
   if (uiEvent === 'paste') {
-    const {
-      $anchor: { parentOffset: startOffset },
-      $head: { parentOffset: endOffset },
-      $from,
-    } = selection
-    const parentSize = $from.node().content.size
     // paste of content on the side of selection will not be considered as node split
     return !(
       (startOffset === 0 && endOffset === 0) ||
@@ -104,9 +105,12 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
     openEnd,
   } = slice
 
-  // @ts-ignore
-  if (window.event.type === 'keydown' && firstChild?.type.name === 'list_item') {
-    return lastChild?.type.name === 'list_item'
+  if (
+    // @ts-ignore
+    (window.event?.code === 'Enter' || window.event?.code === 'NumpadEnter') &&
+    firstChild?.type.name === 'list_item'
+  ) {
+    return !(parentSize === startOffset && parentSize === endOffset) && lastChild?.type.name === 'list_item'
   }
 
   return (
