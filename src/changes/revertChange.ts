@@ -35,7 +35,7 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
   tr.replaceWith(change.from, change.to, Fragment.empty)
   tr.replaceWith(sourceChange.to - 1, sourceChange.to, node.content)
 
-  if ((change as NodeChange).nodeType === 'list_item') {
+  if ((change as NodeChange).node.type.name === 'list_item') {
     tr.join(sourceChange.to - 1)
   }
 
