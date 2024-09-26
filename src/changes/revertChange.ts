@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 import { ManuscriptNode } from '@manuscripts/transform'
-import { Fragment, Schema, Slice } from 'prosemirror-model'
+import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
+import { liftTarget } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
@@ -31,9 +32,9 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
   let sourceChange = changeSet.changes.find(
     (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id
   )!
-  const node = tr.doc.nodeAt(change.from) as ManuscriptNode
-  tr.replaceWith(change.from, change.to, Fragment.empty)
-  tr.replaceWith(sourceChange.to - 1, sourceChange.to, node.content)
+  const node = tr.doc.nodeAt(tr.mapping.map(change.from)) as ManuscriptNode
+  tr.delete(tr.mapping.map(change.from), tr.mapping.map(change.to))
+  tr.replaceWith(tr.mapping.map(sourceChange.to - 1), tr.mapping.map(sourceChange.to), node.content)
 
   if ((change as NodeChange).node.type.name === 'list_item') {
     tr.join(sourceChange.to - 1)
@@ -44,11 +45,11 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
     (c) => c.from === change.from && c.dataTracked.operation === 'reference'
   )
   if (childSource) {
-    const node = tr.doc.nodeAt(sourceChange.from) as ManuscriptNode
+    const node = tr.doc.nodeAt(tr.mapping.map(sourceChange.from)) as ManuscriptNode
     const dataTracked = getBlockInlineTrackedData(node)!.map((c) =>
       c.operation === 'reference' ? childSource.dataTracked : c
     )
-    tr.setNodeMarkup(sourceChange.from, undefined, { ...node.attrs, dataTracked }, node.marks)
+    tr.setNodeMarkup(tr.mapping.map(sourceChange.from), undefined, { ...node.attrs, dataTracked }, node.marks)
   }
 
   // This will remove delete attr from source node, to avoid conflict with the moved content
@@ -56,9 +57,9 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
     (c) => c.dataTracked.operation == 'delete' && c.from === sourceChange.from
   )
   if (deleteChange) {
-    const node = tr.doc.nodeAt(deleteChange.from) as ManuscriptNode
+    const node = tr.doc.nodeAt(tr.mapping.map(deleteChange.from)) as ManuscriptNode
     tr.setNodeMarkup(
-      deleteChange.from,
+      tr.mapping.map(deleteChange.from),
       undefined,
       getUpdatedDataTracked(node.attrs.dataTracked, deleteChange.id)
     )
@@ -66,13 +67,19 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
 }
 
 function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
-  let content = Fragment.from()
-  const node = tr.doc.nodeAt(change.from)!
-  node.content.forEach((node) => {
-    content = content.append(node.content)
+  tr.doc.nodesBetween(change.from, change.to, (node, pos) => {
+    const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
+    const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
+    const nodeRange = $fromPos.blockRange($toPos)
+    if (!nodeRange) {
+      return
+    }
+
+    const targetLiftDepth = liftTarget(nodeRange)
+    if (targetLiftDepth || targetLiftDepth === 0) {
+      tr.lift(nodeRange, targetLiftDepth)
+    }
   })
-  tr.replaceWith(change.from, change.to, Fragment.empty)
-  tr.insert(tr.mapping.map(change.to), content)
 }
 
 export function revertRejectedChanges(

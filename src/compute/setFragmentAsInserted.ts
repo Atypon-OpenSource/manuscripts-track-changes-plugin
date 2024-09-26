@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ManuscriptNode } from '@manuscripts/transform'
 import { Fragment, Node as PMNode, ResolvedPos, Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 
@@ -127,9 +128,8 @@ export function setFragmentAsNodeSplit(
   const lastChild = inserted.lastChild!
   const referenceId = uuidv4()
 
-  const listItemSplit = lastChild.type.name === 'list_item' ? 1 : 0
-  const parentPos = $pos.before($pos.depth - listItemSplit)
-  const parent = $pos.node($pos.depth - listItemSplit)
+  const parentPos = $pos.before($pos.depth)
+  const parent = $pos.node($pos.depth)
   const oldDataTracked = getBlockInlineTrackedData(parent) || []
   newTr.setNodeMarkup(parentPos, undefined, {
     ...parent.attrs,
@@ -146,15 +146,35 @@ export function setFragmentAsNodeSplit(
   // if the node has already split reference will move it to the new split
   const splitSource = oldDataTracked.find((c) => c.operation === 'reference')
   const dataTracked = { ...trackUtils.createNewSplitAttrs({ ...attrs }), id: referenceId }
-  inserted = inserted.replaceChild(
-    inserted.childCount - 1,
-    lastChild.type.create(
+
+  // will add split track attr to first child in list_item, as that will be more convenient to roll back text to the referenced node
+  if (lastChild.type.name === 'list_item') {
+    let firstChild = lastChild.content.firstChild as ManuscriptNode
+    firstChild = firstChild.type.create(
       {
         ...lastChild.attrs,
         dataTracked: splitSource ? [dataTracked, splitSource] : [dataTracked],
       },
-      lastChild.content
+      firstChild.content
     )
-  )
+    inserted = inserted.replaceChild(
+      inserted.childCount - 1,
+      lastChild.type.create(
+        lastChild.attrs,
+        lastChild.content.cut(firstChild.nodeSize).addToStart(firstChild)
+      )
+    )
+  } else {
+    inserted = inserted.replaceChild(
+      inserted.childCount - 1,
+      lastChild.type.create(
+        {
+          ...lastChild.attrs,
+          dataTracked: splitSource ? [dataTracked, splitSource] : [dataTracked],
+        },
+        lastChild.content
+      )
+    )
+  }
   return inserted
 }
