@@ -125,8 +125,6 @@ export function applyAcceptedRejectedChanges(
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
     } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.rejected) {
-      console.log('GETTING IN ---- CHANGE_STATUS.rejected')
-
       tr.setNodeMarkup(
         from,
         undefined,
