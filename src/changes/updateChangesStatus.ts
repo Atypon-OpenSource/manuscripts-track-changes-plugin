@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { EditorState, Transaction } from 'prosemirror-state'
-import { ChangeSet } from '../ChangeSet'
 import { closeHistory } from 'prosemirror-history'
+import { EditorState, Transaction } from 'prosemirror-state'
+
+import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { updateChangeAttrs } from './updateChangeAttrs'
 

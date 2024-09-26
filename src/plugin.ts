@@ -20,11 +20,11 @@ import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
 import { applyAcceptedRejectedChanges } from './changes/applyChanges'
 import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
+import { updateChangesStatus } from './changes/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
 import { trackTransaction } from './steps/trackTransaction'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
-import { updateChangesStatus } from './changes/updateChangesStatus'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
