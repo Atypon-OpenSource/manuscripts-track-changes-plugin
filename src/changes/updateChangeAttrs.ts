@@ -75,8 +75,15 @@ export function updateChangeAttrs(
     // Very weird edge-case if this happens
     tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
   } else if (change.type === 'node-change' || change.type === 'node-attr-change') {
-    // delete rejected change immediately
+    let restoredAttrs: Record<string, any> | undefined = undefined
+    if (
+      trackedAttrs.operation === CHANGE_OPERATION.set_node_attributes &&
+      trackedAttrs.status === CHANGE_STATUS.rejected
+    ) {
+      restoredAttrs = trackedAttrs.oldAttrs
+    }
 
+    // delete rejected change immediately
     const trackedDataSource = getBlockInlineTrackedData(node) || []
     const targetDataTracked = trackedDataSource.find((t) => change.id === t.id)
     const newDataTracked = trackedDataSource
@@ -87,8 +94,6 @@ export function updateChangeAttrs(
               trackedAttrs.status === CHANGE_STATUS.accepted ||
               trackedAttrs.status === CHANGE_STATUS.rejected
             ) {
-              console.log(trackedAttrs)
-              console.log('removing rejected')
               return null
             }
             return { ...oldTrack, ...trackedAttrs }
@@ -106,11 +111,10 @@ export function updateChangeAttrs(
       })
       .filter(Boolean)
 
-    console.log(newDataTracked)
     tr.setNodeMarkup(
       change.from,
       undefined,
-      { ...node.attrs, dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
+      { ...(restoredAttrs || node.attrs), dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
       node.marks
     )
   }
