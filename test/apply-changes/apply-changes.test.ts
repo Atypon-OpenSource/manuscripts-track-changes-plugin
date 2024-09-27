@@ -111,6 +111,44 @@ describe('apply-changes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('should correctly apply adjacent block changes', async () => {
+    const tester = setupEditor({
+      doc: docs.nestedBlockquotes,
+    })
+      .insertNode(schema.nodes.ordered_list.createAndFill(), 0)
+      .insertNode(schema.nodes.table.createAndFill(), 0)
+      .cmd((state, dispatch) => {
+        const trackChangesState = trackChangesPluginKey.getState(state)
+        if (!trackChangesState) {
+          return
+        }
+        const { changeSet } = trackChangesState
+        const change = changeSet.pending.find((c) => c.type === 'node-change' && c.node.type.name === 'table')
+        if (change && ChangeSet.isNodeChange(change)) {
+          // const ids = [change.id, ...change.children.map(c => c.id)]
+          const ids = [change.id]
+          trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
+        }
+      })
+
+    if (tester.trackState()?.changeSet.changes) {
+      tester.cmd(
+        trackCommands.setChangeStatuses(
+          CHANGE_STATUS.accepted,
+          tester.trackState()!.changeSet.changes.map((c) => c.id)
+        )
+      )
+    }
+
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+    expect(tester.toJSON()).toEqual(insertReject[0])
+    expect(uuidv4Mock.mock.calls.length).toBe(11)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
   test('should apply deleting and set attribute for both contributor & affiliation', async () => {
     const tester = setupEditor({
       schema: manuscriptSchema,
