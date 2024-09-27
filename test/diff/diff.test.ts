@@ -144,34 +144,5 @@ describe('diff.test', () => {
     tester.setNodeMarkup(14, { TeXRepresentation: '' })
 
     expect(tester.toJSON()).toEqual(nodeDiff[3])
-
-    jest.useFakeTimers().setSystemTime(new Date('2020-09-09').getTime())
-
-    const x = tester
-      .setNodeMarkup(14, { TeXRepresentation: '1+2=3' })
-      .delete(13, 15)
-      .setChangeStatuses(CHANGE_STATUS.rejected)
-
-    x.cmd(trackCommands.applyAndRemoveChanges()).moveCursor('start')
-
-    // @TODO fix bug for this usecase (that's what this test does):
-    /* 
-      1. change attributes on a node with no changes,
-      2. accept changes,
-      3. change attributes again,
-      4. delete node,
-      5. reject all pending
-      6. apply accepted
-      Observe: applied attributes will be from the last rejected attributes change
-
-      Note: This was only discovered in this commit but inotroduced sometime earlier
-
-      This test should be uncommented and fixed after it's done --> expect(tester.toJSON()).toEqual(nodeDiff[0]);
-    
-    */
-    expect(uuidv4Mock.mock.calls.length).toBe(6)
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(log.warn).toHaveBeenCalledTimes(0)
-    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

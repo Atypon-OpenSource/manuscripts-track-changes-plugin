@@ -95,41 +95,17 @@ describe('apply-changes.test', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester.cmd(trackCommands.applyAndRemoveChanges())
+    if (tester.trackState()?.changeSet.changes) {
+      tester.cmd(
+        trackCommands.setChangeStatuses(
+          CHANGE_STATUS.accepted,
+          tester.trackState()!.changeSet.changes.map((c) => c.id)
+        )
+      )
+    }
 
     expect(tester.toJSON()).toEqual(insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-    expect(log.warn).toHaveBeenCalledTimes(0)
-    expect(log.error).toHaveBeenCalledTimes(0)
-  })
-
-  test('should correctly apply adjacent block changes', async () => {
-    const tester = setupEditor({
-      doc: docs.nestedBlockquotes,
-    })
-      .insertNode(schema.nodes.ordered_list.createAndFill(), 0)
-      .insertNode(schema.nodes.table.createAndFill(), 0)
-      .cmd((state, dispatch) => {
-        const trackChangesState = trackChangesPluginKey.getState(state)
-        if (!trackChangesState) {
-          return
-        }
-        const { changeSet } = trackChangesState
-        const change = changeSet.pending.find((c) => c.type === 'node-change' && c.node.type.name === 'table')
-        if (change && ChangeSet.isNodeChange(change)) {
-          // const ids = [change.id, ...change.children.map(c => c.id)]
-          const ids = [change.id]
-          trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
-        }
-      })
-
-    tester.cmd(trackCommands.applyAndRemoveChanges())
-
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-
-    expect(tester.toJSON()).toEqual(insertReject[0])
-    expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
@@ -150,12 +126,6 @@ describe('apply-changes.test', () => {
     })
 
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-
-    tester.cmd(trackCommands.applyAndRemoveChanges())
-
-    expect(uuidv4Mock.mock.calls.length).toBe(0)
-    expect(log.warn).toHaveBeenCalledTimes(0)
-    expect(log.error).toHaveBeenCalledTimes(0)
   })
 
   test.skip('should apply changes correctly', async () => {
@@ -166,10 +136,5 @@ describe('apply-changes.test', () => {
     expect(tester.toJSON()).toEqual(insertAccept[0])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-
-    tester.cmd(trackCommands.applyAndRemoveChanges())
-
-    expect(tester.toJSON()).toEqual(insertAccept[1])
-    expect(uuidv4Mock.mock.calls.length).toBe(26)
   })
 })

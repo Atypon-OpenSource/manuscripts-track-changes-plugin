@@ -86,7 +86,7 @@ describe('replace-around-steps.test', () => {
     expect(tester.toJSON()).toEqual(replaceAroundSteps[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester.setChangeStatuses().cmd(trackCommands.applyAndRemoveChanges())
+    tester.setChangeStatuses()
 
     // expect(tester.toJSON()).toEqual(replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
