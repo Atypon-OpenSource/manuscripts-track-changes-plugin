@@ -41,8 +41,6 @@ export function updateChangeAttrs(
     return tr
   }
 
-  const toBeIntegrated =
-    trackedAttrs.status === CHANGE_STATUS.accepted || trackedAttrs.status === CHANGE_STATUS.rejected
   const { operation } = trackedAttrs
   const oldTrackData =
     change.type === 'text-change' ? getTextNodeTrackedMarkData(node, schema) : getBlockInlineTrackedData(node)
@@ -102,7 +100,10 @@ export function updateChangeAttrs(
         }
 
         if (oldTrack.operation === operation) {
-          if (toBeIntegrated) {
+          if (
+            trackedAttrs.status === CHANGE_STATUS.accepted ||
+            trackedAttrs.status === CHANGE_STATUS.rejected
+          ) {
             return null
           }
           return { ...oldTrack, ...trackedAttrs }

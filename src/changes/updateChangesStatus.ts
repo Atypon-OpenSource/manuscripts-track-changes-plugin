@@ -51,7 +51,7 @@ export function updateChangesStatus(
     topChanges.map((id) => {
       const change = changeSet.get(id)
       if (change) {
-        createdTr.delete(change.from, change.to)
+        createdTr.delete(createdTr.mapping.map(change.from), createdTr.mapping.map(change.to))
       }
     })
   } else {
