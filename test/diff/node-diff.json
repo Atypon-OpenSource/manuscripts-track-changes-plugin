@@ -80,23 +80,7 @@
                 "id": "",
                 "class": "equation",
                 "TeXRepresentation": "1+1=2",
-                "dataTracked": [
-                  {
-                    "id": "MOCK-ID-1",
-                    "authorID": "1-mike",
-                    "reviewedByID": "1-mike",
-                    "createdAt": 1588636800000,
-                    "status": "accepted",
-                    "statusUpdateAt": 1588636800000,
-                    "updatedAt": 1588636800000,
-                    "operation": "set_attrs",
-                    "oldAttrs": {
-                      "id": "",
-                      "class": "equation",
-                      "TeXRepresentation": ""
-                    }
-                  }
-                ]
+                "dataTracked": null
               }
             },
             {
@@ -223,21 +207,6 @@
                 "class": "equation",
                 "TeXRepresentation": "",
                 "dataTracked": [
-                  {
-                    "authorID": "1-mike",
-                    "createdAt": 1588636800000,
-                    "id": "MOCK-ID-1",
-                    "oldAttrs": {
-                      "TeXRepresentation": "",
-                      "class": "equation",
-                      "id": ""
-                    },
-                    "operation": "set_attrs",
-                    "reviewedByID": "1-mike",
-                    "status": "accepted",
-                    "statusUpdateAt": 1588636800000,
-                    "updatedAt": 1588636800000
-                  },
                   {
                     "authorID": "1-mike",
                     "createdAt": 1588636800000,
