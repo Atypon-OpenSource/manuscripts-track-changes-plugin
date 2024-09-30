@@ -13,13 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Fragment } from 'prosemirror-model'
+import { Selection, TextSelection } from 'prosemirror-state'
+import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+
 import { CHANGE_OPERATION } from '../types/change'
-import { NewDeleteAttrs, NewEmptyAttrs, NewInsertAttrs, NewUpdateAttrs } from '../types/track'
+import {
+  NewDeleteAttrs,
+  NewEmptyAttrs,
+  NewInsertAttrs,
+  NewReferenceAttrs,
+  NewSplitNodeAttrs,
+  NewUpdateAttrs,
+} from '../types/track'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.insert,
+  }
+}
+
+export function createNewWrapAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.wrap_with_node,
+  }
+}
+
+export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.node_split,
+  }
+}
+
+export function createNewSplitSourceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.reference,
+    referenceId: id,
   }
 }
 
@@ -39,3 +72,57 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
     oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
   }
 }
+
+export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
+  const { from, to, slice } = step
+
+  if (
+    from !== to ||
+    slice.content.childCount < 2 ||
+    (slice.content.firstChild?.isInline && slice.content.lastChild?.isInline)
+  ) {
+    return false
+  }
+
+  const {
+    $anchor: { parentOffset: startOffset },
+    $head: { parentOffset: endOffset },
+    $from,
+  } = selection
+  const parentSize = $from.node().content.size
+
+  if (uiEvent === 'paste') {
+    // paste of content on the side of selection will not be considered as node split
+    return !(
+      (startOffset === 0 && endOffset === 0) ||
+      (startOffset === parentSize && endOffset === parentSize)
+    )
+  }
+
+  const {
+    content: { firstChild, lastChild },
+    openStart,
+    openEnd,
+  } = slice
+
+  if (
+    // @ts-ignore
+    (window.event?.code === 'Enter' || window.event?.code === 'NumpadEnter') &&
+    firstChild?.type.name === 'list_item'
+  ) {
+    return !(parentSize === startOffset && parentSize === endOffset) && lastChild?.type.name === 'list_item'
+  }
+
+  return (
+    openStart === openEnd &&
+    firstChild!.type === lastChild!.type &&
+    firstChild!.inlineContent &&
+    lastChild!.inlineContent
+  )
+}
+
+export const isWrapStep = (step: ReplaceAroundStep) =>
+  step.from === step.gapFrom &&
+  step.to === step.gapTo &&
+  step.slice.openStart === 0 &&
+  step.slice.openEnd === 0

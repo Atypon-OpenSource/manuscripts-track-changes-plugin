@@ -176,7 +176,9 @@ export function processChangeSteps(
           (JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) ||
             c.node.type === c.node.type.schema.nodes.citation) &&
           !oldDataTracked.find(
-            (d) => d.operation === CHANGE_OPERATION.insert && d.status === CHANGE_STATUS.pending
+            (d) =>
+              (d.operation === CHANGE_OPERATION.insert || d.operation === CHANGE_OPERATION.wrap_with_node) &&
+              d.status === CHANGE_STATUS.pending
           )
         ) {
           newDataTracked.push(newUpdate)

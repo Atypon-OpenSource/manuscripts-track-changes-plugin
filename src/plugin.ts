@@ -20,6 +20,7 @@ import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
 import { applyAcceptedRejectedChanges } from './changes/applyChanges'
 import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
+import { revertRejectedChanges } from './changes/revertChange'
 import { updateChangeAttrs } from './changes/updateChangeAttrs'
 import { ChangeSet } from './ChangeSet'
 import { trackTransaction } from './steps/trackTransaction'
@@ -148,6 +149,7 @@ export const trackChangesPlugin = (
               )
             }
           })
+          revertRejectedChanges(createdTr, oldState.schema, ids, changeSet, status)
         } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
           const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.bothNodeChanges)
           applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)

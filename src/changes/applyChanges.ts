@@ -24,7 +24,7 @@ import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
-function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
+export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
     return null
   }
@@ -137,6 +137,14 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
       addAttrLog(node.attrs.id, change.dataTracked.id)
+    } else if (ChangeSet.isReferenceChange(change)) {
+      const attrs = { ...node.attrs, dataTracked: null }
+      tr.setNodeMarkup(
+        from,
+        undefined,
+        { ...attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+        node.marks
+      )
     }
   })
   return deleteMap
