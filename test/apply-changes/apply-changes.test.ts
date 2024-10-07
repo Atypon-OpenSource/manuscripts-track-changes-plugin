@@ -164,15 +164,9 @@ describe('apply-changes.test', () => {
     })
 
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-  })
 
-  test.skip('should apply changes correctly', async () => {
-    const tester = setupEditor({
-      doc: docs.nestedBlockquotes,
-    })
-
-    expect(tester.toJSON()).toEqual(insertAccept[0])
-    expect(uuidv4Mock.mock.calls.length).toBe(26)
-    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(0)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

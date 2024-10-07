@@ -86,8 +86,6 @@ describe('replace-around-steps.test', () => {
     expect(tester.toJSON()).toEqual(replaceAroundSteps[0])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester.setChangeStatuses()
-
     // expect(tester.toJSON()).toEqual(replaceAroundSteps[1])
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(3)

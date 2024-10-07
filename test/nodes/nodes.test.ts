@@ -155,6 +155,39 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('should convert insert+delete block node into single update attr operation', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .insertNode(schema.nodes.equation_wrapper.createAndFill(), 1)
+      .cmd((state, dispatch) => {
+        dispatch(state.tr.setSelection(NodeSelection.create(state.doc, 3)))
+      })
+      .cmd((state, dispatch) => {
+        const trackChangesState = trackChangesPluginKey.getState(state)
+        if (!trackChangesState) {
+          return false
+        }
+        const { changeSet } = trackChangesState
+        const ids = ChangeSet.flattenTreeToIds(changeSet.pending)
+        trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
+        return true
+      })
+
+    expect(tester.toJSON()).toEqual(blockNodeAttrUpdate[0])
+
+    tester.cmd((state, dispatch) => {
+      dispatch(
+        state.tr.setNodeMarkup(3, undefined, {
+          TeXRepresentation: '1+1=2',
+        })
+      )
+    })
+
+    // await fs.writeFile('todo.json', JSON.stringify(tester.toJSON()))
+    expect(tester.toJSON()).toEqual(blockNodeAttrUpdate[1])
+  })
+
   test('should avoid deleting table content between gap, generating one node update', async () => {
     const tester = setupEditor({
       doc: docs.table,
