@@ -16,6 +16,7 @@
 /// <reference types="@types/jest" />;
 import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { promises as fs } from 'fs'
+import { baseKeymap } from 'prosemirror-commands'
 import { NodeSelection } from 'prosemirror-state'
 
 import { CHANGE_STATUS, ChangeSet, NodeAttrChange, trackChangesPluginKey, trackCommands } from '../../src'
@@ -263,6 +264,98 @@ describe('nodes.test', () => {
 
     expect(tester.toJSON()).toEqual(blockNodeAttrUpdate)
     expect(uuidv4Mock.mock.calls.length).toBe(1)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should track node split', async () => {
+    const tester = setupEditor({
+      doc: docs.list,
+    })
+      .selectText(60)
+      .cmd(baseKeymap['Enter'])
+
+    const changeSet = tester.trackState()?.changeSet
+    expect(changeSet?.rejected.find((change) => change.type === 'reference-change')).not.toBeUndefined()
+    expect(
+      changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
+    ).not.toBeUndefined()
+
+    expect(tester.trackState()?.changeSet?.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should return back node split content on rejection to the donor node', async () => {
+    const tester = setupEditor({
+      doc: docs.list,
+    })
+      .selectText(60)
+      .cmd(baseKeymap['Enter'])
+
+    const nodeSplitChange = tester
+      .trackState()
+      ?.changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
+    expect(nodeSplitChange).not.toBeUndefined()
+
+    tester.cmd((state, dispatch) => {
+      if (nodeSplitChange) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
+      }
+    })
+
+    expect(tester.view.state.doc.nodeAt(45)?.nodeSize).toEqual(262)
+
+    expect(tester.trackState()?.changeSet?.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should update change reference for the second node split change on rejection', async () => {
+    const tester = setupEditor({
+      doc: docs.list,
+    })
+      .selectText(60)
+      .cmd(baseKeymap['Enter'])
+      .selectText(74)
+      .cmd(baseKeymap['Enter'])
+
+    tester.cmd((state, dispatch) => {
+      // reject first split
+      const nodeSplitChange = tester.trackState()?.changeSet.changeTree.find((change) => change.from === 61)
+      if (nodeSplitChange) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
+      }
+    })
+
+    const changes = tester.trackState()?.changeSet.changes
+    const nodeSplitChange = changes?.find((change) => change.dataTracked.operation === 'node_split')
+    const referenceChange = changes?.find((change) => change.type === 'reference-change')
+    expect((referenceChange?.dataTracked as any).referenceId).toEqual(nodeSplitChange?.id)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should revert node delete change on rejecting node split change', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .selectText(7)
+      .cmd(baseKeymap['Enter'])
+      .delete(0, 7)
+
+    tester.cmd((state, dispatch) => {
+      const nodeSplitChange = tester
+        .trackState()
+        ?.changeSet.changes.find((change) => change.dataTracked.operation === 'node_split')
+      if (nodeSplitChange) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
+      }
+    })
+
+    expect(tester.trackState()?.changeSet.bothNodeChanges.length).toEqual(0)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

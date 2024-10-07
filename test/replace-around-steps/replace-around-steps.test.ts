@@ -18,7 +18,7 @@ import { promises as fs } from 'fs'
 import { Fragment, Slice } from 'prosemirror-model'
 import { liftTarget } from 'prosemirror-transform'
 
-import { trackCommands } from '../../src'
+import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { schema } from '../utils/schema'
@@ -158,5 +158,31 @@ describe('replace-around-steps.test', () => {
 
     // TODO:: assert will be based on what we decided to do with Replaced Around step for open end slice,
     //        track it as insert/delete!
+  })
+
+  test('should return back wrapped content on rejection', async () => {
+    const tester = setupEditor({
+      doc: docs.list,
+    })
+      .selectText(37, 44)
+      .wrapIn(schema.nodes.bullet_list)
+
+    const wrapWithNodeChange = tester
+      .trackState()
+      ?.changeSet.pending.find((change) => change.dataTracked.operation === 'wrap_with_node')
+    expect(wrapWithNodeChange).not.toBeUndefined()
+
+    tester.cmd((state, dispatch) => {
+      if (wrapWithNodeChange) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [wrapWithNodeChange.id])(state, dispatch)
+      }
+    })
+
+    expect(tester.view.state.doc.slice(37, 44).content.textBetween(0, 9)).toEqual('123')
+
+    expect(tester.trackState()?.changeSet?.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(2)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

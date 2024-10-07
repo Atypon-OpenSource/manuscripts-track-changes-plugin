@@ -17,7 +17,6 @@ import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
-import { applyAcceptedRejectedChanges } from './changes/applyChanges'
 import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
 import { updateChangesStatus } from './changes/updateChangesStatus'
