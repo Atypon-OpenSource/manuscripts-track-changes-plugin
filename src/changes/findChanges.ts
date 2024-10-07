@@ -24,6 +24,7 @@ import {
   NodeAttrChange,
   NodeChange,
   PartialChange,
+  ReferenceChange,
   TextChange,
 } from '../types/change'
 
@@ -84,6 +85,14 @@ export function findChanges(state: EditorState) {
           newAttrs: { ...node.attrs },
           oldAttrs: { ...dataTracked.oldAttrs },
         } as NodeAttrChange
+      } else if (dataTracked.operation === CHANGE_OPERATION.reference) {
+        change = {
+          id,
+          type: 'reference-change',
+          from: pos,
+          to: pos + node.nodeSize,
+          dataTracked,
+        } as ReferenceChange
       } else {
         change = {
           id,

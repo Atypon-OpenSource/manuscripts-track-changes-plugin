@@ -19,6 +19,7 @@ import {
   IncompleteChange,
   NodeAttrChange,
   NodeChange,
+  ReferenceChange,
   TextChange,
   TrackedAttrs,
   TrackedChange,
@@ -122,7 +123,9 @@ export class ChangeSet {
   }
 
   get bothNodeChanges() {
-    return this.changes.filter((c) => c.type === 'node-change' || c.type === 'node-attr-change')
+    return this.changes.filter(
+      (c) => c.type === 'node-change' || c.type === 'reference-change' || c.type === 'node-attr-change'
+    )
   }
 
   get isEmpty() {
@@ -195,7 +198,10 @@ export class ChangeSet {
   static shouldDeleteChange(change: TrackedChange) {
     const { status, operation } = change.dataTracked
     return (
-      (operation === CHANGE_OPERATION.insert && status === CHANGE_STATUS.rejected) ||
+      ((operation === CHANGE_OPERATION.insert ||
+        operation === CHANGE_OPERATION.node_split ||
+        operation === CHANGE_OPERATION.wrap_with_node) &&
+        status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
     )
   }
@@ -245,6 +251,10 @@ export class ChangeSet {
 
   static isNodeAttrChange(change: TrackedChange): change is NodeAttrChange {
     return change.type === 'node-attr-change'
+  }
+
+  static isReferenceChange(change: TrackedChange): change is ReferenceChange {
+    return change.type === 'reference-change'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {

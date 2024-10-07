@@ -81,7 +81,7 @@
                 "updatedAt": 1577836800000,
                 "statusUpdateAt": 0,
                 "status": "pending",
-                "operation": "insert"
+                "operation": "wrap_with_node"
               }
             ]
           },
