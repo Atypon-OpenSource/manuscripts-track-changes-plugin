@@ -141,6 +141,7 @@ export const trackChangesPlugin = (
           // @TODO - make a not of why full application process is not used here
           // handling cases of integration where we need to remove content and so the top changes have to be retrieved
           updateChangesStatus(createdTr, changeSet, ids, status, userID, oldState)
+          setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
       const changed =

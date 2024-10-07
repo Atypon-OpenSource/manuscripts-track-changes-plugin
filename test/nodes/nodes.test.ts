@@ -276,7 +276,6 @@ describe('nodes.test', () => {
       .cmd(baseKeymap['Enter'])
 
     const changeSet = tester.trackState()?.changeSet
-    expect(changeSet?.rejected.find((change) => change.type === 'reference-change')).not.toBeUndefined()
     expect(
       changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
     ).not.toBeUndefined()

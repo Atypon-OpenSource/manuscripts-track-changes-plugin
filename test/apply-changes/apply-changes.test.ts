@@ -200,6 +200,7 @@ describe('apply-changes.test', () => {
       }
     })
 
+    console.log(tester.trackState()?.changeSet.changes)
     expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
   })
 })

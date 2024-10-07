@@ -18,8 +18,10 @@ import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { updateChangeAttrs } from './updateChangeAttrs'
+import { applyAcceptedRejectedChanges } from './applyChanges'
+import { schema } from '@manuscripts/transform'
 
 export function updateChangesStatus(
   createdTr: Transaction,
@@ -30,30 +32,22 @@ export function updateChangesStatus(
   oldState: EditorState
 ) {
   const change = changeSet.get(ids[0])
-  if (
-    change &&
-    ((status === CHANGE_STATUS.accepted && change.dataTracked.operation === CHANGE_OPERATION.delete) ||
-      (status === CHANGE_STATUS.rejected && change.dataTracked.operation === CHANGE_OPERATION.insert))
-  ) {
-    const topChanges = [...ids]
-    changeSet.changeTree.forEach((change) => {
-      if (ids.includes(change.id)) {
-        if (change.type === 'node-change') {
-          change.children.forEach((childChange) => {
-            const childIndex = topChanges.indexOf(childChange.id)
-            if (childIndex >= 0) {
-              topChanges.splice(childIndex)
-            }
-          })
+  if (change && status !== CHANGE_STATUS.pending) {
+    const textChanges: TextChange[] = []
+    const nonTextChanges: TrackedChange[] = []
+
+    changeSet.changes.forEach((c) => {
+      if (ids.includes(c.id)) {
+        c.dataTracked.status = status
+        if (ChangeSet.isTextChange(c)) {
+          textChanges.push(c)
+        } else {
+          nonTextChanges.push(c)
         }
       }
     })
-    topChanges.map((id) => {
-      const change = changeSet.get(id)
-      if (change) {
-        createdTr.delete(createdTr.mapping.map(change.from), createdTr.mapping.map(change.to))
-      }
-    })
+    const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges)
+    applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, mapping)
   } else {
     const changeTime = new Date().getTime()
     ids.forEach((changeId: string) => {
