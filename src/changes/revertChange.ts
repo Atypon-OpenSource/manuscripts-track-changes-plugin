@@ -81,17 +81,3 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) 
     }
   })
 }
-
-/**
- * Find changes that were produced as side effect of the changes in the given array and remove them. (E.g.: Splitting nodes)
- */
-export function revertAssociatedChanges(tr: Transaction, changes: TrackedChange[], changeSet: ChangeSet) {
-  changes.forEach((change) => {
-    if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
-      revertSplitNodeChange(tr, change, changeSet)
-    }
-    if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-      revertWrapNodeChange(tr, change)
-    }
-  })
-}

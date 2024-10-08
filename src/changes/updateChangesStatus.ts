@@ -21,7 +21,7 @@ import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { updateChangeAttrs } from './updateChangeAttrs'
 import { applyAcceptedRejectedChanges } from './applyChanges'
-import { revertSiblingChanges } from './revertChange'
+import { revertSplitNodeChange, revertWrapNodeChange } from "./revertChange";
 
 export function updateChangesStatus(
   createdTr: Transaction,
@@ -41,6 +41,10 @@ export function updateChangesStatus(
         c.dataTracked.status = status
         if (ChangeSet.isTextChange(c)) {
           textChanges.push(c)
+        } if (status === CHANGE_STATUS.rejected && change.dataTracked.operation === CHANGE_OPERATION.node_split) {
+          revertSplitNodeChange(createdTr, change, changeSet)
+        } else if (status === CHANGE_STATUS.rejected && change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
+          revertWrapNodeChange(createdTr, change)
         } else {
           nonTextChanges.push(c)
         }
@@ -49,9 +53,6 @@ export function updateChangesStatus(
     const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, mapping)
 
-    if (status == CHANGE_STATUS.rejected) {
-      revertAssociatedChanges(createdTr, [...textChanges, ...nonTextChanges], changeSet)
-    }
   } else {
     const changeTime = new Date().getTime()
     ids.forEach((changeId: string) => {
