@@ -29,10 +29,12 @@ import { getUpdatedDataTracked } from './applyChanges'
  *  * remove deleted track attr from original node
  */
 export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
-  let sourceChange = changeSet.changes.find(
+  const sourceChange = changeSet.changes.find(
     (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id
   )!
+
   const node = tr.doc.nodeAt(tr.mapping.map(change.from)) as ManuscriptNode
+
   tr.delete(tr.mapping.map(change.from), tr.mapping.map(change.to))
   tr.replaceWith(tr.mapping.map(sourceChange.to - 1), tr.mapping.map(sourceChange.to), node.content)
 
@@ -67,9 +69,12 @@ export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange,
 }
 
 export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
-  tr.doc.nodesBetween(change.from, change.to, (node, pos) => {
-    const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
-    const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
+  const from = tr.mapping.map(change.from)
+  const to = tr.mapping.map(change.to)
+
+  tr.doc.nodesBetween(from, to, (node, pos) => {
+    const $fromPos = tr.doc.resolve(pos)
+    const $toPos = tr.doc.resolve(pos + node.nodeSize - 1)
     const nodeRange = $fromPos.blockRange($toPos)
     if (!nodeRange) {
       return
@@ -85,13 +90,4 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) 
 /**
  * Find changes that were produced as side effect of the changes in the given array and remove them. (E.g.: Splitting nodes)
  */
-export function revertAssociatedChanges(tr: Transaction, changes: TrackedChange[], changeSet: ChangeSet) {
-  changes.forEach((change) => {
-    if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
-      revertSplitNodeChange(tr, change, changeSet)
-    }
-    if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-      revertWrapNodeChange(tr, change)
-    }
-  })
-}
+export function revertAssociatedChanges(tr: Transaction, change: TrackedChange, changeSet: ChangeSet) {}

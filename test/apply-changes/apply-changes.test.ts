@@ -195,12 +195,21 @@ describe('apply-changes.test', () => {
       const nodeSplitChange = tester
         .trackState()
         ?.changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
-      if (nodeSplitChange) {
-        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
+      const referenceId = tester
+        .trackState()
+        ?.changeSet?.pending.find(
+          (change) =>
+            change.dataTracked.operation === 'reference' &&
+            change.dataTracked.referenceId === nodeSplitChange?.id
+        )
+      if (nodeSplitChange && referenceId) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [referenceId.id, nodeSplitChange.id])(
+          state,
+          dispatch
+        )
       }
     })
 
-    console.log(tester.trackState()?.changeSet.changes)
     expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
   })
 })

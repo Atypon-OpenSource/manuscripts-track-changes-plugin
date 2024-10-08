@@ -20,9 +20,10 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
+import { revertAssociatedChanges, revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
@@ -44,6 +45,7 @@ export function applyAcceptedRejectedChanges(
   tr: Transaction,
   schema: Schema,
   changes: TrackedChange[],
+  changeSet: ChangeSet,
   deleteMap = new Mapping()
 ): Mapping {
   const attrsChangesLog = new Map<string, string[]>() // map of node ids and applied change updatedAt timestamp
@@ -56,6 +58,14 @@ export function applyAcceptedRejectedChanges(
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
+    if (change.dataTracked.status == CHANGE_STATUS.rejected) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
+        return revertSplitNodeChange(tr, change, changeSet)
+      }
+      if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
+        return revertWrapNodeChange(tr, change)
+      }
+    }
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from)
