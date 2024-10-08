@@ -22,8 +22,8 @@ import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 import { revertAssociatedChanges, revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
+import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
