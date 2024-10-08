@@ -20,6 +20,7 @@ import { EditorState, Transaction } from 'prosemirror-state'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { updateChangeAttrs } from './updateChangeAttrs'
+import { revertSplitNodeChange, revertWrapNodeChange } from "./revertChange";
 
 export function updateChangesStatus(
   createdTr: Transaction,
@@ -29,7 +30,7 @@ export function updateChangesStatus(
   userID: string,
   oldState: EditorState
 ) {
-  const change = changeSet.get(ids[0])
+  const change = changeSet.get(ids[0])!
   if (
     change &&
     ((status === CHANGE_STATUS.accepted && change.dataTracked.operation === CHANGE_OPERATION.delete) ||
@@ -57,8 +58,13 @@ export function updateChangesStatus(
   } else {
     const changeTime = new Date().getTime()
     ids.forEach((changeId: string) => {
-      const change = changeSet?.get(changeId)
-      if (change) {
+      const change = changeSet?.get(changeId)!
+
+      if (status === CHANGE_STATUS.rejected && change.dataTracked.operation === CHANGE_OPERATION.node_split) {
+        revertSplitNodeChange(createdTr, change, changeSet)
+      } if (status === CHANGE_STATUS.rejected && change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
+        revertWrapNodeChange(createdTr, change)
+      } else if (change) {
         createdTr = updateChangeAttrs(
           createdTr,
           change,
