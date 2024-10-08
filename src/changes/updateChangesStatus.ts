@@ -21,7 +21,7 @@ import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { updateChangeAttrs } from './updateChangeAttrs'
 import { applyAcceptedRejectedChanges } from './applyChanges'
-import { schema } from '@manuscripts/transform'
+import { revertSiblingChanges } from './revertChange'
 
 export function updateChangesStatus(
   createdTr: Transaction,
@@ -48,6 +48,10 @@ export function updateChangesStatus(
     })
     const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, mapping)
+
+    if (status == CHANGE_STATUS.rejected) {
+      revertAssociatedChanges(createdTr, [...textChanges, ...nonTextChanges], changeSet)
+    }
   } else {
     const changeTime = new Date().getTime()
     ids.forEach((changeId: string) => {

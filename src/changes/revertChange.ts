@@ -20,7 +20,7 @@ import { liftTarget } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
 import { getUpdatedDataTracked } from './applyChanges'
 
 /**
@@ -28,7 +28,7 @@ import { getUpdatedDataTracked } from './applyChanges'
  *  * the split-ed node has another split will move split_source attr to the original node.
  *  * remove deleted track attr from original node
  */
-function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
+export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
   let sourceChange = changeSet.changes.find(
     (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id
   )!
@@ -66,7 +66,7 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
   }
 }
 
-function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
+export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
   tr.doc.nodesBetween(change.from, change.to, (node, pos) => {
     const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
     const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
@@ -82,19 +82,11 @@ function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
   })
 }
 
-export function revertRejectedChanges(
-  tr: Transaction,
-  schema: Schema,
-  ids: string[],
-  changeSet: ChangeSet,
-  status: CHANGE_STATUS
-) {
-  if (status !== CHANGE_STATUS.rejected) {
-    return
-  }
-
-  ids.forEach((id) => {
-    const change = changeSet.get(id)!
+/**
+ * Find changes that were produced as side effect of the changes in the given array and remove them. (E.g.: Splitting nodes)
+ */
+export function revertAssociatedChanges(tr: Transaction, changes: TrackedChange[], changeSet: ChangeSet) {
+  changes.forEach((change) => {
     if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
       revertSplitNodeChange(tr, change, changeSet)
     }
