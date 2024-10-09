@@ -48,12 +48,6 @@ export function applyAcceptedRejectedChanges(
   changeSet: ChangeSet,
   deleteMap = new Mapping()
 ): Mapping {
-  const attrsChangesLog = new Map<string, string[]>() // map of node ids and applied change updatedAt timestamp
-  function addAttrLog(nodeId: string, changeId: string) {
-    const arr = attrsChangesLog.get(nodeId) || attrsChangesLog.set(nodeId, []).get(nodeId)
-    arr!.push(changeId)
-  }
-
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
@@ -106,7 +100,6 @@ export function applyAcceptedRejectedChanges(
         },
         node.marks
       )
-      addAttrLog(node.attrs.id, change.dataTracked.id)
     } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.rejected) {
       tr.setNodeMarkup(
         from,
@@ -117,7 +110,6 @@ export function applyAcceptedRejectedChanges(
         },
         node.marks
       )
-      addAttrLog(node.attrs.id, change.dataTracked.id)
     } else if (ChangeSet.isReferenceChange(change)) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(
