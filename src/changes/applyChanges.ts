@@ -77,34 +77,6 @@ export function applyAcceptedRejectedChanges(
       return
     }
 
-    // if (change.dataTracked.status === CHANGE_STATUS.pending) {
-    //   if (ChangeSet.isNodeAttrChange(change)) {
-    //     /*
-    //       Apply pending changes for attributes as well because applying accepted/rejected changes may override
-    //       pending because we store the most recent change directly on the node attributes. But in case of pending attributes
-    //       we don't need to remove dataTracked record. We need, however, to make sure we don't restore dataTracked records for
-    //       the previously applied changes. To check for already applied changes we log them into "attrsChangesLog" Map.
-    //     */
-    //     const { dataTracked, ...attrs } = change.newAttrs
-    //     const changeLog = attrsChangesLog.get(node.attrs.id)
-    //     const newDataTracked =
-    //       changeLog && changeLog.length
-    //         ? (dataTracked as TrackedAttrs[]).filter((c) => !changeLog.includes(c.id))
-    //         : dataTracked
-    //     tr.setNodeMarkup(
-    //       from,
-    //       undefined,
-    //       {
-    //         ...attrs,
-    //         dataTracked: newDataTracked.length ? newDataTracked : null,
-    //       },
-    //       node.marks
-    //     )
-    //     // default is "null" for dataTracked in attrs in pm schema, so codebase generally relies on it being null when empty
-    //   }
-    //   return
-    // }
-
     if (ChangeSet.isTextChange(change) && noChangeNeeded) {
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
