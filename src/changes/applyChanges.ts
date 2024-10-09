@@ -111,14 +111,9 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
     } else if (ChangeSet.isReferenceChange(change)) {
-      const attrs = { ...node.attrs, dataTracked: null }
-      tr.setNodeMarkup(
-        from,
-        undefined,
-        { ...attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
-        node.marks
-      )
+      tr.setNodeMarkup(from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
     }
   })
+
   return deleteMap
 }

@@ -19,8 +19,8 @@ import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
-import { applyAcceptedRejectedChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
+import { applyAcceptedRejectedChanges } from './applyChanges'
 
 export function updateChangesStatus(
   createdTr: Transaction,
@@ -41,10 +41,7 @@ export function updateChangesStatus(
         if (ChangeSet.isTextChange(c)) {
           textChanges.push(c)
         } else {
-          if (
-            c.dataTracked.operation === CHANGE_OPERATION.node_split &&
-            c.dataTracked.status !== CHANGE_STATUS.rejected
-          ) {
+          if (c.dataTracked.operation === CHANGE_OPERATION.node_split) {
             // fetching a related reference change to be applied as well
             const relatedRefChange = changeSet.changes.find(
               (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id

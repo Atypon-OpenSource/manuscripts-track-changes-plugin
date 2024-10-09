@@ -48,9 +48,8 @@ export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange,
   )
   if (childSource) {
     const node = tr.doc.nodeAt(tr.mapping.map(sourceChange.from)) as ManuscriptNode
-    const dataTracked = getBlockInlineTrackedData(node)!.map((c) =>
-      c.operation === 'reference' ? childSource.dataTracked : c
-    )
+    const data = getBlockInlineTrackedData(node) || []
+    const dataTracked = data.map((c) => (c.operation === 'reference' ? childSource.dataTracked : c))
     tr.setNodeMarkup(tr.mapping.map(sourceChange.from), undefined, { ...node.attrs, dataTracked }, node.marks)
   }
 
