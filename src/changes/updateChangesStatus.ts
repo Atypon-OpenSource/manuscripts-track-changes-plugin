@@ -19,8 +19,8 @@ import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
-import { updateChangeAttrs } from './updateChangeAttrs'
 import { applyAcceptedRejectedChanges } from './applyChanges'
+import { updateChangeAttrs } from './updateChangeAttrs'
 
 export function updateChangesStatus(
   createdTr: Transaction,
