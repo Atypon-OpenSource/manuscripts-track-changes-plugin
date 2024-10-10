@@ -20,7 +20,7 @@ import { liftTarget } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
 import { getUpdatedDataTracked } from './applyChanges'
 
 /**
@@ -28,11 +28,13 @@ import { getUpdatedDataTracked } from './applyChanges'
  *  * the split-ed node has another split will move split_source attr to the original node.
  *  * remove deleted track attr from original node
  */
-function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
-  let sourceChange = changeSet.changes.find(
+export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet) {
+  const sourceChange = changeSet.changes.find(
     (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id
   )!
+
   const node = tr.doc.nodeAt(tr.mapping.map(change.from)) as ManuscriptNode
+
   tr.delete(tr.mapping.map(change.from), tr.mapping.map(change.to))
   tr.replaceWith(tr.mapping.map(sourceChange.to - 1), tr.mapping.map(sourceChange.to), node.content)
 
@@ -46,9 +48,8 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
   )
   if (childSource) {
     const node = tr.doc.nodeAt(tr.mapping.map(sourceChange.from)) as ManuscriptNode
-    const dataTracked = getBlockInlineTrackedData(node)!.map((c) =>
-      c.operation === 'reference' ? childSource.dataTracked : c
-    )
+    const data = getBlockInlineTrackedData(node) || []
+    const dataTracked = data.map((c) => (c.operation === 'reference' ? childSource.dataTracked : c))
     tr.setNodeMarkup(tr.mapping.map(sourceChange.from), undefined, { ...node.attrs, dataTracked }, node.marks)
   }
 
@@ -66,10 +67,13 @@ function revertSplitNodeChange(tr: Transaction, change: IncompleteChange, change
   }
 }
 
-function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
-  tr.doc.nodesBetween(change.from, change.to, (node, pos) => {
-    const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
-    const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
+export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
+  const from = tr.mapping.map(change.from)
+  const to = tr.mapping.map(change.to)
+
+  tr.doc.nodesBetween(from, to, (node, pos) => {
+    const $fromPos = tr.doc.resolve(pos)
+    const $toPos = tr.doc.resolve(pos + node.nodeSize - 1)
     const nodeRange = $fromPos.blockRange($toPos)
     if (!nodeRange) {
       return
@@ -78,28 +82,6 @@ function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
     const targetLiftDepth = liftTarget(nodeRange)
     if (targetLiftDepth || targetLiftDepth === 0) {
       tr.lift(nodeRange, targetLiftDepth)
-    }
-  })
-}
-
-export function revertRejectedChanges(
-  tr: Transaction,
-  schema: Schema,
-  ids: string[],
-  changeSet: ChangeSet,
-  status: CHANGE_STATUS
-) {
-  if (status !== CHANGE_STATUS.rejected) {
-    return
-  }
-
-  ids.forEach((id) => {
-    const change = changeSet.get(id)!
-    if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
-      revertSplitNodeChange(tr, change, changeSet)
-    }
-    if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-      revertWrapNodeChange(tr, change)
     }
   })
 }

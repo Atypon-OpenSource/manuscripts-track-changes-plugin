@@ -54,7 +54,7 @@ export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[]
   if (dataTracked && !Array.isArray(dataTracked)) {
     return [dataTracked]
   }
-  return dataTracked
+  return dataTracked || []
 }
 
 export function getNodeTrackedData(

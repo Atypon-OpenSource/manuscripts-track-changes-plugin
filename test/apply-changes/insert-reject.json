@@ -6,52 +6,19 @@
         {
           "type": "ordered_list",
           "attrs": {
-            "dataTracked": [
-              {
-                "id": "MOCK-ID-2",
-                "authorID": "1-mike",
-                "reviewedByID": null,
-                "createdAt": 1577836800000,
-                "updatedAt": 1577836800000,
-                "status": "pending",
-                "statusUpdateAt": 0,
-                "operation": "insert"
-              }
-            ]
+            "dataTracked": null
           },
           "content": [
             {
               "type": "list_item",
               "attrs": {
-                "dataTracked": [
-                  {
-                    "id": "MOCK-ID-1",
-                    "authorID": "1-mike",
-                    "reviewedByID": null,
-                    "createdAt": 1577836800000,
-                    "updatedAt": 1577836800000,
-                    "status": "pending",
-                    "statusUpdateAt": 0,
-                    "operation": "insert"
-                  }
-                ]
+                "dataTracked": null
               },
               "content": [
                 {
                   "type": "paragraph",
                   "attrs": {
-                    "dataTracked": [
-                      {
-                        "id": "MOCK-ID-0",
-                        "authorID": "1-mike",
-                        "reviewedByID": null,
-                        "createdAt": 1577836800000,
-                        "updatedAt": 1577836800000,
-                        "status": "pending",
-                        "statusUpdateAt": 0,
-                        "operation": "insert"
-                      }
-                    ],
+                    "dataTracked": null,
                     "testAttribute": null
                   }
                 }

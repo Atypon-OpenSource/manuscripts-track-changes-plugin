@@ -17,13 +17,16 @@ import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
+import { skipTracking } from '../actions'
 import { ChangeSet } from '../ChangeSet'
+import { getBlockInlineTrackedData, getTextNodeTrackedMarkData } from '../compute/nodeHelpers'
 import {
-  getBlockInlineTrackedData,
-  getNodeTrackedData,
-  getTextNodeTrackedMarkData,
-} from '../compute/nodeHelpers'
-import { IncompleteChange, TrackedAttrs, TrackedChange } from '../types/change'
+  CHANGE_OPERATION,
+  CHANGE_STATUS,
+  IncompleteChange,
+  TrackedAttrs,
+  TrackedChange,
+} from '../types/change'
 import { log } from '../utils/logger'
 
 export function updateChangeAttrs(
@@ -37,6 +40,7 @@ export function updateChangeAttrs(
     log.error('updateChangeAttrs: no node at the from of change ', change)
     return tr
   }
+
   const { operation } = trackedAttrs
   const oldTrackData =
     change.type === 'text-change' ? getTextNodeTrackedMarkData(node, schema) : getBlockInlineTrackedData(node)
@@ -53,35 +57,65 @@ export function updateChangeAttrs(
       log.warn('updateChangeAttrs: no track marks for a text-change ', change)
       return tr
     }
-    // TODO add operation based on mark type if it's undefined?
-    tr.addMark(
-      change.from,
-      change.to,
-      oldMark.type.create({ ...oldMark.attrs, dataTracked: { ...oldTrackData, ...trackedAttrs } })
-    )
+
+    // Rejected and accepted changes are directly integrated into the document
+    if (trackedAttrs.status === CHANGE_STATUS.accepted || trackedAttrs.status === CHANGE_STATUS.rejected) {
+      tr.removeMark(change.from, change.to, oldMark)
+    } else {
+      // TODO add operation based on mark type if it's undefined?
+      tr.addMark(
+        change.from,
+        change.to,
+        oldMark.type.create({ ...oldMark.attrs, dataTracked: { ...oldTrackData, ...trackedAttrs } })
+      )
+    }
   } else if ((change.type === 'node-change' || change.type === 'node-attr-change') && !operation) {
     // Very weird edge-case if this happens
     tr.setNodeMarkup(change.from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
   } else if (change.type === 'node-change' || change.type === 'node-attr-change') {
+    let restoredAttrs: Record<string, any> | undefined = undefined
+    if (
+      trackedAttrs.operation === CHANGE_OPERATION.set_node_attributes &&
+      trackedAttrs.status === CHANGE_STATUS.rejected
+    ) {
+      restoredAttrs = trackedAttrs.oldAttrs
+    }
+
+    // delete rejected change immediately
     const trackedDataSource = getBlockInlineTrackedData(node) || []
     const targetDataTracked = trackedDataSource.find((t) => change.id === t.id)
-    const newDataTracked = trackedDataSource.map((oldTrack) => {
-      if (targetDataTracked) {
-        if (oldTrack.id === targetDataTracked.id) {
+    const newDataTracked = trackedDataSource
+      .map((oldTrack) => {
+        if (targetDataTracked) {
+          if (oldTrack.id === targetDataTracked.id) {
+            if (
+              trackedAttrs.status === CHANGE_STATUS.accepted ||
+              trackedAttrs.status === CHANGE_STATUS.rejected
+            ) {
+              return null
+            }
+            return { ...oldTrack, ...trackedAttrs }
+          }
+          return oldTrack
+        }
+
+        if (oldTrack.operation === operation) {
+          if (
+            trackedAttrs.status === CHANGE_STATUS.accepted ||
+            trackedAttrs.status === CHANGE_STATUS.rejected
+          ) {
+            return null
+          }
           return { ...oldTrack, ...trackedAttrs }
         }
         return oldTrack
-      }
+      })
+      .filter(Boolean)
 
-      if (oldTrack.operation === operation) {
-        return { ...oldTrack, ...trackedAttrs }
-      }
-      return oldTrack
-    })
     tr.setNodeMarkup(
       change.from,
       undefined,
-      { ...node.attrs, dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
+      { ...(restoredAttrs || node.attrs), dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
       node.marks
     )
   }

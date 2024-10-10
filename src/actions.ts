@@ -24,7 +24,6 @@ export enum TrackChangesAction {
   setPluginStatus = 'track-changes-set-track-status',
   setChangeStatuses = 'track-changes-set-change-statuses',
   refreshChanges = 'track-changes-refresh-changes',
-  applyAndRemoveChanges = 'track-changes-apply-remove-changes',
   updateMetaNode = 'track-changes-update-meta-node',
 }
 
@@ -37,7 +36,6 @@ export type TrackChangesActionParams = {
     ids: string[]
   }
   [TrackChangesAction.refreshChanges]: boolean
-  [TrackChangesAction.applyAndRemoveChanges]: boolean
   [TrackChangesAction.updateMetaNode]: boolean
 }
 

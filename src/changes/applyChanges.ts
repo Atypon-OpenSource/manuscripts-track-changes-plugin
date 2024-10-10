@@ -20,8 +20,9 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
+import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -44,53 +45,29 @@ export function applyAcceptedRejectedChanges(
   tr: Transaction,
   schema: Schema,
   changes: TrackedChange[],
+  changeSet: ChangeSet,
   deleteMap = new Mapping()
 ): Mapping {
-  const attrsChangesLog = new Map<string, string[]>() // map of node ids and applied change updatedAt timestamp
-  function addAttrLog(nodeId: string, changeId: string) {
-    const arr = attrsChangesLog.get(nodeId) || attrsChangesLog.set(nodeId, []).get(nodeId)
-    arr!.push(changeId)
-  }
-
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
+    if (change.dataTracked.status == CHANGE_STATUS.rejected) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
+        return revertSplitNodeChange(tr, change, changeSet)
+      }
+      if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
+        return revertWrapNodeChange(tr, change)
+      }
+    }
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete
-    const { pos: from, deleted } = deleteMap.mapResult(change.from),
-      node = tr.doc.nodeAt(from),
-      noChangeNeeded = deleted || !ChangeSet.shouldDeleteChange(change)
+    const { pos: from, deleted } = deleteMap.mapResult(change.from)
+    const node = tr.doc.nodeAt(from)
+    const noChangeNeeded = deleted || !ChangeSet.shouldDeleteChange(change)
+
     if (!node) {
       !deleted && log.warn('no node found to update for change', change)
-      return
-    }
-
-    if (change.dataTracked.status === CHANGE_STATUS.pending) {
-      if (ChangeSet.isNodeAttrChange(change)) {
-        /*
-          Apply pending changes for attributes as well because applying accepted/rejected changes may override
-          pending because we store the most recent change directly on the node attributes. But in case of pending attributes
-          we don't need to remove dataTracked record. We need, however, to make sure we don't restore dataTracked records for
-          the previously applied changes. To check for already applied changes we log them into "attrsChangesLog" Map.
-        */
-        const { dataTracked, ...attrs } = change.newAttrs
-        const changeLog = attrsChangesLog.get(node.attrs.id)
-        const newDataTracked =
-          changeLog && changeLog.length
-            ? (dataTracked as TrackedAttrs[]).filter((c) => !changeLog.includes(c.id))
-            : dataTracked
-        tr.setNodeMarkup(
-          from,
-          undefined,
-          {
-            ...attrs,
-            dataTracked: newDataTracked.length ? newDataTracked : null,
-          },
-          node.marks
-        )
-        // default is "null" for dataTracked in attrs in pm schema, so codebase generally relies on it being null when empty
-      }
       return
     }
 
@@ -123,10 +100,7 @@ export function applyAcceptedRejectedChanges(
         },
         node.marks
       )
-      addAttrLog(node.attrs.id, change.dataTracked.id)
     } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.rejected) {
-      console.log('GETTING IN ---- CHANGE_STATUS.rejected')
-
       tr.setNodeMarkup(
         from,
         undefined,
@@ -136,16 +110,15 @@ export function applyAcceptedRejectedChanges(
         },
         node.marks
       )
-      addAttrLog(node.attrs.id, change.dataTracked.id)
     } else if (ChangeSet.isReferenceChange(change)) {
-      const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(
         from,
         undefined,
-        { ...attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+        { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
         node.marks
       )
     }
   })
+
   return deleteMap
 }

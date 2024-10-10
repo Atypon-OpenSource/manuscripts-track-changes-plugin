@@ -145,32 +145,22 @@ export function processChangeSteps(
         const oldDataTracked = getBlockInlineTrackedData(c.node) || []
         const oldUpdate = oldDataTracked.reverse().find((d) => {
           // reversing to start from the most recent change
-          if (
-            d.operation === CHANGE_OPERATION.set_node_attributes &&
-            (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.rejected)
-          ) {
+          if (d.operation === CHANGE_OPERATION.set_node_attributes && d.status === CHANGE_STATUS.pending) {
             return true
           }
           return false
         }) as UpdateAttrs
-        // if the selected last change is with status "rejected" we need to use oldAttrs from it because
-        // node's actual attributes represent the "rejected" values
-        const lastChangeRejected = oldUpdate && oldUpdate.status === CHANGE_STATUS.rejected
-        const sourceAttrs = oldUpdate?.oldAttrs || c.node.attrs
-        const { dataTracked, ...restAttrs } = sourceAttrs
-        const oldAttrs = lastChangeRejected ? oldUpdate.oldAttrs : restAttrs
-        const newDataTracked = [
-          ...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id || lastChangeRejected),
-        ]
+
+        const { dataTracked, ...restAttrs } = c.node.attrs
+        const oldAttrs = restAttrs
+        const newDataTracked = [...oldDataTracked.filter((d) => !oldUpdate || d.id !== oldUpdate.id)]
         const newUpdate =
           oldUpdate && oldUpdate.status !== CHANGE_STATUS.rejected
             ? {
                 ...oldUpdate,
                 updatedAt: emptyAttrs.updatedAt,
               }
-            : addTrackIdIfDoesntExist(
-                trackUtils.createNewUpdateAttrs(emptyAttrs, lastChangeRejected ? oldAttrs : c.node.attrs)
-              )
+            : addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs))
         // Dont add update changes if there exists already an insert change for this node
         if (
           (JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) ||

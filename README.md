@@ -119,11 +119,6 @@ export const setChangeStatuses = (status: CHANGE_STATUS, ids: string[]) => Comma
 export const setUserID = (userID: string) => Command
 
 /**
- * Appends a transaction that applies all 'accepted' and 'rejected' changes to the document.
- */
-export const applyAndRemoveChanges = () => Command
-
-/**
  * Runs `findChanges` to iterate over the document to collect changes into a new ChangeSet.
  */
 export const refreshChanges = () => Command

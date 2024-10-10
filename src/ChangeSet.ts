@@ -110,14 +110,6 @@ export class ChangeSet {
     return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
   }
 
-  get accepted() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.accepted)
-  }
-
-  get rejected() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.rejected)
-  }
-
   get textChanges() {
     return this.changes.filter((c) => c.type === 'text-change')
   }
