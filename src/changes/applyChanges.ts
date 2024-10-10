@@ -111,7 +111,12 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
     } else if (ChangeSet.isReferenceChange(change)) {
-      tr.setNodeMarkup(from, undefined, { ...node.attrs, dataTracked: null }, node.marks)
+      tr.setNodeMarkup(
+        from,
+        undefined,
+        { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+        node.marks
+      )
     }
   })
 

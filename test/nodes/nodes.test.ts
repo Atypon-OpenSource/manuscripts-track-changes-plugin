@@ -330,8 +330,10 @@ describe('nodes.test', () => {
     })
 
     const changes = tester.trackState()?.changeSet.changes
+    const nodeSplitChange = changes?.find((change) => change.dataTracked.operation === 'node_split')
     const referenceChange = changes?.find((change) => change.type === 'reference-change')
-    expect(referenceChange).toBe(undefined)
+
+    expect((referenceChange?.dataTracked as any).referenceId).toBe(nodeSplitChange?.id)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
