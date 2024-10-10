@@ -41,6 +41,8 @@ export function updateChangesStatus(
         if (ChangeSet.isTextChange(c)) {
           textChanges.push(c)
         } else {
+          nonTextChanges.push(c)
+
           if (c.dataTracked.operation === CHANGE_OPERATION.node_split) {
             // fetching a related reference change to be applied as well
             const relatedRefChange = changeSet.changes.find(
@@ -50,8 +52,6 @@ export function updateChangesStatus(
               nonTextChanges.push(relatedRefChange)
             }
           }
-
-          nonTextChanges.push(c)
         }
       }
     })
