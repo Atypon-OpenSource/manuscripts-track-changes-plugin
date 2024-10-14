@@ -70,7 +70,7 @@ export function findChanges(state: EditorState) {
           type: 'text-change',
           from: pos,
           to: pos + node.nodeSize,
-          dataTracked,
+          dataTracked: { ...dataTracked },
           text: node.text,
           nodeType: node.type,
         } as PartialChange<TextChange>
@@ -80,10 +80,10 @@ export function findChanges(state: EditorState) {
           type: 'node-attr-change',
           from: pos,
           to: pos + node.nodeSize,
-          dataTracked,
+          dataTracked: { ...dataTracked },
           node: node,
-          newAttrs: node.attrs,
-          oldAttrs: dataTracked.oldAttrs,
+          newAttrs: { ...node.attrs },
+          oldAttrs: { ...dataTracked.oldAttrs },
         } as NodeAttrChange
       } else if (dataTracked.operation === CHANGE_OPERATION.reference) {
         change = {
@@ -99,10 +99,10 @@ export function findChanges(state: EditorState) {
           type: 'node-change',
           from: pos,
           to: pos + node.nodeSize,
-          dataTracked,
+          dataTracked: { ...dataTracked },
           node: node,
           children: [],
-          attrs: node.attrs,
+          attrs: { ...node.attrs },
         } as PartialChange<NodeChange>
       }
       current = {

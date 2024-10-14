@@ -152,7 +152,7 @@ describe('diff.test', () => {
       .delete(13, 15)
       .setChangeStatuses(CHANGE_STATUS.rejected)
 
-    x.cmd(trackCommands.applyAndRemoveChanges()).moveCursor('start')
+    x.moveCursor('start')
 
     // @TODO fix bug for this usecase (that's what this test does):
     /* 
@@ -163,9 +163,7 @@ describe('diff.test', () => {
       5. reject all pending
       6. apply accepted
       Observe: applied attributes will be from the last rejected attributes change
-
       Note: This was only discovered in this commit but inotroduced sometime earlier
-
       This test should be uncommented and fixed after it's done --> expect(tester.toJSON()).toEqual(nodeDiff[0]);
     
     */

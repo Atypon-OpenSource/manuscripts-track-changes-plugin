@@ -113,7 +113,6 @@ describe('nodes.test', () => {
         trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
         return true
       })
-      .cmd(trackCommands.applyAndRemoveChanges())
       .cmd((state, dispatch) => {
         dispatch(
           state.tr.setNodeMarkup(1, undefined, {
@@ -175,7 +174,6 @@ describe('nodes.test', () => {
         trackCommands.setChangeStatuses(CHANGE_STATUS.accepted, ids)(state, dispatch)
         return true
       })
-      .cmd(trackCommands.applyAndRemoveChanges())
 
     expect(tester.toJSON()).toEqual(blockNodeAttrUpdate[0])
 
@@ -278,7 +276,6 @@ describe('nodes.test', () => {
       .cmd(baseKeymap['Enter'])
 
     const changeSet = tester.trackState()?.changeSet
-    expect(changeSet?.rejected.find((change) => change.type === 'reference-change')).not.toBeUndefined()
     expect(
       changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
     ).not.toBeUndefined()
@@ -335,7 +332,8 @@ describe('nodes.test', () => {
     const changes = tester.trackState()?.changeSet.changes
     const nodeSplitChange = changes?.find((change) => change.dataTracked.operation === 'node_split')
     const referenceChange = changes?.find((change) => change.type === 'reference-change')
-    expect((referenceChange?.dataTracked as any).referenceId).toEqual(nodeSplitChange?.id)
+
+    expect((referenceChange?.dataTracked as any).referenceId).toBe(nodeSplitChange?.id)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

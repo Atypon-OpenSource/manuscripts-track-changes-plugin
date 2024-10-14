@@ -17,11 +17,9 @@ import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
-import { applyAcceptedRejectedChanges } from './changes/applyChanges'
 import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
-import { revertRejectedChanges } from './changes/revertChange'
-import { updateChangeAttrs } from './changes/updateChangeAttrs'
+import { updateChangesStatus } from './changes/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
 import { trackTransaction } from './steps/trackTransaction'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
@@ -79,7 +77,11 @@ export const trackChangesPlugin = (
           return { ...pluginState, changeSet: new ChangeSet() }
         }
         let { changeSet, ...rest } = pluginState
-        if (getAction(tr, TrackChangesAction.refreshChanges)) {
+        if (
+          getAction(tr, TrackChangesAction.refreshChanges) ||
+          tr.getMeta('history$') ||
+          tr.getMeta('history$1')
+        ) {
           changeSet = findChanges(newState)
         }
         return {
@@ -104,6 +106,7 @@ export const trackChangesPlugin = (
       let createdTr: Transaction = newState.tr,
         docChanged = false
       log.info('TRS', trs)
+
       trs.forEach((tr) => {
         const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
         const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
@@ -115,44 +118,27 @@ export const trackChangesPlugin = (
           docChanged = true
           return
         }
+        const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
+
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
         if (
+          !setChangeStatuses &&
           tr.docChanged &&
           !skipMetaUsed &&
           !skipTrackUsed &&
-          !tr.getMeta('history$') &&
+          !(tr.getMeta('history$') || tr.getMeta('history$1')) &&
           !(wasAppended && tr.getMeta('origin') === 'paragraphs')
         ) {
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
         }
         docChanged = docChanged || tr.docChanged
-        const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
 
         if (setChangeStatuses) {
           const { status, ids } = setChangeStatuses
-          const changeTime = new Date().getTime()
-          ids.forEach((changeId: string) => {
-            const change = changeSet?.get(changeId)
-            if (change) {
-              createdTr = updateChangeAttrs(
-                createdTr,
-                change,
-                {
-                  ...change.dataTracked,
-                  status,
-                  statusUpdateAt: changeTime,
-                  reviewedByID: userID,
-                },
-                oldState.schema
-              )
-            }
-          })
-          revertRejectedChanges(createdTr, oldState.schema, ids, changeSet, status)
-        } else if (getAction(tr, TrackChangesAction.applyAndRemoveChanges)) {
-          const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.bothNodeChanges)
-          applyAcceptedRejectedChanges(createdTr, oldState.schema, changeSet.textChanges, mapping)
+
+          updateChangesStatus(createdTr, changeSet, ids, status, userID, oldState)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })

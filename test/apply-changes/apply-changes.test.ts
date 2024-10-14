@@ -96,7 +96,14 @@ describe('apply-changes.test', () => {
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester.cmd(trackCommands.applyAndRemoveChanges())
+    if (tester.trackState()?.changeSet.changes) {
+      tester.cmd(
+        trackCommands.setChangeStatuses(
+          CHANGE_STATUS.accepted,
+          tester.trackState()!.changeSet.changes.map((c) => c.id)
+        )
+      )
+    }
 
     expect(tester.toJSON()).toEqual(insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
@@ -125,7 +132,14 @@ describe('apply-changes.test', () => {
         }
       })
 
-    tester.cmd(trackCommands.applyAndRemoveChanges())
+    if (tester.trackState()?.changeSet.changes) {
+      tester.cmd(
+        trackCommands.setChangeStatuses(
+          CHANGE_STATUS.accepted,
+          tester.trackState()!.changeSet.changes.map((c) => c.id)
+        )
+      )
+    }
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
@@ -152,8 +166,6 @@ describe('apply-changes.test', () => {
 
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
-    tester.cmd(trackCommands.applyAndRemoveChanges())
-
     expect(uuidv4Mock.mock.calls.length).toBe(0)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
@@ -167,8 +179,6 @@ describe('apply-changes.test', () => {
     expect(tester.toJSON()).toEqual(insertAccept[0])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-
-    tester.cmd(trackCommands.applyAndRemoveChanges())
 
     expect(tester.toJSON()).toEqual(insertAccept[1])
     expect(uuidv4Mock.mock.calls.length).toBe(26)
@@ -185,12 +195,11 @@ describe('apply-changes.test', () => {
       const nodeSplitChange = tester
         .trackState()
         ?.changeSet?.pending.find((change) => change.dataTracked.operation === 'node_split')
+
       if (nodeSplitChange) {
         trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
       }
     })
-
-    tester.cmd(trackCommands.applyAndRemoveChanges())
 
     expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
   })

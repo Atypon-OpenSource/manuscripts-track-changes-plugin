@@ -77,14 +77,6 @@ export const setUserID =
   }
 
 /**
- * Appends a transaction that applies all 'accepted' and 'rejected' changes to the document.
- */
-export const applyAndRemoveChanges = (): Command => (state, dispatch) => {
-  dispatch && dispatch(setAction(state.tr, TrackChangesAction.applyAndRemoveChanges, true))
-  return true
-}
-
-/**
  * Runs `findChanges` to iterate over the document to collect changes into a new ChangeSet.
  */
 export const refreshChanges = (): Command => (state, dispatch) => {
