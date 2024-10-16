@@ -124,7 +124,7 @@ export function trackTransaction(
       const invertedStep = step.invert(tr.docs[i])
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
-      const thisStepMapping = tr.mapping.slice(i + 1)
+      const thisStepMapping = tr.mapping.slice(i + 1, i + 1)
       /* 
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
