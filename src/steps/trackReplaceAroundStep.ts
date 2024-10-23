@@ -19,11 +19,7 @@ import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
-import {
-  setFragmentAsInserted,
-  setFragmentAsNodeSplit,
-  setFragmentAsWrapChange,
-} from '../compute/setFragmentAsInserted'
+import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -96,36 +92,6 @@ export function trackReplaceAroundStep(
   const steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
-
-  if (tr.getMeta('uiEvent') === 'paste') {
-    fragment = setFragmentAsInserted(slice.content, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
-
-    if (slice.openStart === 1) {
-      fragment = fragment.addToStart(oldState.selection.$anchor.node().type.create())
-    }
-
-    if (gap.size > 0) {
-      fragment = fragment.append(
-        setFragmentAsNodeSplit(
-          newTr.doc.resolve(step.from),
-          newTr,
-          Fragment.from(oldState.selection.$anchor.node().type.create(undefined, gap.content)),
-          attrs
-        )
-      )
-    }
-
-    steps.push({
-      type: 'insert-slice',
-      from: gapFrom,
-      to: gapTo + 1,
-      slice: new Slice(fragment, slice.openStart, slice.openEnd) as ExposedSlice,
-      sliceWasSplit,
-    })
-
-    return steps
-  }
-
   // We only want to insert when there something inside the gap (actually would this be always true?)
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
   // ^^answering above comment we could have meta node like(bibliography_item, contributor) will not have content at all,
