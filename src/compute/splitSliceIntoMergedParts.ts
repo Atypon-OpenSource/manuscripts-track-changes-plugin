@@ -87,24 +87,40 @@ export function splitSliceIntoMergedParts(insertSlice: ExposedSlice, mergeEqualS
     openEnd,
     content: { firstChild, lastChild, content: nodes },
   } = insertSlice
+
   let updatedSliceNodes = nodes
   const mergeSides = openStart !== openEnd || mergeEqualSides
+
+  // Check if the adjacent nodes are of the same type (compatible for merging)
+  const hasCompatibleFirst = nodes.length > 1 && nodes[1]?.type?.name === nodes[0]?.type?.name
+  const hasCompatibleLast =
+    nodes.length > 1 && nodes[nodes.length - 2]?.type?.name === nodes[nodes.length - 1]?.type?.name
+
+  // Only attempt merging for compatible nodes (like paragraphs)
   const firstMergedNode =
-    openStart > 0 && mergeSides && firstChild ? getMergedNode(firstChild, 1, openStart, true) : undefined
+    openStart > 0 && mergeSides && firstChild && hasCompatibleFirst
+      ? getMergedNode(firstChild, 1, openStart, true)
+      : undefined
+
   const lastMergedNode =
-    openEnd > 0 && mergeSides && lastChild ? getMergedNode(lastChild, 1, openEnd, false) : undefined
+    openEnd > 0 && mergeSides && lastChild && hasCompatibleLast
+      ? getMergedNode(lastChild, 1, openEnd, false)
+      : undefined
+
   if (firstMergedNode) {
     updatedSliceNodes = updatedSliceNodes.slice(1)
     if (firstMergedNode.unmergedContent) {
       updatedSliceNodes = [...firstMergedNode.unmergedContent.content, ...updatedSliceNodes]
     }
   }
+
   if (lastMergedNode) {
     updatedSliceNodes = updatedSliceNodes.slice(0, -1)
     if (lastMergedNode.unmergedContent) {
       updatedSliceNodes = [...updatedSliceNodes, ...lastMergedNode.unmergedContent.content]
     }
   }
+
   return {
     updatedSliceNodes,
     firstMergedNode,

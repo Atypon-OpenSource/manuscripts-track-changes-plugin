@@ -114,8 +114,8 @@ export function trackReplaceAroundStep(
     }
     deleteSteps.push({
       type: 'insert-slice',
-      from: gapFrom,
-      to: gapTo,
+      from: gapFrom + 1,
+      to: gapTo + 1,
       slice: insertedSlice,
       sliceWasSplit,
     })
