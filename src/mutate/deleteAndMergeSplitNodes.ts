@@ -192,7 +192,8 @@ export function deleteAndMergeSplitNodes(
   })
   return {
     sliceWasSplit: !!(firstMergedNode || lastMergedNode),
-    newSliceContent: updatedSliceNodes ? Fragment.fromArray(updatedSliceNodes) : insertSlice.content,
+    newSliceContent:
+      updatedSliceNodes.length > 0 ? Fragment.fromArray(updatedSliceNodes) : insertSlice.content,
     steps,
   }
 }
