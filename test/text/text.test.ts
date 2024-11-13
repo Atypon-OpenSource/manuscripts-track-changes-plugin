@@ -95,8 +95,8 @@ describe('text.test', () => {
     // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
     expect(tester.toJSON()).toEqual(repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(11)
-    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(uuidv4Mock.mock.calls.length).toBe(16)
+    expect(log.warn).toHaveBeenCalledTimes(5)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 

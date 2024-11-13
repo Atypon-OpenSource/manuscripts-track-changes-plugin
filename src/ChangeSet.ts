@@ -17,6 +17,7 @@ import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
   IncompleteChange,
+  InlineAdjacentChanges,
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
@@ -64,7 +65,8 @@ export class ChangeSet {
   get changeTree() {
     const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
-    this.changes.forEach((c) => {
+    let currentInlineChange: InlineAdjacentChanges | undefined
+    this.changes.forEach((c, index) => {
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
@@ -73,6 +75,20 @@ export class ChangeSet {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
       }
+
+      if (this.canJoinAdjacentInlineChanges(c, index) && !currentNodeChange) {
+        currentInlineChange = currentInlineChange
+          ? { ...currentInlineChange, to: c.to }
+          : { ...c, nodes: [], type: 'inline-changes' }
+        currentInlineChange.nodes.push(c)
+        return
+      } else if (currentInlineChange) {
+        currentInlineChange.nodes.push(c)
+        rootNodes.push({ ...currentInlineChange, to: c.to })
+        currentInlineChange = undefined
+        return
+      }
+
       if (
         currentNodeChange &&
         c.from < currentNodeChange.to &&
@@ -183,12 +199,34 @@ export class ChangeSet {
       }
     }
   }
+
+  canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
+    const nextChange = this.changes.at(index + 1)
+    const isInline = (c: TrackedChange) =>
+      c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
+    return (
+      isInline(change) &&
+      nextChange &&
+      isInline(nextChange) &&
+      change.to === nextChange.from &&
+      change.dataTracked.operation === nextChange.dataTracked.operation
+    )
+  }
+
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
+    return changes.flatMap((c) => {
+      if (this.isNodeChange(c)) {
+        return [c.id, ...c.children.map((c) => c.id)]
+      }
+      if (this.isInlineAdjacentChanges(c)) {
+        return c.nodes.map((inlineChange) => inlineChange.id)
+      }
+      return c.id
+    })
   }
 
   /**
@@ -255,6 +293,10 @@ export class ChangeSet {
 
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
+  }
+
+  static isInlineAdjacentChanges(change: TrackedChange): change is InlineAdjacentChanges {
+    return change.type === 'inline-changes'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {

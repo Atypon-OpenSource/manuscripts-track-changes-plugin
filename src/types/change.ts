@@ -95,6 +95,10 @@ export type ReferenceChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
+export type InlineAdjacentChanges = Change & {
+  type: 'inline-changes'
+  nodes: TrackedChange[]
+}
 export type TrackedChange =
   | TextChange
   | NodeChange
@@ -102,6 +106,7 @@ export type TrackedChange =
   | WrapChange
   | ReferenceChange
   | MarkChange
+  | InlineAdjacentChanges
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }
