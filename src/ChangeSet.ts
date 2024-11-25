@@ -128,7 +128,7 @@ export class ChangeSet {
         currentInlineChange = undefined
         return
       }
-
+      // TODO:: group composite block changes
       changes.push(change)
     })
 
