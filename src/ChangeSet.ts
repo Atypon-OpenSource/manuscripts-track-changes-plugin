@@ -16,6 +16,7 @@
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
+  GroupedChange,
   IncompleteChange,
   InlineAdjacentChanges,
   NodeAttrChange,
@@ -65,8 +66,7 @@ export class ChangeSet {
   get changeTree() {
     const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
-    let currentInlineChange: InlineAdjacentChanges | undefined
-    this.changes.forEach((c, index) => {
+    this.changes.forEach((c) => {
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
@@ -75,20 +75,6 @@ export class ChangeSet {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
       }
-
-      if (this.canJoinAdjacentInlineChanges(c, index) && !currentNodeChange) {
-        currentInlineChange = currentInlineChange
-          ? { ...currentInlineChange, to: c.to }
-          : { ...c, nodes: [], type: 'inline-changes' }
-        currentInlineChange.nodes.push(c)
-        return
-      } else if (currentInlineChange) {
-        currentInlineChange.nodes.push(c)
-        rootNodes.push({ ...currentInlineChange, to: c.to })
-        currentInlineChange = undefined
-        return
-      }
-
       if (
         currentNodeChange &&
         c.from < currentNodeChange.to &&
@@ -120,6 +106,33 @@ export class ChangeSet {
     }
 
     return rootNodes
+  }
+
+  /**
+   * Group adjacent inline changes that has the same change operation, and will handle composite block changes.
+   * This will be used for user in the UI.
+   */
+  get groupChanges() {
+    const changes: GroupedChange[] = []
+    let currentInlineChange: InlineAdjacentChanges | undefined
+    this.changeTree.map((change, index) => {
+      if (this.canJoinAdjacentInlineChanges(change, index)) {
+        currentInlineChange = currentInlineChange
+          ? { ...currentInlineChange, to: change.to }
+          : { ...change, nodes: [], type: 'inline-changes' }
+        currentInlineChange?.nodes.push(change)
+        return
+      } else if (currentInlineChange) {
+        currentInlineChange.nodes.push(change)
+        changes.push({ ...currentInlineChange, to: change.to })
+        currentInlineChange = undefined
+        return
+      }
+
+      changes.push(change)
+    })
+
+    return changes
   }
 
   get pending() {
@@ -218,15 +231,7 @@ export class ChangeSet {
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) => {
-      if (this.isNodeChange(c)) {
-        return [c.id, ...c.children.map((c) => c.id)]
-      }
-      if (this.isInlineAdjacentChanges(c)) {
-        return c.nodes.map((inlineChange) => inlineChange.id)
-      }
-      return c.id
-    })
+    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
   }
 
   /**
@@ -295,7 +300,7 @@ export class ChangeSet {
     return change.type === 'reference-change'
   }
 
-  static isInlineAdjacentChanges(change: TrackedChange): change is InlineAdjacentChanges {
+  static isInlineAdjacentChanges(change: GroupedChange): change is InlineAdjacentChanges {
     return change.type === 'inline-changes'
   }
 

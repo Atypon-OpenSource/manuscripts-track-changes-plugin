@@ -106,7 +106,7 @@ export type TrackedChange =
   | WrapChange
   | ReferenceChange
   | MarkChange
-  | InlineAdjacentChanges
+export type GroupedChange = TrackedChange | InlineAdjacentChanges
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }
