@@ -95,7 +95,7 @@ export type ReferenceChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
-export type InlineAdjacentChanges = Change & {
+export type InlineAdjacentChanges = Omit<Change, 'dataTracked'> & {
   type: 'inline-changes'
   nodes: TrackedChange[]
 }
