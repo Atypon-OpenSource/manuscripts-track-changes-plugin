@@ -71,7 +71,7 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) 
   const from = tr.mapping.map(change.from)
   const to = tr.mapping.map(change.to)
   const node = tr.doc.nodeAt(from)
-
+  // we use replaceWith for inline node, as lift will not work with inline node
   if (node?.isInline) {
     tr.replaceWith(from, to, node.content)
   } else {
