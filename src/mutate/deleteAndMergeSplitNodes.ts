@@ -130,12 +130,12 @@ export function deleteAndMergeSplitNodes(
         // Then we only have to ensure the depth is at the right level, so say a fully open blockquote insert will
         // be merged at the lowest, paragraph level, instead of blockquote level.
         const mergeStartNode =
-          endTokenDeleted && openStart > 0 && depth === openStart && mergeContent !== undefined
+          endTokenDeleted && openStart > 0 && depth === openStart && mergeContent && mergeContent.size
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
         const mergeEndNode =
-          startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent !== undefined
+          startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent && mergeContent.size
 
         if (mergeStartNode || mergeEndNode) {
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps
