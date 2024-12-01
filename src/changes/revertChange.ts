@@ -70,18 +70,23 @@ export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange,
 export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
   const from = tr.mapping.map(change.from)
   const to = tr.mapping.map(change.to)
+  const node = tr.doc.nodeAt(from)
+  // we use replaceWith for inline node, as lift will not work with inline node
+  if (node?.isInline) {
+    tr.replaceWith(from, to, node.content)
+  } else {
+    tr.doc.nodesBetween(from, to, (node, pos) => {
+      const $fromPos = tr.doc.resolve(pos)
+      const $toPos = tr.doc.resolve(pos + node.nodeSize - 1)
+      const nodeRange = $fromPos.blockRange($toPos)
+      if (!nodeRange) {
+        return
+      }
 
-  tr.doc.nodesBetween(from, to, (node, pos) => {
-    const $fromPos = tr.doc.resolve(pos)
-    const $toPos = tr.doc.resolve(pos + node.nodeSize - 1)
-    const nodeRange = $fromPos.blockRange($toPos)
-    if (!nodeRange) {
-      return
-    }
-
-    const targetLiftDepth = liftTarget(nodeRange)
-    if (targetLiftDepth || targetLiftDepth === 0) {
-      tr.lift(nodeRange, targetLiftDepth)
-    }
-  })
+      const targetLiftDepth = liftTarget(nodeRange)
+      if (targetLiftDepth || targetLiftDepth === 0) {
+        tr.lift(nodeRange, targetLiftDepth)
+      }
+    })
+  }
 }
