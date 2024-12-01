@@ -99,6 +99,11 @@ export type InlineAdjacentChanges = Omit<Change, 'dataTracked'> & {
   type: 'inline-changes'
   nodes: TrackedChange[]
 }
+export type SingleChange = Omit<Change, 'dataTracked'> & {
+  type: 'single-change'
+  node: TrackedChange
+}
+export type GroupedChange = SingleChange | InlineAdjacentChanges
 export type TrackedChange =
   | TextChange
   | NodeChange
@@ -106,7 +111,6 @@ export type TrackedChange =
   | WrapChange
   | ReferenceChange
   | MarkChange
-export type GroupedChange = TrackedChange | InlineAdjacentChanges
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }

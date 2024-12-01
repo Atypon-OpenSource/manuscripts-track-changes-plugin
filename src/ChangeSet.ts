@@ -129,7 +129,7 @@ export class ChangeSet {
         return
       }
       // TODO:: group composite block changes
-      changes.push(change)
+      changes.push({ type: 'single-change', id: change.id, from: change.from, to: change.to, node: change })
     })
 
     return changes
