@@ -16,7 +16,9 @@
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
+  GroupedChange,
   IncompleteChange,
+  InlineAdjacentChanges,
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
@@ -106,6 +108,33 @@ export class ChangeSet {
     return rootNodes
   }
 
+  /**
+   * Group adjacent inline changes that has the same change operation, and will handle composite block changes.
+   * This will be used for user in the UI.
+   */
+  get groupChanges() {
+    const changes: GroupedChange[] = []
+    let currentInlineChange: InlineAdjacentChanges | undefined
+    this.changeTree.map((change, index) => {
+      if (this.canJoinAdjacentInlineChanges(change, index)) {
+        currentInlineChange = currentInlineChange
+          ? { ...currentInlineChange, to: change.to }
+          : { ...change, nodes: [], type: 'inline-changes' }
+        currentInlineChange?.nodes.push(change)
+        return
+      } else if (currentInlineChange) {
+        currentInlineChange.nodes.push(change)
+        changes.push({ ...currentInlineChange, to: change.to })
+        currentInlineChange = undefined
+        return
+      }
+      // TODO:: group composite block changes
+      changes.push({ type: 'single-change', id: change.id, from: change.from, to: change.to, node: change })
+    })
+
+    return changes
+  }
+
   get pending() {
     return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
   }
@@ -183,6 +212,20 @@ export class ChangeSet {
       }
     }
   }
+
+  canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
+    const nextChange = this.changes.at(index + 1)
+    const isInline = (c: TrackedChange) =>
+      c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
+    return (
+      isInline(change) &&
+      nextChange &&
+      isInline(nextChange) &&
+      change.to === nextChange.from &&
+      change.dataTracked.operation === nextChange.dataTracked.operation
+    )
+  }
+
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes
@@ -255,6 +298,10 @@ export class ChangeSet {
 
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
+  }
+
+  static isInlineAdjacentChanges(change: GroupedChange): change is InlineAdjacentChanges {
+    return change.type === 'inline-changes'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
