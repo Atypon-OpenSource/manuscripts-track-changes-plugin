@@ -23,6 +23,7 @@ export enum CHANGE_OPERATION {
   wrap_with_node = 'wrap_with_node',
   node_split = 'node_split',
   reference = 'reference',
+  lift_node = 'lift_node',
   // unwrap_from_node = 'unwrap_from_node',
   // add_mark = 'add_mark',
   // remove_mark = 'remove_mark',
@@ -51,6 +52,12 @@ export type WrapAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.wrap_with_node
 }
 
+export type LiftAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.lift_node
+  referenceId: string
+  pos: number // refers to the position in the node in reference change, where the lifted node used to reside
+}
+
 export type NodeSplitAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.node_split
 }
@@ -60,7 +67,13 @@ export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   referenceId: string
 }
 
-export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs | WrapAttrs | NodeSplitAttrs | ReferenceAttrs
+export type TrackedAttrs =
+  | InsertDeleteAttrs
+  | UpdateAttrs
+  | WrapAttrs
+  | NodeSplitAttrs
+  | ReferenceAttrs
+  | LiftAttrs
 
 type Change = {
   id: string

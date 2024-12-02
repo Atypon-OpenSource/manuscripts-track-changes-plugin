@@ -19,14 +19,18 @@ import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
-import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
+import {
+  setFragmentAsInserted,
+  setFragmentAsLiftChange,
+  setFragmentAsWrapChange,
+} from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isWrapStep } from '../utils/track-utils'
+import { isLiftStep, isWrapStep } from '../utils/track-utils'
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
@@ -83,6 +87,7 @@ export function trackReplaceAroundStep(
   )
 
   let fragment
+
   if (isWrapStep(step)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   } else {
@@ -96,6 +101,9 @@ export function trackReplaceAroundStep(
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
   // ^^answering above comment we could have meta node like(bibliography_item, contributor) will not have content at all,
   // and that case gap will be 0, for that will use updateMetaNode to indicate that we are going just to update that node
+
+  const liftStep = isLiftStep(step)
+
   if (
     gap.size > 0 ||
     (!structure && newSliceContent.size > 0) ||
@@ -109,13 +117,32 @@ export function trackReplaceAroundStep(
     let insertedSlice = new Slice(fragment, openStart, openEnd) as ExposedSlice
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
-      insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)
+      const localLiftedPos = gapFrom - from
+      let sliceContent = gap.content
+      let id = ''
+      if (liftStep) {
+        ;[sliceContent, id] = setFragmentAsLiftChange(gap.content, attrs, localLiftedPos, oldState.schema)
+      }
+      insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, sliceContent)
       log.info('insertedSlice after inserted gap', insertedSlice)
+    }
+
+    let sliceFrom = gapFrom
+    let sliceTo = gapTo
+
+    if (liftStep) {
+      sliceFrom = from
+      sliceTo = from
+      deleteSteps.map((s) => {
+        if (s.type === 'delete-node' || s.type === 'delete-text') {
+          s.ref = id
+        }
+      })
     }
     deleteSteps.push({
       type: 'insert-slice',
-      from: gapFrom,
-      to: gapTo,
+      from: sliceFrom,
+      to: sliceTo,
       slice: insertedSlice,
       sliceWasSplit,
     })

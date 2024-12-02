@@ -22,10 +22,12 @@ import {
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
+  NewLiftAttrs,
   NewReferenceAttrs,
   NewSplitNodeAttrs,
   NewUpdateAttrs,
 } from '../types/track'
+import { ChangeStep } from '../types/step'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
@@ -38,6 +40,14 @@ export function createNewWrapAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.wrap_with_node,
+  }
+}
+
+export function createNewLiftAttrs(attrs: NewEmptyAttrs, pos: number): NewLiftAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.lift_node,
+    pos,
   }
 }
 
@@ -126,3 +136,21 @@ export const isWrapStep = (step: ReplaceAroundStep) =>
   step.to === step.gapTo &&
   step.slice.openStart === 0 &&
   step.slice.openEnd === 0
+
+export const isLiftStep = (step: ReplaceAroundStep) => {
+  if (
+    step.from < step.gapFrom &&
+    step.to > step.gapTo &&
+    step.slice.size === 0 &&
+    step.gapTo - step.gapFrom > 0
+  ) {
+    return true
+  }
+  return false
+  /* qualifies as a lift step when:
+    - there is a retained gap (captured original content that we insert)
+    - step.from < gapFrom  - meaning we remove content in front of the gap
+    - step.to > gapTo     - meaning we remove content after the gap
+    - nothing new is inserted: slice is empty
+  */
+}
