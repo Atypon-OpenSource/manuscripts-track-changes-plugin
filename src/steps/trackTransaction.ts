@@ -95,6 +95,9 @@ export function trackTransaction(
 
   for (let i = tr.steps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
+    // if (i == 0) {
+    //   break
+    // }
     log.info('transaction step', step)
     iters += 1
     // if (iters == 1) {
@@ -186,6 +189,7 @@ export function trackTransaction(
       log.info('INSERT STEPS: ', inserted)
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
+
       const [mapping, selectionPos] = processChangeSteps(
         steps,
         tr.selection.from,
@@ -194,10 +198,10 @@ export function trackTransaction(
         oldState.schema
       )
     } else if (step instanceof AttrStep) {
-      const chnageSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
+      const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
 
       const [mapping, selectionPos] = processChangeSteps(
-        chnageSteps,
+        changeSteps,
         tr.selection.from,
         newTr,
         emptyAttrs,

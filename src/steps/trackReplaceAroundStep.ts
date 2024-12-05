@@ -60,7 +60,9 @@ export function trackReplaceAroundStep(
     slice: ExposedSlice
   } = step
   // Invert the transaction step to prevent it from actually deleting or inserting anything
+
   const newStep = step.invert(currentStepDoc)
+
   const stepResult = newTr.maybeStep(newStep)
   if (stepResult.failed) {
     // for some cases invert will fail due to sending multiple steps that update the same nodes
@@ -71,14 +73,14 @@ export function trackReplaceAroundStep(
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  const {
+  let {
     sliceWasSplit,
     newSliceContent,
     steps: deleteSteps,
   } = deleteAndMergeSplitNodes(
     from,
     to,
-    { start: gapFrom, end: gapTo },
+    { start: gapFrom, end: gapTo, slice: gap, insert },
     newTr.doc,
     newTr,
     oldState.schema,
@@ -94,7 +96,7 @@ export function trackReplaceAroundStep(
     fragment = setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
   }
 
-  const steps: ChangeStep[] = deleteSteps
+  let steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
   // We only want to insert when there something inside the gap (actually would this be always true?)
@@ -102,7 +104,20 @@ export function trackReplaceAroundStep(
   // ^^answering above comment we could have meta node like(bibliography_item, contributor) will not have content at all,
   // and that case gap will be 0, for that will use updateMetaNode to indicate that we are going just to update that node
 
-  const liftStep = isLiftStep(step)
+  let liftStep = isLiftStep(step)
+  if (liftStep) {
+    console.log('DETECTING INIT LIFT STEP')
+    window.prevliftStep = step
+  } else if (window.prevliftStep && window.prevliftStep.gapFrom === step.gapTo) {
+    console.log('DETECTING CHAIN LIFT STEP')
+    // check if this step is internal change for the lift step
+    // if it is and it has a gap, offset gap insertion towards the end of the step
+    // when lifting, first step always grabs the biggest element (practices shows, not sure if really always)
+    // now adjust retained gap to be inserted after slip step
+    window.prevliftStep = step
+  } else {
+    window.prevliftStep = null
+  }
 
   if (
     gap.size > 0 ||
@@ -117,12 +132,10 @@ export function trackReplaceAroundStep(
     let insertedSlice = new Slice(fragment, openStart, openEnd) as ExposedSlice
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
-      const localLiftedPos = gapFrom - from
       let sliceContent = gap.content
-      let id = ''
-      if (liftStep) {
-        ;[sliceContent, id] = setFragmentAsLiftChange(gap.content, attrs, localLiftedPos, oldState.schema)
-      }
+      // if (liftStep) {
+      //   sliceContent = setFragmentAsLiftChange(gap.content, attrs, localLiftedPos, oldState.schema)
+      // }
       insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, sliceContent)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
@@ -130,22 +143,19 @@ export function trackReplaceAroundStep(
     let sliceFrom = gapFrom
     let sliceTo = gapTo
 
-    if (liftStep) {
-      sliceFrom = from
-      sliceTo = from
-      deleteSteps.map((s) => {
-        if (s.type === 'delete-node' || s.type === 'delete-text') {
-          s.ref = id
-        }
-      })
-    }
-    deleteSteps.push({
+    // if (window.prevliftStep) {
+    //   sliceFrom = window.prevliftStep.to
+    //   sliceTo = window.prevliftStep.to
+    // }
+    // if (!window.prevliftStep) {
+    steps.push({
       type: 'insert-slice',
       from: sliceFrom,
       to: sliceTo,
       slice: insertedSlice,
       sliceWasSplit,
     })
+    // }
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
     // mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)

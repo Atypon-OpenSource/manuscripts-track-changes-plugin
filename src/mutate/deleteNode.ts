@@ -104,6 +104,9 @@ export function deleteOrSetNodeDeleted(
   }
   const newDeleted = addTrackIdIfDoesntExist(deleteAttrs)
 
+  // console.log('STEPS BEFORE')
+  // console.log(newTr.steps.forEach((s) => console.log(s)))
+  // console.log(updated ? [newDeleted, updated] : [newDeleted])
   newTr.setNodeMarkup(
     pos,
     undefined,
@@ -113,4 +116,6 @@ export function deleteOrSetNodeDeleted(
     },
     node.marks
   )
+  // console.log('STEPS AFTER')
+  // console.log(newTr.steps.forEach((s) => console.log(s)))
 }

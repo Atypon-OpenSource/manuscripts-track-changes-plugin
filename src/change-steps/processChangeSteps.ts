@@ -34,20 +34,20 @@ export function processChangeSteps(
   emptyAttrs: NewEmptyAttrs,
   schema: Schema
 ) {
+  console.log('<<<<<< processChangeSteps >>>>>>')
+  console.log(changes)
   const mapping = new Mapping()
   const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs)
   let selectionPos = startPos
   // @TODO add custom handler / condition?
   let deletesCounter = 0 // counter for deletion
   let isInserted = false // flag for inserted node
-  let isLiftStep = changes.find((c) => c.type === 'lift-slice')
 
   changes.forEach((c) => {
     let step = newTr.steps[newTr.steps.length - 1]
 
     switch (c.type) {
       case 'delete-node':
-        console.log(c)
         deletesCounter++ // increase the counter for deleted nodes
         const trackedData = getBlockInlineTrackedData(c.node)
         const inserted = trackedData?.find(
@@ -61,6 +61,7 @@ export function processChangeSteps(
         if (isInserted && deletesCounter > 1) {
           return false
         }
+
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
         const newestStep = newTr.steps[newTr.steps.length - 1]
 
@@ -122,9 +123,9 @@ export function processChangeSteps(
             step = newestStep
           }
         }
-        if (c.fragment.size > 0) {
-          newTr.insert(insertPos, c.fragment)
-        }
+        // if (c.fragment.size > 0) {
+        newTr.insert(insertPos, c.fragment)
+        // }
         break
 
       case 'insert-slice':
