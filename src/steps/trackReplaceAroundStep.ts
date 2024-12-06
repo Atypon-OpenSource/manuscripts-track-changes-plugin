@@ -15,7 +15,7 @@
  */
 import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep } from 'prosemirror-transform'
+import { Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
@@ -60,10 +60,9 @@ export function trackReplaceAroundStep(
     slice: ExposedSlice
   } = step
   // Invert the transaction step to prevent it from actually deleting or inserting anything
-
   const newStep = step.invert(currentStepDoc)
 
-  const stepResult = newTr.maybeStep(newStep)
+  let stepResult = newTr.maybeStep(newStep)
   if (stepResult.failed) {
     // for some cases invert will fail due to sending multiple steps that update the same nodes
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
@@ -71,18 +70,15 @@ export function trackReplaceAroundStep(
   }
   // if revert step overrides dataTracked attrs in cases when it preserves the node but just reinserts it with
   // some changes (like in lifting when parent reinserted for every node that is lifted separately)
-  console.log(newStep)
   const prevDoc = newTr.docs[newTr.docs.length - 2]
   if (prevDoc && (step.slice.openEnd || step.slice.openStart)) {
     // meaning there are nodes that we regluing and we need to preserve the dataTracked that appeared
     // prevStepDoc has to be the doc that create by the previously handled ReplaceAroundStep
     prevDoc.nodesBetween(newStep.from, newStep.to, (node, pos) => {
-      console.log('pos in prevdoc', pos)
-      console.log(node)
       // I want to identify if I replace the node with itself
       // here I can also check if it's open
       newStep.slice.content.forEach((n, offset) => {
-        if (n.type === node.type && !node.isText) {
+        if (n.type === node.type && !node.isText && n.attrs.id === node.attrs.id) {
           // this check is extremly insufficient and works only with very small size nodes
           // as nodes are moved around alot we can either do a deep comparison on attributes or rely on attrs.id
           // attrs.id however is an arbitrary attribute as far as prosemirror or track-changes plugin are concerned
@@ -168,22 +164,40 @@ export function trackReplaceAroundStep(
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
 
-    let sliceFrom = gapFrom
-    let sliceTo = gapTo
-
     if (window.prevliftStep) {
-      sliceFrom = from
-      sliceTo = from
+      if (window.bufferFragment) {
+        window.bufferFragment = insertedSlice.content.append(window.bufferFragment)
+      } else {
+        window.bufferFragment = insertedSlice.content
+      }
+
+      if (tr.steps.indexOf(step) === 0) {
+        // remember we are iterating backwards
+        const fragmentTracked = setFragmentAsInserted(
+          window.bufferFragment,
+          trackUtils.createNewInsertAttrs(attrs),
+          oldState.schema
+        )
+        steps.push({
+          type: 'insert-slice',
+          from: from,
+          to: from,
+          slice: new Slice(fragmentTracked, 0, 0),
+          sliceWasSplit: true, // that's just... ehh... a flag to skip diffing that change
+        })
+        // setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
+      }
+      // sliceFrom = from
+      // sliceTo = from
+    } else {
+      steps.push({
+        type: 'insert-slice',
+        from: gapFrom,
+        to: gapTo,
+        slice: insertedSlice,
+        sliceWasSplit,
+      })
     }
-    // if (!window.prevliftStep) {
-    steps.push({
-      type: 'insert-slice',
-      from: sliceFrom,
-      to: sliceTo,
-      slice: insertedSlice,
-      sliceWasSplit,
-    })
-    // }
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
     // mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)
