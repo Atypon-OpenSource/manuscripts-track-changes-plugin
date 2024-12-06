@@ -34,8 +34,6 @@ export function processChangeSteps(
   emptyAttrs: NewEmptyAttrs,
   schema: Schema
 ) {
-  console.log('<<<<<< processChangeSteps >>>>>>')
-  console.log(changes)
   const mapping = new Mapping()
   const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs)
   let selectionPos = startPos

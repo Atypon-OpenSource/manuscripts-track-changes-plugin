@@ -74,7 +74,7 @@ export function deleteAndMergeSplitNodes(
     insertSlice,
     gap !== undefined
   )
-  console.log('updatedSliceNodes: ' + updatedSliceNodes)
+  // console.log('updatedSliceNodes: ' + updatedSliceNodes)
   let mergingStartSide = true
   startDoc.nodesBetween(from, to, (node, pos) => {
     const nodeEnd = pos + node.nodeSize
@@ -96,7 +96,7 @@ export function deleteAndMergeSplitNodes(
     // console.log(nodeEnd > from && !wasWithinGap)
     // console.log('============================')
     if (nodeEnd > from && !wasWithinGap) {
-      console.log(pos >= from && nodeEnd <= to)
+      // console.log(pos >= from && nodeEnd <= to)
       // |<p>asdf</p>| -> node deleted completely
       const nodeCompletelyDeleted = pos >= from && nodeEnd <= to
 
@@ -144,13 +144,14 @@ export function deleteAndMergeSplitNodes(
 
         const mergeEndNodeNotEmpty = mergeEndNode && mergeContent.size
         if (mergeEndNode && !mergeEndNodeNotEmpty && gap) {
+          console.log('REACHING HERE')
           /* here to support a case when we lift a node from a multichild parent, meaning that we take out a node from an element that used to be here
           which would result in gluing of that node parent, e.g. lifting a <li> out of <ul> with multiple <li> will result in replace around step
           that takes out that gap and glues a start of the <ul> without such content to an old ul
           such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
           to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
         */
-          if (gap.start > gap.end && gap.insert === 0 && gap.end === to && !node.isText) {
+          if (gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText) {
             /*
               The step is a lift from an end of the step range.
               In other words it means that we removed a piece of content from the end of the step range,

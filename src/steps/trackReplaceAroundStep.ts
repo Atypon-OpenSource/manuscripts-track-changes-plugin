@@ -69,6 +69,34 @@ export function trackReplaceAroundStep(
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
     return []
   }
+  // if revert step overrides dataTracked attrs in cases when it preserves the node but just reinserts it with
+  // some changes (like in lifting when parent reinserted for every node that is lifted separately)
+  console.log(newStep)
+  const prevDoc = newTr.docs[newTr.docs.length - 2]
+  if (prevDoc && (step.slice.openEnd || step.slice.openStart)) {
+    // meaning there are nodes that we regluing and we need to preserve the dataTracked that appeared
+    // prevStepDoc has to be the doc that create by the previously handled ReplaceAroundStep
+    prevDoc.nodesBetween(newStep.from, newStep.to, (node, pos) => {
+      console.log('pos in prevdoc', pos)
+      console.log(node)
+      // I want to identify if I replace the node with itself
+      // here I can also check if it's open
+      newStep.slice.content.forEach((n, offset) => {
+        if (n.type === node.type && !node.isText) {
+          // this check is extremly insufficient and works only with very small size nodes
+          // as nodes are moved around alot we can either do a deep comparison on attributes or rely on attrs.id
+          // attrs.id however is an arbitrary attribute as far as prosemirror or track-changes plugin are concerned
+          // the main guarantee here is actually just the fact that we iterate from the start of range and check only high level
+          // nodes in the slice
+          newTr.setNodeAttribute(newStep.from + offset, 'dataTracked', node.attrs.dataTracked)
+        }
+      })
+      // find if it's the same node that in the newStep.slice
+      // if it is, repply dataTracked attributes on those nodes that were lots by the revertal
+    })
+  }
+  // take the doc onto which the step is applied
+
   const gap = currentStepDoc.slice(gapFrom, gapTo)
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
@@ -143,10 +171,10 @@ export function trackReplaceAroundStep(
     let sliceFrom = gapFrom
     let sliceTo = gapTo
 
-    // if (window.prevliftStep) {
-    //   sliceFrom = window.prevliftStep.to
-    //   sliceTo = window.prevliftStep.to
-    // }
+    if (window.prevliftStep) {
+      sliceFrom = from
+      sliceTo = from
+    }
     // if (!window.prevliftStep) {
     steps.push({
       type: 'insert-slice',
