@@ -121,9 +121,9 @@ export function processChangeSteps(
             step = newestStep
           }
         }
-        // if (c.fragment.size > 0) {
-        newTr.insert(insertPos, c.fragment)
-        // }
+        if (c.fragment.size > 0) {
+          newTr.insert(insertPos, c.fragment)
+        }
         break
 
       case 'insert-slice':
