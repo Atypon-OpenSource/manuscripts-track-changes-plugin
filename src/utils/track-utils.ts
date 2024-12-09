@@ -23,7 +23,6 @@ import {
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
-  NewLiftAttrs,
   NewReferenceAttrs,
   NewSplitNodeAttrs,
   NewUpdateAttrs,

@@ -74,7 +74,6 @@ export function deleteAndMergeSplitNodes(
     insertSlice,
     gap !== undefined
   )
-  // console.log('updatedSliceNodes: ' + updatedSliceNodes)
   let mergingStartSide = true
   startDoc.nodesBetween(from, to, (node, pos) => {
     const nodeEnd = pos + node.nodeSize
