@@ -17,6 +17,9 @@ import type { PluginKey } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './change'
+import { ReplaceAroundStep } from 'prosemirror-transform'
+import { Fragment } from 'prosemirror-model'
+import { Node as PMNode } from 'prosemirror-model'
 
 export interface TrackChangesOptions {
   debug?: boolean
@@ -61,4 +64,9 @@ export enum TrackChangesStatus {
   enabled = 'enabled',
   viewSnapshots = 'view-snapshots',
   disabled = 'disabled',
+}
+
+export type TrTrackingContext = {
+  prevLiftStep?: ReplaceAroundStep
+  liftFragment?: Fragment
 }

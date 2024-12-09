@@ -27,7 +27,7 @@ import {
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
+import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isLiftStep, isWrapStep } from '../utils/track-utils'
@@ -38,7 +38,8 @@ export function trackReplaceAroundStep(
   tr: Transaction,
   newTr: Transaction,
   attrs: NewEmptyAttrs,
-  currentStepDoc: PMNode
+  currentStepDoc: PMNode,
+  trContext: TrTrackingContext
 ) {
   log.info('###### ReplaceAroundStep ######')
   // @ts-ignore
@@ -129,18 +130,19 @@ export function trackReplaceAroundStep(
   // and that case gap will be 0, for that will use updateMetaNode to indicate that we are going just to update that node
 
   let liftStep = isLiftStep(step)
+  /**
+   * Detecting if current set of steps performs a lift operation. Lift operation normally represented by at least 2 ReplaceAroundSteps.
+   * Those steps occur on the same node and reverting deletes will make all the previous steps invalid.
+   * To solve this issues, we buffer all the lifted fragments and insert them only on the last step of the sequence.
+   */
   if (liftStep) {
-    console.log('DETECTING INIT LIFT STEP')
-    window.prevliftStep = step
-  } else if (window.prevliftStep && window.prevliftStep.gapFrom === step.gapTo) {
-    console.log('DETECTING CHAIN LIFT STEP')
-    // check if this step is internal change for the lift step
-    // if it is and it has a gap, offset gap insertion towards the end of the step
-    // when lifting, first step always grabs the biggest element (practices shows, not sure if really always)
-    // now adjust retained gap to be inserted after slip step
-    window.prevliftStep = step
+    log.info('DETECTING INIT LIFT STEP: ', step)
+    trContext.prevLiftStep = step
+  } else if (trContext.prevLiftStep && trContext.prevLiftStep.gapFrom === step.gapTo) {
+    log.info('DETECTING CHAIN LIFT STEP')
+    trContext.prevLiftStep = step
   } else {
-    window.prevliftStep = null
+    trContext.prevLiftStep = undefined
   }
 
   if (
@@ -157,24 +159,20 @@ export function trackReplaceAroundStep(
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
       let sliceContent = gap.content
-      // if (liftStep) {
-      //   sliceContent = setFragmentAsLiftChange(gap.content, attrs, localLiftedPos, oldState.schema)
-      // }
       insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, sliceContent)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
 
-    if (window.prevliftStep) {
-      if (window.bufferFragment) {
-        window.bufferFragment = insertedSlice.content.append(window.bufferFragment)
-      } else {
-        window.bufferFragment = insertedSlice.content
-      }
+    if (trContext.prevLiftStep) {
+      // buffering new insertions for the lift step as described above
+      trContext.liftFragment = trContext.liftFragment
+        ? insertedSlice.content.append(trContext.liftFragment)
+        : insertedSlice.content
 
       if (tr.steps.indexOf(step) === 0) {
-        // remember we are iterating backwards
+        // last step detection, as we iterate backwards
         const fragmentTracked = setFragmentAsInserted(
-          window.bufferFragment,
+          trContext.liftFragment,
           trackUtils.createNewInsertAttrs(attrs),
           oldState.schema
         )
@@ -182,13 +180,10 @@ export function trackReplaceAroundStep(
           type: 'insert-slice',
           from: from,
           to: from,
-          slice: new Slice(fragmentTracked, 0, 0),
+          slice: new Slice(fragmentTracked, 0, 0) as ExposedSlice,
           sliceWasSplit: true, // that's just... ehh... a flag to skip diffing that change
         })
-        // setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
       }
-      // sliceFrom = from
-      // sliceTo = from
     } else {
       steps.push({
         type: 'insert-slice',

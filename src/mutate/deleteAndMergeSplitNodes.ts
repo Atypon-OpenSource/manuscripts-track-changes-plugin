@@ -91,12 +91,7 @@ export function deleteAndMergeSplitNodes(
       gap && ((!node.isText && pos >= gap.start) || (node.isText && pos >= gap.start && nodeEnd <= gap.end))
     // nodeEnd > offsetFrom -> delete touches this node
     // eg (del 6 10) <p 5>|<t 6>cdf</t 9></p 10>| -> <p> nodeEnd 10 > from 6
-    // console.log(node)
-    // console.log('from: ' + from, 'nodeEnd: ' + nodeEnd, 'pos: ' + pos, 'to: ' + to, wasWithinGap)
-    // console.log(nodeEnd > from && !wasWithinGap)
-    // console.log('============================')
     if (nodeEnd > from && !wasWithinGap) {
-      // console.log(pos >= from && nodeEnd <= to)
       // |<p>asdf</p>| -> node deleted completely
       const nodeCompletelyDeleted = pos >= from && nodeEnd <= to
 
@@ -144,13 +139,12 @@ export function deleteAndMergeSplitNodes(
 
         const mergeEndNodeNotEmpty = mergeEndNode && mergeContent.size
         if (mergeEndNode && !mergeEndNodeNotEmpty && gap) {
-          console.log('REACHING HERE')
-          /* here to support a case when we lift a node from a multichild parent, meaning that we take out a node from an element that used to be here
-          which would result in gluing of that node parent, e.g. lifting a <li> out of <ul> with multiple <li> will result in replace around step
-          that takes out that gap and glues a start of the <ul> without such content to an old ul
-          such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
-          to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
-        */
+          /* Here to support a case when we lift a node from a multichild parent - meaning that we take out a node from another node (parent)
+            which would result in gluing of the parent at the position of harvesting, e.g. lifting a <li> out of <ul> with multiple <li> will result in replace around step
+            that takes out that gap (e.g. first <li></li>) and glues a start of the <ul> without such content to the old ul.
+            such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
+            to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
+          */
           if (gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText) {
             /*
               The step is a lift from an end of the step range.
