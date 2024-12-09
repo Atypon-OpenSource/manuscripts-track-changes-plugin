@@ -43,14 +43,6 @@ export function createNewWrapAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   }
 }
 
-export function createNewLiftAttrs(attrs: NewEmptyAttrs, pos: number): NewLiftAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.lift_node,
-    pos,
-  }
-}
-
 export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
   return {
     ...attrs,
