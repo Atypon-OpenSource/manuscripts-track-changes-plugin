@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Fragment } from 'prosemirror-model'
+import { Node as PMNode } from 'prosemirror-model'
 import type { PluginKey } from 'prosemirror-state'
+import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './change'
-import { ReplaceAroundStep } from 'prosemirror-transform'
-import { Fragment } from 'prosemirror-model'
-import { Node as PMNode } from 'prosemirror-model'
 
 export interface TrackChangesOptions {
   debug?: boolean

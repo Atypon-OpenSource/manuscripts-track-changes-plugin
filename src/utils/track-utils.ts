@@ -18,6 +18,7 @@ import { Selection, TextSelection } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION } from '../types/change'
+import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
@@ -27,7 +28,6 @@ import {
   NewSplitNodeAttrs,
   NewUpdateAttrs,
 } from '../types/track'
-import { ChangeStep } from '../types/step'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
