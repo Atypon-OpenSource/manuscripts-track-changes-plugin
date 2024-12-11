@@ -22,6 +22,7 @@ export interface DeleteNodeStep {
   nodeEnd: number
   type: 'delete-node'
   node: PMNode
+  ref?: string
 }
 export interface DeleteTextStep {
   pos: number
@@ -29,6 +30,7 @@ export interface DeleteTextStep {
   to: number
   type: 'delete-text'
   node: PMNode
+  ref?: string
 }
 export interface MergeFragmentStep {
   pos: number

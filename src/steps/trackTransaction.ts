@@ -36,7 +36,7 @@ import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
+import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
 import trackAttrsChange from './trackAttrsChange'
@@ -72,6 +72,7 @@ const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
  * @param authorID User id
  * @returns newTr that inverts the initial tr and applies track attributes/marks
  */
+
 export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
@@ -93,8 +94,13 @@ export function trackTransaction(
   let iters = 0
   log.info('ORIGINAL transaction', tr)
 
+  let trContext: TrTrackingContext = {}
+
   for (let i = tr.steps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
+    // if (i == 0) {
+    //   break
+    // }
     log.info('transaction step', step)
     iters += 1
     // if (iters == 1) {
@@ -180,12 +186,13 @@ export function trackTransaction(
         newTr.setSelection(near)
       }
     } else if (step instanceof ReplaceAroundStep) {
-      let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
+      let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       log.info('INSERT STEPS: ', inserted)
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
+
       const [mapping, selectionPos] = processChangeSteps(
         steps,
         tr.selection.from,
@@ -194,10 +201,10 @@ export function trackTransaction(
         oldState.schema
       )
     } else if (step instanceof AttrStep) {
-      const chnageSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
+      const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
 
       const [mapping, selectionPos] = processChangeSteps(
-        chnageSteps,
+        changeSteps,
         tr.selection.from,
         newTr,
         emptyAttrs,

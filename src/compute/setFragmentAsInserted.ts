@@ -97,6 +97,29 @@ export function setFragmentAsInserted(inserted: Fragment, insertAttrs: NewInsert
   return updatedInserted.length === 0 ? Fragment.empty : Fragment.fromArray(updatedInserted)
 }
 
+export function setFragmentAsLiftChange(
+  inserted: Fragment,
+  attrs: NewEmptyAttrs,
+  pos: number,
+  schema: Schema
+) {
+  const content: PMNode[] = []
+  inserted.forEach((node) => {
+    content.push(
+      node.type.create(
+        {
+          ...node.attrs,
+          dataTracked: [addTrackIdIfDoesntExist(trackUtils.createNewLiftAttrs(attrs, pos))],
+        },
+        setFragmentAsInserted(node.content, trackUtils.createNewInsertAttrs(attrs), schema),
+        node.marks
+      )
+    )
+  })
+
+  return Fragment.from(content)
+}
+
 export function setFragmentAsWrapChange(inserted: Fragment, attrs: NewEmptyAttrs, schema: Schema) {
   const content: PMNode[] = []
 
