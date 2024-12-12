@@ -16,9 +16,7 @@
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
-  GroupedChange,
   IncompleteChange,
-  InlineAdjacentChanges,
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
@@ -64,17 +62,29 @@ export class ChangeSet {
    * and end position. This is useful for showing the changes as groups in the UI.
    */
   get changeTree() {
-    const rootNodes: TrackedChange[] = []
+    const rootNodes: TrackedChange[][] = []
     let currentNodeChange: NodeChange | undefined
-    this.changes.forEach((c) => {
+    let currentInlineChange: TrackedChange[] | undefined
+    this.changes.forEach((c, index) => {
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
           c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
       ) {
-        rootNodes.push(currentNodeChange)
+        rootNodes.push([currentNodeChange])
         currentNodeChange = undefined
       }
+
+      if (this.canJoinAdjacentInlineChanges(c, index) && !currentNodeChange) {
+        currentInlineChange = currentInlineChange ? [...currentInlineChange, c] : [c]
+        return
+      } else if (currentInlineChange) {
+        rootNodes.push([...currentInlineChange, c])
+        currentInlineChange = undefined
+        return
+      }
+      // TODO:: group composite block changes
+
       if (
         currentNodeChange &&
         c.from < currentNodeChange.to &&
@@ -86,7 +96,7 @@ export class ChangeSet {
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
-          rootNodes[index] = root
+          rootNodes[index][0] = root
         } else {
           currentNodeChange = { ...c, children: [] }
         }
@@ -95,48 +105,23 @@ export class ChangeSet {
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
-          rootNodes[index] = root
+          rootNodes[index][0] = root
         } else {
-          rootNodes.push(c)
+          rootNodes.push([c])
         }
       }
     })
     if (currentNodeChange) {
-      rootNodes.push(currentNodeChange)
+      rootNodes.push([currentNodeChange])
     }
 
-    return rootNodes
-  }
-
-  /**
-   * Group adjacent inline changes that has the same change operation, and will handle composite block changes.
-   * This will be used for user in the UI.
-   */
-  get groupChanges() {
-    const changes: GroupedChange[] = []
-    let currentInlineChange: InlineAdjacentChanges | undefined
-    this.changeTree.map((change, index) => {
-      if (this.canJoinAdjacentInlineChanges(change, index)) {
-        currentInlineChange = currentInlineChange
-          ? { ...currentInlineChange, to: change.to }
-          : { ...change, nodes: [], type: 'inline-changes' }
-        currentInlineChange?.nodes.push(change)
-        return
-      } else if (currentInlineChange) {
-        currentInlineChange.nodes.push(change)
-        changes.push({ ...currentInlineChange, to: change.to })
-        currentInlineChange = undefined
-        return
-      }
-      // TODO:: group composite block changes
-      changes.push({ type: 'single-change', id: change.id, from: change.from, to: change.to, node: change })
-    })
-
-    return changes
+    return rootNodes.filter((changes) =>
+      changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference)
+    )
   }
 
   get pending() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
+    return this.changes.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
   }
 
   get textChanges() {
@@ -199,7 +184,7 @@ export class ChangeSet {
   }
 
   // Searches for a root change for the given change in the rootNodes and updates the root by pushing the new change if it belongs to it.
-  matchAndAddToRootChange(rootNodes: TrackedChange[], change: TrackedChange) {
+  matchAndAddToRootChange(rootNodes: (TrackedChange[] | TrackedChange)[], change: TrackedChange) {
     for (let i = 0; i < rootNodes.length; i++) {
       const root = rootNodes[i] as NodeChange
       if (
@@ -213,6 +198,9 @@ export class ChangeSet {
     }
   }
 
+  /**
+   * Group adjacent inline changes that has the same change operation
+   */
   canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
     const nextChange = this.changes.at(index + 1)
     const isInline = (c: TrackedChange) =>
@@ -298,10 +286,6 @@ export class ChangeSet {
 
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
-  }
-
-  static isInlineAdjacentChanges(change: GroupedChange): change is InlineAdjacentChanges {
-    return change.type === 'inline-changes'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
