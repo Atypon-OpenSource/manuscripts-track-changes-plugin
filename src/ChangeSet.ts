@@ -188,9 +188,9 @@ export class ChangeSet {
   }
 
   // Searches for a root change for the given change in the rootNodes and updates the root by pushing the new change if it belongs to it.
-  matchAndAddToRootChange(rootNodes: (TrackedChange[] | TrackedChange)[], change: TrackedChange) {
+  matchAndAddToRootChange(rootNodes: RootChanges, change: TrackedChange) {
     for (let i = 0; i < rootNodes.length; i++) {
-      const root = rootNodes[i] as NodeChange
+      const root = rootNodes[i][0] as NodeChange
       if (
         root.type === 'node-change' &&
         change.from < root.to &&
