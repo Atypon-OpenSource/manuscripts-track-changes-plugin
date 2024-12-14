@@ -20,6 +20,8 @@ import {
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
+  RootChange,
+  RootChanges,
   TextChange,
   TrackedAttrs,
   TrackedChange,
@@ -62,9 +64,9 @@ export class ChangeSet {
    * and end position. This is useful for showing the changes as groups in the UI.
    */
   get changeTree() {
-    const rootNodes: TrackedChange[][] = []
+    const rootNodes: RootChanges = []
     let currentNodeChange: NodeChange | undefined
-    let currentInlineChange: TrackedChange[] | undefined
+    let currentInlineChange: RootChange | undefined
     this.changes.forEach((c, index) => {
       if (
         currentNodeChange &&
@@ -96,6 +98,7 @@ export class ChangeSet {
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
+          // [0] is the single main change we have
           rootNodes[index][0] = root
         } else {
           currentNodeChange = { ...c, children: [] }
@@ -105,6 +108,7 @@ export class ChangeSet {
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
+          // [0] is the single main change we have
           rootNodes[index][0] = root
         } else {
           rootNodes.push([c])

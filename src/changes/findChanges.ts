@@ -47,6 +47,12 @@ export function findChanges(state: EditorState) {
     for (let i = 0; i < tracked.length; i += 1) {
       const dataTracked = tracked[i]
       const id = dataTracked.id || ''
+      if (current && current.change.id === id) {
+        current.change.to = pos + node.nodeSize
+        // Important to update the node as the text changes might contain multiple parts where some marks equal each other
+        current.node = node
+        continue
+      }
       current && changes.push(current.change)
       let change
       if (node.isText) {

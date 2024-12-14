@@ -86,6 +86,7 @@ describe('nodes.test', () => {
     // thus PM tries to automatically fill it when it's destroyed. However, in our case that's
     // not ideal but it's not fixed for now, since deleting the whole doc at once can't be done by user.
     expect(tester.toJSON()).toEqual(basicNodeDelete[1])
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(11)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
