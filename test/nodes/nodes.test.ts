@@ -323,7 +323,7 @@ describe('nodes.test', () => {
 
     tester.cmd((state, dispatch) => {
       // reject first split
-      const nodeSplitChange = tester.trackState()?.changeSet.changeTree.find((change) => change.from === 61)
+      const nodeSplitChange = tester.trackState()?.changeSet.changes.find((change) => change.from === 61)
       if (nodeSplitChange) {
         trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, [nodeSplitChange.id])(state, dispatch)
       }

@@ -108,4 +108,5 @@ export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
 export type IncompleteChange = Omit<TrackedChange, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>
 }
-export type ChangeType = TrackedChange['type']
+export type RootChanges = TrackedChange[][]
+export type RootChange = TrackedChange[]
