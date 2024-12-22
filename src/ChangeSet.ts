@@ -64,29 +64,17 @@ export class ChangeSet {
    * and end position. This is useful for showing the changes as groups in the UI.
    */
   get changeTree() {
-    const rootNodes: RootChanges = []
+    const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
-    let currentInlineChange: RootChange | undefined
-    this.changes.forEach((c, index) => {
+    this.changes.forEach((c) => {
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
           c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
       ) {
-        rootNodes.push([currentNodeChange])
+        rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
       }
-
-      if (this.canJoinAdjacentInlineChanges(c, index) && !currentNodeChange) {
-        currentInlineChange = currentInlineChange ? [...currentInlineChange, c] : [c]
-        return
-      } else if (currentInlineChange) {
-        rootNodes.push([...currentInlineChange, c])
-        currentInlineChange = undefined
-        return
-      }
-      // TODO:: group composite block changes
-
       if (
         currentNodeChange &&
         c.from < currentNodeChange.to &&
@@ -98,8 +86,7 @@ export class ChangeSet {
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
-          // [0] is the single main change we have
-          rootNodes[index][0] = root
+          rootNodes[index] = root
         } else {
           currentNodeChange = { ...c, children: [] }
         }
@@ -108,16 +95,38 @@ export class ChangeSet {
         const result = this.matchAndAddToRootChange(rootNodes, c)
         if (result) {
           const { index, root } = result
-          // [0] is the single main change we have
-          rootNodes[index][0] = root
+          rootNodes[index] = root
         } else {
-          rootNodes.push([c])
+          rootNodes.push(c)
         }
       }
     })
     if (currentNodeChange) {
-      rootNodes.push([currentNodeChange])
+      rootNodes.push(currentNodeChange)
     }
+
+    return rootNodes
+  }
+
+  /**
+   * Group adjacent inline changes and composite block changes
+   */
+  get groupChanges() {
+    const rootNodes: RootChanges = []
+    let currentInlineChange: RootChange | undefined
+
+    this.changeTree.map((change, index) => {
+      if (this.canJoinAdjacentInlineChanges(change, index)) {
+        currentInlineChange = currentInlineChange ? [...currentInlineChange, change] : [change]
+        return
+      } else if (currentInlineChange) {
+        rootNodes.push([...currentInlineChange, change])
+        currentInlineChange = undefined
+        return
+      }
+      // TODO:: group composite block changes
+      rootNodes.push([change])
+    })
 
     return rootNodes.filter((changes) =>
       changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference)
@@ -188,9 +197,9 @@ export class ChangeSet {
   }
 
   // Searches for a root change for the given change in the rootNodes and updates the root by pushing the new change if it belongs to it.
-  matchAndAddToRootChange(rootNodes: RootChanges, change: TrackedChange) {
+  matchAndAddToRootChange(rootNodes: TrackedChange[], change: TrackedChange) {
     for (let i = 0; i < rootNodes.length; i++) {
-      const root = rootNodes[i][0] as NodeChange
+      const root = rootNodes[i] as NodeChange
       if (
         root.type === 'node-change' &&
         change.from < root.to &&
@@ -206,7 +215,7 @@ export class ChangeSet {
    * Group adjacent inline changes that has the same change operation
    */
   canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
-    const nextChange = this.changes.at(index + 1)
+    const nextChange = this.changeTree.at(index + 1)
     const isInline = (c: TrackedChange) =>
       c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
     return (
