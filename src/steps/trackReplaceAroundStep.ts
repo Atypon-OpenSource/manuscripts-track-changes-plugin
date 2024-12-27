@@ -19,11 +19,7 @@ import { Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
-import {
-  setFragmentAsInserted,
-  setFragmentAsLiftChange,
-  setFragmentAsWrapChange,
-} from '../compute/setFragmentAsInserted'
+import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -31,6 +27,36 @@ import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isLiftStep, isWrapStep } from '../utils/track-utils'
+
+function preserveDataTrackedFromPreviousStep(
+  newTr: Transaction,
+  step: ReplaceAroundStep,
+  newStep: ReplaceAroundStep
+) {
+  // if revert step overrides dataTracked attrs in cases when it preserves the node but just reinserts it with
+  // some changes (like in lifting when parent reinserted for every node that is lifted separately)
+  const prevDoc = newTr.docs[newTr.docs.length - 2]
+  if (prevDoc && (step.slice.openEnd || step.slice.openStart)) {
+    // meaning there are nodes that we regluing and we need to preserve the dataTracked that appeared
+    // prevStepDoc has to be the doc created by the previously handled ReplaceAroundStep
+
+    prevDoc.nodesBetween(newStep.from, newStep.to, (node, pos) => {
+      // find if it's the same node that in the newStep.slice
+      // if it is, repply dataTracked attributes on those nodes that were lost by the reversion
+      newStep.slice.content.forEach((n, offset) => {
+        if (n.type === node.type && !node.isText && n.attrs.id === node.attrs.id) {
+          // this check is extremely insufficient and works only with very small size nodes
+          // as nodes are moved around alot we can either do a deep comparison on attributes or rely on attrs.id
+          // attrs.id however is an arbitrary attribute as far as prosemirror or track-changes plugin are concerned
+          // the main guarantee here is actually just the fact that we iterate from the start of range and check only high level
+          // nodes in the slice
+          newTr.setNodeAttribute(newStep.from + offset, 'dataTracked', node.attrs.dataTracked)
+        }
+      })
+    })
+  }
+  return newTr
+}
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
@@ -69,30 +95,9 @@ export function trackReplaceAroundStep(
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
     return []
   }
-  // if revert step overrides dataTracked attrs in cases when it preserves the node but just reinserts it with
-  // some changes (like in lifting when parent reinserted for every node that is lifted separately)
-  const prevDoc = newTr.docs[newTr.docs.length - 2]
-  if (prevDoc && (step.slice.openEnd || step.slice.openStart)) {
-    // meaning there are nodes that we regluing and we need to preserve the dataTracked that appeared
-    // prevStepDoc has to be the doc that create by the previously handled ReplaceAroundStep
-    prevDoc.nodesBetween(newStep.from, newStep.to, (node, pos) => {
-      // I want to identify if I replace the node with itself
-      // here I can also check if it's open
-      newStep.slice.content.forEach((n, offset) => {
-        if (n.type === node.type && !node.isText && n.attrs.id === node.attrs.id) {
-          // this check is extremly insufficient and works only with very small size nodes
-          // as nodes are moved around alot we can either do a deep comparison on attributes or rely on attrs.id
-          // attrs.id however is an arbitrary attribute as far as prosemirror or track-changes plugin are concerned
-          // the main guarantee here is actually just the fact that we iterate from the start of range and check only high level
-          // nodes in the slice
-          newTr.setNodeAttribute(newStep.from + offset, 'dataTracked', node.attrs.dataTracked)
-        }
-      })
-      // find if it's the same node that in the newStep.slice
-      // if it is, repply dataTracked attributes on those nodes that were lots by the revertal
-    })
-  }
-  // take the doc onto which the step is applied
+
+  // If previous step made changes on the same content as current step, it could've overridden dataTracked attribute in the slice.
+  preserveDataTrackedFromPreviousStep(newTr, step, newStep)
 
   const gap = currentStepDoc.slice(gapFrom, gapTo)
   log.info('RETAINED GAP CONTENT', gap)

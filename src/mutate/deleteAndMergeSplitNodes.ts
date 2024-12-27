@@ -144,17 +144,7 @@ export function deleteAndMergeSplitNodes(
             such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
             to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
           */
-          if (gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText) {
-            /*
-              The step is a lift from an end of the step range.
-              In other words it means that we removed a piece of content from the end of the step range,
-              we then retained it and we put it at the start of the step range, e.g:
-                -> <p>
-                |  <ul>
-                |   <li>
-                ----- <p>
-                        <p>
-            */
+          if (trackUtils.stepIsLift(gap, node, to)) {
             gap.slice.content.forEach((node, offset) => {
               steps.push({
                 type: 'delete-node',

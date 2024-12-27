@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment } from 'prosemirror-model'
+import { Fragment, Slice, Node as PMNode } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
@@ -49,7 +49,7 @@ export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
   }
 }
 
-export function createNewSplitSourceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
+export function createNewReferenceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.reference,
@@ -144,4 +144,27 @@ export const isLiftStep = (step: ReplaceAroundStep) => {
     - step.to > gapTo     - meaning we remove content after the gap
     - nothing new is inserted: slice is empty
   */
+}
+
+export function stepIsLift(
+  /*
+    The step is a lift from an end of the step range.
+    In other words it means that we removed a piece of content from the end of the step range,
+    we then retained it and we put it at the start of the step range, e.g:
+      -> <p>
+      |  <ul>
+      |   <li>
+      ----- <p>
+              <p>
+  */
+  gap: {
+    start: number
+    end: number
+    slice: Slice
+    insert: number
+  },
+  node: PMNode,
+  to: number
+) {
+  return gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText
 }

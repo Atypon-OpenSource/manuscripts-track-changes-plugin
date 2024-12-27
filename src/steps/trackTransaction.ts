@@ -98,15 +98,10 @@ export function trackTransaction(
 
   for (let i = tr.steps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
-    // if (i == 0) {
-    //   break
-    // }
+
     log.info('transaction step', step)
     iters += 1
-    // if (iters == 1) {
-    //   console.log('skipping first step')
-    //   continue
-    // }
+
     const uiEvent = tr.getMeta('uiEvent')
     if (iters > 20 && uiEvent != 'cut') {
       console.error(
