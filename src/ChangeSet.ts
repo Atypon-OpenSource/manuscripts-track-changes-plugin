@@ -20,6 +20,8 @@ import {
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
+  RootChange,
+  RootChanges,
   TextChange,
   TrackedAttrs,
   TrackedChange,
@@ -106,8 +108,33 @@ export class ChangeSet {
     return rootNodes
   }
 
+  /**
+   * Group adjacent inline changes and composite block changes
+   */
+  get groupChanges() {
+    const rootNodes: RootChanges = []
+    let currentInlineChange: RootChange | undefined
+
+    this.changeTree.map((change, index) => {
+      if (this.canJoinAdjacentInlineChanges(change, index)) {
+        currentInlineChange = currentInlineChange ? [...currentInlineChange, change] : [change]
+        return
+      } else if (currentInlineChange) {
+        rootNodes.push([...currentInlineChange, change])
+        currentInlineChange = undefined
+        return
+      }
+      // TODO:: group composite block changes
+      rootNodes.push([change])
+    })
+
+    return rootNodes.filter((changes) =>
+      changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference)
+    )
+  }
+
   get pending() {
-    return this.changeTree.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
+    return this.changes.filter((c) => c.dataTracked.status === CHANGE_STATUS.pending)
   }
 
   get textChanges() {
@@ -183,6 +210,23 @@ export class ChangeSet {
       }
     }
   }
+
+  /**
+   * Group adjacent inline changes that has the same change operation
+   */
+  canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
+    const nextChange = this.changeTree.at(index + 1)
+    const isInline = (c: TrackedChange) =>
+      c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
+    return (
+      isInline(change) &&
+      nextChange &&
+      isInline(nextChange) &&
+      change.to === nextChange.from &&
+      change.dataTracked.operation === nextChange.dataTracked.operation
+    )
+  }
+
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes

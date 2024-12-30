@@ -174,12 +174,16 @@ export function processChangeSteps(
         ) {
           newDataTracked.push(newUpdate)
         }
+
+        // Retain old dataTracked if there are no new changes
+        const finalDataTracked = newDataTracked.length > 0 ? newDataTracked : oldDataTracked
+
         newTr.setNodeMarkup(
           mapping.map(c.pos),
           undefined,
           {
             ...c.newAttrs,
-            dataTracked: newDataTracked.length > 0 ? newDataTracked : null,
+            dataTracked: finalDataTracked.length > 0 ? finalDataTracked : null,
           },
           c.node.marks
         )

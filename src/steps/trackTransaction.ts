@@ -33,12 +33,15 @@ import {
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
+import { updateChangeAttrs } from '../changes/updateChangeAttrs'
+import { getNodeTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
@@ -205,8 +208,18 @@ export function trackTransaction(
         emptyAttrs,
         oldState.schema
       )
+    } else if (step instanceof AddMarkStep) {
+      // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique
+      const dataTracked = getNodeTrackedData(newTr.doc.nodeAt(step.from), oldState.schema)?.pop()
+      if (dataTracked) {
+        updateChangeAttrs(
+          newTr,
+          { id: dataTracked.id as string, from: step.from, to: step.to, type: 'text-change', dataTracked },
+          { ...dataTracked, id: uuidv4() },
+          oldState.schema
+        )
+      }
     }
-    // } else if (step instanceof AddMarkStep) {
     // } else if (step instanceof RemoveMarkStep) {
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since

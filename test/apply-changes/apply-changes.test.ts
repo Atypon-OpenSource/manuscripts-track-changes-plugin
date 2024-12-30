@@ -93,7 +93,7 @@ describe('apply-changes.test', () => {
       })
 
     expect(tester.toJSON()).toEqual(insertAccept[0])
-    expect(uuidv4Mock.mock.calls.length).toBe(26)
+    expect(uuidv4Mock.mock.calls.length).toBe(27)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
 
     if (tester.trackState()?.changeSet.changes) {
@@ -106,7 +106,7 @@ describe('apply-changes.test', () => {
     }
 
     expect(tester.toJSON()).toEqual(insertAccept[1])
-    expect(uuidv4Mock.mock.calls.length).toBe(26)
+    expect(uuidv4Mock.mock.calls.length).toBe(27)
     expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
