@@ -57,6 +57,7 @@ export function processChangeSteps(
         if (isInserted && deletesCounter > 1) {
           return false
         }
+
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
         const newestStep = newTr.steps[newTr.steps.length - 1]
 

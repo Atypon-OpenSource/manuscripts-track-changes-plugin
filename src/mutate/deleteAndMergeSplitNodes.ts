@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
@@ -53,7 +53,7 @@ import * as trackUtils from '../utils/track-utils'
 export function deleteAndMergeSplitNodes(
   from: number,
   to: number,
-  gap: { start: number; end: number } | undefined,
+  gap: { start: number; end: number; slice: Slice; insert: number } | undefined,
   startDoc: PMNode,
   newTr: Transaction,
   schema: Schema,
@@ -134,10 +134,32 @@ export function deleteAndMergeSplitNodes(
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
-        const mergeEndNode =
-          startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent && mergeContent.size
+        const mergeEndNode = startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent
 
-        if (mergeStartNode || mergeEndNode) {
+        const mergeEndNodeNotEmpty = mergeEndNode && mergeContent.size
+        if (mergeEndNode && !mergeEndNodeNotEmpty && gap) {
+          /* Here to support a case when we lift a node from a multichild parent - meaning that we take out a node from another node (parent)
+            which would result in gluing of the parent at the position of harvesting, e.g. lifting a <li> out of <ul> with multiple <li> will result in replace around step
+            that takes out that gap (e.g. first <li></li>) and glues a start of the <ul> without such content to the old ul.
+            such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
+            to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
+          */
+          if (trackUtils.stepIsLift(gap, node, to)) {
+            gap.slice.content.forEach((node, offset) => {
+              steps.push({
+                type: 'delete-node',
+                pos: gap.start + offset,
+                nodeEnd: gap.start + offset + node.nodeSize,
+                node,
+              })
+            })
+          }
+        }
+        // if mergeEndNodeEmpty, that means that the step glues to its previous version but doesnt have any content in it
+        // this potentially can be a sign of a lift step and we need to check here whether there the gap content has been removed from the place
+        // of gluing
+
+        if (mergeStartNode || mergeEndNodeNotEmpty) {
           // Just as a fun fact that I found out while debugging this. Inserting text at paragraph position wraps
           // it into a new paragraph(!). So that's why you always offset your positions to insert it _inside_
           // the paragraph.
