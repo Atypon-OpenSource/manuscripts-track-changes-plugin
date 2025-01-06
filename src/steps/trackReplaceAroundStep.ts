@@ -28,11 +28,6 @@ import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isLiftStep, isWrapStep } from '../utils/track-utils'
 
-// dummy change
-export function fakef() {
-  return 0
-}
-
 function preserveDataTrackedFromPreviousStep(
   newTr: Transaction,
   step: ReplaceAroundStep,
