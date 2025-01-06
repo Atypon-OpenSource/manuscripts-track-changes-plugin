@@ -73,7 +73,7 @@ export function trackReplaceStep(
       if (changeSteps.length == 2 && newSliceContent.size > 0) {
         const correspondingDeletion = changeSteps.find(
           // @ts-ignore
-          (step) => step.node.text === newSliceContent.content[0].text //  @TODO - get more precise proof of match. E.g.: position approximation
+          (step) => step.type === 'delete-text' && step.node.text === newSliceContent.content[0].text //  @TODO - get more precise proof of match. E.g.: position approximation
         )
         return correspondingDeletion
       }
