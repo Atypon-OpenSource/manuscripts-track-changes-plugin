@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION } from '../types/change'
+import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
@@ -48,7 +49,7 @@ export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
   }
 }
 
-export function createNewSplitSourceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
+export function createNewReferenceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.reference,
@@ -126,3 +127,44 @@ export const isWrapStep = (step: ReplaceAroundStep) =>
   step.to === step.gapTo &&
   step.slice.openStart === 0 &&
   step.slice.openEnd === 0
+
+export const isLiftStep = (step: ReplaceAroundStep) => {
+  if (
+    step.from < step.gapFrom &&
+    step.to > step.gapTo &&
+    step.slice.size === 0 &&
+    step.gapTo - step.gapFrom > 0
+  ) {
+    return true
+  }
+  return false
+  /* qualifies as a lift step when:
+    - there is a retained gap (captured original content that we insert)
+    - step.from < gapFrom  - meaning we remove content in front of the gap
+    - step.to > gapTo     - meaning we remove content after the gap
+    - nothing new is inserted: slice is empty
+  */
+}
+
+export function stepIsLift(
+  /*
+    The step is a lift from an end of the step range.
+    In other words it means that we removed a piece of content from the end of the step range,
+    we then retained it and we put it at the start of the step range, e.g:
+      -> <p>
+      |  <ul>
+      |   <li>
+      ----- <p>
+              <p>
+  */
+  gap: {
+    start: number
+    end: number
+    slice: Slice
+    insert: number
+  },
+  node: PMNode,
+  to: number
+) {
+  return gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText
+}

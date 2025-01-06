@@ -15,7 +15,7 @@
  */
 import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep } from 'prosemirror-transform'
+import { Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
@@ -23,10 +23,40 @@ import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFr
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
+import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isWrapStep } from '../utils/track-utils'
+import { isLiftStep, isWrapStep } from '../utils/track-utils'
+
+function preserveDataTrackedFromPreviousStep(
+  newTr: Transaction,
+  step: ReplaceAroundStep,
+  newStep: ReplaceAroundStep
+) {
+  // if revert step overrides dataTracked attrs in cases when it preserves the node but just reinserts it with
+  // some changes (like in lifting when parent reinserted for every node that is lifted separately)
+  const prevDoc = newTr.docs[newTr.docs.length - 2]
+  if (prevDoc && (step.slice.openEnd || step.slice.openStart)) {
+    // meaning there are nodes that we regluing and we need to preserve the dataTracked that appeared
+    // prevStepDoc has to be the doc created by the previously handled ReplaceAroundStep
+
+    prevDoc.nodesBetween(newStep.from, newStep.to, (node, pos) => {
+      // find if it's the same node that in the newStep.slice
+      // if it is, repply dataTracked attributes on those nodes that were lost by the reversion
+      newStep.slice.content.forEach((n, offset) => {
+        if (n.type === node.type && !node.isText && n.attrs.id === node.attrs.id) {
+          // this check is extremely insufficient and works only with very small size nodes
+          // as nodes are moved around alot we can either do a deep comparison on attributes or rely on attrs.id
+          // attrs.id however is an arbitrary attribute as far as prosemirror or track-changes plugin are concerned
+          // the main guarantee here is actually just the fact that we iterate from the start of range and check only high level
+          // nodes in the slice
+          newTr.setNodeAttribute(newStep.from + offset, 'dataTracked', node.attrs.dataTracked)
+        }
+      })
+    })
+  }
+  return newTr
+}
 
 export function trackReplaceAroundStep(
   step: ReplaceAroundStep,
@@ -34,7 +64,8 @@ export function trackReplaceAroundStep(
   tr: Transaction,
   newTr: Transaction,
   attrs: NewEmptyAttrs,
-  currentStepDoc: PMNode
+  currentStepDoc: PMNode,
+  trContext: TrTrackingContext
 ) {
   log.info('###### ReplaceAroundStep ######')
   // @ts-ignore
@@ -57,24 +88,29 @@ export function trackReplaceAroundStep(
   } = step
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   const newStep = step.invert(currentStepDoc)
-  const stepResult = newTr.maybeStep(newStep)
+
+  let stepResult = newTr.maybeStep(newStep)
   if (stepResult.failed) {
     // for some cases invert will fail due to sending multiple steps that update the same nodes
     log.error(`inverting ReplaceAroundStep failed: "${stepResult.failed}"`, newStep)
     return []
   }
+
+  // If previous step made changes on the same content as current step, it could've overridden dataTracked attribute in the slice.
+  preserveDataTrackedFromPreviousStep(newTr, step, newStep)
+
   const gap = currentStepDoc.slice(gapFrom, gapTo)
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  const {
+  let {
     sliceWasSplit,
     newSliceContent,
     steps: deleteSteps,
   } = deleteAndMergeSplitNodes(
     from,
     to,
-    { start: gapFrom, end: gapTo },
+    { start: gapFrom, end: gapTo, slice: gap, insert },
     newTr.doc,
     newTr,
     oldState.schema,
@@ -83,19 +119,37 @@ export function trackReplaceAroundStep(
   )
 
   let fragment
+
   if (isWrapStep(step)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   } else {
     fragment = setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
   }
 
-  const steps: ChangeStep[] = deleteSteps
+  let steps: ChangeStep[] = deleteSteps
   log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
   // We only want to insert when there something inside the gap (actually would this be always true?)
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
   // ^^answering above comment we could have meta node like(bibliography_item, contributor) will not have content at all,
   // and that case gap will be 0, for that will use updateMetaNode to indicate that we are going just to update that node
+
+  let liftStep = isLiftStep(step)
+  /**
+   * Detecting if current set of steps performs a lift operation. Lift operation normally represented by at least 2 ReplaceAroundSteps.
+   * Those steps occur on the same node and reverting deletes will make all the previous steps invalid.
+   * To solve this issues, we buffer all the lifted fragments and insert them only on the last step of the sequence.
+   */
+  if (liftStep) {
+    log.info('DETECTING INIT LIFT STEP: ', step)
+    trContext.prevLiftStep = step
+  } else if (trContext.prevLiftStep && trContext.prevLiftStep.gapFrom === step.gapTo) {
+    log.info('DETECTING CHAIN LIFT STEP')
+    trContext.prevLiftStep = step
+  } else {
+    trContext.prevLiftStep = undefined
+  }
+
   if (
     gap.size > 0 ||
     (!structure && newSliceContent.size > 0) ||
@@ -109,16 +163,41 @@ export function trackReplaceAroundStep(
     let insertedSlice = new Slice(fragment, openStart, openEnd) as ExposedSlice
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
-      insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, gap.content)
+      let sliceContent = gap.content
+      insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, sliceContent)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
-    deleteSteps.push({
-      type: 'insert-slice',
-      from: gapFrom,
-      to: gapTo,
-      slice: insertedSlice,
-      sliceWasSplit,
-    })
+
+    if (trContext.prevLiftStep) {
+      // buffering new insertions for the lift step as described above
+      trContext.liftFragment = trContext.liftFragment
+        ? insertedSlice.content.append(trContext.liftFragment)
+        : insertedSlice.content
+
+      if (tr.steps.indexOf(step) === 0) {
+        // last step detection, as we iterate backwards
+        const fragmentTracked = setFragmentAsInserted(
+          trContext.liftFragment,
+          trackUtils.createNewInsertAttrs(attrs),
+          oldState.schema
+        )
+        steps.push({
+          type: 'insert-slice',
+          from: from,
+          to: from,
+          slice: new Slice(fragmentTracked, 0, 0) as ExposedSlice,
+          sliceWasSplit: true, // that's just... ehh... a flag to skip diffing that change
+        })
+      }
+    } else {
+      steps.push({
+        type: 'insert-slice',
+        from: gapFrom,
+        to: gapTo,
+        slice: insertedSlice,
+        sliceWasSplit,
+      })
+    }
   } else {
     // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
     // mergeTrackedMarks(gapFrom, newTr.doc, newTr, oldState.schema)

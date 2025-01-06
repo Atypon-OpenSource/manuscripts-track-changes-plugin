@@ -103,7 +103,6 @@ export function deleteOrSetNodeDeleted(
     return
   }
   const newDeleted = addTrackIdIfDoesntExist(deleteAttrs)
-
   newTr.setNodeMarkup(
     pos,
     undefined,

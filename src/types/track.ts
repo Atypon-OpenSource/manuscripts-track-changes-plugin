@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Fragment } from 'prosemirror-model'
+import { Node as PMNode } from 'prosemirror-model'
 import type { PluginKey } from 'prosemirror-state'
+import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './change'
@@ -35,6 +38,7 @@ export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
 export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.wrap_with_node
 }
+
 export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.delete
 }
@@ -55,4 +59,9 @@ export enum TrackChangesStatus {
   enabled = 'enabled',
   viewSnapshots = 'view-snapshots',
   disabled = 'disabled',
+}
+
+export type TrTrackingContext = {
+  prevLiftStep?: ReplaceAroundStep
+  liftFragment?: Fragment
 }
