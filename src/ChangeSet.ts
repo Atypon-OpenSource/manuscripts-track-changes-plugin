@@ -128,8 +128,8 @@ export class ChangeSet {
       rootNodes.push([change])
     })
 
-    return rootNodes.filter((changes) =>
-      changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference)
+    return rootNodes.filter(
+      (changes) => changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference).length
     )
   }
 
