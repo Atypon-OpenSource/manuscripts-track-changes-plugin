@@ -59,7 +59,7 @@ export function trackReplaceStep(
     } = deleteAndMergeSplitNodes(fromA, toA, undefined, currentStepDoc, newTr, oldState.schema, attrs, slice)
     changeSteps.push(...deleteSteps)
     log.info('TR: steps after applying delete', [...newTr.steps])
-    log.info('DELETE STEPS: ', changeSteps)
+    log.info('DELETE STEPS: ', [...changeSteps])
 
     function sameThingBackSpaced() {
       /*
@@ -107,7 +107,7 @@ export function trackReplaceStep(
       changeSteps.push({
         type: 'insert-slice',
         from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-        to: textWasDeleted ? toB - 1 : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
+        to: textWasDeleted ? fromB : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
         sliceWasSplit,
         slice: new Slice(fragment, openStart, openEnd) as ExposedSlice,
       })
