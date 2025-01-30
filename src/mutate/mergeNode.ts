@@ -35,7 +35,7 @@ export function mergeNode(node: PMNode, pos: number, tr: Transaction) {
   const resPos = tr.doc.resolve(pos)
   const canMergeToNodeAbove = (resPos.parent !== tr.doc || resPos.nodeBefore) && node.firstChild?.isText
   if (canMergeToNodeAbove) {
-    return tr.replaceWith(pos - 1, pos + 1, Fragment.empty)
+    return tr.replaceWith(tr.mapping.map(pos), tr.mapping.map(pos + node.nodeSize), Fragment.empty)
   }
   return undefined
 }
