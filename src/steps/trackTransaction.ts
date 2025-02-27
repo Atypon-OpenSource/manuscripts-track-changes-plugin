@@ -106,7 +106,8 @@ export function trackTransaction(
     iters += 1
 
     const uiEvent = tr.getMeta('uiEvent')
-    if (iters > 20 && uiEvent != 'cut') {
+    const isMassReplace = tr.getMeta('massSearchReplace')
+    if (iters > 20 && uiEvent != 'cut' && !isMassReplace) {
       console.error(
         '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
           'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
