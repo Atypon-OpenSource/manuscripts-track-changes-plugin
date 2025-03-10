@@ -129,7 +129,7 @@ export function trackTransaction(
       const invertedStep = step.invert(tr.docs[i])
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
-      const thisStepMapping = tr.mapping.slice(i + 1, i + 1)
+      let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
       /* 
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
@@ -139,13 +139,20 @@ export function trackTransaction(
       step adds content before the first step, the plugin will attempt to insert tracked replacement for the first change at a position
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
+
+      //when having multiple delete steps with and without dataTracked as insert
+      // delete in newTr will affect next step in the old transaction, so will map next steps to the newTr
+      if (newTr.steps.length && isDelete) {
+        thisStepMapping = newTr.mapping.slice(newTr.steps.length - 1)
+      }
+
       // @TODO - check if needed to be done for other types of steps
       const newStep = new ReplaceStep(
         thisStepMapping.map(invertedStep.from),
         thisStepMapping.map(invertedStep.to),
         invertedStep.slice
       )
-      const stepResult = newTr.maybeStep(isDelete ? invertedStep : newStep)
+      const stepResult = newTr.maybeStep(newStep)
 
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i], tr)
 
@@ -157,10 +164,8 @@ export function trackTransaction(
         }
       }
 
-      if (!isDelete) {
-        startPos = thisStepMapping.map(startPos)
-        steps = mapChangeSteps(steps, thisStepMapping)
-      }
+      startPos = thisStepMapping.map(startPos)
+      steps = mapChangeSteps(steps, thisStepMapping)
 
       log.info('CHANGES: ', steps)
       // deleted and merged really...
