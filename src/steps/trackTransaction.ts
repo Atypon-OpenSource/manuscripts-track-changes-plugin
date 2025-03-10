@@ -141,7 +141,7 @@ export function trackTransaction(
       */
 
       //when having multiple delete steps with and without dataTracked as insert
-      // delete in newTr will affect next step in the old transaction, so will map next steps to the newTr
+      // deleteNode in newTr will affect next step in the old transaction, so will map next steps to the newTr
       if (newTr.steps.length && isDelete) {
         thisStepMapping = newTr.mapping.slice(newTr.steps.length - 1)
       }
