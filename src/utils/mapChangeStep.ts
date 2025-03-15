@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Mapping, StepMap } from 'prosemirror-transform'
+import { Mapping } from 'prosemirror-transform'
 
 import { ChangeStep } from '../types/step'
 
-export function mapChangeSteps(steps: ChangeStep[], mapping: Mapping | StepMap) {
+export function mapChangeSteps(steps: ChangeStep[], mapping: Mapping) {
   steps.forEach((step) => {
     if ('from' in step) {
       step.from = mapping.map(step.from)
