@@ -122,7 +122,7 @@ export function deleteAndMergeSplitNodes(
         }
         // Depth is often 1 when merging paragraphs or 2 for fully open blockquotes.
         // Incase of merging text within a ReplaceAroundStep the depth might be 1
-        const depth = newTr.doc.resolve(pos).depth
+        const depth = startDoc.resolve(pos).depth
         const mergeContent = mergingStartSide
           ? firstMergedNode?.mergedNodeContent
           : lastMergedNode?.mergedNodeContent

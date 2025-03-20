@@ -166,6 +166,154 @@
                 }
               }
             ]
+          },
+          {
+            "type": "table_element",
+            "attrs": {
+              "id": "MPTableElement:F577BB5E-87AB-4003-AAAD-A3A6B10BA815",
+              "dataTracked": null
+            },
+            "content": [
+              {
+                "type": "figcaption",
+                "attrs": {
+                  "dataTracked": null
+                },
+                "content": [
+                  {
+                    "type": "caption_title",
+                    "attrs": {
+                      "placeholder": "Title...",
+                      "dataTracked": null
+                    }
+                  },
+                  {
+                    "type": "caption",
+                    "attrs": {
+                      "placeholder": "Caption...",
+                      "dataTracked": null
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "table",
+                "attrs": {
+                  "id": "MPTable:B4338040-0106-400D-8A3A-141C8FF3DE32",
+                  "dataTracked": null
+                },
+                "content": [
+                  {
+                    "type": "table_row",
+                    "attrs": {
+                      "dataTracked": null
+                    },
+                    "content": [
+                      {
+                        "type": "table_cell",
+                        "attrs": {
+                          "colspan": 1,
+                          "rowspan": 1,
+                          "colwidth": null,
+                          "placeholder": "Data",
+                          "valign": null,
+                          "align": null,
+                          "scope": null,
+                          "style": null,
+                          "dataTracked": null
+                        },
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "0"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "table_cell",
+                        "attrs": {
+                          "colspan": 1,
+                          "rowspan": 1,
+                          "colwidth": null,
+                          "placeholder": "Data",
+                          "valign": null,
+                          "align": null,
+                          "scope": null,
+                          "style": null,
+                          "dataTracked": null
+                        },
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "1"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "table_row",
+                    "attrs": {
+                      "dataTracked": null
+                    },
+                    "content": [
+                      {
+                        "type": "table_cell",
+                        "attrs": {
+                          "colspan": 1,
+                          "rowspan": 1,
+                          "colwidth": null,
+                          "placeholder": "Data",
+                          "valign": null,
+                          "align": null,
+                          "scope": null,
+                          "style": null,
+                          "dataTracked": null
+                        },
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "2"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "table_cell",
+                        "attrs": {
+                          "colspan": 1,
+                          "rowspan": 1,
+                          "colwidth": null,
+                          "placeholder": "Data",
+                          "valign": null,
+                          "align": null,
+                          "scope": null,
+                          "style": null,
+                          "dataTracked": null
+                        },
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "3"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listing",
+                "attrs": {
+                  "id": "MPListing:910EEF2F-12F7-4C49-91B7-BC499646A0B1",
+                  "contents": "",
+                  "language": "",
+                  "languageKey": "null",
+                  "isExpanded": false,
+                  "isExecuting": false,
+                  "dataTracked": null
+                }
+              }
+            ]
           }
         ]
       }

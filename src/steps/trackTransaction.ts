@@ -94,6 +94,8 @@ export function trackTransaction(
   // difficult than prosemirror-transform
   const wasNodeSelection = tr.selection instanceof NodeSelectionClass
   const setsNewSelection = tr.selectionSet
+  // mapping for deleted content, that was inserted before
+  const deletedNodeMapping = new Mapping()
   let iters = 0
   log.info('ORIGINAL transaction', tr)
 
@@ -129,8 +131,11 @@ export function trackTransaction(
       const invertedStep = step.invert(tr.docs[i])
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
-      const thisStepMapping = tr.mapping.slice(i + 1, i + 1)
-      /* 
+      let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
+      if (isDelete) {
+        thisStepMapping = deletedNodeMapping
+      }
+      /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
       So here, during tracking processing, each step is intended for its own document but not for the final document - the tr.doc
@@ -145,7 +150,7 @@ export function trackTransaction(
         thisStepMapping.map(invertedStep.to),
         invertedStep.slice
       )
-      const stepResult = newTr.maybeStep(isDelete ? invertedStep : newStep)
+      const stepResult = newTr.maybeStep(newStep)
 
       let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i], tr)
 
@@ -157,10 +162,8 @@ export function trackTransaction(
         }
       }
 
-      if (!isDelete) {
-        startPos = thisStepMapping.map(startPos)
-        steps = mapChangeSteps(steps, thisStepMapping)
-      }
+      startPos = thisStepMapping.map(startPos)
+      steps = mapChangeSteps(steps, thisStepMapping)
 
       log.info('CHANGES: ', steps)
       // deleted and merged really...
@@ -173,7 +176,8 @@ export function trackTransaction(
         startPos || tr.selection.head, // Incase startPos is it's default value 0, use the old selection head
         newTr,
         emptyAttrs,
-        oldState.schema
+        oldState.schema,
+        deletedNodeMapping
       )
       if (!wasNodeSelection && !setsNewSelection) {
         const sel: typeof Selection = getSelectionStaticConstructor(tr.selection)
@@ -197,7 +201,8 @@ export function trackTransaction(
         tr.selection.from,
         newTr,
         emptyAttrs,
-        oldState.schema
+        oldState.schema,
+        deletedNodeMapping
       )
     } else if (step instanceof AttrStep) {
       const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
@@ -207,7 +212,8 @@ export function trackTransaction(
         tr.selection.from,
         newTr,
         emptyAttrs,
-        oldState.schema
+        oldState.schema,
+        deletedNodeMapping
       )
     } else if (step instanceof AddMarkStep) {
       // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique

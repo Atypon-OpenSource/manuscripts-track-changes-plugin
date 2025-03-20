@@ -359,4 +359,71 @@ describe('nodes.test', () => {
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
+
+  test('should delete node with dataTracked as Insert and delete nodes that without dataTracked in the same transaction', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .insertNode(schema.nodes.paragraph.create(undefined, schema.text('inserted paragraph')), 0)
+      .insertNode(schema.nodes.paragraph.create(undefined, schema.text('inserted paragraph')), 0)
+      .insertNode(schema.nodes.paragraph.create(undefined, schema.text('inserted paragraph')), 0)
+      .cmd((state, dispatch) => dispatch(state.tr.delete(60, 73).delete(40, 60).delete(20, 40).delete(0, 20)))
+
+    expect(tester.view.state.doc.content.childCount).toBe(2)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(2) // that is expected, as in processChangeSteps after we delete inserted node the `delete-text` change will log can't find node error as we remove it is parent node before
+  })
+
+  test('should delete and insert node in the same transaction', async () => {
+    const paragraph = schema.nodes.paragraph.create(undefined, schema.text('inserted paragraph'))
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .insertNode(paragraph, 0)
+      .insertNode(paragraph, 0)
+      .setChangeStatuses()
+      .cmd((state, dispatch) => {
+        dispatch(
+          state.tr
+            .insert(0, paragraph)
+            .insert(20, paragraph)
+            .delete(80, 93)
+            .delete(60, 80)
+            .insert(60, paragraph)
+            .delete(60, 80)
+        )
+      })
+
+    expect(tester.view.state.doc.content.childCount).toBe(6)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
+  test('should insert parent node then insert child node in the same transaction', async () => {
+    const tester = setupEditor({
+      doc: docs.manuscriptSimple[0],
+      schema: manuscriptSchema,
+    }).cmd((state, dispatch) => {
+      const tr = state.tr
+
+      const tableFooter = manuscriptSchema.nodes.table_element_footer.create()
+      tr.insert(144, tableFooter)
+
+      const generalTableFootnote = manuscriptSchema.nodes.general_table_footnote.create({}, [
+        manuscriptSchema.nodes.paragraph.create(),
+      ])
+      tr.insert(145, generalTableFootnote)
+
+      dispatch(tr)
+    })
+
+    expect(tester.view.state.doc.nodeAt(144)?.type.name).toBe(
+      manuscriptSchema.nodes.table_element_footer.name
+    )
+    expect(tester.view.state.doc.nodeAt(145)?.type.name).toBe(
+      manuscriptSchema.nodes.general_table_footnote.name
+    )
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(1)
+  })
 })
