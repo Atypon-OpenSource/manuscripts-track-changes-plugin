@@ -31,11 +31,11 @@ ProseMirror plugin designed to track changes within a document, similar to the t
 ### How it works under the hood
 
 1. Transaction intercepted and decided upon if needs to be tracked or not. Done in appendTransaction method of the plugin. Besides explicit disabling there is a number of internal cases that disables tracking
-2. Each type of prosemirror change step type is processed by differently. trackTransaction function invokes a function for each of those, such as trackReplaceStep or trackReplaceAroundStep.
-   While all of these step processing functions are a bit different, all of them result in returning an array of ChangeStep
-3. ChangeSteps have high descriptive value and represent a specific change. This process is required because prosemirror steps are designed to efficiently capture a change in the document structure but are hard to reason about because they don't really correspond to meaningful user actions directly. There also cases when something, what we consider to be a single step of change, is represented by multiple changes. See ChangeStep type for details.
+2. Each type of prosemirror change step type is processed by differently. **trackTransaction** function invokes a function for each of those, such as trackReplaceStep or trackReplaceAroundStep.
+   While all of these step processing functions are a bit different, all of them result in returning an array of **ChangeStep**
+3. **ChangeSteps** have high descriptive value and represent a specific change. This process is required because prosemirror steps are designed to efficiently capture a change in the document structure but are hard to reason about because they don't really correspond to meaningful user actions directly. There also cases when something, what we consider to be a single step of change, is represented by multiple changes. See ChangeStep type for details.
 4. ChangeSteps are then processed by diffChangeSteps function. The function attempts to match inserted content with previously deleted content, so it can detect and consolidate edits rather than treat all changes as new inserts.
-5. Finally, changes produced from ChangeSteps are recreated on the prosemirror document along with appropriate metadata (see processChangeSteps function) and a new transaction is issued to apply them. Note that some metadata are created in steps processing function.
+5. Finally, changes produced from ChangeSteps are recreated on the prosemirror document along with appropriate metadata (see **processChangeSteps** function) and a new transaction is issued to apply them. Note that some metadata are created in steps processing function.
 6. Due to the fact that we revert changes from original transaction and then apply new changes with both old state and new state of affected node/text, the current selection on the document may be misplaced. Because of that, in some cases, we repair the selection to match its position as expected by the user.
 
 ### Basic DataTracked Attributes Model
