@@ -23,6 +23,7 @@ import {
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
+  NewMoveNodeAttrs,
   NewReferenceAttrs,
   NewSplitNodeAttrs,
   NewUpdateAttrs,
@@ -71,6 +72,13 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
     ...attrs,
     operation: CHANGE_OPERATION.set_node_attributes,
     oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
+  }
+}
+
+export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewMoveNodeAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.node_move,
   }
 }
 

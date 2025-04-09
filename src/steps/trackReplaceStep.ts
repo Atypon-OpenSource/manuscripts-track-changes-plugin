@@ -17,7 +17,11 @@ import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
-import { setFragmentAsInserted, setFragmentAsNodeSplit } from '../compute/setFragmentAsInserted'
+import {
+  setFragmentAsInserted,
+  setFragmentAsNodeMove,
+  setFragmentAsNodeSplit,
+} from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -97,6 +101,11 @@ export function trackReplaceStep(
 
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
+      }
+
+      if (tr.getMeta('MoveNode')) {
+        const $from = newTr.doc.resolve(step.from)
+        fragment = setFragmentAsNodeMove($from, newTr, fragment, attrs)
       }
 
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,

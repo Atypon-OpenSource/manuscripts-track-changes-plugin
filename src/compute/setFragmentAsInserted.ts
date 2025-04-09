@@ -178,3 +178,50 @@ export function setFragmentAsNodeSplit(
   }
   return inserted
 }
+
+export function setFragmentAsNodeMove(
+  $pos: ResolvedPos,
+  newTr: Transaction,
+  inserted: Fragment,
+  attrs: NewEmptyAttrs
+) {
+  const lastChild = inserted.lastChild!
+  const referenceId = uuidv4()
+
+  const parentPos = $pos.before($pos.depth)
+  const parent = $pos.node($pos.depth)
+  const oldDataTracked = getBlockInlineTrackedData(parent) || []
+
+  // Mark the original (source) container node with a reference
+  newTr.setNodeMarkup(parentPos, undefined, {
+    ...parent.attrs,
+    dataTracked: [
+      ...oldDataTracked.filter((c) => c.operation !== 'reference'),
+      {
+        ...addTrackIdIfDoesntExist(
+          trackUtils.createNewReferenceAttrs({ ...attrs, status: CHANGE_STATUS.pending }, referenceId)
+        ),
+      },
+    ],
+  })
+
+  // Prepare `move` tracking data for the inserted/moved node
+  const moveSource = oldDataTracked.find((c) => c.operation === 'reference')
+  const dataTracked = {
+    ...trackUtils.createNewMoveAttrs(attrs),
+    id: referenceId,
+  }
+
+  inserted = inserted.replaceChild(
+    inserted.childCount - 1,
+    lastChild.type.create(
+      {
+        ...lastChild.attrs,
+        dataTracked: moveSource ? [dataTracked, moveSource] : [dataTracked],
+      },
+      lastChild.content
+    )
+  )
+
+  return inserted
+}

@@ -244,6 +244,7 @@ export class ChangeSet {
     return (
       ((operation === CHANGE_OPERATION.insert ||
         operation === CHANGE_OPERATION.node_split ||
+        operation === CHANGE_OPERATION.node_move ||
         operation === CHANGE_OPERATION.wrap_with_node) &&
         status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)

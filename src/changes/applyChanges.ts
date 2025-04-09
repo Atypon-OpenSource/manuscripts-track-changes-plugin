@@ -59,6 +59,14 @@ export function applyAcceptedRejectedChanges(
       if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
         return revertWrapNodeChange(tr, change)
       }
+
+      // Maybe To do
+      if (change.dataTracked.operation === CHANGE_OPERATION.node_move) {
+        // return acceptMoveNodeChange(tr, change, changeSet)   //To Do
+      }
+      if (change.dataTracked.operation === CHANGE_OPERATION.node_move) {
+        // return revertMoveNodeChange(tr, change, changeSet)   //To Do
+      }
     }
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete

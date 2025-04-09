@@ -53,6 +53,11 @@ export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.reference
   referenceId: string
 }
+
+export type NewMoveNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.node_move
+}
+
 export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs
 
 export enum TrackChangesStatus {
