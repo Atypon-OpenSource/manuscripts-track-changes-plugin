@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
+import { isLinkNode } from '@manuscripts/transform'
+import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { Mapping, ReplaceAroundStep } from 'prosemirror-transform'
+import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
-import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
 import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
@@ -119,8 +119,7 @@ export function trackReplaceAroundStep(
   )
 
   let fragment
-
-  if (isWrapStep(step)) {
+  if (isWrapStep(step) && !isLinkNode(slice.content.firstChild)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   } else {
     fragment = setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
