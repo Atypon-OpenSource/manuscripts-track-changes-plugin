@@ -59,6 +59,6 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   newTr.addMark(
     fromStartOfMark,
     toEndOfMark,
-    leftMark.type.create({ ...leftMark.attrs, dataTracked: [{ ...dataTracked, id: uuidv4() }] })
+    leftMark.type.create({ ...leftMark.attrs, dataTracked: { ...dataTracked, id: uuidv4() } })
   )
 }
