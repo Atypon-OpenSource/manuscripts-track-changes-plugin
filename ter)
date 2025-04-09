@@ -1,0 +1,1528 @@
+[33mcommit b2cb756d6eceb3574cfdaaa0583807927d0f2780[m[33m ([m[1;32mmaster[m[33m)[m
+Author: Noura Ghazzawi <nghazzawi@atypon.com>
+Date:   Wed Apr 9 22:04:12 2025 +0300
+
+    LEAN-4160: LW-FY25-Q3-S2: consolidate the history tab entry into a single suggestion
+
+[33mcommit c66f157334465e9c8e7b07ace9d688b85c20694c[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Sat Apr 5 11:33:15 2025 +0200
+
+    Readme updated with tech details (#49)
+
+[33mcommit 421dbf6a06002c4c4ee5cd8e7b0f7bbdc5dfb215[m[33m ([m[1;33mtag: v1.10.1[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Fri Mar 21 02:40:42 2025 +0300
+
+    Unable to delete multiple rows when they have pending suggestions (LEAN-4174) (#48)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit e15dcb9b5de22fd45a62d646ce160e4e87e9efca[m[33m ([m[1;33mtag: v1.10.0[m[33m)[m
+Author: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+Date:   Mon Mar 3 09:48:15 2025 +0000
+
+    LEAN-4312 Search and Replace (#47)
+    
+    Co-authored-by: mbartenev-atypon <mbartenev@atypon.com>
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 78189a8fa077927d32ec195b9ea53b8fdc362d78[m[33m ([m[1;33mtag: v1.9.4[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Thu Jan 30 11:25:46 2025 +0300
+
+    The rejected link suggestion is not immediately removed from the history (LEAN-4179) (#45)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+    Co-authored-by: atyponci <ci@atypon.com>
+
+[33mcommit faa479c9f121e70622c9716e35e0aa1e1e78a16b[m[33m ([m[1;33mtag: v1.9.3[m[33m)[m
+Author: Noura Ghazzawi <nghazzawi@atypon.com>
+Date:   Thu Jan 30 11:09:23 2025 +0300
+
+    LEAN-4242: LW-FY25-Q3-S4&5: Unreferenced note remained after rejectin… (#46)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 7d4989516f843ccc662c11024ec461e778ec858a[m[33m ([m[1;33mtag: v1.9.2[m[33m)[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Thu Jan 23 15:02:50 2025 +0100
+
+    LEAN-4253 Replacing text is not tracked correctly (#44)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit edb758ab1f9df6cbbd3793a362bee230c7ec1bbe[m[33m ([m[1;33mtag: v1.9.1[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Thu Jan 9 18:46:27 2025 +0300
+
+    LEAN-3837 (#43)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 6f0b23413f72579f2b714f9fd6001941ab45186d[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Mon Jan 6 12:16:45 2025 +0100
+
+    LEAN-4145 Tracking Lifting to Support Unlisting (#42)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 72e8dc7e452acceabebff51929244fdd1e93cee6[m[33m ([m[1;33mtag: v1.8.6[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Sat Dec 28 23:25:54 2024 +0300
+
+    EI25Q3-005 - Grouping suggestions on the inspector (LEAN-4102) (#38)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 02f7019043042463d5dfb0032ab3b8f66ffeaf74[m[33m ([m[1;33mtag: v1.8.5[m[33m)[m
+Author: Islam Momani <imomani@atypon.com>
+Date:   Wed Dec 11 12:30:37 2024 +0300
+
+    Retain old dataTracked if there are no new changes - LEAN-4168 (#41)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 00a530f0af468ac6eb52d6c376aa3755e800618a[m[33m ([m[1;33mtag: v1.8.4[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Sun Dec 1 20:47:27 2024 +0300
+
+    LW-FY24-Q4:The rejected link insertion suggestions are visible under the history tab when the submission is published(LEAN-3588) (#40)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+    Co-authored-by: atyponci <ci@atypon.com>
+
+[33mcommit 50475a2d1bd81039c8b32d1bc510843a67de3921[m[33m ([m[1;33mtag: v1.8.3[m[33m)[m
+Author: Mohd Alnatsheh <mnatsheh@atypon.com>
+Date:   Thu Nov 28 02:55:43 2024 -0800
+
+    LEAN-4097 check empty content before merge (#39)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 7817e910fe6ff5b10c7a85ec6c9a7fca4275a2cb[m[33m ([m[1;33mtag: v1.8.1[m[33m)[m
+Author: Mohd Alnatsheh <mnatsheh@atypon.com>
+Date:   Wed Oct 30 12:01:32 2024 -0700
+
+    LEAN-4053 (#37)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit b27e4fb27d5d18716f6b45b1b2c20b83931af9ba[m[33m ([m[1;33mtag: v1.8.0[m[33m)[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Mon Oct 14 16:37:54 2024 +0200
+
+    LEAN-3967 Removing Rejected/Approved Changes (#32)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 3f5d107bbe5c351430e115ca9b9077308724a042[m[33m ([m[1;33mtag: v1.7.23[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Mon Sep 30 14:36:14 2024 +0300
+
+    TCE-030 - Split paragraphs support (LEAN-3893) (#29)
+    
+    Co-authored-by: atyponci <ci@atypon.com>
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 97788120d61458ccdd961e63ea11aaa63a07c25f[m[33m ([m[1;33mtag: v1.7.22[m[33m)[m
+Author: Fahid Alwaisi <fwaisi@atypon.com>
+Date:   Tue Sep 17 12:10:59 2024 +0300
+
+    LEAN-3892 FNS-130 - Inspector Track Changes for footnotes (#27)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+    Co-authored-by: atyponci <ci@atypon.com>
+
+[33mcommit 7309252299d36db402050c98d72d05bae32c2e39[m[33m ([m[1;33mtag: v1.7.21[m[33m)[m
+Author: Fahid Alwaisi <fwaisi@atypon.com>
+Date:   Tue Sep 17 11:15:07 2024 +0300
+
+    LEAN-3918 LW-FY25-Q2S1: selecting the table, copy/cut and then paste doesn't work (#30)
+    
+    Co-authored-by: atyponci <ci@atypon.com>
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit bc52d72290ef754ccdcedf0f39a8fd876ff86dac[m[33m ([m[1;33mtag: v1.7.19[m[33m)[m
+Author: Islam Momani <imomani@atypon.com>
+Date:   Sun Sep 15 16:24:06 2024 +0300
+
+    Skip remapping if the operation is delete - LEAN-3898 (#31)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+    Co-authored-by: atyponci <ci@atypon.com>
+
+[33mcommit 1b0ce33616a18273a64621cf45706a73d96555f1[m
+Author: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+Date:   Fri Sep 13 12:28:30 2024 +0200
+
+    LEAN-3840 Tracking Attrs Step (#26)
+    
+    Co-authored-by: mbartenev-atypon <mbartenev@atypon.com>
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 2844c9620dd4524b337838f5e47d4c1cbc111503[m[33m ([m[1;33mtag: v1.7.17[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Sun Aug 4 19:44:06 2024 +0300
+
+    LW-FY25-Q1-S3: Changing List Type After Clicking 'List' Suggestion from Inspector Wraps List into a New Nested List Instead of Changing Type (LEAN-3731) (#24)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+    Co-authored-by: atyponci <ci@atypon.com>
+
+[33mcommit c2a57a198527f3c0a6d035cc8364f9323f01ade2[m[33m ([m[1;33mtag: v1.7.16[m[33m)[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Sun Aug 4 19:22:19 2024 +0300
+
+    Support tracking multiple steps in the same transaction (LEAN-3643) (#22)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+    Co-authored-by: atyponci <ci@atypon.com>
+
+[33mcommit 8423d61a9dd32bcdab9c1743de9b99989c945002[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Wed Jul 31 13:58:00 2024 +0200
+
+    LEAN-3786 preventing state recreation when nothing happens (#25)
+
+[33mcommit 233afaa21d68ad5b6b13cff1270062ebfcf98a23[m[33m ([m[1;33mtag: v1.7.14[m[33m)[m
+Author: Noura Ghazzawi <nghazzawi@atypon.com>
+Date:   Mon Jul 8 11:15:16 2024 +0300
+
+    LEAN-3636:LW-FY25-Q1-S1:The user is unable to delete the table after … (#23)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit 4f2e3c2c1399d6b41b710a829fca7ffdec430912[m[33m ([m[1;33mtag: v1.7.13[m[33m)[m
+Author: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+Date:   Tue Jun 25 08:32:08 2024 +0000
+
+    LEAN-3608 (#21)
+    
+    Co-authored-by: Fahid Alwaisi <82392169+fwaisi@users.noreply.github.com>
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit afa82c658d2120eb0e311ee82675a6a33a9b3194[m[33m ([m[1;33mtag: v1.7.12[m[33m)[m
+Author: Islam Momani <imomani@atypon.com>
+Date:   Mon Jun 3 14:08:28 2024 +0300
+
+    Handling Nested Changes - LEAN-3609 (#16)
+    
+    Co-authored-by: zax-assistant[bot] <103364958+zax-assistant[bot]@users.noreply.github.com>
+
+[33mcommit d8daeac0225b47d9197e2e48b672c3ba2e3170da[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Thu May 16 16:42:40 2024 +0200
+
+    LEAN-3136 Footnotes Improvements Support (#13)
+
+[33mcommit 6e7d374c3396f34ed38b0a65322f00b8fdbab5ad[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Mon Apr 29 15:35:11 2024 +0200
+
+    LEAN-3354 Removing deletion constraints for users (#12)
+
+[33mcommit b60c40da3395c432b350b42a817da01f5a4485ed[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Wed Apr 3 23:11:07 2024 +0300
+
+    Fix deleting of inserted suggestion (#11)
+    
+    * Fix deleting of inserted suggestion
+    
+    * update
+
+[33mcommit 907043971836a3906f57b2f4487c73902266ab22[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Wed Apr 3 02:19:39 2024 +0300
+
+    Add more test for ReplaceAroundStep (#10)
+    
+    * Add more test cases for ReplaceAroundStep
+    
+    * Add more test cases for ReplaceAroundStep
+
+[33mcommit 392db1763503038d27d5e1815d3d35ca7fa33cf9[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Wed Mar 27 16:28:13 2024 +0100
+
+    LEAN-3278 Collab plugin compatibility (#8)
+
+[33mcommit e9bb0d052fb9653326d871a3df1748dead344814[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Mon Mar 25 10:21:02 2024 +0100
+
+    LEAN-3407 Fix for a text change cut off created by inserting inline node in the middle of the text change (#9)
+
+[33mcommit 0678e9ab74aabe0d3d09a51dab8defe337835743[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Thu Mar 14 02:29:24 2024 +0300
+
+    LW-FY24-Q4-S1: Unable to complete the task after deleting author with edited affiliation (LEAN-3373) (#6)
+    
+    * LW-FY24-Q4-S1: Unable to complete the task after deleting author with edited affliation (NodeType.create can't construct text nodes in console) (LEAN-3373)
+    
+    * LW-FY24-Q4-S1: Unable to complete the task after deleting author with edited affliation (NodeType.create can't construct text nodes in console) (LEAN-3373)
+    
+    * update test
+    
+    * Update package.json
+    
+    * review update
+    
+    * Update package.json
+
+[33mcommit cb8d371ca3e6f864186bad26c69cfa3a32ba3d3d[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Mon Jan 8 14:35:56 2024 +0300
+
+    LW-FY24- Q2: Issues with Tracking Multiple Deletions of the Same Keyword (LEAN-2998) (#5)
+    
+    * LW-FY24- Q2: Issues with Tracking Multiple Deletions of the Same Keyword (LEAN-2998)
+    
+    * review update
+    
+    * test
+    
+    * update
+
+[33mcommit 887923c8880e7dc984065e137f18db552cfa57bd[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Thu Dec 14 13:26:08 2023 +0100
+
+    LEAN-2832 Invalid Elements Lifting Removed, Status based changes differentiating (#3)
+
+[33mcommit eb9b2656fff652f8fd835dd258bfc036d82874be[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Tue Dec 5 11:04:04 2023 +0100
+
+    Formats and checks (#4)
+
+[33mcommit 536091b7a7da3c63ed7938641aa4ca8cabf5f6ad[m
+Author: Marek Vidtman <mvidtman@atypon.com>
+Date:   Thu Nov 30 14:29:35 2023 +0100
+
+    LEAN-3046: 3 Dots > Delete of inserted block elements not working / d… (#1)
+    
+    * LEAN-3046: 3 Dots > Delete of inserted block elements not working / deletes content from next block
+    
+    * LEAN-3046: 3 Dots > Delete of inserted block elements not working / deletes content from next block
+
+[33mcommit 6280556c4663a590a67288538aaed8fa19cb06a6[m
+Author: mnatsheh <mnatsheh@atypon.com>
+Date:   Wed Nov 22 08:10:10 2023 -0800
+
+    Fix jest.config.js
+
+[33mcommit 6230917ac6c500b11f12293c802825cf2e53a7f4[m
+Author: mnatsheh <mnatsheh@atypon.com>
+Date:   Wed Nov 22 07:45:24 2023 -0800
+
+    Fix package.json
+
+[33mcommit acbbebf5d9bf05eca9be1c77f15c7db6013fdcec[m
+Author: mnatsheh <mnatsheh@atypon.com>
+Date:   Thu Nov 16 12:46:06 2023 -0800
+
+    Add Jenkinsfile
+
+[33mcommit 15b21291bf5d8117a05cfa28af14566672dc0356[m
+Author: mnatsheh <mnatsheh@atypon.com>
+Date:   Wed Nov 15 08:46:22 2023 -0800
+
+    LEAN-3001 - config fixes
+
+[33mcommit 8e63b80b64d210497dba326d39eaf37a682dee88[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Oct 30 11:55:55 2023 +0100
+
+    Manual changeset for LEAN-2850 (#121)
+    
+    * Manual changeset for LEAN-2850
+    
+    * cleanup
+
+[33mcommit 5151635a34b6188ebc797fa2190f173af2ca0fd4[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Oct 30 11:29:48 2023 +0100
+
+    Lean 2850 (#120)
+    
+    * LEAN-2850 - CITTC-100 - View the Citation modifications inline
+    
+    * change tree fix
+    
+    * fix attrs change for citations
+    
+    * bugfixing
+    
+    * bugfixing
+    
+    * bugfixing
+    
+    * New version
+
+[33mcommit df0eadf13594ad1929b813da43542e27f2aa17f1[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Mon Oct 23 14:15:35 2023 +0200
+
+    Manual changeset for LEAN-2752(#119)
+
+[33mcommit d613f2acbee16dba0c083224d77c7d20c8ade206[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Mon Oct 23 13:37:44 2023 +0200
+
+    LEAN-2752 Fixes for attributes-based updates (#117)
+
+[33mcommit 7eee3ade52e5906f11809105bb941b5aae822c68[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Sun Oct 15 23:21:50 2023 +0300
+
+    chore(changeset): version update (#118)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 90a0bad317b4dd500ffc9985a89c7c0f26cdab17[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Sun Oct 15 23:15:22 2023 +0300
+
+    REFTC-90 - Implementation (LEAN-2737) (#112)
+    
+    * REFTC-90 - Implementation (LEAN-2737)
+    
+    * test
+    
+    * publish
+
+[33mcommit a013957d25e17b1da3c2e481cde9f9671eaeac66[m
+Author: Marek Vidtman <mvidtman@atypon.com>
+Date:   Mon Jun 26 12:59:05 2023 +0200
+
+    LEAN-2529: LW-R9: Deleting content using backspace is not working successfully (#102)
+
+[33mcommit f19cd7a72fa8f046882b3364b595e9fbb4ae184e[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Mon Jun 26 11:47:47 2023 +0300
+
+    chore(changeset): version update (#103)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 7c58444129e9915b204af29573912efb01206568[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Mon Jun 26 11:34:07 2023 +0300
+
+    LEAN-2508 (#100)
+    
+    * LEAN-2508
+    
+    * review update
+    
+    * LEAN-2508
+
+[33mcommit 498293f359e4aa52d78d09888169688bb9225d7c[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Wed Jun 14 16:09:31 2023 +0200
+
+    chore(changeset): version update (#99)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit e7217df4046451d9dd4d51ddcdf7941437c9dc01[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Wed Jun 14 16:03:59 2023 +0200
+
+    LEAN-2431 fixed, backspacing fixed (#96)
+
+[33mcommit d865aac38cd30be7babe1531aeeebcb1dd2298dc[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Mon Jun 12 14:26:22 2023 +0300
+
+    chore(changeset): version update (#97)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 25772a248ea347e5f45f8f80f48db4e14e6d68ec[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Mon Jun 12 13:58:02 2023 +0300
+
+    Update json-schema and transform version (LEAN-2416) (#93)
+
+[33mcommit 61b58cfc1a40d7770e0601046ac2ef208625da78[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Wed Jun 7 14:43:59 2023 +0200
+
+    chore(changeset): version update (#95)
+    
+    * chore(changeset): version update
+    
+    * Update package.json
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    ---------
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+    Co-authored-by: Jiri Kaiser <jkaiser@atypon.com>
+
+[33mcommit 177619b73c2e46ba28ad44b07d6d7f9cc9cd329f[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Wed Jun 7 14:36:15 2023 +0200
+
+    LEAN-2429 - Editor freezes when inputting 2nd hard return (#94)
+
+[33mcommit b13d28787703157245c6175b957231a19dbed053[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Thu Jun 1 10:43:19 2023 +0300
+
+    chore(changeset): version update (#92)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 991e3b288fa036c8de9d3d67db0a7ca11a9d44d0[m
+Author: Ahmad Souqi <45534101+asouqi@users.noreply.github.com>
+Date:   Thu Jun 1 10:26:28 2023 +0300
+
+    Editor Suggestion loses part of text string when changing part of it (LEAN-2430) (#91)
+    
+    * Editor Suggestion loses part of text string when changing part of it (LEAN-2430)
+    
+    * fix paste text use case
+    
+    * fix test
+    
+    * fix test
+    
+    * update
+    
+    * update
+    
+    * update
+    
+    * update
+    
+    * revert
+
+[33mcommit 3da98a959ed98a3c6a95b3895c4a647659e7fe57[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Thu May 11 13:23:26 2023 -0700
+
+    chore(changeset): version update (#90)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 84598806da91346b37cbb1c333598a0fddb28625[m
+Author: mnatsheh <mnatsheh@atypon.com>
+Date:   Thu May 11 13:20:34 2023 -0700
+
+    update json-schema version
+
+[33mcommit 14446d021879989bace17d829b5ca19ed5b7fb60[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Mon May 8 12:30:35 2023 -0700
+
+    chore(changeset): version update (#89)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit d85220224d9f50b331e9449f282006089a153f22[m
+Author: Mohammad Alnatsheh <mnatsheh@atypon.com>
+Date:   Mon May 8 12:25:13 2023 -0700
+
+    LEAN-2495 - update json-schema version (#88)
+
+[33mcommit 2381f796dea3025d5316c5352da9413b69328fae[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Wed Apr 5 15:39:06 2023 +0200
+
+    chore(changeset): version update (#86)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 806ebf6a3625cac884aa634ad61ac0643c5e0949[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Wed Apr 5 14:09:45 2023 +0200
+
+    DevDeps to Deps (#84)
+    
+    * new v
+    
+    * deps-to-normals
+    
+    * debried clear
+    
+    * lock up
+    
+    * changset
+
+[33mcommit 9afb29e20281f3db69eb1eb5dd396bfc178fef31[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Fri Mar 17 10:55:18 2023 +0100
+
+    chore(changeset): version update (#83)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit ca3b024bb6f7036ccae474fb7d4da8ad168c7e1f[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Fri Mar 17 10:31:34 2023 +0100
+
+    fix (#81)
+
+[33mcommit d33db0aa7ec3c1aae98ca11cf2c8f10df776370f[m
+Author: Mikhail Bartenev <40764175+mbartenev-atypon@users.noreply.github.com>
+Date:   Fri Mar 17 10:26:30 2023 +0100
+
+    LEAN-1967 Fix: Incorrect behaviour while moving paragraphs around (#77)
+
+[33mcommit bf26aa50ac2237e81663a0eb0329f2d8d121c336[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Thu Feb 9 15:27:54 2023 -0800
+
+    chore(changeset): version update (#76)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 6bd8b2921a634e49e8eef6c73ff85fad8d177849[m
+Author: Mohammad Alnatsheh <mnatsheh@atypon.com>
+Date:   Thu Feb 9 15:25:19 2023 -0800
+
+    Update json-schema and transform dependencies (#75)
+
+[33mcommit e772d1bffbc0901f7675d81072f82ffbbb6d0238[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Thu Feb 9 10:50:18 2023 +0100
+
+    chore(changeset): version update (#72)
+    
+    * chore(changeset): version update
+    
+    * Update package.json
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    * Update CHANGELOG.md
+    
+    ---------
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+    Co-authored-by: Jiri Kaiser <jkaiser@atypon.com>
+
+[33mcommit dc6cad04e705c30776f90cb266a5d27ae8ed0cb1[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Wed Feb 8 15:55:35 2023 +0100
+
+    Version bump (#71)
+
+[33mcommit a958d77d68eb4e326f2e7f1272670e2a23013d3c[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Wed Feb 8 14:48:38 2023 +0100
+
+    LEAN-2099 - LW-R8: No new Suggestion appears in the History for the d… (#70)
+    
+    * LEAN-2099 - LW-R8: No new Suggestion appears in the History for the detach after replace from editor
+    
+    * Fix tests
+
+[33mcommit 3b64d79fb740a2eea1f3314c1a9fb67eee424854[m
+Merge: 70d6663 25bcf5f
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Jan 9 15:31:49 2023 +0100
+
+    Merge pull request #68 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 25bcf5fc951a31ff937881a914b7f0e51f041652[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Mon Jan 9 14:30:23 2023 +0000
+
+    chore(changeset): version update
+
+[33mcommit 70d66632aeff1870a529dd33d0ae96156655d223[m
+Merge: eb53c5b 01ecd8f
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Jan 9 15:28:49 2023 +0100
+
+    Merge pull request #67 from Atypon-OpenSource/LEAN-1998
+    
+    LEAN-1998 - Fix node selection check
+
+[33mcommit 01ecd8f857e5a901374456eb710c76d36bb6f0f8[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Jan 9 15:21:25 2023 +0100
+
+    LEAN-1998 - Fix node selection check
+
+[33mcommit eb53c5b88d23b1855ded4158912c02d34cbf763f[m
+Merge: 46dd43f f92094f
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Tue Nov 29 10:58:46 2022 +0100
+
+    Merge pull request #66 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit f92094fa327fe17c0a79a61f7d38acaf2e0d48bb[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Tue Nov 29 10:55:45 2022 +0100
+
+    Update CHANGELOG.md
+
+[33mcommit bedb308ce6fad8c6860f77a474a71777a7c749e1[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Tue Nov 29 10:55:05 2022 +0100
+
+    Update package.json
+
+[33mcommit e00850cdd95bb17280dd47b555f4fd645fcef20b[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Tue Nov 29 09:54:24 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 46dd43f75d60aa2f5f00f80e82aa2555ba6dd9c0[m
+Merge: 9de2c1d b664615
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 14:42:02 2022 +0100
+
+    Merge pull request #64 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit b664615245e488d88fc9bbcde8459ed00462e494[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 14:39:22 2022 +0100
+
+    Update CHANGELOG.md
+
+[33mcommit 63aa7bef88f1808c9c6b22cd75c1dceaf48b75c0[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 14:38:45 2022 +0100
+
+    Update package.json
+
+[33mcommit fade91876d1c0d368d24735bba2cefb562fdc8f9[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Mon Nov 28 13:38:06 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 9de2c1dcda99c61e2a28c0a5c52b3e5e543a4669[m
+Merge: 6c372a1 9e60add
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 14:37:00 2022 +0100
+
+    Merge pull request #63 from Atypon-OpenSource/LEAN-1839
+    
+    Lean 1839
+
+[33mcommit 9e60add4ffc2977ea39c5e338c15d10d7e860163[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 14:29:48 2022 +0100
+
+    LEAN-1839 - LW-R7: Comment marker inserts are being added to History
+
+[33mcommit 6c372a10f604aec1017ba9f9ab65d02c382a994a[m
+Merge: d4d93b5 e63501e
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 11:19:24 2022 +0100
+
+    Merge pull request #62 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit e63501ed9ed9482e815988c5241d0bddc3a5f1d1[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 11:15:52 2022 +0100
+
+    Update CHANGELOG.md
+
+[33mcommit 45bc299390ab340ec0f82a2e890e7cd869321f2d[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 11:15:19 2022 +0100
+
+    Update package.json
+
+[33mcommit bfddac15e95e5eb945cbd28d99688f96a11d42f6[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Mon Nov 28 10:11:55 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit d4d93b50c1a6f1d9e7355024cd58182ce4ad9ca0[m
+Merge: 32cca54 31c20f3
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 11:10:53 2022 +0100
+
+    Merge pull request #61 from Atypon-OpenSource/LEAN-1839
+    
+    LEAN-1839 - LW-R7: Comment marker inserts are being added to History
+
+[33mcommit 31c20f35e56222d9115cd55de53eb44ec7a72b83[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 28 10:47:54 2022 +0100
+
+    LEAN-1839 - LW-R7: Comment marker inserts are being added to History
+
+[33mcommit 32cca54e66fb6a1efe33cd8b5b7ddd297b0fe82d[m
+Merge: 5de337f c9a0f3c
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Thu Nov 24 13:13:42 2022 +0100
+
+    Merge pull request #60 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit c9a0f3c7490cf57610e4931db855db5b8517bb49[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Thu Nov 24 13:09:32 2022 +0100
+
+    Update CHANGELOG.md
+
+[33mcommit 705dd0d53df69bcbe1f16cb3b0278d64b9985c4d[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Thu Nov 24 13:08:53 2022 +0100
+
+    Update package.json
+
+[33mcommit 6effc6df084b950dd096f29f398346ca2cf104c0[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Nov 24 11:44:15 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 5de337f44b3d92b2bbabf86eb2d02c104306fcc1[m
+Merge: afbfdfa fb17b55
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Thu Nov 24 12:42:03 2022 +0100
+
+    Merge pull request #59 from Atypon-OpenSource/LEAN-1839
+    
+    LEAN-1839 - LW-R7: Comment marker inserts are being added to History
+
+[33mcommit fb17b559352e7c382116cd02a48bdd16a03c77a9[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 21 19:09:29 2022 +0100
+
+    LEAN-1839 - LW-R7: Comment marker inserts are being added to History
+
+[33mcommit 74e04d5642e8a1fc05d92a632817e4fe83d51588[m
+Author: Jiri Kaiser <jkaiser@atypon.com>
+Date:   Mon Nov 21 12:59:57 2022 +0100
+
+    LEAN-1839 - LW-R7: Comment marker inserts are being added to History
+
+[33mcommit afbfdfa57178a8582208a689997b63f165512d5e[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Thu Oct 6 13:25:01 2022 +0300
+
+    chore(changeset): version update (#56)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit ca77a19b989a9127256611af7cdf18be20836960[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Oct 6 13:21:43 2022 +0300
+
+    fix(track): add cjs to package.json exports
+
+[33mcommit f9eb7115d51395cb68735737ca82789f4f14020b[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Oct 6 13:20:59 2022 +0300
+
+    style(track): run lint, remove debug logs
+
+[33mcommit d35e6cd77c18e7993d089883ff6f36562a280119[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Mon Sep 26 14:27:24 2022 +0300
+
+    chore(changeset): version update (#55)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 2b85ec857d27948209e91e9799440c927be599d5[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Mon Sep 26 14:23:16 2022 +0300
+
+    fix(track): dont delete table content when attribute updated
+
+[33mcommit b5e6a5a58e760728e9854e1a29aa944b150055ef[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Fri Sep 23 16:26:33 2022 +0300
+
+    test(track): update manuscript.test snapshot
+
+[33mcommit d9e65c77614ff487a340eec84be26c75da6caaba[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Sep 21 13:28:23 2022 +0300
+
+    chore(deps): update most packages to latest & refactor as necessary
+
+[33mcommit 70221c3dd2f1b75bda32c93a96c7559caf566399[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Sep 20 11:09:27 2022 +0300
+
+    refactor(track): remove unneeded merge marks, add failing test case for a bug that I found
+
+[33mcommit 82fff389e2bcb21292f4aec523439dcc589273c9[m
+Author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+Date:   Fri Sep 2 17:28:41 2022 +0300
+
+    chore(changeset): version update (#51)
+    
+    Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+
+[33mcommit 69e2179ad378cd14ca35c0a467474dc6409b5a8c[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Fri Sep 2 17:14:11 2022 +0300
+
+    fix(track): diff yet again, also selection pos when diffed (#50)
+    
+    * fix(track): diff yet again, also selection pos when diffed
+    
+    * refactor(track): remove unused parameters
+
+[33mcommit 1dd6f30bbccac9d9d014f0b5292d21f2f1b098b4[m
+Merge: 151a7a4 d39b3ef
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Sep 1 15:39:47 2022 +0300
+
+    Merge pull request #48 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit d39b3ef7d404e6a1afef7151f14df7b19da3dc07[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Sep 1 12:35:15 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 151a7a4bfbf4cc033dbb2aa1ea09598f813205c5[m
+Merge: ed2af4a 61dc3a2
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Sep 1 15:33:21 2022 +0300
+
+    Merge pull request #49 from Atypon-OpenSource/fix-diff
+    
+    Fix diff
+
+[33mcommit 61dc3a2cc6a9627c31dc9053a6b84908a8e537c9[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Sep 1 15:28:49 2022 +0300
+
+    fix(track): diff from start instead of end since it's better UX
+    
+    splitSliceIntoMerged could probably be ditched in favour of it, yet that be easier said than done
+
+[33mcommit 52ee2d2633a647b20953074b56212d0d1ff85ce3[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 31 14:21:39 2022 +0300
+
+    refactor(track): add loopContentAndMergeText, rename schema import in tests
+
+[33mcommit ed2af4a601fb346a3b85c5301dffb1a1b30f873e[m
+Merge: 925ce42 c1463c9
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 31 14:06:23 2022 +0300
+
+    Merge pull request #47 from Atypon-OpenSource/refactor-use-data-tracked-as-list
+    
+    Refactor use dataTracked as list for nodes
+
+[33mcommit c1463c913cdd58ceab2e7aff3d2aab0ade315863[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 31 13:59:37 2022 +0300
+
+    refactor(track): switch to using list for node dataTracked attributes
+    
+    This is required in order to revert attribute changes incase a deleted node's attributes are changed but the deletion is rejected.
+
+[33mcommit c1946ce84687e4dd50224d76fdabc24b8982b8fb[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 31 12:24:01 2022 +0300
+
+    refactor(track): use change.dataTracked instead of attrs, reuse old delete-node id
+
+[33mcommit 00fc15ab8a63e61b9f8428419b02c8192d8f2f10[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Aug 30 14:16:27 2022 +0300
+
+    refactor(track): remove duplicated code, modify update change-step
+
+[33mcommit 124add0dbe58db8b6d2a26141f22b42552a22ffb[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Aug 30 10:40:40 2022 +0300
+
+    fix(track): prevent infinite loops by checking for undefined in diff
+
+[33mcommit 925ce42fa3f3a1562e0af1a0ae07fb7cfed0e30e[m
+Merge: db7eb48 80dd09d
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Aug 25 12:40:17 2022 +0300
+
+    Merge pull request #44 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 80dd09d276168b112575eb68d2a0cc46559d1d22[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Aug 25 09:37:04 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit db7eb485bc4105c49aafab8240b919d785f2df55[m
+Merge: 46604a7 6156d82
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Aug 25 12:35:30 2022 +0300
+
+    Merge pull request #45 from Atypon-OpenSource/fix-block-node-attr-update
+    
+    fix(track): fix turn insert+delete block node into single attr update operation
+
+[33mcommit 6156d82f7b0187b5dc332dbc834092cc21b48bdc[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Aug 25 12:31:38 2022 +0300
+
+    feat(track): add diffing of transactions
+    
+    This fixes a bug where it throws an error when eg equation attributes are changed in editor and also makes pasting text slices nicer as it tries to maintains old content.
+
+[33mcommit 43c3843e2f29dec167203ec7867c8d7a7604966a[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Fri Aug 12 12:51:44 2022 +0300
+
+    test(track): add failing test case for block node attr update
+
+[33mcommit 46604a7495e060190983c46d4930c4c1ebb2f3fa[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 17 16:14:49 2022 +0300
+
+    refactor(track): organize tests into subfolders to keep fixtures next to them
+
+[33mcommit c2ed1190bf44f76490d9d18dd71769f0df2ed0da[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 17 15:53:40 2022 +0300
+
+    refactor(track): rename & move files to improve readability
+
+[33mcommit d5979c3da58d7a602bcab0e4be4e36aaecc6a120[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 17 15:06:09 2022 +0300
+
+    refactor: remove & fix types
+
+[33mcommit 981f94beae3ebbd092c59d8ddfbc6417129a40b9[m
+Merge: 1f959ca 25d96d5
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Fri Aug 12 12:07:17 2022 +0300
+
+    Merge pull request #39 from Atypon-OpenSource/add-equation-node
+    
+    refactor(example): add equation node to debug it more easily
+
+[33mcommit 25d96d515f04c9834939ee80cd910b261e1fbf31[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Aug 9 16:40:10 2022 +0300
+
+    feat(example): add ext-equation package, with nodeViews
+
+[33mcommit 1f959ca0061aa449ddb65820a163006acee16c0d[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Mon Aug 8 09:11:16 2022 +0300
+
+    refactor(track): minor enhancements
+
+[33mcommit b9343d630f8d90446e686c83630ab69fb14564c7[m
+Merge: 3f676b0 7ad254c
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 16:27:08 2022 +0300
+
+    Merge pull request #43 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 7ad254c82adc0cde4e0f29443c4868703a7703e3[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Wed Aug 3 13:23:17 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 3f676b06d916890f748f96cd007331abfd07b583[m
+Merge: a78a9a4 c333d91
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 16:22:04 2022 +0300
+
+    Merge pull request #42 from Atypon-OpenSource/add-reviewedby-updatedat
+    
+    breaking(track): refactor userID to authorID, add reviewedById & upda…
+
+[33mcommit c333d911c1586a70a898e016fbd56c220581ac62[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 16:10:58 2022 +0300
+
+    fix(track): set reviewedByID when status is change
+
+[33mcommit 217b7b4abb1d99d9ff1afaadb0f69fce469e00e8[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 13:34:39 2022 +0300
+
+    style: run prettier
+
+[33mcommit 5ac6562df72d529e3317d64ce764e6595abf5d13[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 13:33:11 2022 +0300
+
+    refactor(track): BREAKING expose skipTracking instead of setAction
+
+[33mcommit db885867d9187cf4de050b21083a139918be0ee4[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 13:12:39 2022 +0300
+
+    fix(track): set reviewedByID as optional since ProseMirror doesnt like persisting null values
+
+[33mcommit 176143988ff468be80943a5673bdd4331ff41933[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Aug 3 12:26:12 2022 +0300
+
+    breaking(track): refactor userID to authorID, add reviewedById & updatedAt to trackedAttrs
+
+[33mcommit a78a9a483a8ee5ece7017f988e27471ccb5415a9[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Aug 2 16:57:33 2022 +0300
+
+    docs(track): update documentation
+
+[33mcommit 4e04c5fc18e022d9290579e3d29dd17d3e0becf3[m
+Merge: c400ba5 301b84e
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jul 21 13:36:46 2022 +0300
+
+    Merge pull request #41 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 301b84e3d0bc71d5f8ed29b7d9f3ba72b6cc396e[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Jul 21 09:16:58 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit c400ba578b1d8cdd1136cea9619bebe745fe7edd[m
+Merge: d128409 30f72fb
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jul 21 11:18:16 2022 +0300
+
+    Merge pull request #40 from Atypon-OpenSource/test-repeated-delete
+    
+    fix tracking of links
+
+[33mcommit 30f72fb83238dabf44f8b99698ff0ac875e51b08[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jul 21 11:13:26 2022 +0300
+
+    test(track): remove infiniteLoopCounter, improve repeated delete test
+
+[33mcommit bfdcfc11cb28e8ce1636dd3d16f1f1025d9252e7[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Jul 20 17:03:05 2022 +0300
+
+    chore(track): update manuscript-transform
+
+[33mcommit 54dc5b8deb92ee64266859bf84f257ef9ec51d6a[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Jul 20 16:58:16 2022 +0300
+
+    fix(track): track links properly, improve maintaining NodeSelection
+
+[33mcommit b053bc3bafba8ed048260a27304e94f1a8fc5abf[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Jul 19 08:48:49 2022 +0300
+
+    refactor(track): separate test defaultDocs into separate files
+
+[33mcommit d12840980ba64aa29146333be97dc997b17f15e0[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jul 7 15:44:47 2022 +0300
+
+    styles: run format on all packages
+
+[33mcommit 71150800ee40e4a3925fb5a52e80409c895040fd[m
+Merge: f23e7e4 9b97799
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jun 30 13:56:50 2022 +0300
+
+    Merge pull request #31 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 9b9779986ba4aa72361175fc8bdfff502d72915e[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Jun 30 10:55:15 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit f23e7e48a5a97d93369741287c606be054e1ddc1[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jun 30 13:51:41 2022 +0300
+
+    fix(track): types & add typecheck command, run lint
+
+[33mcommit b4f462d75ba85fbe255b4061f9510576b6f4139f[m
+Merge: 5c9a6e7 7c28c0a
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Thu Jun 30 13:15:04 2022 +0300
+
+    Merge pull request #28 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 7c28c0a6d81955bdf7dbc8611839f8c5dbbdba6b[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Thu Jun 30 10:13:14 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 5c9a6e78e13751f913e91ffdcbe7fd36b9fd9c97[m
+Merge: e2df31c 8ba439b
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Jun 29 15:53:44 2022 +0300
+
+    Merge pull request #29 from Atypon-OpenSource/update-prosemirror-deps
+    
+    Update prosemirror deps and tests, fix invalid TextSelections & tr.lift when target is null
+
+[33mcommit 8ba439b0e7690cf842e34c1da6520a1c68fd9fa2[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Jun 29 15:43:23 2022 +0300
+
+    fix(track): tests, invalid TextSelections, some types
+
+[33mcommit af9a680e53d32d6bdf04411e943f0a6076454a48[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Jun 29 15:41:15 2022 +0300
+
+    fix(track): check targetDepth for null to avoid throwing errors on tr.lift
+
+[33mcommit 9ea8e5fd22980d5304f9e62d28c4106e92455331[m
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed Jun 29 15:39:04 2022 +0300
+
+    refactor: update prosemirror deps to TS versions, removing @types deps
+
+[33mcommit e2df31c483477928c38c587845bc3c6fe12b6953[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Jun 27 12:31:57 2022 +0300
+
+    test(track): downgrade jest to 27 to use manuscript-transform in tests
+
+[33mcommit 5e5659917be2b4eb4c89d381c4de7c146f7b744a[m
+Merge: a43759b f2056c1
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Tue Jun 21 11:18:19 2022 +0300
+
+    Merge pull request #27 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit f2056c1822956541a7cd37165cfe2040ace512a2[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Tue Jun 21 08:17:41 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit a43759babe221058c76bc2247e2d3658f889b158[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Tue Jun 21 11:13:45 2022 +0300
+
+    fix(track): dont copy meta-keys as can cause race-conditions
+
+[33mcommit 6c2f7b6d8d8d8d65915edeb52db16d0744d924bd[m
+Merge: 6a73322 58dcab2
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Fri Jun 17 14:55:23 2022 +0300
+
+    Merge pull request #26 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit 58dcab2e2b8841b064ccdf5c28b0eb68514b065c[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Fri Jun 17 11:51:39 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit 6a7332225584a6206745f70ccf93f3487c614c17[m
+Merge: 483b8ed 628c125
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Fri Jun 17 14:50:43 2022 +0300
+
+    Merge pull request #25 from Atypon-OpenSource/track-wip
+    
+    fix(track): check whether node was deleted in applying node changes
+
+[33mcommit 628c125693aca12249616e1a2413055400326b0a[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Jun 17 14:48:00 2022 +0300
+
+    fix(track): check whether node was deleted in applying node changes
+
+[33mcommit 483b8ed088626d11b5c4d04489be7122476f5c14[m
+Merge: e61c1fb e318291
+Author: Teemu Koivisto <tkoivisto456@gmail.com>
+Date:   Wed May 25 11:55:43 2022 +0300
+
+    Merge pull request #18 from Atypon-OpenSource/changeset-release/main
+    
+    chore(changeset): version update
+
+[33mcommit e318291f741dab98a7597bae15c54106c78123db[m
+Author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+Date:   Wed May 25 08:54:55 2022 +0000
+
+    chore(changeset): version update
+
+[33mcommit e61c1fb00b254a4a6745b1861e8c53f8ba6a9115[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed May 25 11:23:59 2022 +0300
+
+    docs: update READMEs, improve docs
+
+[33mcommit 003d4c8d5a645347fc7e4ef74b23dd9092edc757[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri May 20 11:24:46 2022 +0300
+
+    chore: update quarterback deps to latest
+
+[33mcommit ebd9ecad5d307ad57349b45b6e579d5519bc337c[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu May 19 13:57:13 2022 +0300
+
+    fix: remove db from shared dependencies, copy types directly instead
+
+[33mcommit 386b6aa944c724030191a1f50eb5e78025fa424d[m
+Author: Harris Dimitriou <dimitriou.xar@gmail.com>
+Date:   Wed May 18 16:00:56 2022 +0300
+
+    fix: Jenkins pipeline (#12)
+    
+    * testing pieline - 1
+    
+    * testing pieline - cleanup
+    
+    * ci: add DEBUG=* to failing db build
+    
+    * fix: add @types/node to track-changes-plugin deps
+    
+    * ci: remove VARS from GIT_BRANCH
+    
+    * refactor: remove DEBUG=* from db build
+    
+    Co-authored-by: Teemu <tkoivisto456@gmail.com>
+
+[33mcommit 1d718ab102ddd94dc057fcb40eaefeb0969fc108[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed May 18 13:22:08 2022 +0300
+
+    fix(track): add jest types to all tests, update outdated fixture
+
+[33mcommit 033954cf17566c55bf24413f1968f6fe64242835[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed May 18 13:16:05 2022 +0300
+
+    fix(track): explicitly add node types
+
+[33mcommit aedd12be260728e629ee1a5ac99c51d09f3b7e3e[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed May 18 13:11:08 2022 +0300
+
+    fix(track): fix missing jest types in vscode
+
+[33mcommit f723cfba4fda2602a4e063a2fbc3a43cee4f9716[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed May 18 13:01:40 2022 +0300
+
+    fix(track): jest tests, remove dependency to examples-track-schema
+
+[33mcommit df28e7dc00ec428d0cf669ca59fbaef6fed321fc[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu May 5 10:41:50 2022 +0300
+
+    style: run prettier in track-changes-plugin
+
+[33mcommit 1f62da32b5dc5993f9efc80d94543eb1fb34610a[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed May 4 15:35:27 2022 +0300
+
+    fix(track): merge using openStart/end as the target depth
+
+[33mcommit 13011f25641eebd78a695f6fcc9bf54d8f528767[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed Apr 20 16:38:40 2022 +0300
+
+    fix(track): remove debugger statement
+
+[33mcommit 2a07c582a52c5d262c06b971a7e99b2862197e4e[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed Apr 20 16:35:23 2022 +0300
+
+    refactor(track): use shared logic between ReplaceSteps and ReplaceAroundStep
+
+[33mcommit bbc5d1452af650f0aa52daad7518e15e5283aa93[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu Apr 14 11:46:42 2022 +0300
+
+    feat(track): merge text of a ReplaceAroundStep
+
+[33mcommit 6fa31d6f5b2abbb7bbfc291a2ae9ba4472fb934d[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Apr 11 15:37:01 2022 +0300
+
+    refactor(track): remove mergeInsteadOfDelete, restore granular change controls to nodes
+
+[33mcommit 7f2b7d407c40607c15775e2de5dbaf805ec15769[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Apr 11 14:19:06 2022 +0300
+
+    deps(track): update jsdom to 19
+
+[33mcommit 669e028514d813a0cac6b55e0e10189f9826baee[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Apr 11 14:18:24 2022 +0300
+
+    fix(track): try merging/lifting node deletions automatically - delete only if it fails
+
+[33mcommit a733ae981092ee74b77590c3a3d8f30bcc0d51fa[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Apr 8 18:13:58 2022 +0300
+
+    feat(track): enhance handling of gap content & mapping of positions
+
+[33mcommit 46bf1152856c5c60cfedabbcf80270f05a4c4dee[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Apr 1 16:11:48 2022 +0300
+
+    feat(track): add rudimentary tracking of ReplaceAroundSteps
+
+[33mcommit 7fcb0661ca429949580ee9b44f1ef4f6fe0e0459[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Tue Mar 29 11:21:45 2022 +0300
+
+    fix,docs(track): finetune how merged content is inserted, improve comments
+
+[33mcommit 47e11d2abbd59b944ca0d500d2d81997e0de2a66[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu Mar 24 16:17:21 2022 +0200
+
+    test(track): add more slice tests that have uncovered a bug
+
+[33mcommit 911d986db622d89f698e11076a726c665a530945[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed Mar 23 15:39:29 2022 +0200
+
+    test(track): assert warns & errors, fix code_block track marks
+
+[33mcommit a677b2882a774b8a91d0fed6d201a3faf4ea92a0[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Wed Mar 23 13:06:58 2022 +0200
+
+    test(track): add tests for slices, refactor logging
+
+[33mcommit 189f5b0e6de4a3e56bcf98467c6465ef9f020a1b[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Tue Mar 22 11:05:36 2022 +0200
+
+    test(track): add test case for inline node attr change
+
+[33mcommit f1e144d16261d9dbd2b2db724617afeb93c051eb[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Tue Mar 22 08:35:18 2022 +0200
+
+    refactor(track): remove unused code
+
+[33mcommit a4301ceaad729b8f0403bc0c7844b4e510bf030c[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Mar 21 16:50:02 2022 +0200
+
+    fix(example-app): pass userIDs to track plugin
+
+[33mcommit e5e23871025e1cc3ae09ad2e1a58d556c5aeef49[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Mar 21 15:26:20 2022 +0200
+
+    refactor(track): remove shownChangeStatuses
+
+[33mcommit 0bf4a417bf5b828bfb0b942e60e57ef84efa77af[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Mar 21 14:48:35 2022 +0200
+
+    refactor, docs(track): update README, disable debug by default
+
+[33mcommit ba81d24cbd0723dfe37b01cfc0afd51d3e7d570b[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Mar 21 12:38:01 2022 +0200
+
+    refactor,docs(track): add README, better comments
+
+[33mcommit c3278adc2256704b1430a860e7544e9cb3fd26ef[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Mar 18 12:17:49 2022 +0200
+
+    refactor: move track styles from example-editor to track-changes-plugin
+
+[33mcommit e25cd38ef151459ae05f944fa0224557cd8ddb25[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Mar 18 12:04:25 2022 +0200
+
+    refactor: remove userName, pending_bg from track marks, rename time to createdAt
+
+[33mcommit eedf687d751e4324e82a76dbc7dcf57dc0dccd0e[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Mar 18 10:34:36 2022 +0200
+
+    fix(track): add uuidv4 as local function
+
+[33mcommit f60891d7764db206c674256f40c962f657b0908b[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu Mar 17 11:22:29 2022 +0200
+
+    style: lint:fix packages
+
+[33mcommit e706f0aec6191c32b392a9c5da8b9746d09a1597[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Mon Mar 14 15:35:36 2022 +0200
+
+    fix: ensure quarterback works with manuscripts-frontend
+
+[33mcommit cf333d85d3e2683cfab9ee0322fc4c50efc68a80[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Fri Mar 11 09:59:34 2022 +0200
+
+    fix(track): add @types/jest to fix tests
+
+[33mcommit c00ff05a52db3915a8f2d353fb72386398632c96[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu Mar 10 16:11:58 2022 +0200
+
+    fix: update quarterback types, package names and env variables
+
+[33mcommit 4af596397167817e6930508927d74a050d4669a0[m
+Author: Teemu <tkoivisto456@gmail.com>
+Date:   Thu Mar 10 13:10:07 2022 +0200
+
+    feat: create quarterback-packages with api, db, shared, track-changes
