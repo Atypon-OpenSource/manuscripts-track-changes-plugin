@@ -18,6 +18,7 @@ import type { Transaction } from 'prosemirror-state'
 
 import { shouldMergeTrackedAttributes } from '../compute/nodeHelpers'
 import type { TrackedAttrs } from '../types/change'
+import { uuidv4 } from '../utils/uuidv4'
 
 /**
  * Merges tracked marks between text nodes at a position
@@ -56,5 +57,9 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   const fromStartOfMark = pos - nodeBefore.nodeSize
   const toEndOfMark = pos + nodeAfter.nodeSize
 
-  newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create({ ...leftMark.attrs, dataTracked }))
+  newTr.addMark(
+    fromStartOfMark,
+    toEndOfMark,
+    leftMark.type.create({ ...leftMark.attrs, dataTracked: { ...dataTracked, id: uuidv4() } })
+  )
 }
