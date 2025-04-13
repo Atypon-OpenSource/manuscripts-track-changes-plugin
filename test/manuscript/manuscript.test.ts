@@ -72,11 +72,10 @@ describe('manuscript.test', () => {
 
     // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
     // expect(tester.toJSON()).toEqual(manuscriptApplied[0])
-      // Your test logic
-      expect(uuidv4Mock.mock.calls.length).toBe(10)
-      expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
-      expect(log.warn).toHaveBeenCalledTimes(0)
-      expect(log.error).toHaveBeenCalledTimes(0)
-    
+    // Your test logic
+    expect(uuidv4Mock.mock.calls.length).toBe(10)
+    expect(tester.trackState()?.changeSet.hasInconsistentData).toEqual(false)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
   })
 })

@@ -61,10 +61,10 @@ export function applyAcceptedRejectedChanges(
       }
 
       // Maybe To do
-      if (change.dataTracked.operation === CHANGE_OPERATION.node_move) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
         // return acceptMoveNodeChange(tr, change, changeSet)   //To Do
       }
-      if (change.dataTracked.operation === CHANGE_OPERATION.node_move) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
         // return revertMoveNodeChange(tr, change, changeSet)   //To Do
       }
     }

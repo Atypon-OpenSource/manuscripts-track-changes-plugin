@@ -78,7 +78,7 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
 export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewMoveNodeAttrs {
   return {
     ...attrs,
-    operation: CHANGE_OPERATION.node_move,
+    operation: CHANGE_OPERATION.move,
   }
 }
 

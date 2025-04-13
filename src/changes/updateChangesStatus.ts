@@ -45,7 +45,7 @@ export function updateChangesStatus(
 
           if (
             c.dataTracked.operation === CHANGE_OPERATION.node_split ||
-            c.dataTracked.operation === CHANGE_OPERATION.node_move
+            c.dataTracked.operation === CHANGE_OPERATION.move
           ) {
             // fetching a related reference change to be applied as well
             const relatedRefChange = changeSet.changes.find(

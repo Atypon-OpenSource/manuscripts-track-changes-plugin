@@ -55,7 +55,7 @@ export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 }
 
 export type NewMoveNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.node_move
+  operation: CHANGE_OPERATION.move
 }
 
 export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs
