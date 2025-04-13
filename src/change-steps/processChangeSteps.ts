@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Schema } from 'prosemirror-model'
+import { Node, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
@@ -41,6 +41,7 @@ export function processChangeSteps(
   // @TODO add custom handler / condition?
   let deletesCounter = 0 // counter for deletion
   let isInserted = false // flag for inserted node
+  let prevDeletedNode: Node
 
   changes.forEach((c) => {
     let step = newTr.steps[newTr.steps.length - 1]
@@ -48,18 +49,37 @@ export function processChangeSteps(
     switch (c.type) {
       case 'delete-node':
         deletesCounter++ // increase the counter for deleted nodes
+        const prevDeletedNodeInserted = isInserted
         const trackedData = getBlockInlineTrackedData(c.node)
         const inserted = trackedData?.find((d) => d.operation === CHANGE_OPERATION.insert)
         // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
         // if yes, we can suppose that the current node was inserted too
         isInserted = !!inserted || (!trackedData && isInserted)
 
-        // For inserted node: the top node and its content (children nodes) is deleted in the first step
-        if (isInserted && deletesCounter > 1) {
+        let childOfDeleted = false
+        // if it's a deletion of a node inside a deleted node in this transaction, there is node need for separate step
+        if (prevDeletedNode) {
+          prevDeletedNode.descendants((node) => {
+            if (childOfDeleted) {
+              return false
+            }
+            if (node == c.node) {
+              childOfDeleted = true
+            }
+          })
+        }
+
+        /* 1. For inserted node: the top node and its content (children nodes) is deleted in the first step
+           2. Also if previous deleted node was "inserted" and the currently processed deleted node is
+              a child of that node - don't produce a separate step to prevent collision and clutter
+        */
+        if ((isInserted && deletesCounter > 1) || (childOfDeleted && prevDeletedNodeInserted)) {
           return false
         }
 
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
+        prevDeletedNode = c.node
+
         const newestStep = newTr.steps[newTr.steps.length - 1]
 
         if (isInserted) {
