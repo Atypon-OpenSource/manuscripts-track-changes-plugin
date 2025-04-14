@@ -24,6 +24,7 @@ import { ChangeSet } from './ChangeSet'
 import { trackTransaction } from './steps/trackTransaction'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
+import { trFromHistory } from './utils/track-utils'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -77,11 +78,8 @@ export const trackChangesPlugin = (
           return { ...pluginState, changeSet: new ChangeSet() }
         }
         let { changeSet, ...rest } = pluginState
-        if (
-          getAction(tr, TrackChangesAction.refreshChanges) ||
-          tr.getMeta('history$') ||
-          tr.getMeta('history$1')
-        ) {
+
+        if (getAction(tr, TrackChangesAction.refreshChanges) || trFromHistory(tr)) {
           changeSet = findChanges(newState)
         }
         return {
@@ -123,12 +121,13 @@ export const trackChangesPlugin = (
         const skipTrackUsed =
           getAction(tr, TrackChangesAction.skipTrack) ||
           (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
+
         if (
           !setChangeStatuses &&
           tr.docChanged &&
           !skipMetaUsed &&
           !skipTrackUsed &&
-          !(tr.getMeta('history$') || tr.getMeta('history$1')) &&
+          !trFromHistory(tr) &&
           !(wasAppended && tr.getMeta('origin') === 'paragraphs')
         ) {
           createdTr = trackTransaction(tr, oldState, createdTr, userID)
