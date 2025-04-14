@@ -50,6 +50,7 @@ export function applyAcceptedRejectedChanges(
 ): Mapping {
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
+
   changes.forEach((change) => {
     if (change.dataTracked.status == CHANGE_STATUS.rejected) {
       if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
@@ -82,6 +83,7 @@ export function applyAcceptedRejectedChanges(
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
+      // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
       if (node.isAtom) {
         tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
         tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
