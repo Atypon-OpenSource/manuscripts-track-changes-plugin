@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
+import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { Mapping, ReplaceAroundStep } from 'prosemirror-transform'
+import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
-import { addTrackIdIfDoesntExist } from '../compute/nodeHelpers'
 import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
@@ -119,7 +118,6 @@ export function trackReplaceAroundStep(
   )
 
   let fragment
-
   if (isWrapStep(step)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   } else {
