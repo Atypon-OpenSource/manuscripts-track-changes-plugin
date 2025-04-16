@@ -57,6 +57,8 @@
                     "updatedAt": 1577836800000,
                     "statusUpdateAt": 0,
                     "status": "pending",
+                    "operation": "delete"
+                  }
                 }
               }
             ],
@@ -142,7 +144,7 @@
                   "updatedAt": 1577836800000,
                   "statusUpdateAt": 0,
                   "status": "pending",
-                  "operation": "delete"                
+                  "operation": "delete"
                 }
               ]
             }
