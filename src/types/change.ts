@@ -42,6 +42,7 @@ type InsertDeleteAttrs = {
   statusUpdateAt: number
   createdAt: number
   updatedAt: number
+  isNodeMove: boolean
 }
 export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
@@ -106,12 +107,21 @@ export type ReferenceChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
+export type MoveChange = Change & {
+  type: 'move-change'
+  originalFrom: number
+  originalTo: number
+  node: Node
+  dataTracked: TrackedAttrs
+  children: TrackedChange[]
+}
 export type TrackedChange =
   | TextChange
   | NodeChange
   | NodeAttrChange
   | WrapChange
   | ReferenceChange
+  | MoveChange
   | MarkChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>

@@ -89,6 +89,7 @@ export function trackTransaction(
     updatedAt: tr.time,
     statusUpdateAt: 0, // has to be zero as first so changes are not differeniated at start
     status: CHANGE_STATUS.pending,
+    isNodeMove: false,
   }
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform

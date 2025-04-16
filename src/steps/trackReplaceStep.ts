@@ -102,12 +102,6 @@ export function trackReplaceStep(
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
-
-      if (tr.getMeta('MoveNode')) {
-        const $from = newTr.doc.resolve(step.from)
-        fragment = setFragmentAsNodeMove($from, newTr, fragment, attrs)
-      }
-
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
@@ -131,6 +125,10 @@ export function trackReplaceStep(
       // @ts-ignore
       const isDeleteContentForward = window.event?.inputType === 'deleteContentForward'
       selectionPos = isDeleteEvent || isDeleteContentForward ? toA : fromA
+    }
+    // Move Node
+    if (tr.getMeta('NodeMove')) {
+      attrs.isNodeMove = true
     }
   })
   return [changeSteps, selectionPos] as [ChangeStep[], number]

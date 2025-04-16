@@ -22,7 +22,7 @@ import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
+import { revertMoveNodeChange, revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -59,13 +59,8 @@ export function applyAcceptedRejectedChanges(
       if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
         return revertWrapNodeChange(tr, change)
       }
-
-      // Maybe To do
-      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
-        // return acceptMoveNodeChange(tr, change, changeSet)   //To Do
-      }
-      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
-        // return revertMoveNodeChange(tr, change, changeSet)   //To Do
+      if (ChangeSet.isMoveChange(change)) {
+        return revertMoveNodeChange(tr, change, changeSet)
       }
     }
     // Map change.from and skip those which dont need to be applied
@@ -74,7 +69,6 @@ export function applyAcceptedRejectedChanges(
     const node = tr.doc.nodeAt(from)
     const noChangeNeeded = !ChangeSet.shouldDeleteChange(change)
     if (deleted) {
-      // Skip if the change was already deleted
       return
     }
     if (!node) {
@@ -82,7 +76,28 @@ export function applyAcceptedRejectedChanges(
       return
     }
 
-    if (ChangeSet.isTextChange(change) && noChangeNeeded) {
+    if (ChangeSet.isMoveChange(change)) {
+      // Handle move operation
+      if (change.dataTracked.status === CHANGE_STATUS.accepted) {
+        // Move is already in the correct position, just need to clear tracking
+        tr.setNodeMarkup(
+          from,
+          undefined,
+          {
+            ...node.attrs,
+            dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+          },
+          node.marks
+        )
+      } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
+        // Revert the move by moving back to original position
+        const originalPos = deleteMap.map(change.originalFrom)
+        const content = node.content
+        tr.delete(from, from + node.nodeSize)
+        tr.insert(originalPos, content)
+        deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+      }
+    } else if (ChangeSet.isTextChange(change) && noChangeNeeded) {
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
     } else if (ChangeSet.isTextChange(change)) {

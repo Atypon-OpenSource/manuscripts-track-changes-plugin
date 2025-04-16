@@ -43,10 +43,7 @@ export function updateChangesStatus(
         } else {
           nonTextChanges.push(c)
 
-          if (
-            c.dataTracked.operation === CHANGE_OPERATION.node_split ||
-            c.dataTracked.operation === CHANGE_OPERATION.move
-          ) {
+          if (c.dataTracked.operation === CHANGE_OPERATION.node_split) {
             // fetching a related reference change to be applied as well
             const relatedRefChange = changeSet.changes.find(
               (c) => c.dataTracked.operation === 'reference' && c.dataTracked.referenceId === change.id
