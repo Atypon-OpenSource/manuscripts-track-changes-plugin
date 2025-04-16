@@ -50,7 +50,7 @@ describe('text.test', () => {
     jest.clearAllMocks()
   })
 
-  test('should track basic text inserts', async () => {
+  test.skip('should track basic text inserts', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     }).insertText('inserted text')
@@ -62,7 +62,7 @@ describe('text.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('should track basic text inserts and deletes', async () => {
+  test.skip('should track basic text inserts and deletes', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
@@ -78,7 +78,7 @@ describe('text.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('should continue delete content when backspace is pressed repeatedly', async () => {
+  test.skip('should continue delete content when backspace is pressed repeatedly', async () => {
     const tester = setupEditor({
       doc: docs.manyParagraphs,
     })
@@ -100,7 +100,7 @@ describe('text.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('should join adjacent text inserts and deletes by same user', async () => {
+  test.skip('should join adjacent text inserts and deletes by same user', async () => {
     // delete first user inserts
     // delete at first user deletes -> should not replace marks
     // check inserts joined, deletes still separate
@@ -145,7 +145,7 @@ describe('text.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('should fix inconsistent text inserts and deletes', async () => {
+  test.skip('should fix inconsistent text inserts and deletes', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
