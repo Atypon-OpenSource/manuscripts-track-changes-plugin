@@ -139,7 +139,7 @@
                     "updatedAt": 1577836800000,
                     "statusUpdateAt": 0,
                     "status": "pending",
-                    "operation": "delete",
+                    "operation": "delete"
                   },
                   {
                     "id": "MOCK-ID-4",

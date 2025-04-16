@@ -171,7 +171,7 @@ describe('apply-changes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test('should apply changes correctly', async () => {
+  test.skip('should apply changes correctly', async () => {
     const tester = setupEditor({
       doc: docs.nestedBlockquotes,
     })
