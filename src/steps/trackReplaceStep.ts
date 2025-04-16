@@ -19,7 +19,6 @@ import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
 import {
   setFragmentAsInserted,
-  setFragmentAsNodeMove,
   setFragmentAsNodeSplit,
 } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
