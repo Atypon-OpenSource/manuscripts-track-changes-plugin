@@ -27,7 +27,6 @@
                       "createdAt": 1661509955426,
                       "operation": "delete",
                       "updatedAt": 1577836800000,
-                      "isNodeMove": false,
                       "statusUpdateAt": 0,
                       "reviewedByID": "none"
                     }
@@ -240,8 +239,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "insert",
-                      "isNodeMove": false
+                      "operation": "insert"
                     }
                   }
                 }

@@ -15,8 +15,7 @@
                 "updatedAt": 1577836800000,
                 "statusUpdateAt": 0,
                 "status": "pending",
-                "operation": "insert",
-                "isNodeMove": false
+                "operation": "insert"
               }
             ],
             "testAttribute": null
@@ -36,8 +35,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "insert",
-                      "isNodeMove": false
+                      "operation": "insert"
                     }
                   }
                 }
@@ -163,9 +161,7 @@
                 "updatedAt": 1577836800000,
                 "statusUpdateAt": 0,
                 "status": "pending",
-                "operation": "insert",
-                "isNodeMove": false
-              }
+                "operation": "insert"              }
             ],
             "testAttribute": null
           }
@@ -182,8 +178,7 @@
                 "updatedAt": 1577836800000,
                 "statusUpdateAt": 0,
                 "status": "pending",
-                "operation": "delete",
-                "isNodeMove": false
+                "operation": "delete"
               }
             ],
             "testAttribute": null
@@ -203,8 +198,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "delete",
-                      "isNodeMove": false
+                      "operation": "delete"
                     }
                   }
                 }
@@ -225,9 +219,7 @@
                 "updatedAt": 1577836800000,
                 "statusUpdateAt": 0,
                 "status": "pending",
-                "operation": "delete",
-                "isNodeMove": false
-              }
+                "operation": "delete"              }
             ]
           },
           "content": [
@@ -243,8 +235,7 @@
                     "updatedAt": 1577836800000,
                     "statusUpdateAt": 0,
                     "status": "pending",
-                    "operation": "delete",
-                    "isNodeMove": false
+                    "operation": "delete"
                   }
                 ],
                 "testAttribute": null
@@ -264,8 +255,7 @@
                           "updatedAt": 1577836800000,
                           "statusUpdateAt": 0,
                           "status": "pending",
-                          "operation": "delete",
-                          "isNodeMove": false
+                          "operation": "delete"
                         }
                       }
                     }
@@ -288,8 +278,7 @@
                 "updatedAt": 1577836800000,
                 "statusUpdateAt": 0,
                 "status": "pending",
-                "operation": "delete",
-                "isNodeMove": false
+                "operation": "delete"
               }
             ],
             "testAttribute": null
@@ -315,8 +304,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "delete",
-                      "isNodeMove": false
+                      "operation": "delete"
                     }
                   }
                 }
@@ -337,9 +325,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "delete",
-                      "isNodeMove": false
-                    }
+                      "operation": "delete"                    }
                   }
                 }
               ],
@@ -365,8 +351,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "delete",
-                      "isNodeMove": false
+                      "operation": "delete"
                     }
                   }
                 }
@@ -387,8 +372,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "delete",
-                      "isNodeMove": false
+                      "operation": "delete"
                     }
                   }
                 }
@@ -422,7 +406,6 @@
                       "statusUpdateAt": 0,
                       "status": "pending",
                       "operation": "delete",
-                      "isNodeMove": false
                     }
                   }
                 }

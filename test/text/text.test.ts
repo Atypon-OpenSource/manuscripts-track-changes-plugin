@@ -145,7 +145,7 @@ describe('text.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should fix inconsistent text inserts and deletes', async () => {
+  test('should fix inconsistent text inserts and deletes', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })

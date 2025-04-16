@@ -231,7 +231,7 @@ describe('nodes.test', () => {
   })
 
   // TODO:: this example of sending multiple steps in one transaction for the same node. it's going to be a reference to fix it later
-  test.skip('should track inserting list with with multiple paragraph selected', async () => {
+  test('should track inserting list with with multiple paragraph selected', async () => {
     const tester = setupEditor({
       doc: docs.list,
     })
@@ -243,7 +243,7 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should track node attribute updates', async () => {
+  test('should track node attribute updates', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     }).cmd((state, dispatch) => {

@@ -90,7 +90,7 @@ export function trackReplaceStep(
     where the user added inserted content
     */
     const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
-    console.log(textWasDeleted)
+    //console.log(textWasDeleted)
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 

@@ -54,9 +54,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "insert",
-                      "isNodeMove": false
-                    }
+                      "operation": "insert"                    }
                   }
                 }
               ],
@@ -101,9 +99,7 @@
                       "createdAt": 1577836800000,
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
-                      "reviewedByID": null,
-                      "isNodeMove": false
-                    }
+                      "reviewedByID": null                    }
                   }
                 }
               ],
@@ -123,9 +119,7 @@
                       "status": "pending",
                       "createdAt": 1577836800000,
                       "statusUpdateAt": 0,
-                      "updatedAt": 1577836800000,
-                      "isNodeMove": false
-                    }
+                      "updatedAt": 1577836800000                    }
                   }
                 }
               ],
@@ -145,9 +139,7 @@
                       "updatedAt": 1577836800000,
                       "statusUpdateAt": 0,
                       "status": "pending",
-                      "operation": "insert",
-                      "isNodeMove": false
-                    }
+                      "operation": "insert"                    }
                   }
                 }
               ],

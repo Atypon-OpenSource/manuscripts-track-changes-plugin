@@ -48,7 +48,7 @@ describe('manuscript.test', () => {
     jest.clearAllMocks()
   })
 
-  test.skip('should correctly apply adjacent block changes', async () => {
+  test('should correctly apply adjacent block changes', async () => {
     const tester = setupEditor({
       doc: docs.manuscriptSimple[0],
       schema: schema as unknown as Schema,

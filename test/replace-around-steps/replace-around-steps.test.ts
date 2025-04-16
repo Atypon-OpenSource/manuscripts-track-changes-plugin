@@ -139,7 +139,7 @@ describe('replace-around-steps.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should track list indent', async () => {
+  test('should track list indent', async () => {
     const tester = setupEditor({
       doc: docs.list,
     })
@@ -150,7 +150,7 @@ describe('replace-around-steps.test', () => {
     //        track it as insert/delete!
   })
 
-  test.skip('should track undent list', async () => {
+  test('should track undent list', async () => {
     const tester = setupEditor({
       doc: docs.list,
     })
