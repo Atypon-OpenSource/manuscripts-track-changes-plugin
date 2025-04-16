@@ -32,7 +32,8 @@ export function processChangeSteps(
   startPos: number,
   newTr: Transaction,
   emptyAttrs: NewEmptyAttrs,
-  schema: Schema
+  schema: Schema,
+  deletedNodeMapping: Mapping
 ) {
   const mapping = new Mapping()
   const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs)
@@ -61,6 +62,10 @@ export function processChangeSteps(
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
         const newestStep = newTr.steps[newTr.steps.length - 1]
 
+        if (isInserted) {
+          deletedNodeMapping.appendMap(newestStep.getMap())
+        }
+
         if (step !== newestStep) {
           mapping.appendMap(newestStep.getMap())
           step = newestStep
@@ -88,6 +93,10 @@ export function processChangeSteps(
 
         const textNewestStep = newTr.steps[newTr.steps.length - 1]
 
+        if (node.marks.find((m) => m.type === schema.marks.tracked_insert)) {
+          deletedNodeMapping.appendMap(textNewestStep.getMap())
+        }
+
         if (step !== textNewestStep) {
           mapping.appendMap(textNewestStep.getMap())
           step = textNewestStep
@@ -114,6 +123,11 @@ export function processChangeSteps(
             mapping.map(c.to)
           )
           const newestStep = newTr.steps[newTr.steps.length - 1]
+
+          if (c.node.marks.find((m) => m.type === schema.marks.tracked_insert)) {
+            deletedNodeMapping.appendMap(newestStep.getMap())
+          }
+
           if (step !== newestStep) {
             mapping.appendMap(newestStep.getMap())
             step = newestStep

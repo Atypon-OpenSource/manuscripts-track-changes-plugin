@@ -20,7 +20,7 @@ import { liftTarget } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { IncompleteChange, MoveChange, NodeChange, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
 import { getUpdatedDataTracked } from './applyChanges'
 
 /**

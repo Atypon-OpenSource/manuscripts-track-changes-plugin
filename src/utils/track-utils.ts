@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
-import { Selection, TextSelection } from 'prosemirror-state'
+import { Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION } from '../types/change'
@@ -176,3 +176,6 @@ export function stepIsLift(
 ) {
   return gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText
 }
+
+// @ts-ignore
+export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
