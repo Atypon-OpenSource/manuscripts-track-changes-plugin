@@ -17,10 +17,7 @@ import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
-import {
-  setFragmentAsInserted,
-  setFragmentAsNodeSplit,
-} from '../compute/setFragmentAsInserted'
+import { setFragmentAsInserted, setFragmentAsNodeSplit } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
