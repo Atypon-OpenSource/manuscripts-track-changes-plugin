@@ -127,7 +127,7 @@ describe('diff.test', () => {
   //   expect(log.error).toHaveBeenCalledTimes(0);
   // });
 
-  test.skip('should diff node delete + inserts as node updates and delete them if oldAttrs match newAttrs', async () => {
+  test('should diff node delete + inserts as node updates and delete them if oldAttrs match newAttrs', async () => {
     const tester = setupEditor({
       doc: docs.equation,
       schema,

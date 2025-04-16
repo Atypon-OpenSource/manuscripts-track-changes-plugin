@@ -22,7 +22,7 @@ import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { revertMoveNodeChange, revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
+import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -58,9 +58,6 @@ export function applyAcceptedRejectedChanges(
       }
       if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
         return revertWrapNodeChange(tr, change)
-      }
-      if (ChangeSet.isMoveChange(change)) {
-        return revertMoveNodeChange(tr, change, changeSet)
       }
     }
     // Map change.from and skip those which dont need to be applied

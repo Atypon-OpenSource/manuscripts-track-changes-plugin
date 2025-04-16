@@ -55,7 +55,7 @@ describe('nodes.test', () => {
     jest.clearAllMocks()
   })
 
-  test.skip('should track inserts of paragraphs', async () => {
+  test('should track inserts of paragraphs', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     }).insertNode(schema.nodes.paragraph.createAndFill(), 0)
@@ -67,7 +67,7 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should prevent deletion of paragraphs unless already inserted', async () => {
+  test('should prevent deletion of paragraphs unless already inserted', async () => {
     const tester = setupEditor({
       doc: docs.blockquoteMarks,
     })
@@ -92,7 +92,7 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should create insert & delete operations on inline node attribute change', async () => {
+  test('should create insert & delete operations on inline node attribute change', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
@@ -129,7 +129,7 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should correctly track only inserted link leaving its text content untouched', async () => {
+  test('should correctly track only inserted link leaving its text content untouched', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
@@ -156,7 +156,7 @@ describe('nodes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should convert insert+delete block node into single update attr operation', async () => {
+  test('should convert insert+delete block node into single update attr operation', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
     })
@@ -189,7 +189,7 @@ describe('nodes.test', () => {
     expect(tester.toJSON()).toEqual(blockNodeAttrUpdate[1])
   })
 
-  test.skip('should avoid deleting table content between gap, generating one node update', async () => {
+  test('should avoid deleting table content between gap, generating one node update', async () => {
     const tester = setupEditor({
       doc: docs.table,
       useDefaultPlugins: true,

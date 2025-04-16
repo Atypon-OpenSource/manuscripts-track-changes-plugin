@@ -90,26 +90,3 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) 
     })
   }
 }
-
-export function revertMoveNodeChange(tr: Transaction, change: MoveChange, changeSet: ChangeSet) {
-  const node = tr.doc.nodeAt(change.from)
-  if (!node) {
-    return
-  }
-
-  // Move the content back to its original position
-  const content = node.content
-  tr.delete(change.from, change.from + node.nodeSize)
-  tr.insert(change.originalFrom, content)
-
-  // Update the attributes to remove tracking
-  tr.setNodeMarkup(
-    change.originalFrom,
-    undefined,
-    {
-      ...node.attrs,
-      dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
-    },
-    node.marks
-  )
-}

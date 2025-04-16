@@ -14,7 +14,8 @@
               "statusUpdateAt": 0,
               "updatedAt": 1577836800000,
               "status": "pending",
-              "operation": "insert"
+              "operation": "insert",
+              "isNodeMove": false
             }
           ],
           "testAttribute": null

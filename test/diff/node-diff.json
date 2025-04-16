@@ -139,7 +139,8 @@
                     "updatedAt": 1577836800000,
                     "statusUpdateAt": 0,
                     "status": "pending",
-                    "operation": "delete"
+                    "operation": "delete",
+                    "isNodeMove": false
                   },
                   {
                     "id": "MOCK-ID-4",
@@ -150,6 +151,7 @@
                     "statusUpdateAt": 0,
                     "status": "pending",
                     "operation": "set_attrs",
+                    "isNodeMove": false,
                     "oldAttrs": {
                       "id": "",
                       "class": "equation",
@@ -220,7 +222,8 @@
                     "reviewedByID": null,
                     "status": "pending",
                     "statusUpdateAt": 0,
-                    "updatedAt": 1588636800000
+                    "updatedAt": 1588636800000,
+                    "isNodeMove": false
                   }
                 ]
               }

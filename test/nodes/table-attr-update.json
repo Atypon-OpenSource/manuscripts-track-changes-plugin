@@ -29,6 +29,7 @@
                 "statusUpdateAt": 0,
                 "status": "pending",
                 "operation": "set_attrs",
+                "isNodeMove": false,
                 "oldAttrs": {
                   "testAttribute": null
                 }
