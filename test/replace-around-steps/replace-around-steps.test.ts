@@ -94,7 +94,7 @@ describe('replace-around-steps.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should mark text inserted/deleted when selection spans various nodes', async () => {
+  test('should mark text inserted/deleted when selection spans various nodes', async () => {
     const tester = setupEditor({
       doc: docs.nestedBlockquotes,
     })

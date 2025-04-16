@@ -112,7 +112,7 @@ describe('apply-changes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should correctly apply adjacent block changes', async () => {
+  test('should correctly apply adjacent block changes', async () => {
     const tester = setupEditor({
       doc: docs.nestedBlockquotes,
     })
@@ -171,7 +171,7 @@ describe('apply-changes.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  test.skip('should apply changes correctly', async () => {
+  test('should apply changes correctly', async () => {
     const tester = setupEditor({
       doc: docs.nestedBlockquotes,
     })
