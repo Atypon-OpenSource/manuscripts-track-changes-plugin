@@ -17,6 +17,7 @@ import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
   IncompleteChange,
+  MoveChange,
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
@@ -114,6 +115,7 @@ export class ChangeSet {
   get groupChanges() {
     const rootNodes: RootChanges = []
     let currentInlineChange: RootChange | undefined
+    const compositeChangesMap: Map<string, MoveChange> = new Map()
 
     this.changeTree.map((change, index) => {
       if (this.canJoinAdjacentInlineChanges(change, index)) {
@@ -125,6 +127,15 @@ export class ChangeSet {
         return
       }
       // TODO:: group composite block changes
+      if (change.dataTracked.movedChangeId) {
+        const moveChange = compositeChangesMap.get(change.dataTracked.movedChangeId)
+        if (!moveChange) {
+          compositeChangesMap.set(change.dataTracked.movedChangeId, this.#createMoveChange(change))
+        } else {
+          rootNodes.push([{ ...moveChange, children: [...moveChange.children, change] }])
+        }
+        return
+      }
       rootNodes.push([change])
     })
 
@@ -301,6 +312,10 @@ export class ChangeSet {
     return change.type === 'reference-change'
   }
 
+  static isMoveChange(change: TrackedChange): change is MoveChange {
+    return change.type === 'move-change'
+  }
+
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
     return currentChange.from === nextChange.from && currentChange.to === nextChange.to
   }
@@ -310,5 +325,25 @@ export class ChangeSet {
       change.dataTracked.operation !== CHANGE_OPERATION.delete &&
       change.dataTracked.status !== CHANGE_STATUS.pending
     )
+  }
+
+  #createMoveChange(change: TrackedChange): MoveChange {
+    if (!ChangeSet.isNodeChange(change)) {
+      throw new Error('Expected NodeChange for move operation')
+    }
+    const node = change.node
+
+    return {
+      id: change.dataTracked.movedChangeId!,
+      type: 'move-change',
+      from: change.from,
+      to: change.to,
+      dataTracked: {
+        ...change.dataTracked,
+        operation: CHANGE_OPERATION.move,
+      },
+      node,
+      children: [change],
+    }
   }
 }

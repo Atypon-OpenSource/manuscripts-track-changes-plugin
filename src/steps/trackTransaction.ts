@@ -101,6 +101,11 @@ export function trackTransaction(
 
   let trContext: TrTrackingContext = {}
 
+  // Move Node
+  if (tr.getMeta('NodeMove')) {
+    emptyAttrs.movedChangeId = uuidv4()
+  }
+
   for (let i = tr.steps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
 

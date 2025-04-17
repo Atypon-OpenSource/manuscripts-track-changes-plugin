@@ -25,6 +25,7 @@ import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isSplitStep } from '../utils/track-utils'
+import { uuidv4 } from '../utils/uuidv4'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -91,7 +92,7 @@ export function trackReplaceStep(
     where the user added inserted content
     */
     const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
-    console.log(textWasDeleted)
+
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 
@@ -104,7 +105,6 @@ export function trackReplaceStep(
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
-
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
