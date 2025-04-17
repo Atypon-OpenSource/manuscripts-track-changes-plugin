@@ -328,7 +328,10 @@ export class ChangeSet {
   }
 
   #createMoveChange(change: TrackedChange): MoveChange {
-    const node = (change as NodeChange).node
+    if (!ChangeSet.isNodeChange(change)) {
+      throw new Error('Expected NodeChange for move operation')
+    }
+    const node = change.node
 
     return {
       id: change.dataTracked.movedChangeId!,
