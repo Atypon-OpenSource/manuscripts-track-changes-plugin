@@ -109,6 +109,7 @@ export type MarkChange = Change & {
 }
 export type MoveChange = Change & {
   type: 'move-change'
+  node: Node
   children: TrackedChange[]
 }
 export type TrackedChange =

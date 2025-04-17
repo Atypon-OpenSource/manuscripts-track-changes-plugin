@@ -25,7 +25,7 @@ import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isSplitStep } from '../utils/track-utils'
-import {uuidv4} from "../utils/uuidv4"
+import { uuidv4 } from '../utils/uuidv4'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -91,7 +91,7 @@ export function trackReplaceStep(
     where the user added inserted content
     */
     const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
-    //console.log(textWasDeleted)
+
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 

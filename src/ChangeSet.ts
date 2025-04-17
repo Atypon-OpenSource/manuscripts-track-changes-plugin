@@ -328,6 +328,8 @@ export class ChangeSet {
   }
 
   #createMoveChange(change: TrackedChange): MoveChange {
+    const node = (change as NodeChange).node
+
     return {
       id: change.dataTracked.movedChangeId!,
       type: 'move-change',
@@ -337,6 +339,7 @@ export class ChangeSet {
         ...change.dataTracked,
         operation: CHANGE_OPERATION.move,
       },
+      node,
       children: [change],
     }
   }
