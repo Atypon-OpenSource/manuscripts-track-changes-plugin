@@ -66,6 +66,7 @@ export function applyAcceptedRejectedChanges(
     const node = tr.doc.nodeAt(from)
     const noChangeNeeded = !ChangeSet.shouldDeleteChange(change)
     if (deleted) {
+      // Skip if the change was already deleted
       return
     }
     if (!node) {
@@ -73,28 +74,7 @@ export function applyAcceptedRejectedChanges(
       return
     }
 
-    if (ChangeSet.isMoveChange(change)) {
-      // Handle move operation
-      if (change.dataTracked.status === CHANGE_STATUS.accepted) {
-        // Move is already in the correct position, just need to clear tracking
-        tr.setNodeMarkup(
-          from,
-          undefined,
-          {
-            ...node.attrs,
-            dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
-          },
-          node.marks
-        )
-      } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
-        // Revert the move by moving back to original position
-        const originalPos = deleteMap.map(change.originalFrom)
-        const content = node.content
-        tr.delete(from, from + node.nodeSize)
-        tr.insert(originalPos, content)
-        deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-      }
-    } else if (ChangeSet.isTextChange(change) && noChangeNeeded) {
+    if (ChangeSet.isTextChange(change) && noChangeNeeded) {
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
       tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
     } else if (ChangeSet.isTextChange(change)) {

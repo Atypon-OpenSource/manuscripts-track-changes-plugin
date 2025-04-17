@@ -42,7 +42,7 @@ type InsertDeleteAttrs = {
   statusUpdateAt: number
   createdAt: number
   updatedAt: number
-  isNodeMove?: boolean
+  movedChangeId?: string
 }
 export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
@@ -109,10 +109,6 @@ export type MarkChange = Change & {
 }
 export type MoveChange = Change & {
   type: 'move-change'
-  originalFrom: number
-  originalTo: number
-  node: Node
-  dataTracked: TrackedAttrs
   children: TrackedChange[]
 }
 export type TrackedChange =

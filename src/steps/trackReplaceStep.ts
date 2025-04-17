@@ -25,6 +25,7 @@ import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isSplitStep } from '../utils/track-utils'
+import {uuidv4} from "../utils/uuidv4"
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -126,10 +127,6 @@ export function trackReplaceStep(
       // @ts-ignore
       const isDeleteContentForward = window.event?.inputType === 'deleteContentForward'
       selectionPos = isDeleteEvent || isDeleteContentForward ? toA : fromA
-    }
-    // Move Node
-    if (tr.getMeta('NodeMove')) {
-      attrs.isNodeMove = true
     }
   })
   return [changeSteps, selectionPos] as [ChangeStep[], number]

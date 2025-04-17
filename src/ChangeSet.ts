@@ -67,62 +67,11 @@ export class ChangeSet {
   get changeTree() {
     const rootNodes: TrackedChange[] = []
     let currentNodeChange: NodeChange | undefined
-
-    const movePairs = this.#findMovePairs()
-    const moveChangeIds = new Set<string>()
-    const moveRanges: Array<{ insertFrom: number; insertTo: number; deleteFrom: number; deleteTo: number }> =
-      []
-
-    // Collect IDs and ranges of move operations
-    movePairs.forEach((pair) => {
-      moveChangeIds.add(pair.insert.id)
-      if (pair.delete) {
-        moveChangeIds.add(pair.delete.id)
-      }
-      moveRanges.push({
-        insertFrom: pair.insert.from,
-        insertTo: pair.insert.to,
-        deleteFrom: pair.delete?.from || pair.insert.from,
-        deleteTo: pair.delete?.to || pair.insert.to,
-      })
-    })
-
-    // Identify text changes that overlap with move ranges and skip them
     this.changes.forEach((c) => {
-      if (c.type === 'text-change') {
-        const textChange = c as TextChange
-        const isRelatedToMove = moveRanges.some(
-          (range) =>
-            // Check if the text change overlaps with the insert range
-            (textChange.from >= range.insertFrom &&
-              textChange.to <= range.insertTo &&
-              textChange.dataTracked.operation === CHANGE_OPERATION.insert) ||
-            // Check if the text change overlaps with the delete range
-            (textChange.from >= range.deleteFrom &&
-              textChange.to <= range.deleteTo &&
-              textChange.dataTracked.operation === CHANGE_OPERATION.delete)
-        )
-        if (isRelatedToMove) {
-          moveChangeIds.add(c.id)
-        }
-      }
-    })
-
-    // Process move pairs first to create unified move changes
-    movePairs.forEach(({ insert, delete: deleteChange }) => {
-      const moveChange = this.#createMoveChange(insert, deleteChange)
-      rootNodes.push(moveChange)
-    })
-
-    this.changes.forEach((c) => {
-      if (moveChangeIds.has(c.id)) {
-        return // Skip original insert/delete and related text changes
-      }
-
       if (
         currentNodeChange &&
         (c.from >= currentNodeChange.to ||
-          c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt)
+          c.dataTracked.statusUpdateAt !== currentNodeChange.dataTracked.statusUpdateAt) //meaning here that all the changes that were rejected/accepted at a different time cannot be handled under a single rootnode
       ) {
         rootNodes.push(currentNodeChange)
         currentNodeChange = undefined
@@ -166,6 +115,7 @@ export class ChangeSet {
   get groupChanges() {
     const rootNodes: RootChanges = []
     let currentInlineChange: RootChange | undefined
+    const compositeChangesMap: Map<string, MoveChange> = new Map()
 
     this.changeTree.map((change, index) => {
       if (this.canJoinAdjacentInlineChanges(change, index)) {
@@ -177,6 +127,15 @@ export class ChangeSet {
         return
       }
       // TODO:: group composite block changes
+      if (change.dataTracked.movedChangeId) {
+        const moveChange = compositeChangesMap.get(change.dataTracked.movedChangeId)
+        if (!moveChange) {
+          compositeChangesMap.set(change.dataTracked.movedChangeId, this.#createMoveChange(change))
+        } else {
+          rootNodes.push([{ ...moveChange, children: [...moveChange.children, change] }])
+        }
+        return
+      }
       rootNodes.push([change])
     })
 
@@ -284,9 +243,7 @@ export class ChangeSet {
    * @param changes
    */
   static flattenTreeToIds(changes: TrackedChange[]): string[] {
-    return changes.flatMap((c) =>
-      this.isNodeChange(c) || this.isMoveChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id
-    )
+    return changes.flatMap((c) => (this.isNodeChange(c) ? [c.id, ...c.children.map((c) => c.id)] : c.id))
   }
 
   /**
@@ -298,7 +255,6 @@ export class ChangeSet {
     return (
       ((operation === CHANGE_OPERATION.insert ||
         operation === CHANGE_OPERATION.node_split ||
-        operation === CHANGE_OPERATION.move ||
         operation === CHANGE_OPERATION.wrap_with_node) &&
         status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
@@ -371,63 +327,17 @@ export class ChangeSet {
     )
   }
 
-  #createMoveChange(insert: TrackedChange, deleteChange?: TrackedChange): MoveChange {
-    const insertNodeChange = insert as NodeChange
-
-    if (!insertNodeChange.node) {
-      throw new Error('Cannot create MoveChange: insert node is undefined')
-    }
-
-    const moveChange: MoveChange = {
+  #createMoveChange(change: TrackedChange): MoveChange {
+    return {
+      id: change.dataTracked.movedChangeId!,
       type: 'move-change',
-      id: `move-${insert.id}-${deleteChange?.id || ''}`,
-      from: insert.from,
-      to: insert.to,
-      originalFrom: deleteChange?.from || insert.from, // Original position
-      originalTo: deleteChange?.to || insert.to,
-      node: insertNodeChange.node,
+      from: change.from,
+      to: change.to,
       dataTracked: {
-        ...insert.dataTracked,
+        ...change.dataTracked,
         operation: CHANGE_OPERATION.move,
-        isNodeMove: true,
       },
-      children: [],
+      children: [change],
     }
-    return moveChange
-  }
-
-  #findMovePairs(): Array<{ insert: TrackedChange; delete?: TrackedChange }> {
-    const matchedDeleteIds = new Set<string>()
-
-    const pairs = this.changes
-      .filter(
-        (c) =>
-          c.type === 'node-change' && // Only include NodeChange entries
-          c.dataTracked.operation === CHANGE_OPERATION.insert &&
-          c.dataTracked.isNodeMove
-      )
-      .map((insert) => {
-        const matchingDelete = this.changes.find(
-          (d) =>
-            d.type === 'node-change' &&
-            d.dataTracked.operation === CHANGE_OPERATION.delete &&
-            d.dataTracked.isNodeMove &&
-            d.dataTracked.createdAt === insert.dataTracked.createdAt &&
-            d.dataTracked.authorID === insert.dataTracked.authorID &&
-            !matchedDeleteIds.has(d.id)
-        )
-
-        if (matchingDelete) {
-          matchedDeleteIds.add(matchingDelete.id)
-        }
-
-        return {
-          insert,
-          delete: matchingDelete,
-        }
-      })
-      .filter((pair) => pair.delete) // Only include pairs with a matching delete
-
-    return pairs
   }
 }
