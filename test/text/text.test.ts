@@ -45,44 +45,6 @@ jest.mock('../../src/utils/uuidv4', () => {
   }
 })
 
-// mock mergeTrackedMarks to preserve IDs during merging
-// TODO: this is a workaround to make the tests work, we should find a better way to do this
-jest.mock('../../src/mutate/mergeTrackedMarks', () => {
-  const mockOriginal = jest.requireActual('../../src/mutate/mergeTrackedMarks')
-  return {
-    __esModule: true,
-    ...mockOriginal,
-    mergeTrackedMarks: (pos: number, doc: PMNode, newTr: Transaction, schema: Schema) => {
-      const resolved = doc.resolve(pos)
-      const { nodeAfter, nodeBefore } = resolved
-      const leftMark = nodeBefore?.marks.filter(
-        (m) => m.type === schema.marks.tracked_insert || m.type === schema.marks.tracked_delete
-      )[0]
-      const rightMark = nodeAfter?.marks.filter(
-        (m) => m.type === schema.marks.tracked_insert || m.type === schema.marks.tracked_delete
-      )[0]
-      if (!nodeAfter || !nodeBefore || !leftMark || !rightMark || leftMark.type !== rightMark.type) {
-        return
-      }
-      const leftDataTracked = leftMark.attrs.dataTracked
-      const rightDataTracked = rightMark.attrs.dataTracked
-      if (!shouldMergeTrackedAttributes(leftDataTracked, rightDataTracked)) {
-        return
-      }
-      const isLeftOlder = (leftDataTracked.createdAt || 0) < (rightDataTracked.createdAt || 0)
-      const ancestorAttrs = isLeftOlder ? leftDataTracked : rightDataTracked
-      const dataTracked = {
-        ...ancestorAttrs,
-        updatedAt: Date.now(),
-      }
-      const fromStartOfMark = pos - nodeBefore.nodeSize
-      const toEndOfMark = pos + nodeAfter.nodeSize
-
-      newTr.addMark(fromStartOfMark, toEndOfMark, leftMark.type.create({ ...leftMark.attrs, dataTracked }))
-    },
-  }
-})
-
 jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
@@ -137,7 +99,7 @@ describe('text.test', () => {
     // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
     expect(tester.toJSON()).toEqual(repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(11)
+    expect(uuidv4Mock.mock.calls.length).toBe(19)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
@@ -161,7 +123,7 @@ describe('text.test', () => {
 
     expect(tester.toJSON()).toEqual(basicTextJoin[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(uuidv4Mock.mock.calls.length).toBe(5)
 
     tester
       .cmd(trackCommands.setUserID(SECOND_USER.id))
@@ -182,7 +144,7 @@ describe('text.test', () => {
 
     expect(tester.toJSON()).toEqual(basicTextJoin[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(10)
+    expect(uuidv4Mock.mock.calls.length).toBe(14)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
@@ -232,7 +194,7 @@ describe('text.test', () => {
     expect(tester.toJSON()).toEqual(basicTextInconsistent[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(uuidv4Mock.mock.calls.length).toBe(5)
     expect(log.warn).toHaveBeenCalledTimes(1)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
