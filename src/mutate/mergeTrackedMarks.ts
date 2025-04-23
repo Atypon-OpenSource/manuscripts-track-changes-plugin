@@ -20,6 +20,8 @@ import { shouldMergeTrackedAttributes } from '../compute/nodeHelpers'
 import type { TrackedAttrs } from '../types/change'
 import { uuidv4 } from '../utils/uuidv4'
 
+// Update the id of the mark to a new uuid if it is the same as the left or right mark, to avoid
+// conflicts when merging marks
 const assignId = (
   attrs: Partial<TrackedAttrs>,
   leftDataTracked: Partial<TrackedAttrs>,
