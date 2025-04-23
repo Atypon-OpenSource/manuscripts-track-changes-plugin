@@ -82,10 +82,16 @@ export function trackReplaceStep(
 
     const backSpacedText = sameThingBackSpaced()
     if (backSpacedText) {
+      console.log('Detected backspacing')
       changeSteps.splice(changeSteps.indexOf(backSpacedText))
     }
 
-    const textWasDeleted = !!changeSteps.length
+    /*
+    in reference to !(fromA === fromB) - if changed ranges didnt change with that step, we need to insert at the start of the new range to match 
+    where the user added inserted content
+    */
+    const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
+    console.log(textWasDeleted)
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 
@@ -107,7 +113,7 @@ export function trackReplaceStep(
       changeSteps.push({
         type: 'insert-slice',
         from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-        to: textWasDeleted ? fromB : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there areno content deleted before - it will gointo infinite loop if toB -1 is used
+        to: textWasDeleted ? fromB : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there are no content deleted before - it will go into infinite loop if toB -1 is used
         sliceWasSplit,
         slice: new Slice(fragment, openStart, openEnd) as ExposedSlice,
       })
