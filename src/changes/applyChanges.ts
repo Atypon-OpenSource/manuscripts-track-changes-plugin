@@ -83,6 +83,11 @@ export function applyAcceptedRejectedChanges(
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
       const attrs = { ...node.attrs, dataTracked: null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
+      // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
+      if (node.isAtom) {
+        tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_insert)
+        tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
+      }
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
     } else if (ChangeSet.isNodeChange(change)) {
       // Try first moving the node children to either nodeAbove, nodeBelow or its parent.
