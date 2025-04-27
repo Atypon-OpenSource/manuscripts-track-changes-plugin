@@ -17,7 +17,11 @@ import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
-import { setFragmentAsInserted, setFragmentAsNodeSplit } from '../compute/setFragmentAsInserted'
+import {
+  setFragmentAsInserted,
+  setFragmentAsMoveChange,
+  setFragmentAsNodeSplit,
+} from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -25,7 +29,6 @@ import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isSplitStep } from '../utils/track-utils'
-import { uuidv4 } from '../utils/uuidv4'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -104,6 +107,10 @@ export function trackReplaceStep(
 
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
+      }
+
+      if (attrs.moveNodeId) {
+        fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?

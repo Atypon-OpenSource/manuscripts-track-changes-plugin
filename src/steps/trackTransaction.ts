@@ -102,8 +102,16 @@ export function trackTransaction(
   let trContext: TrTrackingContext = {}
 
   // Move Node
-  if (tr.getMeta('NodeMove')) {
-    emptyAttrs.movedChangeId = uuidv4()
+  const getStepContent = (doc: PMNode, step: ReplaceStep) =>
+    step.slice.size === 0 ? doc.slice(step.from, step.to).content : step.slice.content
+  if (
+    tr.steps.length === 2 &&
+    tr.steps[0] instanceof ReplaceStep &&
+    tr.steps[1] instanceof ReplaceStep &&
+    getStepContent(tr.doc, tr.steps[0]).eq(getStepContent(tr.docs[1], tr.steps[1]))
+  ) {
+    // move node
+    emptyAttrs.moveNodeId = uuidv4()
   }
 
   for (let i = tr.steps.length - 1; i >= 0; i--) {

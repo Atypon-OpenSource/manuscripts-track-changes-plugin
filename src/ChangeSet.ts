@@ -115,7 +115,6 @@ export class ChangeSet {
   get groupChanges() {
     const rootNodes: RootChanges = []
     let currentInlineChange: RootChange | undefined
-    const compositeChangesMap: Map<string, MoveChange> = new Map()
 
     this.changeTree.map((change, index) => {
       if (this.canJoinAdjacentInlineChanges(change, index)) {
@@ -126,21 +125,16 @@ export class ChangeSet {
         currentInlineChange = undefined
         return
       }
-      // TODO:: group composite block changes
-      if (change.dataTracked.movedChangeId) {
-        const moveChange = compositeChangesMap.get(change.dataTracked.movedChangeId)
-        if (!moveChange) {
-          compositeChangesMap.set(change.dataTracked.movedChangeId, this.#createMoveChange(change))
-        } else {
-          rootNodes.push([{ ...moveChange, children: [...moveChange.children, change] }])
-        }
-        return
-      }
       rootNodes.push([change])
     })
 
     return rootNodes.filter(
-      (changes) => changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference).length
+      (changes) =>
+        changes.filter(
+          (c) =>
+            c.dataTracked.operation !== CHANGE_OPERATION.reference &&
+            !(c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete)
+        ).length
     )
   }
 
@@ -255,7 +249,8 @@ export class ChangeSet {
     return (
       ((operation === CHANGE_OPERATION.insert ||
         operation === CHANGE_OPERATION.node_split ||
-        operation === CHANGE_OPERATION.wrap_with_node) &&
+        operation === CHANGE_OPERATION.wrap_with_node ||
+        operation === CHANGE_OPERATION.move) &&
         status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
     )
@@ -325,25 +320,5 @@ export class ChangeSet {
       change.dataTracked.operation !== CHANGE_OPERATION.delete &&
       change.dataTracked.status !== CHANGE_STATUS.pending
     )
-  }
-
-  #createMoveChange(change: TrackedChange): MoveChange {
-    if (!ChangeSet.isNodeChange(change)) {
-      throw new Error('Expected NodeChange for move operation')
-    }
-    const node = change.node
-
-    return {
-      id: change.dataTracked.movedChangeId!,
-      type: 'move-change',
-      from: change.from,
-      to: change.to,
-      dataTracked: {
-        ...change.dataTracked,
-        operation: CHANGE_OPERATION.move,
-      },
-      node,
-      children: [change],
-    }
   }
 }

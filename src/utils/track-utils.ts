@@ -64,6 +64,13 @@ export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
   }
 }
 
+export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.move,
+  }
+}
+
 export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<string, any>): NewUpdateAttrs {
   // Omit dataTracked
   const { dataTracked, ...restAttrs } = oldAttrs

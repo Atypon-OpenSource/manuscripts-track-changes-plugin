@@ -52,6 +52,24 @@ export function updateChangesStatus(
               nonTextChanges.push(relatedRefChange)
             }
           }
+          if (c.dataTracked.operation === CHANGE_OPERATION.move) {
+            const oldChange = changeSet.changeTree.find(
+              (c) =>
+                ChangeSet.isNodeChange(c) &&
+                c.dataTracked.operation === 'delete' &&
+                c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
+            )
+            console.log('old', oldChange)
+
+            if (oldChange && ChangeSet.isNodeChange(oldChange)) {
+              oldChange.dataTracked.status = status
+              oldChange.children.map((c) => {
+                c.dataTracked.status = status
+                ChangeSet.isTextChange(c) ? textChanges.push(c) : nonTextChanges.push(c)
+              })
+              nonTextChanges.push(oldChange)
+            }
+          }
         }
       }
     })

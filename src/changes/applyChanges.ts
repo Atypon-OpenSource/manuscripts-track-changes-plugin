@@ -52,14 +52,6 @@ export function applyAcceptedRejectedChanges(
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
-    if (change.dataTracked.status == CHANGE_STATUS.rejected) {
-      if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
-        return revertSplitNodeChange(tr, change, changeSet)
-      }
-      if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-        return revertWrapNodeChange(tr, change)
-      }
-    }
     // Map change.from and skip those which dont need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from)
@@ -72,6 +64,18 @@ export function applyAcceptedRejectedChanges(
     if (!node) {
       !deleted && log.warn('no node found to update for change', change)
       return
+    }
+
+    if (change.dataTracked.status == CHANGE_STATUS.rejected) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
+        return revertSplitNodeChange(tr, change, changeSet)
+      }
+      if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
+        return revertWrapNodeChange(tr, change)
+      }
+      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
+        return tr.delete(from, from + node.nodeSize)
+      }
     }
 
     if (ChangeSet.isTextChange(change) && noChangeNeeded) {
