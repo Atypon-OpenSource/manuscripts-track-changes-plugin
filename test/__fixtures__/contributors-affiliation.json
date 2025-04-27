@@ -36,9 +36,7 @@
                   "email": "",
                   "contents": "",
                   "priority": 1,
-                  "affiliations": [
-                    "MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC"
-                  ],
+                  "affiliations": ["MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC"],
                   "bibliographicName": {
                     "_id": "MPBibliographicName:DF6D079F-BD5D-4BC7-9F82-2F35C590D8C1",
                     "given": "Wei Ming",
@@ -53,9 +51,7 @@
                 "statusUpdateAt": 1708932415886
               }
             ],
-            "affiliations": [
-              "MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC"
-            ],
+            "affiliations": ["MPAffiliation:E8F4BC14-02AC-4150-8051-D0454EB3BDBC"],
             "ORCIDIdentifier": "",
             "isCorresponding": false,
             "bibliographicName": {
@@ -99,9 +95,7 @@
             "contents": "",
             "priority": 3,
             "dataTracked": null,
-            "affiliations": [
-              "MPAffiliation:E5DA0604-8C6E-4D68-9E48-B0E6E70E7332"
-            ],
+            "affiliations": ["MPAffiliation:E5DA0604-8C6E-4D68-9E48-B0E6E70E7332"],
             "bibliographicName": {
               "_id": "MPBibliographicName:EA68A19F-6CF7-458F-968C-BD176A77E3B5",
               "given": "Song Tian",

@@ -15,8 +15,11 @@
  */
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
+import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Transaction } from 'prosemirror-state'
 
 import { skipTracking, trackCommands } from '../../src'
+import { shouldMergeTrackedAttributes } from '../../src/compute/nodeHelpers'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
@@ -41,6 +44,7 @@ jest.mock('../../src/utils/uuidv4', () => {
     uuidv4: uuidv4Mock,
   }
 })
+
 jest.mock('../../src/utils/logger')
 jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
 
@@ -95,7 +99,7 @@ describe('text.test', () => {
     // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
     expect(tester.toJSON()).toEqual(repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(11)
+    expect(uuidv4Mock.mock.calls.length).toBe(19)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
@@ -119,7 +123,7 @@ describe('text.test', () => {
 
     expect(tester.toJSON()).toEqual(basicTextJoin[0])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(uuidv4Mock.mock.calls.length).toBe(5)
 
     tester
       .cmd(trackCommands.setUserID(SECOND_USER.id))
@@ -140,7 +144,7 @@ describe('text.test', () => {
 
     expect(tester.toJSON()).toEqual(basicTextJoin[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(10)
+    expect(uuidv4Mock.mock.calls.length).toBe(14)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
@@ -190,7 +194,7 @@ describe('text.test', () => {
     expect(tester.toJSON()).toEqual(basicTextInconsistent[1])
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
     expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(4)
+    expect(uuidv4Mock.mock.calls.length).toBe(5)
     expect(log.warn).toHaveBeenCalledTimes(1)
     expect(log.error).toHaveBeenCalledTimes(0)
   })

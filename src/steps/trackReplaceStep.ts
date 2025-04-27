@@ -83,6 +83,7 @@ export function trackReplaceStep(
 
     const backSpacedText = sameThingBackSpaced()
     if (backSpacedText) {
+      console.log('Detected backspacing')
       changeSteps.splice(changeSteps.indexOf(backSpacedText))
     }
 
