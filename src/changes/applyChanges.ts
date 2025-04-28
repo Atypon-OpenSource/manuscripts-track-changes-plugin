@@ -74,7 +74,8 @@ export function applyAcceptedRejectedChanges(
         return revertWrapNodeChange(tr, change)
       }
       if (change.dataTracked.operation === CHANGE_OPERATION.move) {
-        return tr.delete(from, from + node.nodeSize)
+        tr.delete(from, from + node.nodeSize)
+        return deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
       }
     }
 
