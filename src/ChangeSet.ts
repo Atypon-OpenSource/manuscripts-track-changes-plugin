@@ -17,7 +17,6 @@ import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
   IncompleteChange,
-  MoveChange,
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
@@ -305,10 +304,6 @@ export class ChangeSet {
 
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
-  }
-
-  static isMoveChange(change: TrackedChange): change is MoveChange {
-    return change.type === 'move-change'
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {

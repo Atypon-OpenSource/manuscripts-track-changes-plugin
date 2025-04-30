@@ -107,18 +107,13 @@ export type ReferenceChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
-export type MoveChange = Change & {
-  type: 'move-change'
-  node: Node
-  children: TrackedChange[]
-}
+
 export type TrackedChange =
   | TextChange
   | NodeChange
   | NodeAttrChange
   | WrapChange
   | ReferenceChange
-  | MoveChange
   | MarkChange
 export type PartialChange<T extends TrackedChange> = Omit<T, 'dataTracked'> & {
   dataTracked: Partial<TrackedAttrs>

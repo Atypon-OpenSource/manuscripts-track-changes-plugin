@@ -58,7 +58,6 @@ const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(
 const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
   node && node.type === node.type.schema.nodes.highlight_marker
 
-
 const isNodeMoveOperation = (tr: Transaction): boolean => {
   // Need at least 2 steps (delete + insert)
   if (tr.steps.length < 2) {
