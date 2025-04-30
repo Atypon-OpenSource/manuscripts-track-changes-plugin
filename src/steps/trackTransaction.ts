@@ -58,6 +58,54 @@ const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(
 const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
   node && node.type === node.type.schema.nodes.highlight_marker
 
+
+const isNodeMoveOperation = (tr: Transaction): boolean => {
+  // Need at least 2 steps (delete + insert)
+  if (tr.steps.length < 2) {
+    return false
+  }
+
+  // Check if all steps are ReplaceSteps
+  if (!tr.steps.every((step) => step instanceof ReplaceStep)) {
+    return false
+  }
+
+  // Track content hashes of deleted and inserted nodes
+  const deletedHashes = new Set<string>()
+  const insertedHashes = new Set<string>()
+
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i] as ReplaceStep
+    const doc = tr.docs[i] || tr.docs[0]
+    const content = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
+
+    if (step.from !== step.to && step.slice.size === 0) {
+      // Delete operation - add content hash
+      if (content.content.firstChild) {
+        deletedHashes.add(content.content.firstChild.toString())
+      }
+    } else if (step.slice.size > 0) {
+      // Insert operation - add content hash
+      if (content.content.firstChild) {
+        insertedHashes.add(content.content.firstChild.toString())
+      }
+    }
+  }
+
+  // If all inserted content matches deleted content, it's a move
+  if (deletedHashes.size !== insertedHashes.size) {
+    return false
+  }
+
+  for (const hash of insertedHashes) {
+    if (!deletedHashes.has(hash)) {
+      return false
+    }
+  }
+
+  return true
+}
+
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
  *
@@ -101,16 +149,8 @@ export function trackTransaction(
 
   let trContext: TrTrackingContext = {}
 
-  // Move Node
-  const getStepContent = (doc: PMNode, step: ReplaceStep) =>
-    step.slice.size === 0 ? doc.slice(step.from, step.to).content : step.slice.content
-  if (
-    tr.steps.length === 2 &&
-    tr.steps[0] instanceof ReplaceStep &&
-    tr.steps[1] instanceof ReplaceStep &&
-    getStepContent(tr.doc, tr.steps[0]).eq(getStepContent(tr.docs[1], tr.steps[1]))
-  ) {
-    // move node
+  // Handle node move operations (like drag-and-drop)
+  if (isNodeMoveOperation(tr)) {
     emptyAttrs.moveNodeId = uuidv4()
   }
 
