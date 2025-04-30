@@ -31,6 +31,8 @@ export function updateChangesStatus(
   oldState: EditorState
 ) {
   const change = changeSet.get(ids[0])
+  const changeTime = new Date().getTime()
+
   if (change && status !== CHANGE_STATUS.pending) {
     const textChanges: TextChange[] = []
     const nonTextChanges: TrackedChange[] = []
@@ -59,14 +61,42 @@ export function updateChangesStatus(
                 c.dataTracked.operation === 'delete' &&
                 c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
             )
-            console.log('old', oldChange)
 
             if (oldChange && ChangeSet.isNodeChange(oldChange)) {
-              oldChange.dataTracked.status = status
-              oldChange.children.map((c) => {
-                c.dataTracked.status = status
-                ChangeSet.isTextChange(c) ? textChanges.push(c) : nonTextChanges.push(c)
+              
+              createdTr = updateChangeAttrs(
+                createdTr,
+                oldChange,
+                {
+                  ...oldChange.dataTracked,
+                  status,
+                  statusUpdateAt: changeTime,
+                  reviewedByID: userID,
+                },
+                oldState.schema
+              )
+
+              // Process children
+              oldChange.children.forEach((child) => {
+                createdTr = updateChangeAttrs(
+                  createdTr,
+                  child,
+                  {
+                    ...child.dataTracked,
+                    status,
+                    statusUpdateAt: changeTime,
+                    reviewedByID: userID,
+                  },
+                  oldState.schema
+                )
+
+                if (ChangeSet.isTextChange(child)) {
+                  textChanges.push(child)
+                } else {
+                  nonTextChanges.push(child)
+                }
               })
+
               nonTextChanges.push(oldChange)
             }
           }
@@ -77,7 +107,6 @@ export function updateChangesStatus(
     const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
   } else {
-    const changeTime = new Date().getTime()
     ids.forEach((changeId: string) => {
       const change = changeSet?.get(changeId)
       if (change) {
