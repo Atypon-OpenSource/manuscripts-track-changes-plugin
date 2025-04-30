@@ -63,7 +63,6 @@ export function updateChangesStatus(
             )
 
             if (oldChange && ChangeSet.isNodeChange(oldChange)) {
-              
               createdTr = updateChangeAttrs(
                 createdTr,
                 oldChange,

@@ -34,8 +34,9 @@ import {
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
+import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_STATUS } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
@@ -58,13 +59,26 @@ const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(
 const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
   node && node.type === node.type.schema.nodes.highlight_marker
 
+/**
+ * Detects if we're deleting a pending moved node
+ */
+function isDeletingPendingMovedNode(step: ReplaceStep, doc: PMNode): boolean {
+  if (step.from === step.to || step.slice.content.size > 0) {
+    return false
+  }
+
+  const node = doc.nodeAt(step.from)
+  return !!node?.attrs.dataTracked?.find(
+    (tracked: TrackedAttrs) =>
+      tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
+  )
+}
+
 const isNodeMoveOperation = (tr: Transaction): boolean => {
   // Need at least 2 steps (delete + insert)
   if (tr.steps.length < 2) {
     return false
   }
-
-  // Check if all steps are ReplaceSteps
   if (!tr.steps.every((step) => step instanceof ReplaceStep)) {
     return false
   }
@@ -72,19 +86,15 @@ const isNodeMoveOperation = (tr: Transaction): boolean => {
   // Track content hashes of deleted and inserted nodes
   const deletedHashes = new Set<string>()
   const insertedHashes = new Set<string>()
-
   for (let i = 0; i < tr.steps.length; i++) {
     const step = tr.steps[i] as ReplaceStep
     const doc = tr.docs[i] || tr.docs[0]
     const content = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
-
     if (step.from !== step.to && step.slice.size === 0) {
-      // Delete operation - add content hash
       if (content.content.firstChild) {
         deletedHashes.add(content.content.firstChild.toString())
       }
     } else if (step.slice.size > 0) {
-      // Insert operation - add content hash
       if (content.content.firstChild) {
         insertedHashes.add(content.content.firstChild.toString())
       }
@@ -127,7 +137,8 @@ export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
   newTr: Transaction,
-  authorID: string
+  authorID: string,
+  changeSet: ChangeSet
 ) {
   const emptyAttrs: NewEmptyAttrs = {
     authorID,
@@ -148,7 +159,27 @@ export function trackTransaction(
 
   let trContext: TrTrackingContext = {}
 
-  // Handle node move operations (like drag-and-drop)
+  // Handle deletion of pending moved nodes before processing other steps
+  tr.steps.forEach((step) => {
+    if (step instanceof ReplaceStep) {
+      const doc = tr.docs[tr.steps.indexOf(step)] || tr.docs[0]
+      if (isDeletingPendingMovedNode(step, doc)) {
+        const node = doc.nodeAt(step.from)
+        node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
+          if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
+            // Mark the move as rejected
+            newTr.setNodeMarkup(step.from, undefined, {
+              ...node.attrs,
+              dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
+                t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
+              ),
+            })
+          }
+        })
+      }
+    }
+  })
+
   if (isNodeMoveOperation(tr)) {
     emptyAttrs.moveNodeId = uuidv4()
   }
