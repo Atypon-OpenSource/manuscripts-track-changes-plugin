@@ -17,7 +17,7 @@ import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
-import { CHANGE_OPERATION } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
@@ -178,3 +178,98 @@ export function stepIsLift(
 
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
+
+export const isNodeMoveOperation = (tr: Transaction): boolean => {
+  /**
+   * Determines if a transaction represents a node move operation (like drag-and-drop).
+   *
+   * Our approach to detecting moves involves:
+   * 1. Checking basic preconditions (multiple steps, all ReplaceSteps)
+   * 2. Comparing content hashes of deleted and inserted nodes
+   *
+   * A move operation must meet these criteria:
+   * - Contains at least 2 steps (delete + insert)
+   * - All steps are ReplaceSteps
+   * - The exact same content is being deleted and inserted elsewhere
+   */
+
+  // Quick pre-check: Need at least 2 steps (delete + insert) to be a move
+  if (tr.steps.length < 2) {
+    return false
+  }
+
+  // All steps must be ReplaceSteps
+  if (!tr.steps.every((step) => step instanceof ReplaceStep)) {
+    return false
+  }
+
+  // Track content hashes of deleted and inserted nodes
+  const deletedHashes = new Set<string>()
+  const insertedHashes = new Set<string>()
+
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i] as ReplaceStep
+    /**
+     * We use tr.docs[i] for the document state after each step, falling back to tr.docs[0] when:
+     * 1. It's the first step (i=0), where tr.docs[0] is the original document state
+     * 2. In rare cases where the mapping might be incomplete
+     *
+     * This ensures we always have a valid document reference for content comparison,
+     * whether we're looking at the initial state or subsequent steps.
+     */
+    const doc = tr.docs[i] || tr.docs[0]
+    const content = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
+
+    if (step.from !== step.to && step.slice.size === 0) {
+      // Delete operation - add content hash
+      if (content.content.firstChild) {
+        deletedHashes.add(content.content.firstChild.toString())
+      }
+    } else if (step.slice.size > 0) {
+      // Insert operation - add content hash
+      if (content.content.firstChild) {
+        insertedHashes.add(content.content.firstChild.toString())
+      }
+    }
+  }
+
+  /**
+   * Content matching verification:
+   *
+   * This is a critical check that ensures we only identify true move operations
+   * where the exact same content is being moved (not modified).
+   *
+   * The logic:
+   * 1. First compare hash counts - if different, definitely not a move
+   * 2. Then verify every inserted node matches a deleted node
+   *
+   * This is an efficient way to confirm the transaction is moving nodes
+   * without actually modifying their content.
+   */
+  if (deletedHashes.size !== insertedHashes.size) {
+    return false
+  }
+
+  for (const hash of insertedHashes) {
+    if (!deletedHashes.has(hash)) {
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
+ * Detects if we're deleting a pending moved node
+ */
+export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode): boolean => {
+  if (step.from === step.to || step.slice.content.size > 0) {
+    return false
+  }
+
+  const node = doc.nodeAt(step.from)
+  return !!node?.attrs.dataTracked?.find(
+    (tracked: TrackedAttrs) =>
+      tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
+  )
+}

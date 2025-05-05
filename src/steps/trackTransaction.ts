@@ -42,6 +42,7 @@ import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import { isDeletingPendingMovedNode, isNodeMoveOperation } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
@@ -58,62 +59,6 @@ const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(
 
 const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
   node && node.type === node.type.schema.nodes.highlight_marker
-
-/**
- * Detects if we're deleting a pending moved node
- */
-function isDeletingPendingMovedNode(step: ReplaceStep, doc: PMNode): boolean {
-  if (step.from === step.to || step.slice.content.size > 0) {
-    return false
-  }
-
-  const node = doc.nodeAt(step.from)
-  return !!node?.attrs.dataTracked?.find(
-    (tracked: TrackedAttrs) =>
-      tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
-  )
-}
-
-const isNodeMoveOperation = (tr: Transaction): boolean => {
-  // Need at least 2 steps (delete + insert)
-  if (tr.steps.length < 2) {
-    return false
-  }
-  if (!tr.steps.every((step) => step instanceof ReplaceStep)) {
-    return false
-  }
-
-  // Track content hashes of deleted and inserted nodes
-  const deletedHashes = new Set<string>()
-  const insertedHashes = new Set<string>()
-  for (let i = 0; i < tr.steps.length; i++) {
-    const step = tr.steps[i] as ReplaceStep
-    const doc = tr.docs[i] || tr.docs[0]
-    const content = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
-    if (step.from !== step.to && step.slice.size === 0) {
-      if (content.content.firstChild) {
-        deletedHashes.add(content.content.firstChild.toString())
-      }
-    } else if (step.slice.size > 0) {
-      if (content.content.firstChild) {
-        insertedHashes.add(content.content.firstChild.toString())
-      }
-    }
-  }
-
-  // If all inserted content matches deleted content, it's a move
-  if (deletedHashes.size !== insertedHashes.size) {
-    return false
-  }
-
-  for (const hash of insertedHashes) {
-    if (!deletedHashes.has(hash)) {
-      return false
-    }
-  }
-
-  return true
-}
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -181,6 +126,23 @@ export function trackTransaction(
   })
 
   if (isNodeMoveOperation(tr)) {
+    /**
+     * We set a unique moveNodeId to identify and track node move operations.
+     *
+     * This moveNodeId serves several important purposes:
+     * 1. Links together the delete and insert steps that make up a single move operation
+     * 2. Allows us to identify moved nodes later in the change processing pipeline
+     * 3. Helps handle edge cases where moved nodes are subsequently modified or deleted
+     *
+     * The moveNodeId is stored in the change attributes and used by:
+     * - The ChangeSet to group related move operations
+     * - The applyChanges logic to properly handle move accept/reject
+     *
+     * We use just the moveNodeId (rather than an explicit operation type) because:
+     * - It's consistent with our existing change tracking pattern
+     * - It's sufficient to uniquely identify move operations
+     * - It keeps the implementation simple while being unambiguous
+     */
     emptyAttrs.moveNodeId = uuidv4()
   }
 
