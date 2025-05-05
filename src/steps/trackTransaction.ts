@@ -107,7 +107,7 @@ export function trackTransaction(
   // Handle deletion of pending moved nodes before processing other steps
   tr.steps.forEach((step) => {
     if (step instanceof ReplaceStep) {
-      const doc = tr.docs[tr.steps.indexOf(step)] || tr.docs[0]
+      const doc = tr.docs[tr.steps.indexOf(step)]
       if (isDeletingPendingMovedNode(step, doc)) {
         const node = doc.nodeAt(step.from)
         node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
