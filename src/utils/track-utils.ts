@@ -209,15 +209,7 @@ export const isNodeMoveOperation = (tr: Transaction): boolean => {
 
   for (let i = 0; i < tr.steps.length; i++) {
     const step = tr.steps[i] as ReplaceStep
-    /**
-     * We use tr.docs[i] for the document state after each step, falling back to tr.docs[0] when:
-     * 1. It's the first step (i=0), where tr.docs[0] is the original document state
-     * 2. In rare cases where the mapping might be incomplete
-     *
-     * This ensures we always have a valid document reference for content comparison,
-     * whether we're looking at the initial state or subsequent steps.
-     */
-    const doc = tr.docs[i] || tr.docs[0]
+    const doc = tr.docs[i]
     const content = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
 
     if (step.from !== step.to && step.slice.size === 0) {
