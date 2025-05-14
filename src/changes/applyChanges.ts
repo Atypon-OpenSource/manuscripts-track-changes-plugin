@@ -63,7 +63,7 @@ export function applyAcceptedRejectedChanges(
       return
     }
     if (!node) {
-      !deleted && log.warn('no node found to update for change', change)
+      !deleted && log.warn('No node found to update for change', change)
       return
     }
 
@@ -80,10 +80,32 @@ export function applyAcceptedRejectedChanges(
       }
     } else if (change.dataTracked.status === CHANGE_STATUS.accepted) {
       if (change.dataTracked.operation === CHANGE_OPERATION.move) {
-        // For an accepted move, delete the original node to avoid duplication
-        tr.delete(from, from + node.nodeSize)
-        deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-        // Clear dataTracked to mark the change as applied
+        // Find the original node (the deletion change associated with this move)
+        const originalNodeChange = changeSet.changes.find(
+          (c) =>
+            c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
+            c.dataTracked.operation === CHANGE_OPERATION.delete
+        )
+
+        if (originalNodeChange) {
+          const { pos: originalFrom, deleted: originalDeleted } = deleteMap.mapResult(originalNodeChange.from)
+          const originalNode = tr.doc.nodeAt(originalFrom)
+
+          if (originalDeleted) {
+            return
+          }
+          if (!originalNode) {
+            return
+          }
+
+          // Delete the original node at its position
+          tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
+          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+        } else {
+          log.warn('No original node change found for move', { change })
+        }
+
+        // Clear dataTracked on the moved node (at the new position) to mark the change as applied
         const attrs = { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) }
         tr.setNodeMarkup(from, undefined, attrs, node.marks)
         return
