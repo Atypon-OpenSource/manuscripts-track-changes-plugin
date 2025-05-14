@@ -53,6 +53,9 @@ export function applyAcceptedRejectedChanges(
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
+    if (change.dataTracked.operation === CHANGE_OPERATION.move) {
+      return
+    }
     // Map change.from and skip those which don't need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from)
@@ -73,42 +76,6 @@ export function applyAcceptedRejectedChanges(
       }
       if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
         return revertWrapNodeChange(tr, change)
-      }
-      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
-        tr.delete(from, from + node.nodeSize)
-        return deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-      }
-    } else if (change.dataTracked.status === CHANGE_STATUS.accepted) {
-      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
-        // Find the original node (the deletion change associated with this move)
-        const originalNodeChange = changeSet.changes.find(
-          (c) =>
-            c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
-            c.dataTracked.operation === CHANGE_OPERATION.delete
-        )
-
-        if (originalNodeChange) {
-          const { pos: originalFrom, deleted: originalDeleted } = deleteMap.mapResult(originalNodeChange.from)
-          const originalNode = tr.doc.nodeAt(originalFrom)
-
-          if (originalDeleted) {
-            return
-          }
-          if (!originalNode) {
-            return
-          }
-
-          // Delete the original node at its position
-          tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
-          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-        } else {
-          log.warn('No original node change found for move', { change })
-        }
-
-        // Clear dataTracked on the moved node (at the new position) to mark the change as applied
-        const attrs = { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) }
-        tr.setNodeMarkup(from, undefined, attrs, node.marks)
-        return
       }
     }
 
@@ -163,6 +130,56 @@ export function applyAcceptedRejectedChanges(
         { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
         node.marks
       )
+    }
+  })
+
+  // Second pass: Handle move operations
+  changes.forEach((change) => {
+    if (change.dataTracked.operation !== CHANGE_OPERATION.move) {
+      return
+    }
+
+    const { pos: from, deleted } = deleteMap.mapResult(change.from)
+    const node = tr.doc.nodeAt(from)
+
+    if (deleted || !node) {
+      if (!deleted && !node) {
+        log.warn('No node found for move change', { change })
+      }
+      return
+    }
+
+    if (change.dataTracked.status === CHANGE_STATUS.accepted) {
+      // Find the original delete change for this move
+      const originalChange = changeSet.changes.find(
+        (c) =>
+          c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
+          c.dataTracked.operation === CHANGE_OPERATION.delete
+      )
+
+      if (originalChange) {
+        const { pos: originalFrom } = deleteMap.mapResult(originalChange.from)
+        const originalNode = tr.doc.nodeAt(originalFrom)
+
+        // Remove tracking from the moved node (new position)
+        const attrs = {
+          ...node.attrs,
+          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+        }
+        tr.setNodeMarkup(from, undefined, attrs, node.marks)
+
+        // Delete the original node (old position)
+        if (originalNode) {
+          tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
+          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+        }
+      } else {
+        log.warn('No original change found for move operation', { change })
+      }
+    } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
+      // For rejected moves, delete the moved node (new position)
+      tr.delete(from, from + node.nodeSize)
+      deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     }
   })
 
