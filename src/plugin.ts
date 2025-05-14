@@ -130,7 +130,7 @@ export const trackChangesPlugin = (
           !trFromHistory(tr) &&
           !(wasAppended && tr.getMeta('origin') === 'paragraphs')
         ) {
-          createdTr = trackTransaction(tr, oldState, createdTr, userID)
+          createdTr = trackTransaction(tr, oldState, createdTr, userID, changeSet)
         }
         docChanged = docChanged || tr.docChanged
 

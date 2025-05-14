@@ -34,13 +34,15 @@ import {
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
+import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_STATUS } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import { isDeletingPendingMovedNode, isNodeMoveOperation } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
@@ -80,7 +82,8 @@ export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
   newTr: Transaction,
-  authorID: string
+  authorID: string,
+  changeSet: ChangeSet
 ) {
   const emptyAttrs: NewEmptyAttrs = {
     authorID,
@@ -100,6 +103,48 @@ export function trackTransaction(
   log.info('ORIGINAL transaction', tr)
 
   let trContext: TrTrackingContext = {}
+
+  // Handle deletion of pending moved nodes before processing other steps
+  tr.steps.forEach((step) => {
+    if (step instanceof ReplaceStep) {
+      const doc = tr.docs[tr.steps.indexOf(step)]
+      if (isDeletingPendingMovedNode(step, doc)) {
+        const node = doc.nodeAt(step.from)
+        node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
+          if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
+            // Mark the move as rejected
+            newTr.setNodeMarkup(step.from, undefined, {
+              ...node.attrs,
+              dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
+                t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
+              ),
+            })
+          }
+        })
+      }
+    }
+  })
+
+  if (isNodeMoveOperation(tr)) {
+    /**
+     * We set a unique moveNodeId to identify and track node move operations.
+     *
+     * This moveNodeId serves several important purposes:
+     * 1. Links together the delete and insert steps that make up a single move operation
+     * 2. Allows us to identify moved nodes later in the change processing pipeline
+     * 3. Helps handle edge cases where moved nodes are subsequently modified or deleted
+     *
+     * The moveNodeId is stored in the change attributes and used by:
+     * - The ChangeSet to group related move operations
+     * - The applyChanges logic to properly handle move accept/reject
+     *
+     * We use just the moveNodeId (rather than an explicit operation type) because:
+     * - It's consistent with our existing change tracking pattern
+     * - It's sufficient to uniquely identify move operations
+     * - It keeps the implementation simple while being unambiguous
+     */
+    emptyAttrs.moveNodeId = uuidv4()
+  }
 
   for (let i = tr.steps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
