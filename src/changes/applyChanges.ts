@@ -39,6 +39,7 @@ export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, change
  * @param tr
  * @param schema
  * @param changes
+ * @param changeSet
  * @param deleteMap
  */
 export function applyAcceptedRejectedChanges(
@@ -48,11 +49,11 @@ export function applyAcceptedRejectedChanges(
   changeSet: ChangeSet,
   deleteMap = new Mapping()
 ): Mapping {
-  // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
+  // This will make sure that node-attr-change applies first as the editor prevents deleting a node & updating its attribute
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
-    // Map change.from and skip those which dont need to be applied
+    // Map change.from and skip those which don't need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from)
     const node = tr.doc.nodeAt(from)
@@ -66,7 +67,7 @@ export function applyAcceptedRejectedChanges(
       return
     }
 
-    if (change.dataTracked.status == CHANGE_STATUS.rejected) {
+    if (change.dataTracked.status === CHANGE_STATUS.rejected) {
       if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
         return revertSplitNodeChange(tr, change, changeSet)
       }
@@ -76,6 +77,16 @@ export function applyAcceptedRejectedChanges(
       if (change.dataTracked.operation === CHANGE_OPERATION.move) {
         tr.delete(from, from + node.nodeSize)
         return deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+      }
+    } else if (change.dataTracked.status === CHANGE_STATUS.accepted) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.move) {
+        // For an accepted move, delete the original node to avoid duplication
+        tr.delete(from, from + node.nodeSize)
+        deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+        // Clear dataTracked to mark the change as applied
+        const attrs = { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) }
+        tr.setNodeMarkup(from, undefined, attrs, node.marks)
+        return
       }
     }
 
