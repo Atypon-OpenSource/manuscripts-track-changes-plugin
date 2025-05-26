@@ -51,7 +51,6 @@ export function processChangeSteps(
         deletesCounter++ // increase the counter for deleted nodes
         const prevDeletedNodeInserted = isInserted
         const trackedData = getBlockInlineTrackedData(c.node)
-        console.log(trackedData)
         const inserted = trackedData?.find((d) => d.operation === CHANGE_OPERATION.insert)
         // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
         // if yes, we can suppose that the current node was inserted too
