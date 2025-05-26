@@ -29,6 +29,7 @@ import {
   RemoveMarkStep,
   ReplaceAroundStep,
   ReplaceStep,
+  Step,
 } from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
@@ -42,7 +43,7 @@ import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
-import { isDeletingPendingMovedNode, isNodeMoveOperation } from '../utils/track-utils'
+import { isDeletingPendingMovedNode, HasMoveOperations } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
@@ -103,50 +104,51 @@ export function trackTransaction(
   log.info('ORIGINAL transaction', tr)
 
   let trContext: TrTrackingContext = {}
+  const movingStepsAssociated = HasMoveOperations(tr)
 
-  // Handle deletion of pending moved nodes before processing other steps
-  tr.steps.forEach((step) => {
-    if (step instanceof ReplaceStep) {
-      const doc = tr.docs[tr.steps.indexOf(step)]
-      if (isDeletingPendingMovedNode(step, doc)) {
-        const node = doc.nodeAt(step.from)
-        node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
-          if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
-            // Mark the move as rejected
-            newTr.setNodeMarkup(step.from, undefined, {
-              ...node.attrs,
-              dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
-                t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
-              ),
-            })
-          }
-        })
-      }
+  const cleanSteps: Step[] = []
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
+    // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
+    // and associate original deletion with the new move
+    const moveID = movingStepsAssociated.get(step as ReplaceStep)
+    const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
+    if (moveID && prevMoveID) {
+      // find the peer step for the ignored step and change its key to previous moveNodeID
+      movingStepsAssociated.forEach((replaceStepMoveID, replaceStep) => {
+        if (replaceStep !== step && moveID === replaceStepMoveID) {
+          // get previous moveID
+          movingStepsAssociated.set(replaceStep, prevMoveID)
+        }
+      })
+      continue
     }
-  })
-
-  if (isNodeMoveOperation(tr)) {
-    /**
-     * We set a unique moveNodeId to identify and track node move operations.
-     *
-     * This moveNodeId serves several important purposes:
-     * 1. Links together the delete and insert steps that make up a single move operation
-     * 2. Allows us to identify moved nodes later in the change processing pipeline
-     * 3. Helps handle edge cases where moved nodes are subsequently modified or deleted
-     *
-     * The moveNodeId is stored in the change attributes and used by:
-     * - The ChangeSet to group related move operations
-     * - The applyChanges logic to properly handle move accept/reject
-     *
-     * We use just the moveNodeId (rather than an explicit operation type) because:
-     * - It's consistent with our existing change tracking pattern
-     * - It's sufficient to uniquely identify move operations
-     * - It keeps the implementation simple while being unambiguous
-     */
-    emptyAttrs.moveNodeId = uuidv4()
+    cleanSteps.push(step)
   }
 
-  for (let i = tr.steps.length - 1; i >= 0; i--) {
+  // Handle deletion of pending moved nodes before processing other steps
+
+  // tr.steps.forEach((step) => {
+  //   if (step instanceof ReplaceStep) {
+  //     const doc = tr.docs[tr.steps.indexOf(step)]
+  //     if (isDeletingPendingMovedNode(step, doc)) {
+  //       const node = doc.nodeAt(step.from)
+  //       node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
+  //         if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
+  //           // Mark the move as rejected
+  //           newTr.setNodeMarkup(step.from, undefined, {
+  //             ...node.attrs,
+  //             dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
+  //               t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
+  //             ),
+  //           })
+  //         }
+  //       })
+  //     }
+  //   }
+  // })
+
+  for (let i = cleanSteps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
 
     log.info('transaction step', step)
@@ -173,6 +175,7 @@ export function trackTransaction(
         // don't track highlight marker nodes
         continue
       }
+
       const invertedStep = step.invert(tr.docs[i])
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
@@ -180,6 +183,7 @@ export function trackTransaction(
       if (isDelete) {
         thisStepMapping = deletedNodeMapping
       }
+
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
@@ -190,6 +194,7 @@ export function trackTransaction(
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
       // @TODO - check if needed to be done for other types of steps
+
       const newStep = new ReplaceStep(
         thisStepMapping.map(invertedStep.from),
         thisStepMapping.map(invertedStep.to),
@@ -197,7 +202,16 @@ export function trackTransaction(
       )
       const stepResult = newTr.maybeStep(newStep)
 
-      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i], tr)
+      let [steps, startPos] = trackReplaceStep(
+        step,
+        oldState,
+        newTr,
+        emptyAttrs,
+        stepResult,
+        tr.docs[i],
+        tr,
+        movingStepsAssociated.get(step)
+      )
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -216,11 +230,15 @@ export function trackTransaction(
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
+
+      // if step is in movingPairs, ass it's uuid (Map entry key) as moveNodeId
       const [mapping, selectionPos] = processChangeSteps(
         steps,
         startPos || tr.selection.head, // Incase startPos is it's default value 0, use the old selection head
         newTr,
-        emptyAttrs,
+        movingStepsAssociated.has(step)
+          ? { ...emptyAttrs, moveNodeId: movingStepsAssociated.get(step) }
+          : emptyAttrs,
         oldState.schema,
         deletedNodeMapping
       )

@@ -34,14 +34,22 @@ export function trackReplaceStep(
   step: ReplaceStep,
   oldState: EditorState,
   newTr: Transaction,
-  attrs: NewEmptyAttrs,
+  attrsTemplate: NewEmptyAttrs,
   stepResult: StepResult,
   currentStepDoc: PMNode,
-  tr: Transaction
+  tr: Transaction,
+  moveID?: string
 ) {
   log.info('###### ReplaceStep ######')
   let selectionPos = 0
   const changeSteps: ChangeStep[] = []
+
+  const attrs = { ...attrsTemplate }
+
+  if (moveID) {
+    console.log('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
+    attrs.moveNodeId = moveID
+  }
 
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
@@ -108,8 +116,7 @@ export function trackReplaceStep(
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
-
-      if (attrs.moveNodeId) {
+      if (moveID) {
         fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
