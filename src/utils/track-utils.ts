@@ -271,7 +271,7 @@ export const HasMoveOperations = (tr: Transaction) => {
  * Detects if we're deleting a pending moved node
  */
 export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
-  if (step.from === step.to || step.slice.content.size > 0) {
+  if (!step.slice || step.from === step.to || step.slice.content.size > 0) {
     return undefined
   }
 
