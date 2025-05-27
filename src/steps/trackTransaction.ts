@@ -79,6 +79,35 @@ const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
  * @returns newTr that inverts the initial tr and applies track attributes/marks
  */
 
+/**
+ * Checks if this is a simple pending move deletion (not part of multiple moves)
+ */
+function isSimplePendingMoveDeletion(
+  step: ReplaceStep,
+  doc: PMNode,
+  movingSteps: Map<ReplaceStep, string>
+): boolean {
+  // Not a deletion
+  if (step.from === step.to || step.slice.content.size > 0) {
+    return false
+  }
+
+  // Part of a move operation
+  if (movingSteps.has(step)) {
+    return false
+  }
+
+  const node = doc.nodeAt(step.from)
+  if (!node) {
+    return false
+  }
+
+  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[] | undefined
+  return !!trackedAttrs?.some(
+    (t) => t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending
+  )
+}
+
 export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
@@ -105,6 +134,27 @@ export function trackTransaction(
 
   let trContext: TrTrackingContext = {}
   const movingStepsAssociated = HasMoveOperations(tr)
+
+  // First handle simple pending move deletions (not part of multiple moves)
+  tr.steps.forEach((step) => {
+    if (step instanceof ReplaceStep) {
+      const doc = tr.docs[tr.steps.indexOf(step)]
+      if (isSimplePendingMoveDeletion(step, doc, movingStepsAssociated)) {
+        const node = doc.nodeAt(step.from)
+        node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
+          if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
+            // Mark the move as rejected
+            newTr.setNodeMarkup(step.from, undefined, {
+              ...node.attrs,
+              dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
+                t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
+              ),
+            })
+          }
+        })
+      }
+    }
+  })
 
   const cleanSteps: Step[] = []
   for (let i = 0; i < tr.steps.length; i++) {
@@ -280,6 +330,7 @@ export function trackTransaction(
     tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
+
   if (setsNewSelection && tr.selection instanceof TextSelection) {
     // preserving text selection if we track an element in which selection is set
     const newPos = newTr.doc.resolve(tr.selection.from) // no mapping on purpose as tracking will misguide mapping
