@@ -222,12 +222,19 @@ export class ChangeSet {
     const nextChange = this.changeTree.at(index + 1)
     const isInline = (c: TrackedChange) =>
       c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
+    const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
+      c1.dataTracked.operation === c2.dataTracked.operation ||
+      (c1.dataTracked.operation === 'wrap_with_node' &&
+        (c2.dataTracked.operation === 'insert' || c2.dataTracked.operation === 'set_attrs')) ||
+      (c2.dataTracked.operation === 'wrap_with_node' &&
+        (c1.dataTracked.operation === 'insert' || c1.dataTracked.operation === 'set_attrs'))
+
     return (
       isInline(change) &&
       nextChange &&
       isInline(nextChange) &&
       change.to === nextChange.from &&
-      change.dataTracked.operation === nextChange.dataTracked.operation
+      hasMatchingOperation(change, nextChange)
     )
   }
 
