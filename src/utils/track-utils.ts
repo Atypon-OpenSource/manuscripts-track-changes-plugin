@@ -27,6 +27,7 @@ import {
   NewSplitNodeAttrs,
   NewUpdateAttrs,
 } from '../types/track'
+import { uuidv4 } from './uuidv4'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
@@ -179,7 +180,7 @@ export function stepIsLift(
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
 
-export const isNodeMoveOperation = (tr: Transaction): boolean => {
+export const HasMoveOperations = (tr: Transaction) => {
   /**
    * Determines if a transaction represents a node move operation (like drag-and-drop).
    *
@@ -193,75 +194,97 @@ export const isNodeMoveOperation = (tr: Transaction): boolean => {
    * - The exact same content is being deleted and inserted elsewhere
    */
 
+  type InsertStep = ReplaceStep
+  type DeletStep = ReplaceStep
+  const movingAssoc = new Map<ReplaceStep, string>()
+
   // Quick pre-check: Need at least 2 steps (delete + insert) to be a move
   if (tr.steps.length < 2) {
-    return false
+    return movingAssoc
   }
 
-  // All steps must be ReplaceSteps
-  if (!tr.steps.every((step) => step instanceof ReplaceStep)) {
-    return false
-  }
-
-  // Track content hashes of deleted and inserted nodes
-  const deletedHashes = new Set<string>()
-  const insertedHashes = new Set<string>()
+  const matched: number[] = []
 
   for (let i = 0; i < tr.steps.length; i++) {
+    // skipping if already paired
+    if (matched.includes(i)) {
+      continue
+    }
     const step = tr.steps[i] as ReplaceStep
     const doc = tr.docs[i]
-    const content = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
+    // const slice = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
+    const stepDeletesContent = step.from !== step.to && step.slice.size === 0
+    const stepInsertsContent = step.slice.size && step.slice.content.firstChild ? true : false
+    console.log('stepDeletesContent', stepDeletesContent)
+    console.log('stepInsertsContent', stepInsertsContent)
 
-    if (step.from !== step.to && step.slice.size === 0) {
-      // Delete operation - add content hash
-      if (content.content.firstChild) {
-        deletedHashes.add(content.content.firstChild.toString())
+    for (let g = 0; g < tr.steps.length; g++) {
+      // skipping if it's the same step or already paired
+      if (g === i || matched.includes(g)) {
+        continue
       }
-    } else if (step.slice.size > 0) {
-      // Insert operation - add content hash
-      if (content.content.firstChild) {
-        insertedHashes.add(content.content.firstChild.toString())
+      const peerStep = tr.steps[g] as ReplaceStep
+      const peerStepInsertsContent = peerStep.slice.size && peerStep.slice.content.firstChild
+      const peerStepDeletesContent = peerStep.from !== peerStep.to && peerStep.slice.size === 0
+
+      if (stepDeletesContent) {
+        const deletedContent = doc.slice(step.from, step.to)
+
+        if (
+          peerStepInsertsContent &&
+          deletedContent.content.firstChild &&
+          peerStep.slice.content.firstChild.toString() === deletedContent.content.firstChild.toString()
+        ) {
+          const commonID = uuidv4()
+          movingAssoc.set(peerStep, commonID)
+          movingAssoc.set(step, commonID)
+          matched.push(i, g)
+        }
+        continue
+        // Delete operation detected
+        // find a pair for it among inserting steps
+      }
+
+      if (stepInsertsContent && peerStepDeletesContent) {
+        const insertedContent = step.slice
+        const deletedPeerContent = tr.docs[g].slice(peerStep.from, peerStep.to)
+        if (
+          insertedContent.content.firstChild &&
+          deletedPeerContent.content.firstChild &&
+          insertedContent.content.firstChild.toString() === deletedPeerContent.content.firstChild.toString()
+        ) {
+          const commonID = uuidv4()
+          movingAssoc.set(peerStep, commonID)
+          movingAssoc.set(step, commonID)
+        }
+        matched.push(i, g)
+        // Insert operation detected
+        // find a pair for it among deleting steps
       }
     }
   }
 
-  /**
-   * Content matching verification:
-   *
-   * This is a critical check that ensures we only identify true move operations
-   * where the exact same content is being moved (not modified).
-   *
-   * The logic:
-   * 1. First compare hash counts - if different, definitely not a move
-   * 2. Then verify every inserted node matches a deleted node
-   *
-   * This is an efficient way to confirm the transaction is moving nodes
-   * without actually modifying their content.
-   */
-  if (deletedHashes.size !== insertedHashes.size) {
-    return false
-  }
-
-  for (const hash of insertedHashes) {
-    if (!deletedHashes.has(hash)) {
-      return false
-    }
-  }
-
-  return true
+  return movingAssoc
 }
 
 /**
  * Detects if we're deleting a pending moved node
  */
-export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode): boolean => {
+export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
   if (step.from === step.to || step.slice.content.size > 0) {
-    return false
+    return undefined
   }
 
   const node = doc.nodeAt(step.from)
-  return !!node?.attrs.dataTracked?.find(
-    (tracked: TrackedAttrs) =>
-      tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
+  if (!node) {
+    return undefined
+  }
+  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[]
+  const found = trackedAttrs?.find(
+    (tracked) => tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
   )
+  if (found?.moveNodeId) {
+    return found.moveNodeId
+  }
+  return undefined
 }
