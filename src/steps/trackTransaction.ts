@@ -126,28 +126,6 @@ export function trackTransaction(
     cleanSteps.push(step)
   }
 
-  // Handle deletion of pending moved nodes before processing other steps
-
-  // tr.steps.forEach((step) => {
-  //   if (step instanceof ReplaceStep) {
-  //     const doc = tr.docs[tr.steps.indexOf(step)]
-  //     if (isDeletingPendingMovedNode(step, doc)) {
-  //       const node = doc.nodeAt(step.from)
-  //       node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
-  //         if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
-  //           // Mark the move as rejected
-  //           newTr.setNodeMarkup(step.from, undefined, {
-  //             ...node.attrs,
-  //             dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
-  //               t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
-  //             ),
-  //           })
-  //         }
-  //       })
-  //     }
-  //   }
-  // })
-
   for (let i = cleanSteps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
 
