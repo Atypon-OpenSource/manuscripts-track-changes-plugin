@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import { ManuscriptNode } from '@manuscripts/transform'
-import { Schema } from 'prosemirror-model'
+import { Schema, Slice } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
-import { liftTarget } from 'prosemirror-transform'
+import { liftTarget, Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
@@ -67,17 +67,18 @@ export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange,
   }
 }
 
-export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) {
+export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, deleteMap: Mapping) {
   const from = tr.mapping.map(change.from)
   const to = tr.mapping.map(change.to)
   const node = tr.doc.nodeAt(from)
-  // we use replaceWith for inline node, as lift will not work with inline node
+  // we use ReplaceAroundStep for inline node, as lift will not work with inline node and will help to get right mapping
   if (node?.isInline) {
-    tr.replaceWith(from, to, node.content)
+    tr.step(new ReplaceAroundStep(from, to, from + 1, to - 1, Slice.empty, 0))
+    deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
   } else {
     tr.doc.nodesBetween(from, to, (node, pos) => {
-      const $fromPos = tr.doc.resolve(pos)
-      const $toPos = tr.doc.resolve(pos + node.nodeSize - 1)
+      const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
+      const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
       const nodeRange = $fromPos.blockRange($toPos)
       if (!nodeRange) {
         return
@@ -86,6 +87,7 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange) 
       const targetLiftDepth = liftTarget(nodeRange)
       if (targetLiftDepth || targetLiftDepth === 0) {
         tr.lift(nodeRange, targetLiftDepth)
+        deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
       }
     })
   }
