@@ -291,16 +291,16 @@ export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
 
 /**
  * Checks if this is a direct pending move deletion (not part of multiple moves)
- * 
+ *
  * A direct pending move deletion occurs when:
  * 1. The step is a deletion (from ≠ to and empty slice)
  * 2. The step is not part of a larger move operation (not in movingSteps map)
  * 3. The deleted node has pending move tracking attributes
- * 
+ *
  * This is different from move operations that involve multiple steps (like cut-paste)
  * where we need to track the relationship between deletion and insertion.
  */
-export const  isDirectPendingMoveDeletion = (
+export const isDirectPendingMoveDeletion = (
   step: ReplaceStep,
   doc: PMNode,
   movingSteps: Map<ReplaceStep, string>
