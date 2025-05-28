@@ -49,7 +49,16 @@ export function applyAcceptedRejectedChanges(
   deleteMap = new Mapping()
 ): Mapping {
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
-  changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
+  changes.sort((c1, c2) => {
+    // list change need to be first to lift list item then we can apply paragraph children changes
+    if (
+      (c1.type === 'node-change' && c1.node.type === schema.nodes.list) ||
+      (c2.type === 'node-change' && c2.node.type === schema.nodes.list)
+    ) {
+      return -1
+    }
+    return c1.dataTracked.updatedAt - c2.dataTracked.updatedAt
+  })
 
   changes.forEach((change) => {
     if (change.dataTracked.status == CHANGE_STATUS.rejected) {
@@ -57,7 +66,7 @@ export function applyAcceptedRejectedChanges(
         return revertSplitNodeChange(tr, change, changeSet)
       }
       if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-        return revertWrapNodeChange(tr, change)
+        return revertWrapNodeChange(tr, change, deleteMap)
       }
     }
     // Map change.from and skip those which dont need to be applied
