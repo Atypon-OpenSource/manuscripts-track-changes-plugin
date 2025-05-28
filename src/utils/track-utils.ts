@@ -15,7 +15,7 @@
  */
 import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, TextSelection, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
@@ -324,4 +324,72 @@ export const isDirectPendingMoveDeletion = (
   return !!trackedAttrs?.some(
     (t) => t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending
   )
+}
+
+/**
+ * Handles direct pending move deletions (not part of moving pending moved node)
+ */
+export const handleDirectPendingMoveDeletions = (
+  tr: Transaction,
+  newTr: Transaction,
+  movingSteps: Map<ReplaceStep, string>
+) => {
+  tr.steps.forEach((step) => {
+    if (step instanceof ReplaceStep) {
+      const doc = tr.docs[tr.steps.indexOf(step)]
+      if (isDirectPendingMoveDeletion(step, doc, movingSteps)) {
+        const node = doc.nodeAt(step.from)
+        if (node?.attrs.dataTracked) {
+          // Remove the pending move tracking record
+          newTr.setNodeMarkup(step.from, undefined, {
+            ...node.attrs,
+            dataTracked: node.attrs.dataTracked.filter(
+              (t: TrackedAttrs) =>
+                !(t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending)
+            ),
+          })
+        }
+      }
+    }
+  })
+}
+
+/**
+ * Filters out meaningless move steps from a transaction's steps array.
+ *
+ * A meaningless move step is one that moves a node that was previously moved
+ * and is under pending move change. In this case we want to:
+ * 1. Skip tracking the deletion
+ * 2. Associate the original deletion with the new move
+ *
+ * @param tr The original transaction
+ * @param movingSteps Map of move operations in the transaction
+ * @returns Filtered array of steps with meaningless moves removed
+ */
+export const filterMeaninglessMoveSteps = (
+  tr: Transaction,
+  movingSteps: Map<ReplaceStep, string>
+): Step[] => {
+  const cleanSteps: Step[] = []
+
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
+    // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
+    // and associate original deletion with the new move
+    const moveID = movingSteps.get(step as ReplaceStep)
+    const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
+    if (moveID && prevMoveID) {
+      // find the peer step for the ignored step and change its key to previous moveNodeID
+      movingSteps.forEach((replaceStepMoveID, replaceStep) => {
+        if (replaceStep !== step && moveID === replaceStepMoveID) {
+          // get previous moveID
+          movingSteps.set(replaceStep, prevMoveID)
+        }
+      })
+      continue
+    }
+    cleanSteps.push(step)
+  }
+
+  return cleanSteps
 }
