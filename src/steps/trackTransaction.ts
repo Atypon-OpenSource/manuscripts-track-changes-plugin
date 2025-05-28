@@ -43,7 +43,7 @@ import { ChangeStep, InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
-import { HasMoveOperations, isDeletingPendingMovedNode } from '../utils/track-utils'
+import { HasMoveOperations, isDeletingPendingMovedNode, isDirectPendingMoveDeletion } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
@@ -80,32 +80,68 @@ const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
  */
 
 /**
- * Checks if this is a simple pending move deletion (not part of multiple moves)
+ * Handles direct pending move deletions (not part of moving pending moved node)
  */
-function isSimplePendingMoveDeletion(
-  step: ReplaceStep,
-  doc: PMNode,
+function handleDirectPendingMoveDeletions(tr: Transaction, newTr: Transaction, movingSteps: Map<ReplaceStep, string>) {
+  tr.steps.forEach((step) => {
+    if (step instanceof ReplaceStep) {
+      const doc = tr.docs[tr.steps.indexOf(step)]
+      if (isDirectPendingMoveDeletion(step, doc, movingSteps)) {
+        const node = doc.nodeAt(step.from)
+        node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
+          if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
+            // Mark the move as rejected
+            newTr.setNodeMarkup(step.from, undefined, {
+              ...node.attrs,
+              dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
+                t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
+              ),
+            })
+          }
+        })
+      }
+    }
+  })
+}
+
+/**
+ * Filters out meaningless move steps from a transaction's steps array.
+ * 
+ * A meaningless move step is one that moves a node that was previously moved
+ * and is under pending move change. In this case we want to:
+ * 1. Skip tracking the deletion
+ * 2. Associate the original deletion with the new move
+ * 
+ * @param tr The original transaction
+ * @param movingSteps Map of move operations in the transaction
+ * @returns Filtered array of steps with meaningless moves removed
+ */
+function filterMeaninglessMoveSteps(
+  tr: Transaction,
   movingSteps: Map<ReplaceStep, string>
-): boolean {
-  // Not a deletion
-  if (step.from === step.to || step.slice.content.size > 0) {
-    return false
+): Step[] {
+  const cleanSteps: Step[] = []
+  
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
+    // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
+    // and associate original deletion with the new move
+    const moveID = movingSteps.get(step as ReplaceStep)
+    const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
+    if (moveID && prevMoveID) {
+      // find the peer step for the ignored step and change its key to previous moveNodeID
+      movingSteps.forEach((replaceStepMoveID, replaceStep) => {
+        if (replaceStep !== step && moveID === replaceStepMoveID) {
+          // get previous moveID
+          movingSteps.set(replaceStep, prevMoveID)
+        }
+      })
+      continue
+    }
+    cleanSteps.push(step)
   }
-
-  // Part of a move operation
-  if (movingSteps.has(step)) {
-    return false
-  }
-
-  const node = doc.nodeAt(step.from)
-  if (!node) {
-    return false
-  }
-
-  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[] | undefined
-  return !!trackedAttrs?.some(
-    (t) => t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending
-  )
+  
+  return cleanSteps
 }
 
 export function trackTransaction(
@@ -135,46 +171,10 @@ export function trackTransaction(
   let trContext: TrTrackingContext = {}
   const movingStepsAssociated = HasMoveOperations(tr)
 
-  // First handle simple pending move deletions (not part of multiple moves)
-  tr.steps.forEach((step) => {
-    if (step instanceof ReplaceStep) {
-      const doc = tr.docs[tr.steps.indexOf(step)]
-      if (isSimplePendingMoveDeletion(step, doc, movingStepsAssociated)) {
-        const node = doc.nodeAt(step.from)
-        node?.attrs.dataTracked?.forEach((tracked: TrackedAttrs) => {
-          if (tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending) {
-            // Mark the move as rejected
-            newTr.setNodeMarkup(step.from, undefined, {
-              ...node.attrs,
-              dataTracked: node.attrs.dataTracked.map((t: TrackedAttrs) =>
-                t.id === tracked.id ? { ...t, status: CHANGE_STATUS.rejected } : t
-              ),
-            })
-          }
-        })
-      }
-    }
-  })
+  // First handle direct pending move deletions (not part of multiple moves)
+  handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
 
-  const cleanSteps: Step[] = []
-  for (let i = 0; i < tr.steps.length; i++) {
-    const step = tr.steps[i]
-    // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
-    // and associate original deletion with the new move
-    const moveID = movingStepsAssociated.get(step as ReplaceStep)
-    const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
-    if (moveID && prevMoveID) {
-      // find the peer step for the ignored step and change its key to previous moveNodeID
-      movingStepsAssociated.forEach((replaceStepMoveID, replaceStep) => {
-        if (replaceStep !== step && moveID === replaceStepMoveID) {
-          // get previous moveID
-          movingStepsAssociated.set(replaceStep, prevMoveID)
-        }
-      })
-      continue
-    }
-    cleanSteps.push(step)
-  }
+  const cleanSteps = filterMeaninglessMoveSteps(tr, movingStepsAssociated)
 
   for (let i = cleanSteps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
