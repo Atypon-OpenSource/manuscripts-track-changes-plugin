@@ -124,12 +124,16 @@ export class ChangeSet {
         currentInlineChange = undefined
         return
       }
-      // TODO:: group composite block changes
       rootNodes.push([change])
     })
 
     return rootNodes.filter(
-      (changes) => changes.filter((c) => c.dataTracked.operation !== CHANGE_OPERATION.reference).length
+      (changes) =>
+        changes.filter(
+          (c) =>
+            c.dataTracked.operation !== CHANGE_OPERATION.reference &&
+            !(c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete)
+        ).length
     )
   }
 
@@ -251,7 +255,8 @@ export class ChangeSet {
     return (
       ((operation === CHANGE_OPERATION.insert ||
         operation === CHANGE_OPERATION.node_split ||
-        operation === CHANGE_OPERATION.wrap_with_node) &&
+        operation === CHANGE_OPERATION.wrap_with_node ||
+        operation === CHANGE_OPERATION.move) &&
         status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
     )

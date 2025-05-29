@@ -23,6 +23,7 @@ export enum CHANGE_OPERATION {
   wrap_with_node = 'wrap_with_node',
   node_split = 'node_split',
   reference = 'reference',
+  move = 'move',
   // unwrap_from_node = 'unwrap_from_node',
   // add_mark = 'add_mark',
   // remove_mark = 'remove_mark',
@@ -41,6 +42,7 @@ type InsertDeleteAttrs = {
   statusUpdateAt: number
   createdAt: number
   updatedAt: number
+  moveNodeId?: string
 }
 export type UpdateAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.set_node_attributes
@@ -60,7 +62,17 @@ export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   referenceId: string
 }
 
-export type TrackedAttrs = InsertDeleteAttrs | UpdateAttrs | WrapAttrs | NodeSplitAttrs | ReferenceAttrs
+export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.move
+}
+
+export type TrackedAttrs =
+  | InsertDeleteAttrs
+  | UpdateAttrs
+  | WrapAttrs
+  | NodeSplitAttrs
+  | ReferenceAttrs
+  | NodeMoveAttrs
 
 type Change = {
   id: string
@@ -95,6 +107,7 @@ export type ReferenceChange = Change & {
 export type MarkChange = Change & {
   type: 'mark-change'
 }
+
 export type TrackedChange =
   | TextChange
   | NodeChange
