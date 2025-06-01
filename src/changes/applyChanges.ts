@@ -84,7 +84,7 @@ export function applyAcceptedRejectedChanges(
         return revertSplitNodeChange(tr, change, changeSet)
       }
       if (change.dataTracked.operation === CHANGE_OPERATION.wrap_with_node) {
-        return revertWrapNodeChange(tr, change)
+        return revertWrapNodeChange(tr, change, deleteMap)
       }
     }
 
