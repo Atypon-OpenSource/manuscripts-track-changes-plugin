@@ -56,7 +56,7 @@ export function applyAcceptedRejectedChanges(
       (c1.type === 'node-change' && c1.node.type === schema.nodes.list) ||
       (c2.type === 'node-change' && c2.node.type === schema.nodes.list)
     ) {
-      return -1
+      return 1
     }
     return c1.dataTracked.updatedAt - c2.dataTracked.updatedAt
   })
