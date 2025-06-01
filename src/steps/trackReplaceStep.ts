@@ -17,7 +17,11 @@ import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 
-import { setFragmentAsInserted, setFragmentAsNodeSplit } from '../compute/setFragmentAsInserted'
+import {
+  setFragmentAsInserted,
+  setFragmentAsMoveChange,
+  setFragmentAsNodeSplit,
+} from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -30,14 +34,22 @@ export function trackReplaceStep(
   step: ReplaceStep,
   oldState: EditorState,
   newTr: Transaction,
-  attrs: NewEmptyAttrs,
+  attrsTemplate: NewEmptyAttrs,
   stepResult: StepResult,
   currentStepDoc: PMNode,
-  tr: Transaction
+  tr: Transaction,
+  moveID?: string
 ) {
   log.info('###### ReplaceStep ######')
   let selectionPos = 0
   const changeSteps: ChangeStep[] = []
+
+  const attrs = { ...attrsTemplate }
+
+  if (moveID) {
+    console.log('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
+    attrs.moveNodeId = moveID
+  }
 
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
@@ -91,7 +103,7 @@ export function trackReplaceStep(
     where the user added inserted content
     */
     const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
-    console.log(textWasDeleted)
+
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 
@@ -104,7 +116,9 @@ export function trackReplaceStep(
       if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
-
+      if (moveID) {
+        fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
+      }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
