@@ -73,6 +73,7 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, 
   const node = tr.doc.nodeAt(from)
   // we use ReplaceAroundStep for inline node, as lift will not work with inline node and will help to get right mapping
   if (node?.isInline) {
+    // gapping will be narrow to exclude the wrapped node
     tr.step(new ReplaceAroundStep(from, to, from + 1, to - 1, Slice.empty, 0))
     deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
   } else {
