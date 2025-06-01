@@ -20,9 +20,13 @@ import { shouldMergeTrackedAttributes } from '../compute/nodeHelpers'
 import type { TrackedAttrs } from '../types/change'
 import { uuidv4 } from '../utils/uuidv4'
 
-
-const assignId = (attrs: Partial<TrackedAttrs>, leftDataTracked: Partial<TrackedAttrs>, rightDataTracked: Partial<TrackedAttrs>) => {
-
+// Update the id of the mark to a new uuid if it is the same as the left or right mark, to avoid
+// conflicts when merging marks
+const assignId = (
+  attrs: Partial<TrackedAttrs>,
+  leftDataTracked: Partial<TrackedAttrs>,
+  rightDataTracked: Partial<TrackedAttrs>
+) => {
   if (attrs.id === leftDataTracked.id || attrs.id === rightDataTracked.id) {
     return { ...attrs, id: uuidv4() }
   }
@@ -69,6 +73,9 @@ export function mergeTrackedMarks(pos: number, doc: PMNode, newTr: Transaction, 
   newTr.addMark(
     fromStartOfMark,
     toEndOfMark,
-    leftMark.type.create({ ...leftMark.attrs, dataTracked: assignId(dataTracked, leftDataTracked, rightDataTracked) })
+    leftMark.type.create({
+      ...leftMark.attrs,
+      dataTracked: assignId(dataTracked, leftDataTracked, rightDataTracked),
+    })
   )
 }
