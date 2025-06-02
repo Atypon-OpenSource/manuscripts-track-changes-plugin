@@ -203,4 +203,43 @@ describe('apply-changes.test', () => {
 
     expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
   })
+
+  test('should delete rejected list and inserted content within the list', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .moveCursor('end')
+      .insertNode(schema.nodes.paragraph.create(undefined, schema.text('1')))
+      .wrapInList(schema.nodes.bullet_list)
+
+    tester.cmd((state, dispatch) => {
+      const ids = tester.trackState()?.changeSet?.pending.map(({ id }) => id)
+
+      if (ids) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
+      }
+    })
+
+    expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
+  })
+
+  test('should delete rejected link and wrapped text if it is inserted', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .moveCursor(6)
+      .insertText('Link-Text')
+      .selectText(7, 17)
+      .wrapInInline(schema.nodes.link)
+
+    tester.cmd((state, dispatch) => {
+      const ids = tester.trackState()?.changeSet?.pending.map(({ id }) => id)
+
+      if (ids) {
+        trackCommands.setChangeStatuses(CHANGE_STATUS.rejected, ids)(state, dispatch)
+      }
+    })
+
+    expect(tester.trackState()?.changeSet.changes.length).toEqual(0)
+  })
 })
