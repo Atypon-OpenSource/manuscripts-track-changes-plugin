@@ -247,7 +247,7 @@ export function trackTransaction(
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
   // These are required by at least cross-references and links to activate their selector pop-ups
   if (wasNodeSelection) {
-    console.log('%c Getting into node select! ', 'background: #222; color: #bada55')
+    log.info('Getting into node select!')
     // And -1 here is necessary to keep the selection pointing at the start of the node
     // (or something, breaks with cross-references otherwise)
     const mappedPos = newTr.mapping.map(tr.selection.from, -1)
