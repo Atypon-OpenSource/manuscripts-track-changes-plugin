@@ -29,18 +29,25 @@ import {
   RemoveMarkStep,
   ReplaceAroundStep,
   ReplaceStep,
+  Step,
 } from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
+import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
-import { ChangeStep, InsertSliceStep } from '../types/step'
+import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import {
+  filterMeaninglessMoveSteps,
+  handleDirectPendingMoveDeletions,
+  HasMoveOperations,
+} from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
@@ -80,7 +87,8 @@ export function trackTransaction(
   tr: Transaction,
   oldState: EditorState,
   newTr: Transaction,
-  authorID: string
+  authorID: string,
+  changeSet: ChangeSet
 ) {
   const emptyAttrs: NewEmptyAttrs = {
     authorID,
@@ -100,8 +108,14 @@ export function trackTransaction(
   log.info('ORIGINAL transaction', tr)
 
   let trContext: TrTrackingContext = {}
+  const movingStepsAssociated = HasMoveOperations(tr)
 
-  for (let i = tr.steps.length - 1; i >= 0; i--) {
+  // First handle direct pending move deletions (not part of multiple moves)
+  handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
+
+  const cleanSteps = filterMeaninglessMoveSteps(tr, movingStepsAssociated)
+
+  for (let i = cleanSteps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
 
     log.info('transaction step', step)
@@ -128,6 +142,7 @@ export function trackTransaction(
         // don't track highlight marker nodes
         continue
       }
+
       const invertedStep = step.invert(tr.docs[i])
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
@@ -135,6 +150,7 @@ export function trackTransaction(
       if (isDelete) {
         thisStepMapping = deletedNodeMapping
       }
+
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
@@ -145,6 +161,7 @@ export function trackTransaction(
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
       // @TODO - check if needed to be done for other types of steps
+
       const newStep = new ReplaceStep(
         thisStepMapping.map(invertedStep.from),
         thisStepMapping.map(invertedStep.to),
@@ -152,7 +169,16 @@ export function trackTransaction(
       )
       const stepResult = newTr.maybeStep(newStep)
 
-      let [steps, startPos] = trackReplaceStep(step, oldState, newTr, emptyAttrs, stepResult, tr.docs[i], tr)
+      let [steps, startPos] = trackReplaceStep(
+        step,
+        oldState,
+        newTr,
+        emptyAttrs,
+        stepResult,
+        tr.docs[i],
+        tr,
+        movingStepsAssociated.get(step)
+      )
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -171,11 +197,15 @@ export function trackTransaction(
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
+
+      // if step is in movingPairs, add its uuid (Map entry key) as moveNodeId
       const [mapping, selectionPos] = processChangeSteps(
         steps,
         startPos || tr.selection.head, // Incase startPos is it's default value 0, use the old selection head
         newTr,
-        emptyAttrs,
+        movingStepsAssociated.has(step)
+          ? { ...emptyAttrs, moveNodeId: movingStepsAssociated.get(step) }
+          : emptyAttrs,
         oldState.schema,
         deletedNodeMapping
       )
@@ -239,6 +269,7 @@ export function trackTransaction(
     tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
+
   if (setsNewSelection && tr.selection instanceof TextSelection) {
     // preserving text selection if we track an element in which selection is set
     const newPos = newTr.doc.resolve(tr.selection.from) // no mapping on purpose as tracking will misguide mapping
