@@ -662,19 +662,19 @@
     deepmerge "^4.3.1"
     uuid "^9.0.0"
 
-"@manuscripts/json-schema@2.2.11":
-  version "2.2.11"
-  resolved "https://registry.yarnpkg.com/@manuscripts/json-schema/-/json-schema-2.2.11.tgz#3dfddf02cd3d986823b1723c1db89fe3906b1f9f"
-  integrity sha512-/L8N6YmyLp3VmpqPx/XgRWdbovoonqYJt5t5g5bS0+Mk/BYnj6ifNnCtQOvjS1u3Lv/v7C0kUmu5h2M/Kzhmmg==
+"@manuscripts/json-schema@2.2.12":
+  version "2.2.12"
+  resolved "https://registry.yarnpkg.com/@manuscripts/json-schema/-/json-schema-2.2.12.tgz#73a56782552fa6236d1b69879cd43e66248a4ca2"
+  integrity sha512-MCz11Dhc1kric1oU9cnYHboPgEwwccWfuuU1XhAEilDIFe8KszAeQk5i4GBGlGLddp/Gvkr6N1gtzLl36mTE7A==
   dependencies:
     ajv "^8.12.0"
     deepmerge "^4.3.1"
     uuid "^9.0.0"
 
-"@manuscripts/library@1.3.12":
-  version "1.3.12"
-  resolved "https://registry.yarnpkg.com/@manuscripts/library/-/library-1.3.12.tgz#c4ded98fe1847a3742ad885753b6265111bad061"
-  integrity sha512-1DihbNtCQrkG+clJJ0hS9FIG8w03XOYjNJsDVE+9zg2YyoEClhUSmj7UxyLcaawpZr5IxuDC1CeyG46jPnsHCg==
+"@manuscripts/library@1.3.14":
+  version "1.3.14"
+  resolved "https://registry.yarnpkg.com/@manuscripts/library/-/library-1.3.14.tgz#4bcaba3e06a2be58dbc2acf0c158adc448645eaf"
+  integrity sha512-1ngZvj5t2lS/r0VKZnYxbq+DzJ6wrxUpthWQMPWPUpmZ0sxNfqRRysdIN10CvDgcX3mIo1UsvuxTOKp5gsT+5A==
   dependencies:
     "@citation-js/core" "^0.7.18"
     "@citation-js/plugin-bibtex" "^0.7.18"
@@ -686,17 +686,16 @@
     "@manuscripts/json-schema" "2.2.10"
     citeproc "^2.4.62"
 
-"@manuscripts/transform@3.0.48":
-  version "3.0.48"
-  resolved "https://registry.yarnpkg.com/@manuscripts/transform/-/transform-3.0.48.tgz#ef0786fb54133bd521c51fe300f5c09d60ab8ae9"
-  integrity sha512-A23xO6ybhE9ek9Le6lNR6re6faAXQP2GirPx8gvJUxICn6FP8HVg2RWb044jzoJ753IGCto4qMggGFHj57o+YQ==
+"@manuscripts/transform@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@manuscripts/transform/-/transform-3.1.0.tgz#d38d09b7940d7f18405d43f66db16e57e7c7cfa3"
+  integrity sha512-DOItDNFVBzLho+OSFKMJsfrI3w3gDrcUc9Usr2zdIpaX4zXTGgMSOOyEDYd7o4E0SVPPzgYK3jOgxzPXKf6g/A==
   dependencies:
-    "@manuscripts/json-schema" "2.2.11"
-    "@manuscripts/library" "1.3.12"
+    "@manuscripts/json-schema" "2.2.12"
+    "@manuscripts/library" "1.3.14"
     debug "^4.3.4"
     jszip "^3.10.1"
     lodash "^4.17.21"
-    mime "^3.0.0"
     prosemirror-model "^1.18.3"
     prosemirror-tables "^1.3.5"
     prosemirror-utils "^1.2.2"
@@ -4273,11 +4272,6 @@ mime-types@^2.1.12:
   integrity sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==
   dependencies:
     mime-db "1.52.0"
-
-mime@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-3.0.0.tgz#b374550dca3a0c18443b0c950a6a58f1931cf7a7"
-  integrity sha512-jSCU7/VB1loIWBZe14aEYHU/+1UMEHoaO7qxCOVJOw9GgH72VAWppxNcjU+x9a2k3GSIBXNKxXQFqRvvZ7vr3A==
 
 mimic-fn@^2.1.0:
   version "2.1.0"

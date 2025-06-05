@@ -47,7 +47,7 @@ export function processChangeSteps(
     let step = newTr.steps[newTr.steps.length - 1]
 
     switch (c.type) {
-      case 'delete-node':
+      case 'delete-node': {
         deletesCounter++ // increase the counter for deleted nodes
         const prevDeletedNodeInserted = isInserted
         const trackedData = getBlockInlineTrackedData(c.node)
@@ -93,8 +93,8 @@ export function processChangeSteps(
 
         mergeTrackedMarks(mapping.map(c.pos), newTr.doc, newTr, schema)
         break
-
-      case 'delete-text':
+      }
+      case 'delete-text': {
         const node = newTr.doc.nodeAt(mapping.map(c.pos))
         if (!node) {
           log.error(`processChangeSteps: no text node found for text-change`, c)
@@ -123,8 +123,8 @@ export function processChangeSteps(
         }
         mergeTrackedMarks(where, newTr.doc, newTr, schema)
         break
-
-      case 'merge-fragment':
+      }
+      case 'merge-fragment': {
         let insertPos = mapping.map(c.mergePos)
         // The default insert position for block nodes is either the start of the merged content or the end.
         // Incase text was merged, this must be updated as the start or end of the node doesn't map to the
@@ -157,8 +157,8 @@ export function processChangeSteps(
           newTr.insert(insertPos, c.fragment)
         }
         break
-
-      case 'insert-slice':
+      }
+      case 'insert-slice': {
         const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.slice, false)
         const stepResult = newTr.maybeStep(newStep)
         if (stepResult.failed) {
@@ -175,8 +175,9 @@ export function processChangeSteps(
         )
         selectionPos = mapping.map(c.to) + c.slice.size
         break
+      }
 
-      case 'update-node-attrs':
+      case 'update-node-attrs': {
         const oldDataTracked = getBlockInlineTrackedData(c.node) || []
         const oldUpdate = oldDataTracked.reverse().find((d) => {
           // reversing to start from the most recent change
@@ -222,6 +223,7 @@ export function processChangeSteps(
           c.node.marks
         )
         break
+      }
       default:
         log.error(`processChangeSteps: unknown change type`, c)
         return
