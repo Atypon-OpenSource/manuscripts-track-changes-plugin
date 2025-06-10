@@ -15,15 +15,12 @@
  */
 /// <reference types="@types/jest" />;
 import { schema } from '@manuscripts/transform'
-import { promises as fs } from 'fs'
 import { Node as PMNode, Schema } from 'prosemirror-model'
 
 import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
-import { SECOND_USER } from '../__fixtures__/users'
 import { setupEditor } from '../utils/setupEditor'
-import manuscriptApplied from './manuscript-applied.json'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization

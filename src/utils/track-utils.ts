@@ -212,11 +212,14 @@ export const HasMoveOperations = (tr: Transaction) => {
     }
     const step = tr.steps[i] as ReplaceStep
     const doc = tr.docs[i]
-    // const slice = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
+    
+    // skipping step without slice
+    // there is nothing to insert or delete
+    if (!step.slice) {  
+      continue
+    }
     const stepDeletesContent = step.from !== step.to && step.slice.size === 0
     const stepInsertsContent = step.slice.size && step.slice.content.firstChild ? true : false
-    console.log('stepDeletesContent', stepDeletesContent)
-    console.log('stepInsertsContent', stepInsertsContent)
 
     for (let g = 0; g < tr.steps.length; g++) {
       // skipping if it's the same step or already paired
@@ -224,6 +227,12 @@ export const HasMoveOperations = (tr: Transaction) => {
         continue
       }
       const peerStep = tr.steps[g] as ReplaceStep
+
+      // skipping step without slice
+      // there is nothing to insert or delete
+      if (!peerStep.slice) {
+        continue
+      }
       const peerStepInsertsContent = peerStep.slice.size && peerStep.slice.content.firstChild
       const peerStepDeletesContent = peerStep.from !== peerStep.to && peerStep.slice.size === 0
 
