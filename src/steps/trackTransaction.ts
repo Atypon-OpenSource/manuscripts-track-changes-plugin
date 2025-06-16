@@ -269,12 +269,6 @@ export function trackTransaction(
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
 
-  // will pass the selection position in case we have a custom selection within the inserted and deleted content.
-  // That position we can't pass to setSelection as the deleted content doesn't exist in original tr document
-  if (tr.selection instanceof TextSelection && tr.getMeta('track-changes-selection-position')) {
-    newTr.setSelection(TextSelection.create(newTr.doc, tr.getMeta('track-changes-selection-position')));
-  }
-
   if (setsNewSelection && tr.selection instanceof TextSelection) {
     // preserving text selection if we track an element in which selection is set
     const newPos = newTr.doc.resolve(tr.selection.from) // no mapping on purpose as tracking will misguide mapping

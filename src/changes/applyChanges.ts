@@ -86,10 +86,8 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
-      // console.log(change.attrs.dataTracked.length === 2 && change.attrs.dataTracked.filter(attrs => attrs.id !== change.id),node)
       const attrs = Object.assign(Object.assign({}, node.attrs), { dataTracked: null });
       if (Array.isArray(change.attrs.dataTracked) && change.attrs.dataTracked.length > 1) {
-        // console.log("in",change)
         // @ts-ignore
         attrs.dataTracked = change.attrs.dataTracked.filter(c => c.operation === CHANGE_OPERATION.change_node || c.operation === CHANGE_OPERATION.reference)
       }
