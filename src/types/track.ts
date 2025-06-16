@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment } from 'prosemirror-model'
-import { Node as PMNode } from 'prosemirror-model'
+import { Fragment, Node as PMNode } from 'prosemirror-model'
 import type { PluginKey } from 'prosemirror-state'
 import { ReplaceAroundStep } from 'prosemirror-transform'
 
