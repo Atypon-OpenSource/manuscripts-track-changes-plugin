@@ -54,34 +54,18 @@ export function updateChangesStatus(
               nonTextChanges.push(relatedRefChange)
             }
           }
-          if (c.dataTracked.operation === CHANGE_OPERATION.move) {
-            const oldChange = changeSet.changeTree.find(
-              (c) =>
-                ChangeSet.isNodeChange(c) &&
-                c.dataTracked.operation === 'delete' &&
-                c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
-            )
+          if (ChangeSet.isStructuralChange(c.dataTracked)) {
+            changeSet.changes.map((oldChange) => {
+              if (!(oldChange.dataTracked.operation === 'delete' &&
+                  oldChange.dataTracked.moveNodeId === change.dataTracked.moveNodeId && c.dataTracked.moveNodeId === change.dataTracked.moveNodeId)) {
+                return;
+              }
 
-            if (oldChange && ChangeSet.isNodeChange(oldChange)) {
-              createdTr = updateChangeAttrs(
-                createdTr,
-                oldChange,
-                {
-                  ...oldChange.dataTracked,
-                  status,
-                  statusUpdateAt: changeTime,
-                  reviewedByID: userID,
-                },
-                oldState.schema
-              )
-
-              // Process children
-              oldChange.children.forEach((child) => {
                 createdTr = updateChangeAttrs(
                   createdTr,
-                  child,
+                  oldChange,
                   {
-                    ...child.dataTracked,
+                    ...oldChange.dataTracked,
                     status,
                     statusUpdateAt: changeTime,
                     reviewedByID: userID,
@@ -89,15 +73,14 @@ export function updateChangesStatus(
                   oldState.schema
                 )
 
-                if (ChangeSet.isTextChange(child)) {
-                  textChanges.push(child)
+                if (ChangeSet.isTextChange(oldChange)) {
+                  textChanges.push(oldChange)
                 } else {
-                  nonTextChanges.push(child)
+                  nonTextChanges.push(oldChange)
                 }
-              })
 
               nonTextChanges.push(oldChange)
-            }
+          })
           }
         }
       }

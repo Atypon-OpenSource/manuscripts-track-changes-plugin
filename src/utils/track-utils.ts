@@ -20,6 +20,7 @@ import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import {
+  NewChangeNodeAttrs,
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
@@ -28,6 +29,7 @@ import {
   NewUpdateAttrs,
 } from '../types/track'
 import { uuidv4 } from './uuidv4'
+import {addTrackIdIfDoesntExist} from "../compute/nodeHelpers";
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
@@ -69,6 +71,14 @@ export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.move,
+  }
+}
+
+export function createChangeNodeAttrs(attrs: NewEmptyAttrs, node: string): NewChangeNodeAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.change_node,
+    node,
   }
 }
 
@@ -180,13 +190,13 @@ export function stepIsLift(
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
 
-export const HasMoveOperations = (tr: Transaction) => {
+export const HasStructuralChangeOperations = (tr: Transaction) => {
   /**
-   * Determines if a transaction represents a node move operation (like drag-and-drop).
+   * Determines if a transaction represents a node structural operation (like drag-and-drop).
    *
-   * Our approach to detecting moves involves:
+   * Our approach to detecting structural change involves:
    * 1. Checking basic preconditions (multiple steps, all ReplaceSteps)
-   * 2. Comparing content hashes of deleted and inserted nodes
+   * 2. Comparing content hashes of deleted and inserted nodes (that will be only for move operation)
    *
    * A move operation must meet these criteria:
    * - Contains at least 2 steps (delete + insert)
@@ -203,6 +213,13 @@ export const HasMoveOperations = (tr: Transaction) => {
     return movingAssoc
   }
 
+  if (tr.getMeta('change-node')) {
+    const commonID = tr.getMeta('change-node-id') || uuidv4()
+    movingAssoc.set(tr.steps[0] as ReplaceStep, commonID)
+    movingAssoc.set(tr.steps[1] as ReplaceStep, commonID)
+    return movingAssoc
+  }
+
   const matched: number[] = []
 
   for (let i = 0; i < tr.steps.length; i++) {
@@ -215,8 +232,6 @@ export const HasMoveOperations = (tr: Transaction) => {
     // const slice = step.slice.size === 0 ? doc.slice(step.from, step.to) : step.slice
     const stepDeletesContent = step.from !== step.to && step.slice.size === 0
     const stepInsertsContent = step.slice.size && step.slice.content.firstChild ? true : false
-    console.log('stepDeletesContent', stepDeletesContent)
-    console.log('stepInsertsContent', stepInsertsContent)
 
     for (let g = 0; g < tr.steps.length; g++) {
       // skipping if it's the same step or already paired
@@ -392,4 +407,19 @@ export const filterMeaninglessMoveSteps = (
   }
 
   return cleanSteps
+}
+
+/**
+ * if we run a StructuralChange on a node that already has another StructuralChange will track just insert
+ * and add tracking attrs as reference to realize overall change
+ */
+export const trackStructuralChangeOnPendingChange = (step: ReplaceStep, newTr: Transaction, tr: Transaction, emptyAttrs: NewEmptyAttrs) => {
+  if (step.slice.size > 0) {
+    newTr.doc.slice(step.to, step.from + step.slice.size).content.forEach((child, offset) => {
+      newTr.setNodeMarkup(tr.mapping.maps[1].map(step.to + offset), undefined, {
+        ...child.attrs,
+        dataTracked: [addTrackIdIfDoesntExist(createNewReferenceAttrs({...emptyAttrs, moveNodeId: tr.getMeta('change-node-id')}, ''))]
+      });
+    })
+  }
 }

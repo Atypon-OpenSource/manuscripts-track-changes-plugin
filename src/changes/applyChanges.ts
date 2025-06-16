@@ -53,7 +53,7 @@ export function applyAcceptedRejectedChanges(
   changes.sort((c1, c2) => c1.dataTracked.updatedAt - c2.dataTracked.updatedAt)
 
   changes.forEach((change) => {
-    if (change.dataTracked.operation === CHANGE_OPERATION.move) {
+    if (ChangeSet.isStructuralChange(change.dataTracked)) {
       return
     }
     // Map change.from and skip those which don't need to be applied
@@ -86,7 +86,14 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
-      const attrs = { ...node.attrs, dataTracked: null }
+      // console.log(change.attrs.dataTracked.length === 2 && change.attrs.dataTracked.filter(attrs => attrs.id !== change.id),node)
+      const attrs = Object.assign(Object.assign({}, node.attrs), { dataTracked: null });
+      if (Array.isArray(change.attrs.dataTracked) && change.attrs.dataTracked.length > 1) {
+        // console.log("in",change)
+        // @ts-ignore
+        attrs.dataTracked = change.attrs.dataTracked.filter(c => c.operation === CHANGE_OPERATION.change_node || c.operation === CHANGE_OPERATION.reference)
+      }
+
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
       if (node.isAtom) {
@@ -124,18 +131,23 @@ export function applyAcceptedRejectedChanges(
         node.marks
       )
     } else if (ChangeSet.isReferenceChange(change)) {
-      tr.setNodeMarkup(
-        from,
-        undefined,
-        { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
-        node.marks
-      )
+      if (change.dataTracked.moveNodeId){
+        deleteNode(node, from, tr)
+        deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+      } else {
+        tr.setNodeMarkup(
+            from,
+            undefined,
+            { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+            node.marks
+        )
+      }
     }
   })
 
   // Second pass: Handle move operations
   changes.forEach((change) => {
-    if (change.dataTracked.operation !== CHANGE_OPERATION.move) {
+    if (!ChangeSet.isStructuralChange(change.dataTracked)) {
       return
     }
 

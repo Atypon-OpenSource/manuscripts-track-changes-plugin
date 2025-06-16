@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
+import {Node as PMNode} from 'prosemirror-model'
 import {
   EditorState,
   NodeSelection,
@@ -22,36 +22,30 @@ import {
   TextSelection,
   Transaction,
 } from 'prosemirror-state'
-import {
-  AddMarkStep,
-  AttrStep,
-  Mapping,
-  RemoveMarkStep,
-  ReplaceAroundStep,
-  ReplaceStep,
-  Step,
-} from 'prosemirror-transform'
+import {AddMarkStep, AttrStep, Mapping, ReplaceAroundStep, ReplaceStep,} from 'prosemirror-transform'
 
-import { diffChangeSteps } from '../change-steps/diffChangeSteps'
-import { processChangeSteps } from '../change-steps/processChangeSteps'
-import { updateChangeAttrs } from '../changes/updateChangeAttrs'
-import { ChangeSet } from '../ChangeSet'
-import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_STATUS } from '../types/change'
-import { ExposedReplaceStep } from '../types/pm'
-import { InsertSliceStep } from '../types/step'
-import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
-import { log } from '../utils/logger'
-import { mapChangeSteps } from '../utils/mapChangeStep'
+import {diffChangeSteps} from '../change-steps/diffChangeSteps'
+import {processChangeSteps} from '../change-steps/processChangeSteps'
+import {updateChangeAttrs} from '../changes/updateChangeAttrs'
+import {ChangeSet} from '../ChangeSet'
+import {getNodeTrackedData} from '../compute/nodeHelpers'
+import {CHANGE_OPERATION, CHANGE_STATUS, TrackedChange} from '../types/change'
+import {ExposedReplaceStep} from '../types/pm'
+import {InsertSliceStep} from '../types/step'
+import {NewEmptyAttrs, TrTrackingContext} from '../types/track'
+import {log} from '../utils/logger'
+import {mapChangeSteps} from '../utils/mapChangeStep'
 import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
-  HasMoveOperations,
+  HasStructuralChangeOperations,
+  trackStructuralChangeOnPendingChange,
 } from '../utils/track-utils'
-import { uuidv4 } from '../utils/uuidv4'
+import {uuidv4} from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
-import { trackReplaceAroundStep } from './trackReplaceAroundStep'
-import { trackReplaceStep } from './trackReplaceStep'
+import {trackReplaceAroundStep} from './trackReplaceAroundStep'
+import {trackReplaceStep} from './trackReplaceStep'
+
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -108,12 +102,12 @@ export function trackTransaction(
   log.info('ORIGINAL transaction', tr)
 
   let trContext: TrTrackingContext = {}
-  const movingStepsAssociated = HasMoveOperations(tr)
+  const structuralChangeStepsAssociated = HasStructuralChangeOperations(tr)
 
   // First handle direct pending move deletions (not part of multiple moves)
-  handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
+  handleDirectPendingMoveDeletions(tr, newTr, structuralChangeStepsAssociated)
 
-  const cleanSteps = filterMeaninglessMoveSteps(tr, movingStepsAssociated)
+  const cleanSteps = filterMeaninglessMoveSteps(tr, structuralChangeStepsAssociated)
 
   for (let i = cleanSteps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
@@ -140,6 +134,11 @@ export function trackTransaction(
       const { slice } = step as ExposedReplaceStep
       if (slice?.content?.content?.length === 1 && isHighlightMarkerNode(slice.content.content[0])) {
         // don't track highlight marker nodes
+        continue
+      }
+
+      if (tr.getMeta('change-node-id')) {
+        trackStructuralChangeOnPendingChange(step, newTr, tr, emptyAttrs);
         continue
       }
 
@@ -177,7 +176,7 @@ export function trackTransaction(
         stepResult,
         tr.docs[i],
         tr,
-        movingStepsAssociated.get(step)
+        structuralChangeStepsAssociated.get(step)
       )
 
       if (steps.length === 1) {
@@ -203,8 +202,8 @@ export function trackTransaction(
         steps,
         startPos || tr.selection.head, // Incase startPos is it's default value 0, use the old selection head
         newTr,
-        movingStepsAssociated.has(step)
-          ? { ...emptyAttrs, moveNodeId: movingStepsAssociated.get(step) }
+          structuralChangeStepsAssociated.has(step)
+          ? { ...emptyAttrs, moveNodeId: structuralChangeStepsAssociated.get(step) }
           : emptyAttrs,
         oldState.schema,
         deletedNodeMapping
@@ -268,6 +267,12 @@ export function trackTransaction(
     // after track-changes plugin.
     tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
+  }
+
+  // will pass the selection position in case we have a custom selection within the inserted and deleted content.
+  // That position we can't pass to setSelection as the deleted content doesn't exist in original tr document
+  if (tr.selection instanceof TextSelection && tr.getMeta('track-changes-selection-position')) {
+    newTr.setSelection(TextSelection.create(newTr.doc, tr.getMeta('track-changes-selection-position')));
   }
 
   if (setsNewSelection && tr.selection instanceof TextSelection) {

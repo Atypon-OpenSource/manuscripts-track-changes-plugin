@@ -26,7 +26,7 @@ import {
   TrackedAttrs,
   TrackedChange,
 } from './types/change'
-import { log } from './utils/logger'
+import {log} from './utils/logger'
 
 /**
  * ChangeSet is a data structure to contain the tracked changes with some utility methods and computed
@@ -112,8 +112,9 @@ export class ChangeSet {
    * Group adjacent inline changes and composite block changes
    */
   get groupChanges() {
-    const rootNodes: RootChanges = []
+    let rootNodes: RootChanges = []
     let currentInlineChange: RootChange | undefined
+    const structuralChangeIndex = new Map()
 
     this.changeTree.map((change, index) => {
       if (this.canJoinAdjacentInlineChanges(change, index)) {
@@ -124,6 +125,9 @@ export class ChangeSet {
         currentInlineChange = undefined
         return
       }
+
+      rootNodes = this.joinReferenceToStructuralChanges(this.changeTree, rootNodes, change, structuralChangeIndex)
+
       rootNodes.push([change])
     })
 
@@ -239,6 +243,30 @@ export class ChangeSet {
   }
 
   /**
+   * Group nodes that has been moved by a structural operation(node_convert,indent,unindent)
+   */
+  joinReferenceToStructuralChanges(changeTree: TrackedChange[], rootNodes: RootChanges, change: TrackedChange, structuralChangeIndex: Map<string, number>) {
+    const moveNodeId = change.dataTracked.moveNodeId
+    if (change.dataTracked.operation === CHANGE_OPERATION.change_node && moveNodeId) {
+      structuralChangeIndex.set(moveNodeId, rootNodes.length)
+    }
+    if (change.dataTracked.operation === CHANGE_OPERATION.reference && moveNodeId) {
+      if (structuralChangeIndex.has(moveNodeId)) {
+        let rootNode = rootNodes[structuralChangeIndex.get(moveNodeId)!]
+        const changes = rootNode.concat([change])
+        // Include reference change that belongs to a structural change
+        rootNodes = rootNodes.map((_, index) => index === structuralChangeIndex.get(moveNodeId) ? changes : _)
+      } else {
+        const nodeChange = changeTree.find(c => ChangeSet.isNodeChange(c) && c.dataTracked.operation === CHANGE_OPERATION.change_node && c.dataTracked.moveNodeId === change.dataTracked.moveNodeId)
+        if (nodeChange) {
+          structuralChangeIndex.set(moveNodeId, rootNodes.length)
+        }
+      }
+    }
+    return rootNodes
+  }
+
+  /**
    * Flattens a changeTree into a list of IDs
    * @param changes
    */
@@ -255,6 +283,7 @@ export class ChangeSet {
     return (
       ((operation === CHANGE_OPERATION.insert ||
         operation === CHANGE_OPERATION.node_split ||
+        operation === CHANGE_OPERATION.change_node ||
         operation === CHANGE_OPERATION.wrap_with_node ||
         operation === CHANGE_OPERATION.move) &&
         status === CHANGE_STATUS.rejected) ||
@@ -311,6 +340,10 @@ export class ChangeSet {
 
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
+  }
+
+  static isStructuralChange(dataTracked: TrackedAttrs) {
+    return dataTracked.operation === CHANGE_OPERATION.move || dataTracked.operation === CHANGE_OPERATION.change_node
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
