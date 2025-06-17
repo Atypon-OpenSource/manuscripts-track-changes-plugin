@@ -20,6 +20,7 @@ import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
 import {
   setFragmentAsInserted,
   setFragmentAsMoveChange,
+  setFragmentAsNodeChange,
   setFragmentAsNodeSplit,
 } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
@@ -47,7 +48,7 @@ export function trackReplaceStep(
   const attrs = { ...attrsTemplate }
 
   if (moveID) {
-    console.log('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
+    log.info('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
     attrs.moveNodeId = moveID
   }
 
@@ -94,7 +95,6 @@ export function trackReplaceStep(
 
     const backSpacedText = sameThingBackSpaced()
     if (backSpacedText) {
-      console.log('Detected backspacing')
       changeSteps.splice(changeSteps.indexOf(backSpacedText))
     }
 
@@ -112,12 +112,15 @@ export function trackReplaceStep(
         trackUtils.createNewInsertAttrs(attrs),
         oldState.schema
       )
-
-      if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
-        fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
-      }
       if (moveID) {
-        fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
+        const convertedNode = tr.getMeta('change-node');
+        if (convertedNode) {
+          fragment = setFragmentAsNodeChange(newSliceContent, attrs, convertedNode)
+        } else {
+          fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
+        }
+      } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
+        fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?

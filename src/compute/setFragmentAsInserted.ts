@@ -197,3 +197,17 @@ export function setFragmentAsNodeSplit(
   }
   return inserted
 }
+
+export function setFragmentAsNodeChange(fragment: Fragment, emptyAttrs: NewEmptyAttrs, convertedNode: string) {
+  const content: PMNode[] = [];
+  fragment.forEach((node,_,index) => {
+    let attrs: Partial<NewEmptyAttrs>
+    if (index === 0) {
+      attrs = trackUtils.createChangeNodeAttrs(emptyAttrs, convertedNode)
+    } else {
+      attrs = trackUtils.createNewReferenceAttrs(emptyAttrs, '')
+    }
+    content.push(node.type.create(Object.assign(Object.assign({}, node.attrs), { dataTracked: [addTrackIdIfDoesntExist(attrs)] }), node.content, node.marks));
+  });
+  return Fragment.from(content);
+}
