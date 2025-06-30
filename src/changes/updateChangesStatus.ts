@@ -43,6 +43,25 @@ export function updateChangesStatus(
         if (ChangeSet.isTextChange(c)) {
           textChanges.push(c)
         } else {
+          // that will be cleaned up in revertStructureNodeChange
+          if (c.dataTracked.operation === CHANGE_OPERATION.reference && c.dataTracked.isStructureRef) {
+            return
+          }
+          // this to avoid duplicating the same related convert-paragraph changes, as we need just the first change
+          // so in the revertStructureNodeChange we group related changes to creat section
+          if (
+            c.dataTracked.operation === CHANGE_OPERATION.structure &&
+            c.dataTracked.action === 'convert-paragraph' &&
+            status === 'rejected'
+          ) {
+            const hasChange = nonTextChanges.find(
+              (change) => change.dataTracked.moveNodeId === c.dataTracked.moveNodeId
+            )
+            if (hasChange) {
+              return
+            }
+          }
+
           nonTextChanges.push(c)
 
           if (c.dataTracked.operation === CHANGE_OPERATION.node_split) {
