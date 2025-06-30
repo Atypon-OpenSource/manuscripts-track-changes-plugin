@@ -20,9 +20,9 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, StructureAttrs, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
+import { revertSplitNodeChange, revertStructureNodeChange, revertWrapNodeChange } from './revertChange'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -58,6 +58,15 @@ export function applyAcceptedRejectedChanges(
     ) {
       return 1
     }
+
+    // will apply first latest structure change
+    if (
+      c1.dataTracked.operation === CHANGE_OPERATION.structure ||
+      c2.dataTracked.operation === CHANGE_OPERATION.structure
+    ) {
+      return c2.dataTracked.updatedAt - c1.dataTracked.updatedAt
+    }
+
     return c1.dataTracked.updatedAt - c2.dataTracked.updatedAt
   })
 
@@ -80,6 +89,14 @@ export function applyAcceptedRejectedChanges(
     }
 
     if (change.dataTracked.status === CHANGE_STATUS.rejected) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.structure) {
+        return revertStructureNodeChange(
+          tr,
+          change as TrackedChange & { dataTracked: StructureAttrs },
+          changeSet,
+          deleteMap
+        )
+      }
       if (change.dataTracked.operation === CHANGE_OPERATION.node_split) {
         return revertSplitNodeChange(tr, change, changeSet)
       }

@@ -113,10 +113,14 @@ export class ChangeSet {
    */
   get groupChanges() {
     const rootNodes: RootChanges = []
+    const changeTree = this.changeTree.filter((c) => c.type !== 'reference-change')
     let currentInlineChange: RootChange | undefined
 
-    this.changeTree.map((change, index) => {
-      if (this.canJoinAdjacentInlineChanges(change, index)) {
+    changeTree.map((change, index) => {
+      if (
+        this.canJoinAdjacentInlineChanges(change, index, changeTree) ||
+        this.canJoinAdjacentStructuralChanges(change, index, changeTree)
+      ) {
         currentInlineChange = currentInlineChange ? [...currentInlineChange, change] : [change]
         return
       } else if (currentInlineChange) {
@@ -130,9 +134,7 @@ export class ChangeSet {
     return rootNodes.filter(
       (changes) =>
         changes.filter(
-          (c) =>
-            c.dataTracked.operation !== CHANGE_OPERATION.reference &&
-            !(c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete)
+          (c) => !(c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete)
         ).length
     )
   }
@@ -218,8 +220,8 @@ export class ChangeSet {
   /**
    * Group adjacent inline changes that has the same change operation
    */
-  canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
-    const nextChange = this.changeTree.at(index + 1)
+  canJoinAdjacentInlineChanges(change: TrackedChange, index: number, changeTree: TrackedChange[]) {
+    const nextChange = changeTree.at(index + 1)
     const isInline = (c: TrackedChange) =>
       c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
     const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
@@ -234,6 +236,19 @@ export class ChangeSet {
       nextChange &&
       isInline(nextChange) &&
       change.to === nextChange.from &&
+      hasMatchingOperation(change, nextChange)
+    )
+  }
+
+  canJoinAdjacentStructuralChanges(change: TrackedChange, index: number, changeTree: TrackedChange[]) {
+    const nextChange = changeTree.at(index + 1)
+    const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
+      c1.dataTracked.operation === CHANGE_OPERATION.structure &&
+      c2.dataTracked.operation === CHANGE_OPERATION.structure
+
+    return (
+      nextChange &&
+      (change.to === nextChange.from || change.to === nextChange.from - 1) &&
       hasMatchingOperation(change, nextChange)
     )
   }

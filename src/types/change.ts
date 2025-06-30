@@ -24,6 +24,7 @@ export enum CHANGE_OPERATION {
   node_split = 'node_split',
   reference = 'reference',
   move = 'move',
+  structure = 'structure',
   // unwrap_from_node = 'unwrap_from_node',
   // add_mark = 'add_mark',
   // remove_mark = 'remove_mark',
@@ -60,10 +61,19 @@ export type NodeSplitAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
 export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.reference
   referenceId: string
+  isStructureRef?: boolean
 }
 
 export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.move
+}
+
+export type StructureAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
+  operation: CHANGE_OPERATION.structure
+  action: 'convert-paragraph' | 'convert-section'
+  sectionLevel?: number
+  isThereSectionBefore?: boolean
+  isSupSection?: boolean
 }
 
 export type TrackedAttrs =
@@ -73,6 +83,7 @@ export type TrackedAttrs =
   | NodeSplitAttrs
   | ReferenceAttrs
   | NodeMoveAttrs
+  | StructureAttrs
 
 type Change = {
   id: string
