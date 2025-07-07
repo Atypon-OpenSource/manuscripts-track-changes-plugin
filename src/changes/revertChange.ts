@@ -150,6 +150,13 @@ export function revertStructureNodeChange(
       schema.nodes.paragraph.create({ dataTracked }, sectionTitle.content)
     ).append(section.slice(sectionTitle.nodeSize).content)
 
+    const sectionIns = (getBlockInlineTrackedData(section) || []).find((c) => c.operation === 'insert')
+    const paragraphIns = dataTracked.find((c) => c.operation === 'insert')
+    if (sectionIns && paragraphIns?.id) {
+      const index = remainingChangesId.findIndex((id) => id === sectionIns.id)
+      remainingChangesId[index] = paragraphIns.id
+    }
+
     tr.insert(insertPos, content)
   }
 
