@@ -51,7 +51,6 @@ export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.reference
   referenceId: string
-  isStructureRef?: boolean
 }
 export type NewStructureAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.structure

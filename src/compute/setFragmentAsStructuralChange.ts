@@ -235,7 +235,7 @@ export function setFragmentAsStructuralChange(
       if (pos + node.nodeSize === differentPos) {
         let dataTracked = getBlockInlineTrackedData(node) || []
         dataTracked = [
-          addTrackIdIfDoesntExist(trackUtils.createNewReferenceAttrs(attrs, moveNodeId, true)),
+          addTrackIdIfDoesntExist(trackUtils.createNewReferenceAttrs(attrs, moveNodeId)),
           ...dataTracked,
         ]
         wrapper = wrapper.replace(

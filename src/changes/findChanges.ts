@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Node as PMNode } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'

@@ -17,13 +17,7 @@ import { Attrs, Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
-import {
-  CHANGE_OPERATION,
-  CHANGE_STATUS,
-  ReferenceAttrs,
-  StructureAttrs,
-  TrackedAttrs,
-} from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, StructureAttrs, TrackedAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
@@ -57,18 +51,9 @@ export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
   }
 }
 
-export function createNewReferenceAttrs(
-  attrs: NewEmptyAttrs,
-  id: string,
-  isStructureRef?: boolean
-): NewReferenceAttrs {
-  const emptyAttrs = attrs as ReferenceAttrs
-  if (isStructureRef) {
-    emptyAttrs.isStructureRef = true
-  }
-
+export function createNewReferenceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
   return {
-    ...emptyAttrs,
+    ...attrs,
     operation: CHANGE_OPERATION.reference,
     referenceId: id,
   }

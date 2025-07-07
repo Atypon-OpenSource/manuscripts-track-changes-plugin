@@ -61,7 +61,6 @@ export type NodeSplitAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
 export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.reference
   referenceId: string
-  isStructureRef?: boolean
 }
 
 export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
