@@ -70,7 +70,7 @@ export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
 
 export type StructureAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.structure
-  action: 'convert-paragraph' | 'convert-section'
+  action: 'convert-to-paragraph' | 'convert-to-section'
   sectionLevel?: number
   isThereSectionBefore?: boolean
   isSupSection?: boolean

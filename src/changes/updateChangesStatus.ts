@@ -16,10 +16,12 @@
 
 import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
+import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { applyAcceptedRejectedChanges } from './applyChanges'
+import { findChanges } from './findChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
 
 export function updateChangesStatus(
@@ -36,6 +38,7 @@ export function updateChangesStatus(
   if (change && status !== CHANGE_STATUS.pending) {
     const textChanges: TextChange[] = []
     const nonTextChanges: TrackedChange[] = []
+    const structuralChanges: TrackedChange[] = []
 
     changeSet.changes.forEach((c) => {
       if (ids.includes(c.id)) {
@@ -43,23 +46,19 @@ export function updateChangesStatus(
         if (ChangeSet.isTextChange(c)) {
           textChanges.push(c)
         } else {
-          // that will be cleaned up in revertStructureNodeChange
-          if (c.dataTracked.operation === CHANGE_OPERATION.reference && c.dataTracked.isStructureRef) {
-            return
-          }
-          // this to avoid duplicating the same related convert-paragraph changes, as we need just the first change
-          // so in the revertStructureNodeChange we group related changes to creat section
-          if (
-            c.dataTracked.operation === CHANGE_OPERATION.structure &&
-            c.dataTracked.action === 'convert-paragraph' &&
-            status === 'rejected'
-          ) {
-            const hasChange = nonTextChanges.find(
-              (change) => change.dataTracked.moveNodeId === c.dataTracked.moveNodeId
-            )
-            if (hasChange) {
-              return
+          if (c.dataTracked.operation === CHANGE_OPERATION.structure) {
+            // this to avoid duplicating the same related convert-paragraph changes, as we need just the first change
+            // so in the revertStructureNodeChange we group related changes to creat section
+            if (c.dataTracked.action === 'convert-to-paragraph' && status === 'rejected') {
+              const hasChange = structuralChanges.find(
+                (change) => change.dataTracked.moveNodeId === c.dataTracked.moveNodeId
+              )
+              if (hasChange) {
+                return
+              }
             }
+            structuralChanges.push(c)
+            return
           }
 
           nonTextChanges.push(c)
@@ -122,7 +121,26 @@ export function updateChangesStatus(
       }
     })
 
-    const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
+    const mapping = new Mapping()
+
+    if (structuralChanges.length) {
+      const remainingChangesId = ids.filter(
+        (c) => changeSet?.get(c)?.dataTracked.operation !== CHANGE_OPERATION.structure
+      )
+      applyAcceptedRejectedChanges(
+        createdTr,
+        oldState.schema,
+        structuralChanges,
+        changeSet,
+        mapping,
+        remainingChangesId
+      )
+      const updatedChangeSet = findChanges(createdTr.doc)
+      updateChangesStatus(createdTr, updatedChangeSet, remainingChangesId, status, userID, oldState)
+      return
+    }
+
+    applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet, mapping)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
   } else {
     ids.forEach((changeId: string) => {

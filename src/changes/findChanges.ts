@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
+import { Node as PMNode, Schema } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
@@ -34,15 +34,13 @@ import {
  * This could be possibly made more efficient by only iterating the sections of doc where changes have
  * been applied. This could attempted with eg findDiffStart but it might be less robust than just using
  * doc.descendants
- * @param state
- * @returns
  */
-export function findChanges(state: EditorState) {
+export function findChanges(doc: PMNode) {
   const changes: IncompleteChange[] = []
   // Store the last iterated change to join adjacent text changes
   let current: { change: IncompleteChange; node: PMNode } | undefined
-  state.doc.descendants((node, pos) => {
-    const tracked = getNodeTrackedData(node, state.schema) || []
+  doc.descendants((node, pos) => {
+    const tracked = getNodeTrackedData(node, doc.type.schema) || []
 
     for (let i = 0; i < tracked.length; i += 1) {
       const dataTracked = tracked[i]

@@ -55,7 +55,7 @@ export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 }
 export type NewStructureAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.structure
-  action: 'convert-paragraph' | 'convert-section'
+  action: 'convert-to-paragraph' | 'convert-to-section'
   // level of the section in PM document
   sectionLevel?: number
   // that to make sure target section is the first one in the parent node, so we use it in revert of change to not violate schema

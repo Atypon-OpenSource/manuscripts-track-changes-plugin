@@ -14,31 +14,97 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
-import { EditorState, Selection, Transaction } from 'prosemirror-state'
+import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep } from 'prosemirror-transform'
 
 import { findChanges } from '../changes/findChanges'
-import { CHANGE_OPERATION, StructureAttrs } from '../types/change'
+import { getUpdatedChangesContent } from '../changes/revertChange'
+import { CHANGE_OPERATION, StructureAttrs, TrackedAttrs } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
 import * as trackUtils from '../utils/track-utils'
 import { updateBlockNodesAttrs } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from './nodeHelpers'
-import { setFragmentAsInserted } from './setFragmentAsInserted'
 
 /**
- * return dataTracked if we are reapplying same structural action, like converting: section -> paragraph -> section
+ * find target node we start from the convert process
  */
-const getDataTrackedIfSameActionApplied = (
-  selection: Selection,
-  doc: PMNode
-): Partial<StructureAttrs> | undefined => {
-  const { $from } = selection
-  let node = $from.node()
-  if (node.type === node.type.schema.nodes.section_title) {
-    node = $from.node($from.depth - 1)
+const getConvertedNode = (docContent: Fragment, stepContent: Fragment) => {
+  const start = stepContent.findDiffStart(docContent) || 0
+  const end = stepContent.findDiffEnd(docContent)?.b || docContent.size
+
+  let target: PMNode | undefined
+
+  docContent.nodesBetween(start, end, (node, pos, _, index) => {
+    if (pos < start || target) {
+      return
+    }
+
+    if (start === pos || (start > 0 && index === 1)) {
+      target = node
+      return false
+    }
+  })
+
+  return target as PMNode
+}
+
+/**
+ * get dataTracked of the converted nodes to not lose track of the previous changes on the converted node.
+ *
+ * --For node convert from Paragraph -> Section
+ *   - new section will have a new change of insert/delete if paragraph already have, and mirror structure changes
+ *   - section_title will mirror paragraph changes of (insert/delete/reference)
+ *
+ * --For node convert from Section -> Paragraph
+ *   - new paragraph will mirror section_title (insert/delete/reference), and will mirror from section just structure changes
+ */
+export const getDataTrackedOfConvertedNode = (node: PMNode | undefined) => {
+  const latest = (c1: Partial<TrackedAttrs>, c2: Partial<TrackedAttrs>) =>
+    (c2.updatedAt || 0) - (c1.updatedAt || 0)
+  let dataTracked: Partial<TrackedAttrs>[] = [],
+    secDataTracked: Partial<TrackedAttrs>[] = []
+
+  if (node) {
+    dataTracked = getBlockInlineTrackedData(node) || []
+
+    if (node.type === node.type.schema.nodes.section) {
+      const secTitleDataTracked = (
+        (node.firstChild && getBlockInlineTrackedData(node.firstChild)) ||
+        []
+      ).filter(
+        (c) =>
+          c.operation === CHANGE_OPERATION.delete ||
+          c.operation === CHANGE_OPERATION.insert ||
+          c.operation === CHANGE_OPERATION.reference
+      )
+      const secDataTracked = dataTracked.filter((c) => c.operation === CHANGE_OPERATION.structure)
+
+      dataTracked = [...secTitleDataTracked, ...secDataTracked]
+    } else {
+      const InsertDelete = dataTracked.find(
+        (c) => c.operation === CHANGE_OPERATION.delete || c.operation === CHANGE_OPERATION.insert
+      )
+      secDataTracked = dataTracked.filter((c) => c.operation === CHANGE_OPERATION.structure)
+      dataTracked = dataTracked.filter((c) => c.operation === CHANGE_OPERATION.reference)
+      if (InsertDelete) {
+        dataTracked.push(InsertDelete)
+        secDataTracked.push(
+          addTrackIdIfDoesntExist({
+            ...InsertDelete,
+            id: uuidv4(),
+          })
+        )
+      }
+    }
+    dataTracked = dataTracked.sort(latest)
+    secDataTracked = secDataTracked.sort(latest)
   }
 
+  return { dataTracked, secDataTracked }
+}
+
+const getDataTrackedIfSameActionApplied = (doc: PMNode, node: PMNode) => {
   const dataTracked = (getBlockInlineTrackedData(node) || []).find(
     (c) => c.operation === CHANGE_OPERATION.structure
   ) as Partial<StructureAttrs>
@@ -46,73 +112,46 @@ const getDataTrackedIfSameActionApplied = (
     return undefined
   }
 
-  if (dataTracked.action === 'convert-section' && node.type === node.type.schema.nodes.section) {
+  if (dataTracked.action === 'convert-to-section' && node.type === node.type.schema.nodes.section) {
     return dataTracked
   }
 
-  if (dataTracked.action === 'convert-paragraph' && node.type === node.type.schema.nodes.paragraph) {
+  if (dataTracked.action === 'convert-to-paragraph') {
     // this to make sure we are reapplying same action from the starting node of that change
     // so if we convert section to paragraph then section_title that converted to paragraph will be our target
-    const pos = $from.before($from.depth)
-    const nodeBefore = doc.resolve(pos).nodeBefore
-    if (!nodeBefore) {
-      return dataTracked
-    } else if (nodeBefore) {
-      const startPointChange = (getBlockInlineTrackedData(nodeBefore) || []).find(
-        (c) => c.operation === 'structure' && c.moveNodeId === dataTracked.moveNodeId
-      )
-      if (!startPointChange) {
-        return dataTracked
-      }
-    }
+    const changes = getUpdatedChangesContent(doc, (c) => c.moveNodeId === dataTracked.moveNodeId)
+    const isItFirstNodeInChange = changes.find(
+      (node, index) => node.attrs.dataTracked[0].id === dataTracked.id && index === 0
+    )
+    return isItFirstNodeInChange && dataTracked
   }
 }
 
 const cleanUpDataTracked = (
-  step: ReplaceStep,
+  content: Fragment,
   sameActionDataTracked: Partial<StructureAttrs>,
+  dataTracked: Partial<TrackedAttrs>[],
+  secDataTracked: Partial<TrackedAttrs>[],
   oldState: EditorState,
   newTr: Transaction
 ) => {
-  let content = step.slice.content
-
-  const mainSection = step.slice.content.firstChild
-  const supSection = step.slice.content.lastChild
+  const mainSection = content.firstChild
+  let supSection = content.lastChild
   let supSectionTitle = supSection?.firstChild
   // sink second section in the first one as change is a supSubsection
   if (sameActionDataTracked.isSupSection && mainSection && supSection && supSectionTitle) {
-    const dataTracked = getBlockInlineTrackedData(supSectionTitle) || []
-    // this will move back convert-paragraph changes in children that was originally in the supSection,
-    // case of that converting parent of supSection to paragraph then converting that supSection to paragraph and section
-    supSectionTitle =
-      supSectionTitle.type.create(
-        {
-          ...supSectionTitle.attrs,
-          dataTracked: dataTracked.filter((c) => c.operation !== CHANGE_OPERATION.structure),
-        },
-        supSectionTitle.content
-      ) || supSectionTitle
-    const changesSet = new Set((getBlockInlineTrackedData(supSectionTitle) || []).map((c) => c.id))
-    content = Fragment.from(
-      mainSection.copy(
-        mainSection.content.append(
-          Fragment.from(
-            supSection.type.create(
-              {
-                ...supSection?.attrs,
-                dataTracked: dataTracked.filter(
-                  (c) => c.moveNodeId !== sameActionDataTracked.moveNodeId && !changesSet.has(c.id)
-                ),
-              },
-              Fragment.from(supSectionTitle).append(supSection.slice(supSectionTitle.nodeSize).content)
-            )
-          )
-        )
-      )
+    supSectionTitle = supSectionTitle.type.create(
+      { ...supSectionTitle.attrs, dataTracked },
+      supSectionTitle.content
     )
+    supSection = supSection.type.create(
+      { ...supSection.attrs, dataTracked: secDataTracked },
+      Fragment.from(supSectionTitle).append(supSection.slice(supSectionTitle.nodeSize).content)
+    )
+    content = Fragment.from(mainSection.copy(mainSection.content.append(Fragment.from(supSection))))
   }
 
-  const changes = findChanges(oldState).changes.filter(
+  const changes = findChanges(oldState.doc).changes.filter(
     (c) =>
       c.dataTracked.moveNodeId === sameActionDataTracked.moveNodeId ||
       (c.dataTracked.operation === CHANGE_OPERATION.reference &&
@@ -136,8 +175,10 @@ const cleanUpDataTracked = (
       ...attrs,
       dataTracked: dataTracked.filter(
         (c) =>
-          c.moveNodeId !== sameActionDataTracked.moveNodeId ||
-          (c.operation === CHANGE_OPERATION.reference && c.referenceId === sameActionDataTracked.moveNodeId)
+          !(
+            c.moveNodeId === sameActionDataTracked.moveNodeId ||
+            (c.operation === CHANGE_OPERATION.reference && c.referenceId === sameActionDataTracked.moveNodeId)
+          )
       ),
     }
   })
@@ -163,104 +204,56 @@ export function setFragmentAsStructuralChange(
   tr: Transaction,
   attrs: NewEmptyAttrs
 ) {
-  const sameActionDataTracked = getDataTrackedIfSameActionApplied(oldState.selection, oldState.doc)
-  if (sameActionDataTracked) {
-    return cleanUpDataTracked(step, sameActionDataTracked, oldState, newTr)
-  }
+  const schema = oldState.schema
+  const {
+    slice: { content: stepContent },
+  } = step
+  const replaceContent = newTr.doc.slice(step.from, step.to).content
+  const node = getConvertedNode(replaceContent, stepContent)
+  const sameActionDataTracked = getDataTrackedIfSameActionApplied(newTr.doc, node)
+  let { dataTracked, secDataTracked } = getDataTrackedOfConvertedNode(node)
 
   // that ID will be used:
   // - converting section -> paragraph, to group converted section children
   // - converting paragraph -> section, will be the connection between the node before paragraph to the new section as reference-change
   const moveNodeId = uuidv4()
-  const action = tr.getMeta('action')
   const sectionLevel = tr.getMeta('section-level')
+  const action = tr.getMeta('action') as StructureAttrs['action']
   let isThereSectionBefore = false
   let isSupSection = false
-  const content = step.slice.content
-  const replaceContent = newTr.doc.slice(step.from, step.to).content
-  const differentPos = replaceContent.findDiffStart(content) || step.slice.content.size
-  let wrapper = newTr.doc.type.schema.nodes.body.create(undefined, content)
+  const differentPos = replaceContent.findDiffStart(stepContent) || 0
+  let wrapper = newTr.doc.type.schema.nodes.body.create(undefined, stepContent)
 
-  if (content.firstChild && content.firstChild.type === newTr.doc.type.schema.nodes.section_title) {
-    wrapper = newTr.doc.type.schema.nodes.section.create(undefined, content)
-  }
-
-  // That for first child in body, we don't use reference as tracking scope will be just for inner body
-  if (tr.getMeta('track-without-reference')) {
-    const updatedContent: PMNode[] = []
-    wrapper.content.forEach((node) => {
-      const dataTracked = getBlockInlineTrackedData(node) || []
-      updatedContent.push(
-        node.type.create(
-          {
-            ...node.attrs,
-            dataTracked: [
-              addTrackIdIfDoesntExist(trackUtils.createNewStructureAttrs({ ...attrs, moveNodeId }, action)),
-              ...dataTracked,
-            ],
-          },
-          node.content
-        )
-      )
-    })
-    return Fragment.from(updatedContent)
+  if (stepContent.firstChild && stepContent.firstChild.type === newTr.doc.type.schema.nodes.section_title) {
+    wrapper = newTr.doc.type.schema.nodes.section.create(undefined, stepContent)
   }
 
   // add reference change to the adjacent node to the converted paragraph
   // that will be used to return content after the reference on rejection
-  if (action === 'convert-section') {
+  if (action === 'convert-to-section' && !sameActionDataTracked) {
     wrapper.nodesBetween(0, differentPos, (node, pos) => {
       if (pos + node.nodeSize === differentPos) {
-        const dataTracked = getBlockInlineTrackedData(node) || []
+        let dataTracked = getBlockInlineTrackedData(node) || []
+        dataTracked = [
+          addTrackIdIfDoesntExist(trackUtils.createNewReferenceAttrs(attrs, moveNodeId, true)),
+          ...dataTracked,
+        ]
         wrapper = wrapper.replace(
           pos,
           pos + node.nodeSize,
-          new Slice(
-            Fragment.from(
-              node.type.create(
-                Object.assign(Object.assign({}, node.attrs), {
-                  dataTracked: [
-                    addTrackIdIfDoesntExist(trackUtils.createNewReferenceAttrs(attrs, moveNodeId, true)),
-                    ...dataTracked,
-                  ],
-                }),
-                node.content
-              )
-            ),
-            0,
-            0
-          )
+          new Slice(Fragment.from(node.type.create({ ...node.attrs, dataTracked }, node.content)), 0, 0)
         )
-
         return false
       }
     })
   }
 
-  wrapper.nodesBetween(differentPos, step.slice.content.size, (node, pos) => {
+  wrapper.nodesBetween(differentPos, stepContent.size, (node, pos, _, index) => {
     if (pos < differentPos) {
       return
     }
 
-    let content = node.content
-
-    // this will set added empty paragraph to a section as insert node change
-    if (
-      node.type === node.type.schema.nodes.section &&
-      node.childCount === 2 &&
-      node.lastChild?.content.size === 0
-    ) {
-      const paragraph = setFragmentAsInserted(
-        Fragment.from(node.lastChild),
-        trackUtils.createNewInsertAttrs(attrs),
-        newTr.doc.type.schema
-      ).firstChild
-      if (paragraph) {
-        content = content.replaceChild(1, paragraph)
-      }
-    }
-
-    if (action === 'convert-paragraph') {
+    if (action === 'convert-to-paragraph' && !sameActionDataTracked) {
       const $from = oldState.selection.$from
       const sectionPos = $from.start($from.depth - 2)
       if (oldState.doc.resolve(sectionPos).parent.type !== oldState.schema.nodes.body) {
@@ -273,7 +266,31 @@ export function setFragmentAsStructuralChange(
       })
     }
 
-    const dataTracked = getBlockInlineTrackedData(node) || []
+    if (action === 'convert-to-section') {
+      const sectionTitle = schema.nodes.section_title.create(
+        { ...node.firstChild?.attrs, dataTracked },
+        node.firstChild?.content
+      )
+      node = node.copy(Fragment.from(sectionTitle).append(node.slice(sectionTitle.nodeSize).content))
+      dataTracked = secDataTracked
+    }
+
+    if (index > 1 && pos !== differentPos) {
+      dataTracked = getBlockInlineTrackedData(node) || []
+    }
+
+    const structureChange = (sameActionDataTracked && []) || [
+      addTrackIdIfDoesntExist(
+        trackUtils.createNewStructureAttrs(
+          { ...attrs, moveNodeId },
+          action,
+          sectionLevel,
+          isThereSectionBefore,
+          isSupSection
+        )
+      ),
+    ]
+
     wrapper = wrapper.replace(
       pos,
       pos + node.nodeSize,
@@ -282,20 +299,9 @@ export function setFragmentAsStructuralChange(
           node.type.create(
             {
               ...node.attrs,
-              dataTracked: [
-                addTrackIdIfDoesntExist(
-                  trackUtils.createNewStructureAttrs(
-                    { ...attrs, moveNodeId },
-                    action,
-                    sectionLevel,
-                    isThereSectionBefore,
-                    isSupSection
-                  )
-                ),
-                ...dataTracked,
-              ],
+              dataTracked: [...structureChange, ...dataTracked],
             },
-            content
+            node.content
           )
         ),
         0,
@@ -304,6 +310,17 @@ export function setFragmentAsStructuralChange(
     )
     return false
   })
+
+  if (sameActionDataTracked) {
+    return cleanUpDataTracked(
+      wrapper.content,
+      sameActionDataTracked,
+      dataTracked,
+      secDataTracked,
+      oldState,
+      newTr
+    )
+  }
 
   return Fragment.from(wrapper.content)
 }

@@ -48,7 +48,6 @@ export function trackReplaceStep(
   const attrs = { ...attrsTemplate }
 
   if (moveID) {
-    console.log('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
     attrs.moveNodeId = moveID
   }
 
@@ -110,7 +109,6 @@ export function trackReplaceStep(
 
     const backSpacedText = sameThingBackSpaced()
     if (backSpacedText) {
-      console.log('Detected backspacing')
       changeSteps.splice(changeSteps.indexOf(backSpacedText))
     }
 
