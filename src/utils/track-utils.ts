@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
+import { Attrs, Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, StructureAttrs, TrackedAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
@@ -25,6 +25,7 @@ import {
   NewInsertAttrs,
   NewReferenceAttrs,
   NewSplitNodeAttrs,
+  NewStructureAttrs,
   NewUpdateAttrs,
 } from '../types/track'
 import { uuidv4 } from './uuidv4'
@@ -69,6 +70,33 @@ export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.move,
+  }
+}
+
+export function createNewStructureAttrs(
+  attrs: NewEmptyAttrs,
+  action: StructureAttrs['action'],
+  sectionLevel?: number,
+  isThereSectionBefore?: boolean,
+  isSupSection?: boolean
+): NewStructureAttrs {
+  const emptyAttrs = attrs as NewStructureAttrs
+  if (sectionLevel) {
+    emptyAttrs.sectionLevel = sectionLevel
+  }
+
+  if (isThereSectionBefore) {
+    emptyAttrs.isThereSectionBefore = true
+  }
+
+  if (isSupSection) {
+    emptyAttrs.isSupSection = true
+  }
+
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.structure,
+    action,
   }
 }
 
@@ -212,10 +240,10 @@ export const HasMoveOperations = (tr: Transaction) => {
     }
     const step = tr.steps[i] as ReplaceStep
     const doc = tr.docs[i]
-    
+
     // skipping step without slice
     // there is nothing to insert or delete
-    if (!step.slice) {  
+    if (!step.slice) {
       continue
     }
     const stepDeletesContent = step.from !== step.to && step.slice.size === 0
@@ -401,4 +429,25 @@ export const filterMeaninglessMoveSteps = (
   }
 
   return cleanSteps
+}
+
+export const updateBlockNodesAttrs = (
+  fragment: Fragment,
+  predicate: (attrs: Attrs, node: PMNode) => Attrs
+) => {
+  const updatedNodes: PMNode[] = []
+
+  fragment.forEach((child) => {
+    if (!child.isBlock) {
+      updatedNodes.push(child)
+      return
+    }
+
+    const newContent = child.content.size ? updateBlockNodesAttrs(child.content, predicate) : child.content
+    const newAttrs = predicate(child.attrs, child)
+
+    updatedNodes.push(child.type.create(newAttrs, newContent, child.marks))
+  })
+
+  return Fragment.fromArray(updatedNodes)
 }

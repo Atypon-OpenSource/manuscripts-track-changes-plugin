@@ -55,7 +55,7 @@ export const trackChangesPlugin = (
         return {
           status: opts.initialStatus || TrackChangesStatus.enabled,
           userID,
-          changeSet: findChanges(state),
+          changeSet: findChanges(state.doc),
         }
       },
 
@@ -72,7 +72,8 @@ export const trackChangesPlugin = (
           return {
             ...pluginState,
             status: setStatus,
-            changeSet: setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState),
+            changeSet:
+              setStatus === TrackChangesStatus.disabled ? new ChangeSet() : findChanges(newState.doc),
           }
         } else if (pluginState.status === TrackChangesStatus.disabled) {
           return { ...pluginState, changeSet: new ChangeSet() }
@@ -80,7 +81,7 @@ export const trackChangesPlugin = (
         let { changeSet, ...rest } = pluginState
 
         if (getAction(tr, TrackChangesAction.refreshChanges) || trFromHistory(tr)) {
-          changeSet = findChanges(newState)
+          changeSet = findChanges(newState.doc)
         }
         return {
           changeSet,

@@ -168,7 +168,7 @@ export function processChangeSteps(
         mergeTrackedMarks(mapping.map(c.from), newTr.doc, newTr, schema)
         const to = mapping.map(c.to) + c.slice.size
         mergeTrackedMarks(
-          mapping.map(c.to) + (to < newTr.doc.nodeSize ? c.slice.size : 0),
+          mapping.map(c.to) + (to < newTr.doc.content.size ? c.slice.size : 0),
           newTr.doc,
           newTr,
           schema

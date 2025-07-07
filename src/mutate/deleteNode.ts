@@ -103,6 +103,20 @@ export function deleteOrSetNodeDeleted(
     return
   }
   const newDeleted = addTrackIdIfDoesntExist(deleteAttrs)
+  const structureChanges = dataTracked?.filter((d) => d.operation === CHANGE_OPERATION.structure)
+
+  if (structureChanges?.length) {
+    return newTr.setNodeMarkup(
+      pos,
+      undefined,
+      {
+        ...node.attrs,
+        dataTracked: [...structureChanges, newDeleted],
+      },
+      node.marks
+    )
+  }
+
   newTr.setNodeMarkup(
     pos,
     undefined,

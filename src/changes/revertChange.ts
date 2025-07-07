@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 import { ManuscriptNode } from '@manuscripts/transform'
-import { Schema, Slice } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { liftTarget, Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
+import { getDataTrackedOfConvertedNode } from '../compute/setFragmentAsStructuralChange'
+import {
+  CHANGE_OPERATION,
+  IncompleteChange,
+  NodeChange,
+  StructureAttrs,
+  TrackedAttrs,
+  TrackedChange,
+} from '../types/change'
+import { updateBlockNodesAttrs } from '../utils/track-utils'
 import { getUpdatedDataTracked } from './applyChanges'
 
 /**
@@ -92,4 +101,149 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, 
       }
     })
   }
+}
+
+export function revertStructureNodeChange(
+  tr: Transaction,
+  change: TrackedChange & { dataTracked: StructureAttrs },
+  changeSet: ChangeSet,
+  remainingChangesId: string[]
+) {
+  const schema = tr.doc.type.schema
+
+  /** Return converted section_title as paragraph node and remaining section content as sibling to the paragraph
+   *  From: <sec><title>1</title><p>2</p></sec>
+   *  To:  <p>1</p><p>2</p>
+   *  and will cleanup reference related to paragraph
+   * */
+  if (change.dataTracked.action === 'convert-to-section') {
+    const section = getUpdatedChangesContent(tr.doc, (c) => c.id === change.id)[0]
+    const [changePos, changeNode] = getChangePosition(tr.doc, change)
+    tr.delete(changePos, changePos + (changeNode?.nodeSize || 0))
+
+    let insertPos = changePos
+    const refChange = changeSet.changes.find(
+      (c) =>
+        c.dataTracked.operation === CHANGE_OPERATION.reference &&
+        c.dataTracked.referenceId === change.dataTracked.moveNodeId
+    )
+    if (refChange) {
+      const [refPos, refNode] = getChangePosition(tr.doc, refChange)
+      insertPos = refPos + (refNode?.nodeSize || 0)
+      if (refNode) {
+        const dataTracked = (getBlockInlineTrackedData(refNode) || []).filter((c) => c.id !== refChange.id)
+        // clean-up reference from here as it could be moved from other change
+        tr.setNodeMarkup(refPos, undefined, { ...refNode.attrs, dataTracked })
+      }
+    }
+
+    const sectionTitle = section.firstChild || schema.nodes.section_title.create()
+    let { dataTracked } = getDataTrackedOfConvertedNode(section)
+    dataTracked = dataTracked.filter(
+      (c) =>
+        !(
+          c.id === change.id ||
+          (c.operation === CHANGE_OPERATION.reference && c.referenceId === change.dataTracked.moveNodeId)
+        )
+    )
+    const content = Fragment.from(
+      schema.nodes.paragraph.create({ dataTracked }, sectionTitle.content)
+    ).append(section.slice(sectionTitle.nodeSize).content)
+
+    const sectionIns = (getBlockInlineTrackedData(section) || []).find((c) => c.operation === 'insert')
+    const paragraphIns = dataTracked.find((c) => c.operation === 'insert')
+    if (sectionIns && paragraphIns?.id) {
+      const index = remainingChangesId.findIndex((id) => id === sectionIns.id)
+      remainingChangesId[index] = paragraphIns.id
+    }
+
+    tr.insert(insertPos, content)
+  }
+
+  /** Rebuild section as first change will be content of section_title and remaining changes will be section content
+   *  From: <p>1</p><p>2</p>
+   *  To:  <sec><title>1</title><p>2</p></sec>
+   * */
+  if (change.dataTracked.action === 'convert-to-paragraph') {
+    const changesContent = getUpdatedChangesContent(
+      tr.doc,
+      (c) => c.moveNodeId === change.dataTracked.moveNodeId
+    )
+    const changes = changeSet.changes.filter(
+      (c) => c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
+    )
+    let [from] = getChangePosition(tr.doc, changes[0])
+    let [to, toNode] = getChangePosition(tr.doc, changes[changes.length - 1])
+    tr.delete(from, to + (toNode?.nodeSize || 0))
+
+    const $pos = tr.doc.resolve(from)
+    let pos = from
+    if (change.dataTracked.sectionLevel) {
+      pos = $pos.end(change.dataTracked.sectionLevel) + 1
+    } else if (change.dataTracked.isThereSectionBefore) {
+      pos = $pos.end($pos.depth) + 1
+    }
+
+    const cleanContent = updateBlockNodesAttrs(Fragment.from(changesContent), (attrs, node) => ({
+      ...attrs,
+      dataTracked: (getBlockInlineTrackedData(node) || []).filter(
+        (c) => c.moveNodeId !== change.dataTracked.moveNodeId
+      ),
+    }))
+    const { dataTracked, secDataTracked } = getDataTrackedOfConvertedNode(cleanContent.content[0])
+    const sectionTitle = schema.nodes.section_title.create(
+      { ...cleanContent.firstChild?.attrs, dataTracked },
+      cleanContent.firstChild?.content
+    )
+    const section = schema.nodes.section.create(
+      {
+        dataTracked: secDataTracked.filter((c) => c.operation !== CHANGE_OPERATION.delete),
+      },
+      Fragment.from(sectionTitle).append(Fragment.from(cleanContent.content.slice(1)))
+    )
+
+    const sectionInsert = secDataTracked.find((c) => c.operation === CHANGE_OPERATION.insert) as TrackedAttrs
+    if (sectionInsert) {
+      const insertId = dataTracked.find((c) => c.operation === CHANGE_OPERATION.insert)
+      const index = remainingChangesId.findIndex((id) => id === insertId?.id)
+      if (index !== -1) {
+        // replace paragraph change id with that have been converted to section change
+        remainingChangesId[index] = sectionInsert.id
+      }
+    }
+    tr.insert(pos, section)
+  }
+}
+
+export const getUpdatedChangesContent = (
+  doc: PMNode,
+  predicate: (change: Partial<TrackedAttrs>) => boolean
+) => {
+  const content: PMNode[] = []
+  doc.descendants((node) => {
+    if (node.attrs.dataTracked) {
+      const dataTracked = getBlockInlineTrackedData(node)?.find(predicate)
+      dataTracked && content.push(node)
+    }
+  })
+  return content
+}
+
+const getChangePosition = (doc: PMNode, referenceChange: TrackedChange) => {
+  let to: [number, PMNode] | undefined
+  doc.descendants((node, pos) => {
+    if (node.attrs.dataTracked) {
+      const dataTracked = getBlockInlineTrackedData(node)?.find((c) => c.id === referenceChange.id)
+      if (dataTracked) {
+        to = [pos, node]
+        return false
+      }
+    }
+
+    if (to) {
+      return false
+    }
+  })
+
+  return to || [referenceChange.to, undefined]
 }

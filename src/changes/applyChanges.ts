@@ -18,11 +18,12 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
+import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, StructureAttrs, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
+import { revertSplitNodeChange, revertStructureNodeChange, revertWrapNodeChange } from './revertChange'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -41,13 +42,15 @@ export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, change
  * @param changes
  * @param changeSet
  * @param deleteMap
+ * @param remainingChangesId
  */
 export function applyAcceptedRejectedChanges(
   tr: Transaction,
   schema: Schema,
   changes: TrackedChange[],
   changeSet: ChangeSet,
-  deleteMap = new Mapping()
+  deleteMap: Mapping,
+  remainingChangesId: string[] = []
 ): Mapping {
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
   changes.sort((c1, c2) => {
@@ -58,6 +61,15 @@ export function applyAcceptedRejectedChanges(
     ) {
       return 1
     }
+
+    // will apply first latest structure change
+    if (
+      c1.dataTracked.operation === CHANGE_OPERATION.structure ||
+      c2.dataTracked.operation === CHANGE_OPERATION.structure
+    ) {
+      return c2.dataTracked.updatedAt - c1.dataTracked.updatedAt
+    }
+
     return c1.dataTracked.updatedAt - c2.dataTracked.updatedAt
   })
 
@@ -65,6 +77,18 @@ export function applyAcceptedRejectedChanges(
     if (change.dataTracked.operation === CHANGE_OPERATION.move) {
       return
     }
+
+    if (change.dataTracked.status === CHANGE_STATUS.rejected) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.structure) {
+        return revertStructureNodeChange(
+          tr,
+          change as TrackedChange & { dataTracked: StructureAttrs },
+          changeSet,
+          remainingChangesId
+        )
+      }
+    }
+
     // Map change.from and skip those which don't need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from)
@@ -95,7 +119,8 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
-      const attrs = { ...node.attrs, dataTracked: null }
+      const dataTracked = (getBlockInlineTrackedData(node) || []).filter((c) => c.id !== change.id)
+      const attrs = { ...node.attrs, dataTracked: dataTracked.length ? dataTracked : null }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
       if (node.isAtom) {

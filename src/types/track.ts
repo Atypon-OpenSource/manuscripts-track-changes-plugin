@@ -52,7 +52,16 @@ export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.reference
   referenceId: string
 }
-export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs
+export type NewStructureAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.structure
+  action: 'convert-to-paragraph' | 'convert-to-section'
+  // level of the section in PM document
+  sectionLevel?: number
+  // that to make sure target section is the first one in the parent node, so we use it in revert of change to not violate schema
+  isThereSectionBefore?: boolean
+  isSupSection?: boolean
+}
+export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs | NewStructureAttrs
 
 export enum TrackChangesStatus {
   enabled = 'enabled',

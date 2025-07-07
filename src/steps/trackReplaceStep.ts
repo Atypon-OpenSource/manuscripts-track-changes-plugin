@@ -22,6 +22,7 @@ import {
   setFragmentAsMoveChange,
   setFragmentAsNodeSplit,
 } from '../compute/setFragmentAsInserted'
+import { setFragmentAsStructuralChange } from '../compute/setFragmentAsStructuralChange'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
@@ -47,8 +48,22 @@ export function trackReplaceStep(
   const attrs = { ...attrsTemplate }
 
   if (moveID) {
-    console.log('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
     attrs.moveNodeId = moveID
+  }
+
+  if (tr.getMeta('is-structural-change')) {
+    const changeFragment = setFragmentAsStructuralChange(step, oldState, newTr, tr, attrs)
+    return [
+      [
+        {
+          type: 'insert-slice',
+          from: step.from,
+          to: step.to,
+          slice: new Slice(changeFragment, step.slice.openStart, step.slice.openEnd),
+        },
+      ],
+      0,
+    ] as [ChangeStep[], number]
   }
 
   // Invert the transaction step to prevent it from actually deleting or inserting anything
@@ -94,7 +109,6 @@ export function trackReplaceStep(
 
     const backSpacedText = sameThingBackSpaced()
     if (backSpacedText) {
-      console.log('Detected backspacing')
       changeSteps.splice(changeSteps.indexOf(backSpacedText))
     }
 
