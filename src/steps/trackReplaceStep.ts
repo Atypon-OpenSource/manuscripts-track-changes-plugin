@@ -107,7 +107,6 @@ export function trackReplaceStep(
 
     // Get mapped positions
     const mappedFromA = posMapping.map(fromA)
-    const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
 
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
