@@ -51,8 +51,6 @@ export function trackReplaceStep(
     attrs.moveNodeId = moveID
   }
 
-  const posMapping = new Mapping()
-
   // Invert the transaction step to prevent it from actually deleting or inserting anything
   step.getMap().forEach((fromA: number, toA: number, fromB: number, toB: number) => {
     log.info(`changed ranges: ${fromA} ${toA} ${fromB} ${toB}`)
@@ -105,9 +103,6 @@ export function trackReplaceStep(
     where the user added inserted content
     */
 
-    // Get mapped positions
-    const mappedFromA = posMapping.map(fromA)
-
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 
@@ -126,8 +121,8 @@ export function trackReplaceStep(
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
-      // Use mappedFromA for insert position
-      const insertPos = mappedFromA
+      // Use fromA for insert position
+      const insertPos = fromA
       changeSteps.push({
         type: 'insert-slice',
         from: insertPos,
