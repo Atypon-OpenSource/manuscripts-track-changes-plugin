@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
+import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
+import { ReplaceStep, StepResult } from 'prosemirror-transform'
 
 import {
   setFragmentAsInserted,
@@ -102,7 +102,6 @@ export function trackReplaceStep(
     in reference to !(fromA === fromB) - if changed ranges didnt change with that step, we need to insert at the start of the new range to match 
     where the user added inserted content
     */
-    const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
 
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
@@ -122,14 +121,14 @@ export function trackReplaceStep(
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
-      const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
-      const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
+      // Use fromA for insert position
+      const insertPos = fromA
       changeSteps.push({
         type: 'insert-slice',
-        from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-        to: textWasDeleted ? fromB : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there are no content deleted before - it will go into infinite loop if toB -1 is used
+        from: insertPos,
+        to: insertPos,
         sliceWasSplit,
-        slice: new Slice(fragment, openStart, openEnd) as ExposedSlice,
+        slice: new Slice(fragment, slice.openStart, slice.openEnd) as ExposedSlice,
       })
     } else {
       // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
