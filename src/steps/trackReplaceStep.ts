@@ -121,12 +121,36 @@ export function trackReplaceStep(
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
-      // Use fromA for insert position
-      const insertPos = fromA
+      /**
+       * SEARCH-REPLACE vs HIGHLIGHT-AND-TYPE OPERATION DETECTION
+       *
+       * This section implements different insert positioning logic for two distinct types of replacement operations:
+       *
+       * 1. SEARCH-REPLACE OPERATIONS:
+       *    - Triggered by: Search-replace UI components (SearchReplace.tsx)
+       *    - Metadata: Sets searchReplace' flags
+       *    - User Intent: Replace specific text matches found by search functionality
+       *    - Expected Behavior: Insert at the END of the deleted text range (toA)
+       *      - This maintains the original find-and-replace behavior where replaced text
+       *        appears at the end of the deleted range, which is the standard expectation
+       *        for search-replace operations in text editors
+       *
+       * 2. HIGHLIGHT-AND-TYPE OPERATIONS:
+       *    - Triggered by: User manually selecting text and typing to replace it
+       *    - Method: Normal ProseMirror input handling (keyboard events)
+       *    - User Intent: Manually replace selected text by typing over it
+       *    - Expected Behavior: Insert at the START of the deleted text range (fromA)
+       *      - This ensures the new text appears exactly where the user selected and
+       *        started typing, which is the intuitive behavior for manual replacements ( exactly same as google docs)
+       *
+       */
+      // Simple check for search-replace operations
+      const isSearchReplace = tr.getMeta('searchReplace')
+
       changeSteps.push({
         type: 'insert-slice',
-        from: insertPos,
-        to: insertPos,
+        from: isSearchReplace ? toA : fromA,
+        to: isSearchReplace ? toA : fromA,
         sliceWasSplit,
         slice: new Slice(fragment, slice.openStart, slice.openEnd) as ExposedSlice,
       })
