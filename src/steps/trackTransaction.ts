@@ -37,7 +37,7 @@ import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_STATUS } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
@@ -110,10 +110,44 @@ export function trackTransaction(
   let trContext: TrTrackingContext = {}
   const movingStepsAssociated = HasMoveOperations(tr)
 
-  // First handle direct pending move deletions (not part of multiple moves)
-  handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
+  // Filter out steps that involve pending insertions without another move operation
+  const stepsToTrack = tr.steps.filter((step) => {
+    if (step instanceof ReplaceStep) {
+      const replaceStep = step as ReplaceStep
+      if (replaceStep.slice && replaceStep.slice.content.size > 0 && replaceStep.slice.content.firstChild) {
+        const insertedNode = replaceStep.slice.content.firstChild
 
-  const cleanSteps = filterMeaninglessMoveSteps(tr, movingStepsAssociated)
+        if (insertedNode.attrs.dataTracked) {
+          const trackedAttrs = insertedNode.attrs.dataTracked as TrackedAttrs[]
+          const isPendingInsert = trackedAttrs.some(
+            (t) => t.operation === CHANGE_OPERATION.insert && t.status === CHANGE_STATUS.pending
+          )
+
+          const hasMoveOperation = trackedAttrs.some((t) => t.operation === CHANGE_OPERATION.move)
+
+          if (isPendingInsert && !hasMoveOperation) {
+            // Skip this specific step - don't track it
+            return false
+          }
+        }
+      }
+    }
+    return true
+  })
+
+  // If all steps were filtered out, just apply the original transaction without tracking
+  if (stepsToTrack.length === 0) {
+    tr.steps.forEach((s) => newTr.step(s))
+    return newTr
+  }
+
+  // Create a new transaction with only the steps we want to track
+  const filteredTr = Object.assign(tr, { steps: stepsToTrack })
+
+  // First handle direct pending move deletions (not part of multiple moves)
+  handleDirectPendingMoveDeletions(filteredTr, newTr, movingStepsAssociated)
+
+  const cleanSteps = filterMeaninglessMoveSteps(filteredTr, movingStepsAssociated)
 
   for (let i = cleanSteps.length - 1; i >= 0; i--) {
     const step = tr.steps[i]
@@ -143,7 +177,7 @@ export function trackTransaction(
         continue
       }
 
-      const invertedStep = step.invert(tr.docs[i])
+      const invertedStep = step.invert(filteredTr.docs[i])
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
@@ -219,7 +253,15 @@ export function trackTransaction(
         newTr.setSelection(near)
       }
     } else if (step instanceof ReplaceAroundStep) {
-      let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
+      let steps = trackReplaceAroundStep(
+        step,
+        oldState,
+        filteredTr,
+        newTr,
+        emptyAttrs,
+        filteredTr.docs[i],
+        trContext
+      )
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
       const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
       log.info('INSERT STEPS: ', inserted)
