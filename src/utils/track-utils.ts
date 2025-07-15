@@ -212,10 +212,10 @@ export const HasMoveOperations = (tr: Transaction) => {
     }
     const step = tr.steps[i] as ReplaceStep
     const doc = tr.docs[i]
-    
+
     // skipping step without slice
     // there is nothing to insert or delete
-    if (!step.slice) {  
+    if (!step.slice) {
       continue
     }
     const stepDeletesContent = step.from !== step.to && step.slice.size === 0

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
+import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceStep, StepMap, StepResult } from 'prosemirror-transform'
+import { ReplaceStep, StepResult } from 'prosemirror-transform'
 
 import {
   setFragmentAsInserted,
@@ -102,7 +102,6 @@ export function trackReplaceStep(
     in reference to !(fromA === fromB) - if changed ranges didnt change with that step, we need to insert at the start of the new range to match 
     where the user added inserted content
     */
-    const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
 
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
@@ -122,14 +121,38 @@ export function trackReplaceStep(
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
 
-      const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
-      const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
+      /**
+       * SEARCH-REPLACE vs HIGHLIGHT-AND-TYPE OPERATION DETECTION
+       *
+       * This section implements different insert positioning logic for two distinct types of replacement operations:
+       *
+       * 1. SEARCH-REPLACE OPERATIONS:
+       *    - Triggered by: Search-replace UI components (SearchReplace.tsx)
+       *    - Metadata: Sets searchReplace' flags
+       *    - User Intent: Replace specific text matches found by search functionality
+       *    - Expected Behavior: Insert at the END of the deleted text range (toA)
+       *      - This maintains the original find-and-replace behavior where replaced text
+       *        appears at the end of the deleted range, which is the standard expectation
+       *        for search-replace operations in text editors
+       *
+       * 2. HIGHLIGHT-AND-TYPE OPERATIONS:
+       *    - Triggered by: User manually selecting text and typing to replace it
+       *    - Method: Normal ProseMirror input handling (keyboard events)
+       *    - User Intent: Manually replace selected text by typing over it
+       *    - Expected Behavior: Insert at the START of the deleted text range (fromA)
+       *      - This ensures the new text appears exactly where the user selected and
+       *        started typing, which is the intuitive behavior for manual replacements ( exactly same as google docs)
+       *
+       */
+      // Simple check for search-replace operations
+      const isSearchReplace = tr.getMeta('searchReplace')
+
       changeSteps.push({
         type: 'insert-slice',
-        from: textWasDeleted ? fromB : toA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-        to: textWasDeleted ? fromB : toA, // it's not entirely clear why using "fromB" is needed at all but in cases where there are no content deleted before - it will go into infinite loop if toB -1 is used
+        from: isSearchReplace ? toA : fromA,
+        to: isSearchReplace ? toA : fromA,
         sliceWasSplit,
-        slice: new Slice(fragment, openStart, openEnd) as ExposedSlice,
+        slice: new Slice(fragment, slice.openStart, slice.openEnd) as ExposedSlice,
       })
     } else {
       // Incase only deletion was applied, check whether tracked marks around deleted content can be merged
