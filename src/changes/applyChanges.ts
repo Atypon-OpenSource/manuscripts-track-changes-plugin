@@ -21,8 +21,17 @@ import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteNode } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_OPERATION, CHANGE_STATUS, StructureAttrs, TrackedAttrs, TrackedChange } from '../types/change'
+import { propagateReferenceChange } from '../mutate/propagateChange'
+import {
+  CHANGE_OPERATION,
+  CHANGE_STATUS,
+  NodeChange,
+  StructureAttrs,
+  TrackedAttrs,
+  TrackedChange,
+} from '../types/change'
 import { log } from '../utils/logger'
+import { findChanges } from './findChanges'
 import { revertSplitNodeChange, revertStructureNodeChange, revertWrapNodeChange } from './revertChange'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
@@ -79,11 +88,11 @@ export function applyAcceptedRejectedChanges(
     }
 
     if (change.dataTracked.status === CHANGE_STATUS.rejected) {
-      if (change.dataTracked.operation === CHANGE_OPERATION.structure) {
+      if (change.type === 'node-change' && change.dataTracked.operation === CHANGE_OPERATION.structure) {
         return revertStructureNodeChange(
           tr,
-          change as TrackedChange & { dataTracked: StructureAttrs },
-          changeSet,
+          change as NodeChange & { dataTracked: StructureAttrs },
+          findChanges(tr.doc),
           remainingChangesId
         )
       }
@@ -134,6 +143,7 @@ export function applyAcceptedRejectedChanges(
       // it and its parent with Fragment.empty. If none of these apply, delete the content between the change.
       const merged = mergeNode(node, from, tr)
       if (merged === undefined) {
+        propagateReferenceChange(from, tr, changeSet)
         deleteNode(node, from, tr)
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())

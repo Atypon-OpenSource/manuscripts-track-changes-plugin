@@ -114,12 +114,13 @@ export class ChangeSet {
   get groupChanges() {
     const rootNodes: RootChanges = []
     const changeTree = this.changeTree.filter((c) => c.type !== 'reference-change')
+    const structuralChangeRange = { at: undefined }
     let currentInlineChange: RootChange | undefined
 
     changeTree.map((change, index) => {
       if (
         this.canJoinAdjacentInlineChanges(change, index, changeTree) ||
-        this.canJoinAdjacentStructuralChanges(change, index, changeTree)
+        this.canJoinAdjacentStructuralChanges(change, index, changeTree, structuralChangeRange)
       ) {
         currentInlineChange = currentInlineChange ? [...currentInlineChange, change] : [change]
         return
@@ -240,12 +241,32 @@ export class ChangeSet {
     )
   }
 
-  canJoinAdjacentStructuralChanges(change: TrackedChange, index: number, changeTree: TrackedChange[]) {
+  canJoinAdjacentStructuralChanges(
+    change: TrackedChange,
+    index: number,
+    changeTree: TrackedChange[],
+    range: { at: number | undefined }
+  ) {
+    if (change.dataTracked.operation === 'structure' && !range.at) {
+      const from = [...changeTree]
+        .reverse()
+        .find((c) => c.id !== change.id && c.dataTracked.moveNodeId === change.dataTracked.moveNodeId)?.from
+      if (from) {
+        range.at = from
+        return true
+      }
+    }
+
+    if (range.at && range.at > change.from) {
+      return true
+    }
+
+    range.at = undefined
+
     const nextChange = changeTree.at(index + 1)
     const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
       c1.dataTracked.operation === CHANGE_OPERATION.structure &&
       c2.dataTracked.operation === CHANGE_OPERATION.structure
-
     return (
       nextChange &&
       (change.to === nextChange.from || change.to === nextChange.from - 1) &&

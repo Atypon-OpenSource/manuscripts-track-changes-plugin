@@ -17,7 +17,8 @@ import { Attrs, Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
-import { CHANGE_OPERATION, CHANGE_STATUS, StructureAttrs, TrackedAttrs } from '../types/change'
+import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import { CHANGE_OPERATION, CHANGE_STATUS, NodeChange, StructureAttrs, TrackedAttrs } from '../types/change'
 import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
@@ -73,31 +74,11 @@ export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   }
 }
 
-export function createNewStructureAttrs(
-  attrs: NewEmptyAttrs,
-  action: StructureAttrs['action'],
-  sectionLevel?: number,
-  isThereSectionBefore?: boolean,
-  isSupSection?: boolean
-): NewStructureAttrs {
-  const emptyAttrs = attrs as NewStructureAttrs
-  if (sectionLevel) {
-    emptyAttrs.sectionLevel = sectionLevel
-  }
-
-  if (isThereSectionBefore) {
-    emptyAttrs.isThereSectionBefore = true
-  }
-
-  if (isSupSection) {
-    emptyAttrs.isSupSection = true
-  }
-
+export function createNewStructureAttrs(attrs: Partial<NewStructureAttrs>): NewStructureAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.structure,
-    action,
-  }
+  } as NewStructureAttrs
 }
 
 export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<string, any>): NewUpdateAttrs {
@@ -433,20 +414,26 @@ export const filterMeaninglessMoveSteps = (
 
 export const updateBlockNodesAttrs = (
   fragment: Fragment,
-  predicate: (attrs: Attrs, node: PMNode) => Attrs
+  predicate: (attrs: Attrs, node: PMNode, pos: number) => Attrs,
+  basePos = 0
 ) => {
   const updatedNodes: PMNode[] = []
+  let pos = basePos
 
   fragment.forEach((child) => {
     if (!child.isBlock) {
       updatedNodes.push(child)
+      pos += child.nodeSize
       return
     }
 
-    const newContent = child.content.size ? updateBlockNodesAttrs(child.content, predicate) : child.content
-    const newAttrs = predicate(child.attrs, child)
+    const newContent = child.content.size
+      ? updateBlockNodesAttrs(child.content, predicate, pos + 1)
+      : child.content
+    const newAttrs = predicate(child.attrs, child, pos)
 
     updatedNodes.push(child.type.create(newAttrs, newContent, child.marks))
+    pos += child.nodeSize
   })
 
   return Fragment.fromArray(updatedNodes)
