@@ -135,3 +135,67 @@ export function updateChangeChildrenAttributes(changes: TrackedChange[], tr: Tra
     }
   })
 }
+
+/**
+ * Check if a node has tracking data that matches the specified moveNodeId for DELETE operations.
+ */
+function hasMatchingTrackingData(node: any, moveNodeId: string): boolean {
+  const nodeTrackedData = node.attrs.dataTracked
+  return (
+    nodeTrackedData?.find?.(
+      (data: TrackedAttrs) => data.moveNodeId === moveNodeId && data.operation === CHANGE_OPERATION.delete
+    ) !== undefined
+  )
+}
+
+/**
+ * Remove tracking data from a node for the specified moveNodeId for DELETE operations.
+ */
+function restoreNode(tr: Transaction, node: any, pos: number, moveNodeId: string, schema: Schema): void {
+  const nodeTrackedData = node.attrs.dataTracked
+  const updatedTrackData = nodeTrackedData.filter(
+    (data: TrackedAttrs) => !(data.moveNodeId === moveNodeId && data.operation === CHANGE_OPERATION.delete)
+  )
+
+  const updatedAttrs = {
+    ...node.attrs,
+    dataTracked: updatedTrackData.length > 0 ? updatedTrackData : null,
+  }
+
+  tr.setNodeMarkup(pos, undefined, updatedAttrs, node.marks)
+  tr.removeMark(pos, pos + node.nodeSize, schema.marks.tracked_insert)
+  tr.removeMark(pos, pos + node.nodeSize, schema.marks.tracked_delete)
+}
+
+/**
+ * Restore related move nodes by removing tracking data and text marks.
+ * Used when rejecting DELETE operations to restore all related nodes.
+ */
+export function RestoreRelatedNodes(
+  tr: Transaction,
+  moveNodeId: string,
+  schema: Schema,
+  restoredNodePos: number
+) {
+  const restoredNode = tr.doc.nodeAt(restoredNodePos)
+  if (!restoredNode) {
+    return
+  }
+
+  // Restore consecutive siblings and their descendants
+  let currentPos = restoredNodePos + restoredNode.nodeSize
+  let node = tr.doc.nodeAt(currentPos)
+
+  while (node && hasMatchingTrackingData(node, moveNodeId)) {
+    restoreNode(tr, node, currentPos, moveNodeId, schema)
+
+    node.descendants((descendant, relativePos) => {
+      if (hasMatchingTrackingData(descendant, moveNodeId)) {
+        restoreNode(tr, descendant, currentPos + relativePos + 1, moveNodeId, schema)
+      }
+    })
+
+    currentPos += node.nodeSize
+    node = tr.doc.nodeAt(currentPos)
+  }
+}

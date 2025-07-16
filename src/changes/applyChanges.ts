@@ -23,7 +23,7 @@ import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
-import { updateChangeChildrenAttributes } from './updateChangeAttrs'
+import { RestoreRelatedNodes, updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
@@ -103,6 +103,13 @@ export function applyAcceptedRejectedChanges(
         tr.removeMark(from, deleteMap.map(change.to), schema.marks.tracked_delete)
       }
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
+
+      // Restore all related nodes (consecutive siblings) with same moveNodeId.
+      // This is necessary for cases where multiple nodes were moved together and we want to restore them.
+      // (ex. indent paragraphs: siblings after the paragraph will also be moved and need to be restored)
+      if (change.dataTracked.moveNodeId && change.dataTracked.operation === CHANGE_OPERATION.delete) {
+        RestoreRelatedNodes(tr, change.dataTracked.moveNodeId, schema, from)
+      }
     } else if (ChangeSet.isNodeChange(change)) {
       // Try first moving the node children to either nodeAbove, nodeBelow or its parent.
       // Then try unwrapping it with lift or just hacky-joining by replacing the border between
