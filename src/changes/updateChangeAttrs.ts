@@ -135,3 +135,62 @@ export function updateChangeChildrenAttributes(changes: TrackedChange[], tr: Tra
     }
   })
 }
+
+/**
+ * Check if a node has tracking data that matches the specified moveNodeId for DELETE operations.
+ */
+function hasMatchingTrackingData(node: any, moveNodeId: string): boolean {
+  const nodeTrackedData = node.attrs.dataTracked
+  return (
+    nodeTrackedData?.find?.(
+      (data: TrackedAttrs) => data.moveNodeId === moveNodeId && data.operation === CHANGE_OPERATION.delete
+    ) !== undefined
+  )
+}
+
+/**
+ * Remove tracking data from a node for the specified moveNodeId for DELETE operations.
+ */
+function restoreNode(tr: Transaction, node: any, pos: number, moveNodeId: string, schema: Schema): void {
+  const nodeTrackedData = node.attrs.dataTracked
+  const updatedTrackData = nodeTrackedData.filter(
+    (data: TrackedAttrs) => !(data.moveNodeId === moveNodeId && data.operation === CHANGE_OPERATION.delete)
+  )
+
+  const updatedAttrs = {
+    ...node.attrs,
+    dataTracked: updatedTrackData.length > 0 ? updatedTrackData : null,
+  }
+
+  tr.setNodeMarkup(pos, undefined, updatedAttrs, node.marks)
+  tr.removeMark(pos, pos + node.nodeSize, schema.marks.tracked_insert)
+  tr.removeMark(pos, pos + node.nodeSize, schema.marks.tracked_delete)
+}
+
+/**
+ * Restore related move nodes by removing tracking data and text marks.
+ * Used when rejecting DELETE operations to restore all related nodes.
+ */
+export function RestoreRelatedNodes(
+  tr: Transaction,
+  moveNodeId: string,
+  schema: Schema,
+  restoredNodePos: number
+) {
+  const restoredNode = tr.doc.nodeAt(restoredNodePos)
+  if (!restoredNode) {
+    return
+  }
+
+  // Search the document for nodes with matching moveNodeId
+  tr.doc.descendants((node, pos) => {
+    // Skip the already restored node
+    if (pos === restoredNodePos) {
+      return
+    }
+
+    if (hasMatchingTrackingData(node, moveNodeId)) {
+      restoreNode(tr, node, pos, moveNodeId, schema)
+    }
+  })
+}

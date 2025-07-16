@@ -98,6 +98,9 @@ export function trackTransaction(
     statusUpdateAt: 0, // has to be zero as first so changes are not differeniated at start
     status: CHANGE_STATUS.pending,
   }
+
+  // Check for indentation metadata and treat it like a move operation
+  const isIndentation = tr.getMeta('action') === 'indentation'
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform
   const wasNodeSelection = tr.selection instanceof NodeSelectionClass
@@ -108,7 +111,17 @@ export function trackTransaction(
   log.info('ORIGINAL transaction', tr)
 
   let trContext: TrTrackingContext = {}
-  const movingStepsAssociated = HasMoveOperations(tr)
+  let movingStepsAssociated = HasMoveOperations(tr)
+
+  if (isIndentation) {
+    const moveId = uuidv4()
+    // Assign the same moveId to all steps in the transaction
+    tr.steps.forEach((step) => {
+      if (step instanceof ReplaceStep) {
+        movingStepsAssociated.set(step, moveId)
+      }
+    })
+  }
 
   // First handle direct pending move deletions (not part of multiple moves)
   handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
