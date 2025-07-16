@@ -52,31 +52,7 @@ export function trackReplaceStep(
   }
 
   if (tr.getMeta('is-structural-change')) {
-    // TODO:: clean - up
-    // 1. remove the clean-up
-    // 2. remove metas and all attrs at change
-    // 3. remove the reference
-    //---------------------------------------------------------------
-    // TODO:: TR
-    // 1. track affected node with structure change and action type
-    // 2. add a empty copy of the first affected node in old document to be as a deleted shadow change,
-    //    that will be added in the updated slice
-    // 3. we need to simplify adding already dataTracked to the affected slice
-    // -------------------------------------------------------------
-    // TODO:: Reject
-    // 1. start to reject from the last operation we did
-    // 2. try to use ReplaceStep or ReplaceAroundStep to replace content with the shadow node
-    // --------------------------------------------------------------
-    // TODO:: shadow gets lost ??? <removing init shadow> <removing at middle end shadow>
-    // on reject if we can't find shadow update change to be as insert
-    //
-    //
-    /**
-     *  We need to add multiple shadow or one ???????
-     */
-
     const changeFragment = setFragmentAsStructuralChange(step, oldState, newTr, tr, attrs)
-
     return [
       [
         {
