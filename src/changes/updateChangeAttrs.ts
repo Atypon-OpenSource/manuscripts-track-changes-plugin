@@ -182,20 +182,15 @@ export function RestoreRelatedNodes(
     return
   }
 
-  // Restore consecutive siblings and their descendants
-  let currentPos = restoredNodePos + restoredNode.nodeSize
-  let node = tr.doc.nodeAt(currentPos)
+  // Search the document for nodes with matching moveNodeId
+  tr.doc.descendants((node, pos) => {
+    // Skip the already restored node
+    if (pos === restoredNodePos) {
+      return
+    }
 
-  while (node && hasMatchingTrackingData(node, moveNodeId)) {
-    restoreNode(tr, node, currentPos, moveNodeId, schema)
-
-    node.descendants((descendant, relativePos) => {
-      if (hasMatchingTrackingData(descendant, moveNodeId)) {
-        restoreNode(tr, descendant, currentPos + relativePos + 1, moveNodeId, schema)
-      }
-    })
-
-    currentPos += node.nodeSize
-    node = tr.doc.nodeAt(currentPos)
-  }
+    if (hasMatchingTrackingData(node, moveNodeId)) {
+      restoreNode(tr, node, pos, moveNodeId, schema)
+    }
+  })
 }
