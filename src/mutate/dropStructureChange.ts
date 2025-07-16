@@ -16,13 +16,15 @@
 import { Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_OPERATION, ReferenceAttrs } from '../types/change'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import { CHANGE_OPERATION, CHANGE_STATUS, ReferenceAttrs } from '../types/change'
+import * as trackUtils from '../utils/track-utils'
 
 /**
- * move reference change to parent node the deleted node and use index of that node to the related change
+ * if the node with reference change related to structure change get deleted will
+ * drop structure change make it as insert change
  */
-export const propagateReferenceChange = (from: number, tr: Transaction, changeSet: ChangeSet) => {
+export const dropStructureChange = (from: number, tr: Transaction, changeSet: ChangeSet) => {
   const node = tr.docs.length && tr.docs[0].nodeAt(from)
   if (!node || node.type === node.type.schema.nodes.paragraph) {
     return
@@ -36,23 +38,26 @@ export const propagateReferenceChange = (from: number, tr: Transaction, changeSe
     return
   }
 
-  const $pos = tr.doc.resolve(from)
-  const isRootNode = !!$pos.parent.type.spec.attrs?.dataTracked
-  if (isRootNode) {
-    tr.setNodeMarkup($pos.before(), undefined, {
-      ...$pos.parent.attrs,
-      dataTracked: [...($pos.parent.attrs.dataTracked || []), ...dataTracked],
-    })
-  }
-
-  // update index to use index of the deleted node
   dataTracked.map(({ referenceId }) => {
     const structureChange = changeSet.changes.find((c) => referenceId === c.dataTracked.moveNodeId)
     if (structureChange && structureChange.type === 'node-change') {
-      const dataTracked = (getBlockInlineTrackedData(structureChange.node) || [])
-        .map((c) => (c.id === structureChange.id ? { ...c, index: $pos.index() } : c))
-        .filter((c) => !(c.operation === CHANGE_OPERATION.structure && isRootNode))
-      tr.setNodeMarkup(structureChange.from, undefined, { ...structureChange.node.attrs, dataTracked })
+      const dataTracked = (getBlockInlineTrackedData(structureChange.node) || []).filter(
+        (c) => c.operation === CHANGE_OPERATION.reference
+      )
+      const emptyAttrs = {
+        authorID: structureChange.dataTracked.authorID,
+        reviewedByID: null,
+        createdAt: tr.time,
+        updatedAt: tr.time,
+        statusUpdateAt: 0,
+        status: CHANGE_STATUS.pending,
+      }
+      const insertChange = addTrackIdIfDoesntExist(trackUtils.createNewInsertAttrs(emptyAttrs))
+
+      tr.setNodeMarkup(structureChange.from, undefined, {
+        ...structureChange.node.attrs,
+        dataTracked: [insertChange, ...dataTracked],
+      })
     }
   })
 }

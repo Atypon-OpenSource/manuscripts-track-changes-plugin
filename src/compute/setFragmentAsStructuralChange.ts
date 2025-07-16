@@ -44,7 +44,9 @@ export const getDataTrackedOfConvertedNode = (node: PMNode | undefined) => {
       const InsertDelete = dataTracked.find(
         (c) => c.operation === CHANGE_OPERATION.delete || c.operation === CHANGE_OPERATION.insert
       )
-      secDataTracked = dataTracked.filter((c) => c.operation === CHANGE_OPERATION.structure)
+      secDataTracked = dataTracked.filter(
+        (c) => c.operation === CHANGE_OPERATION.structure || c.operation === CHANGE_OPERATION.reference
+      )
       if (InsertDelete) {
         if (InsertDelete.operation === CHANGE_OPERATION.insert) {
           secDataTracked.push(
@@ -55,6 +57,8 @@ export const getDataTrackedOfConvertedNode = (node: PMNode | undefined) => {
           )
         }
         dataTracked = [InsertDelete]
+      } else {
+        dataTracked = []
       }
       dataTracked = dataTracked.sort(latest)
       secDataTracked = secDataTracked.sort(latest)

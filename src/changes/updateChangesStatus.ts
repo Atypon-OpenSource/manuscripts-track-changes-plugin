@@ -124,7 +124,7 @@ export function updateChangesStatus(
     const mapping = new Mapping()
 
     if (structuralChanges.length) {
-      const remainingChangesId = ids.filter(
+      let remainingChangesId = ids.filter(
         (c) => changeSet?.get(c)?.dataTracked.operation !== CHANGE_OPERATION.structure
       )
       applyAcceptedRejectedChanges(
@@ -136,6 +136,7 @@ export function updateChangesStatus(
         remainingChangesId
       )
       const updatedChangeSet = findChanges(createdTr.doc)
+      remainingChangesId = remainingChangesId.filter((c) => !!updatedChangeSet.get(c))
       updateChangesStatus(createdTr, updatedChangeSet, remainingChangesId, status, userID, oldState)
       return
     }

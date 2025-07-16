@@ -20,8 +20,8 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteNode } from '../mutate/deleteNode'
+import { dropStructureChange } from '../mutate/dropStructureChange'
 import { mergeNode } from '../mutate/mergeNode'
-import { propagateReferenceChange } from '../mutate/propagateChange'
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
@@ -143,7 +143,7 @@ export function applyAcceptedRejectedChanges(
       // it and its parent with Fragment.empty. If none of these apply, delete the content between the change.
       const merged = mergeNode(node, from, tr)
       if (merged === undefined) {
-        propagateReferenceChange(from, tr, changeSet)
+        dropStructureChange(from, tr, changeSet)
         deleteNode(node, from, tr)
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())

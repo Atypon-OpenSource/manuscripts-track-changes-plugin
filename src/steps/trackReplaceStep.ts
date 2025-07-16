@@ -51,7 +51,7 @@ export function trackReplaceStep(
     attrs.moveNodeId = moveID
   }
 
-  if (tr.getMeta('is-structural-change')) {
+  if (tr.getMeta('structure-change-action')) {
     const changeFragment = setFragmentAsStructuralChange(step, oldState, newTr, tr, attrs)
     return [
       [
