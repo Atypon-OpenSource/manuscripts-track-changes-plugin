@@ -78,7 +78,8 @@ function setReferenceChange(
   attrs: NewEmptyAttrs,
   moveNodeId: string
 ) {
-  let offset = action === 'convert-to-paragraph' ? 2 : 1
+  const offset =
+    action === 'convert-to-paragraph' || action === 'indent-section' || action === 'unindent-section' ? 2 : 1
   const depth = oldState.selection.$from.depth - offset
   const parentPos = oldState.selection.$from.before(depth)
   const parent = newTr.doc.nodeAt(parentPos)

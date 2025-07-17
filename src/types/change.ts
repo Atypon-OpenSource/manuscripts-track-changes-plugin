@@ -69,7 +69,7 @@ export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
 
 export type StructureAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.structure
-  action: 'convert-to-paragraph' | 'convert-to-section'
+  action: 'convert-to-paragraph' | 'convert-to-section' | 'indent-section' | 'unindent-section'
   index: number
   parentId?: string
 }
