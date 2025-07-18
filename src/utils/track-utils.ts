@@ -371,6 +371,9 @@ export const handleDirectPendingMoveDeletions = (
  * 1. Skip tracking the deletion
  * 2. Associate the original deletion with the new move
  *
+ * Also filters out move operations where the inserted node has pending insert tracking
+ * and no move operations, to keep them as insert suggestions.
+ *
  * @param tr The original transaction
  * @param movingSteps Map of move operations in the transaction
  * @returns Filtered array of steps with meaningless moves removed
@@ -386,17 +389,40 @@ export const filterMeaninglessMoveSteps = (
     // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
     // and associate original deletion with the new move
     const moveID = movingSteps.get(step as ReplaceStep)
-    const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
-    if (moveID && prevMoveID) {
-      // find the peer step for the ignored step and change its key to previous moveNodeID
-      movingSteps.forEach((replaceStepMoveID, replaceStep) => {
-        if (replaceStep !== step && moveID === replaceStepMoveID) {
-          // get previous moveID
-          movingSteps.set(replaceStep, prevMoveID)
+
+    if (moveID) {
+      // Check if this step moves a node that was previously moved and is under pending move change
+      const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
+      if (prevMoveID) {
+        // find the peer step for the ignored step and change its key to previous moveNodeID
+        movingSteps.forEach((replaceStepMoveID, replaceStep) => {
+          if (replaceStep !== step && moveID === replaceStepMoveID) {
+            // get previous moveID
+            movingSteps.set(replaceStep, prevMoveID)
+          }
+        })
+        continue
+      }
+
+      // Check if this step inserts a node with pending insert tracking and no move operations
+      if (step instanceof ReplaceStep) {
+        const { slice } = step
+        if (slice?.content?.firstChild) {
+          const insertedNode = slice.content.firstChild
+          if (insertedNode.attrs.dataTracked) {
+            const trackedAttrs = insertedNode.attrs.dataTracked as TrackedAttrs[]
+            const isPendingInsert = trackedAttrs.some(
+              (t) => t.operation === CHANGE_OPERATION.insert && t.status === CHANGE_STATUS.pending
+            )
+            // If the node has pending insert tracking and no move operations, skip this step
+            if (isPendingInsert) {
+              continue
+            }
+          }
         }
-      })
-      continue
+      }
     }
+
     cleanSteps.push(step)
   }
 
