@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
-import { Selection, TextSelection, Transaction } from 'prosemirror-state'
+import { Node as PMNode, Slice } from 'prosemirror-model'
+import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
-import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
@@ -277,6 +276,16 @@ export const HasMoveOperations = (tr: Transaction) => {
 }
 
 /**
+ * Checks if the given `TrackedAttrs` array contains a pending change of the specified operation type.
+ */
+export const isPendingChange = (
+  trackedAttrs: TrackedAttrs[] | undefined,
+  operation: CHANGE_OPERATION
+): boolean => {
+  return !!trackedAttrs?.some((t) => t.operation === operation)
+}
+
+/**
  * Detects if we're deleting a pending moved node
  */
 export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
@@ -329,10 +338,7 @@ export const isDirectPendingMoveDeletion = (
     return false
   }
 
-  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[] | undefined
-  return !!trackedAttrs?.some(
-    (t) => t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending
-  )
+  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.move)
 }
 
 /**
@@ -410,9 +416,9 @@ export const filterMeaninglessMoveSteps = (
         if (slice?.content?.firstChild) {
           const insertedNode = slice.content.firstChild
           if (insertedNode.attrs.dataTracked) {
-            const trackedAttrs = insertedNode.attrs.dataTracked as TrackedAttrs[]
-            const isPendingInsert = trackedAttrs.some(
-              (t) => t.operation === CHANGE_OPERATION.insert && t.status === CHANGE_STATUS.pending
+            const isPendingInsert = isPendingChange(
+              insertedNode.attrs.dataTracked as TrackedAttrs[],
+              CHANGE_OPERATION.insert
             )
             // If the node has pending insert tracking and no move operations, skip this step
             if (isPendingInsert) {
