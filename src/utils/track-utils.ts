@@ -126,7 +126,8 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
     openStart === openEnd &&
     firstChild!.type === lastChild!.type &&
     firstChild!.inlineContent &&
-    lastChild!.inlineContent
+    lastChild!.inlineContent &&
+    !(startOffset === parentSize && endOffset === parentSize)
   )
 }
 
