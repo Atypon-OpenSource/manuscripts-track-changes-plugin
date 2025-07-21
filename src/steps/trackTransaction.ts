@@ -116,7 +116,7 @@ export function trackTransaction(
   const cleanSteps = filterMeaninglessMoveSteps(tr, movingStepsAssociated)
 
   for (let i = cleanSteps.length - 1; i >= 0; i--) {
-    const step = tr.steps[i]
+    const step = cleanSteps[i]
 
     log.info('transaction step', step)
     iters += 1
