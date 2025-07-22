@@ -51,14 +51,6 @@ function matchText(
   ) {
     matchedDeleted += 1
   }
-  // this is needed incase diffing tr.doc
-  // deleted.push({
-  //   pos: pos,
-  //   type: 'update-node-attrs',
-  //   // Should check the attrs for equality in fixInconsistentChanges? to remove dataTracked completely
-  //   oldAttrs: adjDeleted.node.attrs || {},
-  //   newAttrs: child.attrs || {},
-  // })
   deleted = deleted.filter((d) => d !== adjDeleted)
   if (maxSteps !== j) {
     deleted.push({
@@ -107,7 +99,6 @@ export function matchInserted(
     if (insNode.type !== adjDeleted?.node?.type) {
       return matched
     } else if (insNode.isText && adjDeleted?.node) {
-      matched = matchText(adjDeleted as DeleteTextStep, insNode, 0, matched[0], matched[1])
       continue
     } else if (insNode.content.size > 0 || adjDeleted?.node.content.size > 0) {
       // Move the inDeleted inside the block/inline node's boundary
