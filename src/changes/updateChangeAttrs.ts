@@ -173,10 +173,13 @@ function restoreNode(tr: Transaction, node: any, pos: number, moveNodeId: string
  */
 export function RestoreRelatedNodes(
   tr: Transaction,
-  moveNodeId: string,
+  moveNodeId: string | undefined,
   schema: Schema,
   restoredNodePos: number
 ) {
+  if (!moveNodeId) {
+    return
+  }
   const restoredNode = tr.doc.nodeAt(restoredNodePos)
   if (!restoredNode) {
     return
