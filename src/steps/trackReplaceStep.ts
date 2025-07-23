@@ -115,14 +115,12 @@ export function trackReplaceStep(
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
-
+      const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
+      const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
       /*
         in reference to !(fromA === fromB) - if changed ranges didnt change with that step, we need to insert at the start of the new range to match 
         where the user added inserted content
       */
-
-      const openStart = slice.openStart !== slice.openEnd ? 0 : slice.openStart
-      const openEnd = slice.openStart !== slice.openEnd ? 0 : slice.openEnd
       const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
 
       const isBlock = !!fragment.firstChild?.isBlock
