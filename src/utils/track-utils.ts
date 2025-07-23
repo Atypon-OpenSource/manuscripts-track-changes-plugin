@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
-import { Selection, TextSelection, Transaction } from 'prosemirror-state'
+import { Node as PMNode, Slice } from 'prosemirror-model'
+import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
-import { ChangeStep } from '../types/step'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
@@ -277,6 +276,16 @@ export const HasMoveOperations = (tr: Transaction) => {
 }
 
 /**
+ * Checks if the given `TrackedAttrs` array contains a pending change of the specified operation type.
+ */
+export const isPendingChange = (
+  trackedAttrs: TrackedAttrs[] | undefined,
+  operation: CHANGE_OPERATION
+): boolean => {
+  return !!trackedAttrs?.some((t) => t.operation === operation)
+}
+
+/**
  * Detects if we're deleting a pending moved node
  */
 export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
@@ -329,10 +338,7 @@ export const isDirectPendingMoveDeletion = (
     return false
   }
 
-  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[] | undefined
-  return !!trackedAttrs?.some(
-    (t) => t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending
-  )
+  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.move)
 }
 
 /**
@@ -371,6 +377,9 @@ export const handleDirectPendingMoveDeletions = (
  * 1. Skip tracking the deletion
  * 2. Associate the original deletion with the new move
  *
+ * Also filters out move operations where the inserted node has pending insert tracking
+ * and no move operations, to keep them as insert suggestions.
+ *
  * @param tr The original transaction
  * @param movingSteps Map of move operations in the transaction
  * @returns Filtered array of steps with meaningless moves removed
@@ -386,17 +395,40 @@ export const filterMeaninglessMoveSteps = (
     // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
     // and associate original deletion with the new move
     const moveID = movingSteps.get(step as ReplaceStep)
-    const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
-    if (moveID && prevMoveID) {
-      // find the peer step for the ignored step and change its key to previous moveNodeID
-      movingSteps.forEach((replaceStepMoveID, replaceStep) => {
-        if (replaceStep !== step && moveID === replaceStepMoveID) {
-          // get previous moveID
-          movingSteps.set(replaceStep, prevMoveID)
+
+    if (moveID) {
+      // Check if this step moves a node that was previously moved and is under pending move change
+      const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
+      if (prevMoveID) {
+        // find the peer step for the ignored step and change its key to previous moveNodeID
+        movingSteps.forEach((replaceStepMoveID, replaceStep) => {
+          if (replaceStep !== step && moveID === replaceStepMoveID) {
+            // get previous moveID
+            movingSteps.set(replaceStep, prevMoveID)
+          }
+        })
+        continue
+      }
+
+      // Check if this step inserts a node with pending insert tracking and no move operations
+      if (step instanceof ReplaceStep) {
+        const { slice } = step
+        if (slice?.content?.firstChild) {
+          const insertedNode = slice.content.firstChild
+          if (insertedNode.attrs.dataTracked) {
+            const isPendingInsert = isPendingChange(
+              insertedNode.attrs.dataTracked as TrackedAttrs[],
+              CHANGE_OPERATION.insert
+            )
+            // If the node has pending insert tracking and no move operations, skip this step
+            if (isPendingInsert) {
+              continue
+            }
+          }
         }
-      })
-      continue
+      }
     }
+
     cleanSteps.push(step)
   }
 
