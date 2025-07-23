@@ -128,7 +128,7 @@ export function trackReplaceStep(
       changeSteps.push({
         type: 'insert-slice',
         from: textWasDeleted ? fromB : isBlock ? toA : fromA, // if text was deleted and some new text is inserted then the position has to set in accordance the newly set text
-        to: textWasDeleted ? fromB : isBlock ? toA : fromA, // block content needs to be insterted at the end so PM wont attempt to conver it to inline
+        to: textWasDeleted ? fromB : isBlock ? toA : fromA, // block content needs to be inserted at the end so PM wont attempt to conver it to inline
         sliceWasSplit,
         slice: new Slice(fragment, openStart, openEnd) as ExposedSlice,
       })
