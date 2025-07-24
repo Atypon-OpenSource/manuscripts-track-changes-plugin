@@ -17,6 +17,12 @@ import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepResult } from 'prosemirror-transform'
 
+interface IndentationMeta {
+  type?: 'indent' | 'unindent'
+  nodeType?: 'section' | 'paragraph'
+  createsContainer?: boolean
+}
+
 import {
   setFragmentAsInserted,
   setFragmentAsMoveChange,
@@ -116,7 +122,18 @@ export function trackReplaceStep(
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
       if (moveID) {
-        fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
+        // Extract indentation metadata from transaction
+        const indentation = tr.getMeta('indentation') as IndentationMeta | undefined
+        
+        fragment = setFragmentAsMoveChange(
+          newSliceContent, 
+          trackUtils.createNewMoveAttrs(
+            attrs, 
+            indentation?.type, 
+            indentation?.nodeType, 
+            indentation?.createsContainer
+          )
+        )
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
