@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import { Node as PMNode } from 'prosemirror-model'
-import { EditorState } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
@@ -40,6 +39,10 @@ export function findChanges(doc: PMNode) {
   // Store the last iterated change to join adjacent text changes
   let current: { change: IncompleteChange; node: PMNode } | undefined
   doc.descendants((node, pos) => {
+    if (node.attrs.id === 'structure-changes-shadow') {
+      return false
+    }
+
     const tracked = getNodeTrackedData(node, doc.type.schema) || []
 
     for (let i = 0; i < tracked.length; i += 1) {

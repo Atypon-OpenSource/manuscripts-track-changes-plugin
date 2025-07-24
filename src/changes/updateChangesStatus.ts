@@ -133,7 +133,6 @@ export function updateChangesStatus(
         structuralChanges,
         changeSet,
         mapping,
-        remainingChangesId
       )
       const updatedChangeSet = findChanges(createdTr.doc)
       remainingChangesId = remainingChangesId.filter((c) => !!updatedChangeSet.get(c))

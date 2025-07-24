@@ -33,6 +33,7 @@ import {
 import { log } from '../utils/logger'
 import { findChanges } from './findChanges'
 import { revertSplitNodeChange, revertStructureNodeChange, revertWrapNodeChange } from './revertChange'
+import { StructureChangesShadow } from './structureChangesShadow'
 import { updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
@@ -51,7 +52,6 @@ export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, change
  * @param changes
  * @param changeSet
  * @param deleteMap
- * @param remainingChangesId
  */
 export function applyAcceptedRejectedChanges(
   tr: Transaction,
@@ -59,7 +59,6 @@ export function applyAcceptedRejectedChanges(
   changes: TrackedChange[],
   changeSet: ChangeSet,
   deleteMap: Mapping,
-  remainingChangesId: string[] = []
 ): Mapping {
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
   changes.sort((c1, c2) => {
@@ -88,12 +87,13 @@ export function applyAcceptedRejectedChanges(
     }
 
     if (change.dataTracked.status === CHANGE_STATUS.rejected) {
-      if (change.type === 'node-change' && change.dataTracked.operation === CHANGE_OPERATION.structure) {
+      if (change.dataTracked.operation === CHANGE_OPERATION.structure) {
+        const shadow = StructureChangesShadow.revert(changeSet, change, tr)
         return revertStructureNodeChange(
-          tr,
-          change as NodeChange & { dataTracked: StructureAttrs },
-          findChanges(tr.doc),
-          remainingChangesId
+            tr,
+            change as NodeChange & { dataTracked: StructureAttrs },
+            findChanges(tr.doc),
+            shadow
         )
       }
     }

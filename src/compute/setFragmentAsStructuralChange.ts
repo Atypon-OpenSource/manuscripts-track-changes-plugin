@@ -13,59 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Attrs, Fragment, Node as PMNode } from 'prosemirror-model'
+import {Attrs, Fragment, NodeType} from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep } from 'prosemirror-transform'
 
-import { CHANGE_OPERATION, StructureAttrs, TrackedAttrs } from '../types/change'
+import { StructureChangesShadow } from '../changes/structureChangesShadow'
+import { StructureAttrs } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
 import * as trackUtils from '../utils/track-utils'
 import { updateBlockNodesAttrs } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from './nodeHelpers'
-
-/**
- * get dataTracked of the converted nodes to not lose track of the previous changes on the converted node.
- *
- * --For node convert from Paragraph -> Section
- *   - new section will have a new change of insert/delete if paragraph already have, and mirror structure changes
- *   - section_title will mirror paragraph changes of (insert/delete)
- */
-export const getDataTrackedOfConvertedNode = (node: PMNode | undefined) => {
-  const latest = (c1: Partial<TrackedAttrs>, c2: Partial<TrackedAttrs>) =>
-    (c2.updatedAt || 0) - (c1.updatedAt || 0)
-  let dataTracked: Partial<TrackedAttrs>[] = [],
-    secDataTracked: Partial<TrackedAttrs>[] = []
-
-  if (node) {
-    dataTracked = getBlockInlineTrackedData(node) || []
-
-    if (node.type === node.type.schema.nodes.paragraph) {
-      const InsertDelete = dataTracked.find(
-        (c) => c.operation === CHANGE_OPERATION.delete || c.operation === CHANGE_OPERATION.insert
-      )
-      secDataTracked = dataTracked.filter(
-        (c) => c.operation === CHANGE_OPERATION.structure || c.operation === CHANGE_OPERATION.reference
-      )
-      if (InsertDelete) {
-        if (InsertDelete.operation === CHANGE_OPERATION.insert) {
-          secDataTracked.push(
-            addTrackIdIfDoesntExist({
-              ...InsertDelete,
-              id: uuidv4(),
-            })
-          )
-        }
-        dataTracked = [InsertDelete]
-      } else {
-        dataTracked = []
-      }
-      dataTracked = dataTracked.sort(latest)
-      secDataTracked = secDataTracked.sort(latest)
-    }
-  }
-  return { dataTracked, secDataTracked }
-}
 
 /**
  * add reference change to parent node
@@ -122,9 +80,14 @@ export function setFragmentAsStructuralChange(
   // that ID will be the connection between the structural changes and shadow node
   const moveNodeId = uuidv4()
   const action = tr.getMeta('structure-change-action') as StructureAttrs['action']
+  const parentType = tr.getMeta('shadow-parent-type') as NodeType
+  const containerType = tr.getMeta('shadow-container-type') as NodeType
   const [stepContent, index] = setReferenceChange(oldState, newTr, step, action, attrs, moveNodeId)
   const structureChange = trackUtils.createNewStructureAttrs({ ...attrs, moveNodeId, action, index })
   const updatedNodes = new Map<number, Attrs>()
+
+  const shadow = new StructureChangesShadow(newTr)
+  shadow.init(parentType, containerType, attrs)
 
   const replaceContent = newTr.doc.slice(step.from, step.to).content
   const differentPos = replaceContent.findDiffStart(step.slice.content) || 0
@@ -137,6 +100,14 @@ export function setFragmentAsStructuralChange(
     updatedNodes.set(pos, { ...node.attrs, dataTracked })
     return false
   })
+
+  shadow.commit(
+    moveNodeId,
+    oldState.schema.nodes.section,
+    tr.doc.slice(step.from + differentPos, step.to).content,
+    step.from + differentPos,
+    step.to
+  )
 
   return updateBlockNodesAttrs(stepContent, (attrs, node, pos) =>
     updatedNodes.has(pos) ? { ...updatedNodes.get(pos) } : attrs
