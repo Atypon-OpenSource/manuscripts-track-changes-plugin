@@ -124,13 +124,13 @@ export function trackReplaceStep(
       if (moveID) {
         // Extract indentation metadata from transaction
         const indentation = tr.getMeta('indentation') as IndentationMeta | undefined
-        
+
         fragment = setFragmentAsMoveChange(
-          newSliceContent, 
+          newSliceContent,
           trackUtils.createNewMoveAttrs(
-            attrs, 
-            indentation?.type, 
-            indentation?.nodeType, 
+            attrs,
+            indentation?.type,
+            indentation?.nodeType,
             indentation?.createsContainer
           )
         )
