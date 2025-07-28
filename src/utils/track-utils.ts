@@ -218,9 +218,7 @@ export const HasMoveOperations = (tr: Transaction) => {
     const parentMoveId =
       parent &&
       !parent.type.inlineContent &&
-      getBlockInlineTrackedData(parent.attrs.dataTracked)?.find(
-        (c) => c.operation === CHANGE_OPERATION.structure
-      )?.moveNodeId
+      getBlockInlineTrackedData(parent)?.find((c) => c.operation === CHANGE_OPERATION.structure)?.moveNodeId
     const commonID = parentMoveId || uuidv4()
     movingAssoc.set(tr.steps[0] as ReplaceStep, commonID)
     movingAssoc.set(tr.steps[1] as ReplaceStep, commonID)

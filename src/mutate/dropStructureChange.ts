@@ -60,9 +60,7 @@ export const joinStructuralChanges = (
   insertStep.slice.content.descendants((node) => {
     const oldMoveId =
       !node.isText &&
-      getBlockInlineTrackedData(node.attrs.dataTracked)?.find(
-        (c) => c.operation === CHANGE_OPERATION.structure
-      )?.moveNodeId
+      getBlockInlineTrackedData(node)?.find((c) => c.operation === CHANGE_OPERATION.structure)?.moveNodeId
     oldMoveId && oldMoveId !== moveNodeId && structureChangesId.add(oldMoveId)
   })
 
