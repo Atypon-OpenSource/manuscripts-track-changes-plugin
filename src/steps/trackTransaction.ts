@@ -38,7 +38,7 @@ import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { joinStructuralChanges } from '../mutate/dropStructureChange'
+import { dropAdjacentStructuralChanges } from '../mutate/dropStructureChange'
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { InsertSliceStep } from '../types/step'
@@ -280,7 +280,7 @@ export function trackTransaction(
   }
 
   if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
-    joinStructuralChanges(movingStepsAssociated, tr, newTr)
+    dropAdjacentStructuralChanges(movingStepsAssociated, tr, newTr)
   }
 
   if (setsNewSelection && tr.selection instanceof TextSelection) {

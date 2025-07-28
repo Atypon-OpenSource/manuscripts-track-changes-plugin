@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Transaction } from 'prosemirror-state'
+import { EditorState, Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
-import { TrackChangesAction } from '../actions'
+import { findChanges } from '../changes/findChanges'
+import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { ChangeSet } from '../ChangeSet'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, NodeChange, TrackedChange } from '../types/change'
@@ -47,9 +48,10 @@ export const dropStructureChange = (change: TrackedChange, changeSet: ChangeSet,
 }
 
 /**
- * This will join other structural changes to have new change moveNodeId, and remove the duplicated content of delete with moveNodeId
+ * look at the insert content if we have a structural changes and drop them by convert change with structure to insert
+ * and remove moveNodeId from deleted nodes
  */
-export const joinStructuralChanges = (
+export const dropAdjacentStructuralChanges = (
   movingStepsAssociated: Map<ReplaceStep, string>,
   tr: Transaction,
   newTr: Transaction
@@ -64,27 +66,36 @@ export const joinStructuralChanges = (
     oldMoveId && oldMoveId !== moveNodeId && structureChangesId.add(oldMoveId)
   })
 
-  const mapping = new Mapping()
-  newTr.doc.descendants((node, pos) => {
-    const dataTracked = getBlockInlineTrackedData(node)?.find((c) => structureChangesId.has(c.moveNodeId))
-    const duplicateDelete = getBlockInlineTrackedData(node)?.filter(
-      (c) => c.operation === 'delete' && c.moveNodeId === moveNodeId
+  if (!structureChangesId.size) {
+    return
+  }
+
+  const changeSet = findChanges(EditorState.create({ doc: newTr.doc }))
+
+  const droppedDeleteWithMoveIdChanges = changeSet.changes.filter(
+    (c) =>
+      c.dataTracked.operation === CHANGE_OPERATION.delete && structureChangesId.has(c.dataTracked.moveNodeId)
+  )
+
+  if (droppedDeleteWithMoveIdChanges.length) {
+    droppedDeleteWithMoveIdChanges.map((c) =>
+      updateChangeAttrs(newTr, c, { ...c.dataTracked, moveNodeId: undefined }, newTr.doc.type.schema)
     )
-    const structureChange = getBlockInlineTrackedData(node)?.filter(
-      (c) => c.operation === 'structure' && structureChangesId.has(c.moveNodeId)
-    )
-    if (duplicateDelete?.length && structureChange?.length) {
-      newTr.delete(mapping.map(pos), mapping.map(pos + node.nodeSize))
+  }
+
+  const duplicateChanges = changeSet.changes.filter(
+    (c) =>
+      c.dataTracked.operation === CHANGE_OPERATION.delete &&
+      moveNodeId === c.dataTracked.moveNodeId &&
+      c.type === 'node-change' &&
+      structureChangesId.has(c.node.attrs.dataTracked[0]?.moveNodeId)
+  )
+
+  if (duplicateChanges.length) {
+    const mapping = new Mapping()
+    duplicateChanges.map((c) => {
+      newTr.delete(mapping.map(c.from), mapping.map(c.to))
       mapping.appendMap(newTr.steps[newTr.steps.length - 1].getMap())
-    } else if (dataTracked) {
-      newTr.setNodeMarkup(mapping.map(pos), undefined, {
-        ...node.attrs,
-        dataTracked: getBlockInlineTrackedData(node)
-          ?.map((c) =>
-            structureChangesId.has(c.moveNodeId) && c.operation === 'delete' ? { ...c, moveNodeId } : c
-          )
-          .filter((c) => !structureChangesId.has(c.moveNodeId)),
-      })
-    }
-  })
+    })
+  }
 }
