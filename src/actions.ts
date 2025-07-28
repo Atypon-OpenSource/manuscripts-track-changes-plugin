@@ -15,7 +15,7 @@
  */
 import { Transaction } from 'prosemirror-state'
 
-import { CHANGE_STATUS } from './types/change'
+import { CHANGE_STATUS, StructureAttrs } from './types/change'
 import { TrackChangesStatus } from './types/track'
 
 export enum TrackChangesAction {
@@ -25,6 +25,7 @@ export enum TrackChangesAction {
   setChangeStatuses = 'track-changes-set-change-statuses',
   refreshChanges = 'track-changes-refresh-changes',
   updateMetaNode = 'track-changes-update-meta-node',
+  structuralChangeAction = 'structural-change-action',
 }
 
 export type TrackChangesActionParams = {
@@ -37,6 +38,7 @@ export type TrackChangesActionParams = {
   }
   [TrackChangesAction.refreshChanges]: boolean
   [TrackChangesAction.updateMetaNode]: boolean
+  [TrackChangesAction.structuralChangeAction]: StructureAttrs['action']
 }
 
 /**

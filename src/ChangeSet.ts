@@ -116,7 +116,10 @@ export class ChangeSet {
     let currentInlineChange: RootChange | undefined
 
     this.changeTree.map((change, index) => {
-      if (this.canJoinAdjacentInlineChanges(change, index)) {
+      if (
+        this.canJoinAdjacentInlineChanges(change, index) ||
+        this.canJoinAdjacentStructuralChanges(change, index)
+      ) {
         currentInlineChange = currentInlineChange ? [...currentInlineChange, change] : [change]
         return
       } else if (currentInlineChange) {
@@ -238,6 +241,19 @@ export class ChangeSet {
     )
   }
 
+  canJoinAdjacentStructuralChanges(change: TrackedChange, index: number) {
+    const nextChange = this.changeTree.at(index + 1)
+    const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
+      c1.dataTracked.operation === CHANGE_OPERATION.structure &&
+      c2.dataTracked.operation === CHANGE_OPERATION.structure &&
+      c2.dataTracked.moveNodeId === c1.dataTracked.moveNodeId
+    return (
+      nextChange &&
+      (change.to === nextChange.from || change.to === nextChange.from - 1) &&
+      hasMatchingOperation(change, nextChange)
+    )
+  }
+
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes
@@ -311,6 +327,10 @@ export class ChangeSet {
 
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
+  }
+
+  static isMoveChange(change: TrackedAttrs): boolean {
+    return change.operation === CHANGE_OPERATION.move || change.operation === CHANGE_OPERATION.structure
   }
 
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {

@@ -116,15 +116,16 @@ export function setFragmentAsWrapChange(inserted: Fragment, attrs: NewEmptyAttrs
   return Fragment.from(content)
 }
 
-export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs) {
+export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewInsertAttrs) {
   const content: PMNode[] = []
 
   fragment.forEach((node) => {
+    const dataTracked = node.attrs.dataTracked || []
     content.push(
       node.type.create(
         {
           ...node.attrs,
-          dataTracked: [addTrackIdIfDoesntExist(trackUtils.createNewMoveAttrs(attrs))],
+          dataTracked: [addTrackIdIfDoesntExist(attrs), ...dataTracked],
         },
         node.content,
         node.marks

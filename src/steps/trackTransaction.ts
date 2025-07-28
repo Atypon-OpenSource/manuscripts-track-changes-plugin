@@ -32,12 +32,14 @@ import {
   Step,
 } from 'prosemirror-transform'
 
+import { TrackChangesAction } from '../actions'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { CHANGE_STATUS } from '../types/change'
+import { joinStructuralChanges } from '../mutate/dropStructureChange'
+import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
@@ -47,6 +49,7 @@ import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
+  isDeletingPendingMovedNode,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
@@ -149,6 +152,12 @@ export function trackTransaction(
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
       if (isDelete) {
         thisStepMapping = deletedNodeMapping
+      }
+
+      // in case we drop delete step tr.mapping.slice will not be correct
+      if (cleanSteps.length !== tr.steps.length) {
+        thisStepMapping = new Mapping()
+        thisStepMapping.appendMap(tr.steps[i + 1].getMap())
       }
 
       /*
@@ -268,6 +277,10 @@ export function trackTransaction(
     // after track-changes plugin.
     tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
+  }
+
+  if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
+    joinStructuralChanges(movingStepsAssociated, tr, newTr)
   }
 
   if (setsNewSelection && tr.selection instanceof TextSelection) {

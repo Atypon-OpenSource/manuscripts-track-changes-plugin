@@ -17,6 +17,9 @@ import { Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
+import { TrackChangesAction } from '../actions'
+import { ChangeSet } from '../ChangeSet'
+import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import {
   NewDeleteAttrs,
@@ -78,6 +81,13 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
     ...attrs,
     operation: CHANGE_OPERATION.set_node_attributes,
     oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
+  }
+}
+
+export function createNewStructureAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.structure,
   }
 }
 
@@ -203,6 +213,20 @@ export const HasMoveOperations = (tr: Transaction) => {
     return movingAssoc
   }
 
+  if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
+    const parent = tr.doc.resolve((tr.steps[0] as ReplaceStep).from).node()
+    const parentMoveId =
+      parent &&
+      !parent.type.inlineContent &&
+      getBlockInlineTrackedData(parent.attrs.dataTracked)?.find(
+        (c) => c.operation === CHANGE_OPERATION.structure
+      )?.moveNodeId
+    const commonID = parentMoveId || uuidv4()
+    movingAssoc.set(tr.steps[0] as ReplaceStep, commonID)
+    movingAssoc.set(tr.steps[1] as ReplaceStep, commonID)
+    return movingAssoc
+  }
+
   const matched: number[] = []
 
   for (let i = 0; i < tr.steps.length; i++) {
@@ -300,7 +324,7 @@ export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
   }
   const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[]
   const found = trackedAttrs?.find(
-    (tracked) => tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
+    (tracked) => ChangeSet.isMoveChange(tracked) && tracked.status === CHANGE_STATUS.pending
   )
   if (found?.moveNodeId) {
     return found.moveNodeId
@@ -339,7 +363,7 @@ export const isDirectPendingMoveDeletion = (
     return false
   }
 
-  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.move)
+  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.structure)
 }
 
 /**
@@ -360,8 +384,7 @@ export const handleDirectPendingMoveDeletions = (
           newTr.setNodeMarkup(step.from, undefined, {
             ...node.attrs,
             dataTracked: node.attrs.dataTracked.filter(
-              (t: TrackedAttrs) =>
-                !(t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending)
+              (t: TrackedAttrs) => !(ChangeSet.isMoveChange(t) && t.status === CHANGE_STATUS.pending)
             ),
           })
         }
@@ -412,7 +435,7 @@ export const filterMeaninglessMoveSteps = (
       }
 
       // Check if this step inserts a node with pending insert tracking and no move operations
-      if (step instanceof ReplaceStep) {
+      if (step instanceof ReplaceStep && !tr.getMeta(TrackChangesAction.structuralChangeAction)) {
         const { slice } = step
         if (slice?.content?.firstChild) {
           const insertedNode = slice.content.firstChild

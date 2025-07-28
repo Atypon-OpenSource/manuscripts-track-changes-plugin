@@ -84,7 +84,11 @@ export function deleteOrSetNodeDeleted(
       (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
   )
   const updated = dataTracked?.find(
-    (d) => d.operation === CHANGE_OPERATION.set_node_attributes || d.operation === CHANGE_OPERATION.reference
+    (d) =>
+      d.operation === CHANGE_OPERATION.set_node_attributes ||
+      d.operation === CHANGE_OPERATION.reference ||
+      d.operation === CHANGE_OPERATION.structure ||
+      (d.operation === CHANGE_OPERATION.delete && d.moveNodeId)
   )
 
   /*
@@ -108,8 +112,13 @@ export function deleteOrSetNodeDeleted(
     undefined,
     {
       ...node.attrs,
-      dataTracked: updated ? [newDeleted, updated] : [newDeleted],
+      dataTracked: updated ? [updated, newDeleted] : [newDeleted],
     },
     node.marks
   )
+}
+
+export const keepDeleteWithMoveNodeId = (node: PMNode) => {
+  const dataTracked = getBlockInlineTrackedData(node)
+  return dataTracked?.filter((c) => c.operation === CHANGE_OPERATION.delete && c.moveNodeId)
 }

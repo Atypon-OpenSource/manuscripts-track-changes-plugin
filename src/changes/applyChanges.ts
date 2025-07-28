@@ -18,7 +18,8 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { deleteNode } from '../mutate/deleteNode'
+import { deleteNode, keepDeleteWithMoveNodeId } from '../mutate/deleteNode'
+import { dropStructureChange } from '../mutate/dropStructureChange'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
@@ -62,7 +63,10 @@ export function applyAcceptedRejectedChanges(
   })
 
   changes.forEach((change) => {
-    if (change.dataTracked.operation === CHANGE_OPERATION.move) {
+    if (
+      change.dataTracked.operation === CHANGE_OPERATION.move ||
+      change.dataTracked.operation === CHANGE_OPERATION.structure
+    ) {
       return
     }
     // Map change.from and skip those which don't need to be applied
@@ -95,7 +99,7 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
-      const attrs = { ...node.attrs, dataTracked: null }
+      const attrs = { ...node.attrs, dataTracked: keepDeleteWithMoveNodeId(node) }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
       if (node.isAtom) {
@@ -104,6 +108,7 @@ export function applyAcceptedRejectedChanges(
       }
       updateChangeChildrenAttributes(change.children, tr, deleteMap)
     } else if (ChangeSet.isNodeChange(change)) {
+      dropStructureChange(change, changeSet, tr)
       // Try first moving the node children to either nodeAbove, nodeBelow or its parent.
       // Then try unwrapping it with lift or just hacky-joining by replacing the border between
       // it and its parent with Fragment.empty. If none of these apply, delete the content between the change.
@@ -144,7 +149,10 @@ export function applyAcceptedRejectedChanges(
 
   // Second pass: Handle move operations
   changes.forEach((change) => {
-    if (change.dataTracked.operation !== CHANGE_OPERATION.move) {
+    if (
+      change.dataTracked.operation !== CHANGE_OPERATION.move &&
+      change.dataTracked.operation !== CHANGE_OPERATION.structure
+    ) {
       return
     }
 
@@ -159,32 +167,33 @@ export function applyAcceptedRejectedChanges(
     }
 
     if (change.dataTracked.status === CHANGE_STATUS.accepted) {
-      // Find the original delete change for this move
-      const originalChange = changeSet.changes.find(
-        (c) =>
-          c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
-          c.dataTracked.operation === CHANGE_OPERATION.delete
-      )
-
-      if (originalChange) {
-        const { pos: originalFrom } = deleteMap.mapResult(originalChange.from)
-        const originalNode = tr.doc.nodeAt(originalFrom)
-
-        // Remove tracking from the moved node (new position)
-        const attrs = {
-          ...node.attrs,
-          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
-        }
-        tr.setNodeMarkup(from, undefined, attrs, node.marks)
-
-        // Delete the original node (old position)
-        if (originalNode) {
-          tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
-          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-        }
-      } else {
-        log.warn('No original change found for move operation', { change })
+      // Remove tracking from the moved node (new position)
+      const attrs = {
+        ...node.attrs,
+        dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
       }
+      tr.setNodeMarkup(from, undefined, attrs, node.marks)
+
+      // Find the original delete for move or structure changes
+      changeSet.changes
+        .filter(
+          (c) =>
+            c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
+            c.dataTracked.operation === CHANGE_OPERATION.delete
+        )
+        .map((originalChange) => {
+          if (originalChange) {
+            const { pos: originalFrom, deleted } = deleteMap.mapResult(originalChange.from)
+            const originalNode = tr.doc.nodeAt(originalFrom)
+            // Delete the original node (old position)
+            if (originalNode && !deleted) {
+              tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
+              deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+            }
+          } else {
+            log.warn('No original change found for move operation', { change })
+          }
+        })
     } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
       // For rejected moves, delete the moved node (new position)
       tr.delete(from, from + node.nodeSize)

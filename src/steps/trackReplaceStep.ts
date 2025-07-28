@@ -17,6 +17,7 @@ import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepResult } from 'prosemirror-transform'
 
+import { TrackChangesAction } from '../actions'
 import {
   setFragmentAsInserted,
   setFragmentAsMoveChange,
@@ -112,10 +113,11 @@ export function trackReplaceStep(
         oldState.schema
       )
 
-      if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
+      if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
+        fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewStructureAttrs(attrs))
+      } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
-      }
-      if (moveID) {
+      } else if (moveID) {
         fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
