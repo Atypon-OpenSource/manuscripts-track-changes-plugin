@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Slice } from 'prosemirror-model'
+import { Attrs, Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
 import { ChangeSet } from '../ChangeSet'
-import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import {
   NewDeleteAttrs,
@@ -214,12 +213,7 @@ export const HasMoveOperations = (tr: Transaction) => {
   }
 
   if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
-    const parent = tr.doc.resolve((tr.steps[0] as ReplaceStep).from).node()
-    const parentMoveId =
-      parent &&
-      !parent.type.inlineContent &&
-      getBlockInlineTrackedData(parent)?.find((c) => c.operation === CHANGE_OPERATION.structure)?.moveNodeId
-    const commonID = parentMoveId || uuidv4()
+    const commonID = uuidv4()
     movingAssoc.set(tr.steps[0] as ReplaceStep, commonID)
     movingAssoc.set(tr.steps[1] as ReplaceStep, commonID)
     return movingAssoc
@@ -322,7 +316,7 @@ export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
   }
   const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[]
   const found = trackedAttrs?.find(
-    (tracked) => ChangeSet.isMoveChange(tracked) && tracked.status === CHANGE_STATUS.pending
+    (tracked) => tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
   )
   if (found?.moveNodeId) {
     return found.moveNodeId
@@ -361,7 +355,7 @@ export const isDirectPendingMoveDeletion = (
     return false
   }
 
-  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.structure)
+  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.move)
 }
 
 /**
@@ -455,4 +449,25 @@ export const filterMeaninglessMoveSteps = (
   }
 
   return cleanSteps
+}
+
+export const updateBlockNodesAttrs = (
+  fragment: Fragment,
+  predicate: (attrs: Attrs, node: PMNode) => Attrs
+) => {
+  const updatedNodes: PMNode[] = []
+
+  fragment.forEach((child) => {
+    if (!child.isBlock) {
+      updatedNodes.push(child)
+      return
+    }
+
+    const newContent = child.content.size ? updateBlockNodesAttrs(child.content, predicate) : child.content
+    const newAttrs = predicate(child.attrs, child)
+
+    updatedNodes.push(child.type.create(newAttrs, newContent, child.marks))
+  })
+
+  return Fragment.fromArray(updatedNodes)
 }

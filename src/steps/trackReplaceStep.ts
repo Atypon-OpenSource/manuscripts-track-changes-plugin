@@ -24,6 +24,7 @@ import {
   setFragmentAsNodeSplit,
 } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
+import { joinStructureChanges } from '../mutate/dropStructureChange'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
@@ -48,7 +49,6 @@ export function trackReplaceStep(
   const attrs = { ...attrsTemplate }
 
   if (moveID) {
-    console.log('Detected Node Moving ReplaceStep and assigning the following movenodeID: ' + moveID)
     attrs.moveNodeId = moveID
   }
 
@@ -115,6 +115,7 @@ export function trackReplaceStep(
 
       if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
         fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewStructureAttrs(attrs))
+        fragment = joinStructureChanges(attrs, newSliceContent, fragment, tr, newTr)
       } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       } else if (moveID) {

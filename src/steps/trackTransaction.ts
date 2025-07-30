@@ -32,14 +32,12 @@ import {
   Step,
 } from 'prosemirror-transform'
 
-import { TrackChangesAction } from '../actions'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
-import { dropAdjacentStructuralChanges } from '../mutate/dropStructureChange'
-import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
+import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
 import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
@@ -49,7 +47,6 @@ import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
-  isDeletingPendingMovedNode,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
@@ -147,19 +144,11 @@ export function trackTransaction(
       }
 
       const invertedStep = step.invert(tr.docs[i])
-      const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
-      if (isDelete) {
+      if (deletedNodeMapping.maps.length) {
         thisStepMapping = deletedNodeMapping
       }
-
-      // in case we drop delete step tr.mapping.slice will not be correct
-      if (cleanSteps.length !== tr.steps.length) {
-        thisStepMapping = new Mapping()
-        thisStepMapping.appendMap(tr.steps[i + 1].getMap())
-      }
-
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
@@ -278,11 +267,6 @@ export function trackTransaction(
     tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
-
-  if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
-    dropAdjacentStructuralChanges(movingStepsAssociated, tr, newTr)
-  }
-
   if (setsNewSelection && tr.selection instanceof TextSelection) {
     // preserving text selection if we track an element in which selection is set
     const newPos = newTr.doc.resolve(tr.selection.from) // no mapping on purpose as tracking will misguide mapping

@@ -120,17 +120,11 @@ export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewInsertAttr
   const content: PMNode[] = []
 
   fragment.forEach((node) => {
-    const updatedNode = dropStructureChange(node, attrs)
-    if (updatedNode) {
-      content.push(updatedNode)
-      return
-    }
-    const dataTracked = node.attrs.dataTracked || []
     content.push(
       node.type.create(
         {
           ...node.attrs,
-          dataTracked: [addTrackIdIfDoesntExist(attrs), ...dataTracked],
+          dataTracked: [addTrackIdIfDoesntExist(attrs)],
         },
         node.content,
         node.marks
@@ -140,26 +134,6 @@ export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewInsertAttr
 
   return Fragment.from(content)
 }
-
-const dropStructureChange = (node: PMNode, attrs: NewInsertAttrs) => {
-  const dataTracked = (getBlockInlineTrackedData(node) || []).map((c) =>
-    c.operation === CHANGE_OPERATION.structure
-      ? { ...c, operation: CHANGE_OPERATION.insert, moveNodeId: undefined }
-      : c
-  )
-
-  if (dataTracked.length) {
-    return node.type.create(
-      { ...node.attrs, dataTracked },
-      setFragmentAsInserted(
-        node.content,
-        { ...attrs, moveNodeId: undefined, operation: CHANGE_OPERATION.insert },
-        node.type.schema
-      )
-    )
-  }
-}
-
 /**
  * Add split change to the source node parent, and to the last child which is the split content
  */
