@@ -58,20 +58,33 @@ export function updateChangesStatus(
             c.dataTracked.operation === CHANGE_OPERATION.move ||
             c.dataTracked.operation === CHANGE_OPERATION.structure
           ) {
-            changeSet.changeTree
-              .filter(
-                (c) =>
-                  ChangeSet.isNodeChange(c) &&
-                  c.dataTracked.operation === 'delete' &&
-                  c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
-              )
-              .map((oldChange) => {
-                if (ChangeSet.isNodeChange(oldChange)) {
+            const oldChange = changeSet.changeTree.filter(
+              (c) =>
+                ChangeSet.isNodeChange(c) &&
+                c.dataTracked.operation === 'delete' &&
+                c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
+            )
+            oldChange.map((oldChange) => {
+              if (ChangeSet.isNodeChange(oldChange)) {
+                createdTr = updateChangeAttrs(
+                  createdTr,
+                  oldChange,
+                  {
+                    ...oldChange.dataTracked,
+                    status,
+                    statusUpdateAt: changeTime,
+                    reviewedByID: userID,
+                  },
+                  oldState.schema
+                )
+
+                // Process children
+                oldChange.children.forEach((child) => {
                   createdTr = updateChangeAttrs(
                     createdTr,
-                    oldChange,
+                    child,
                     {
-                      ...oldChange.dataTracked,
+                      ...child.dataTracked,
                       status,
                       statusUpdateAt: changeTime,
                       reviewedByID: userID,
@@ -79,30 +92,16 @@ export function updateChangesStatus(
                     oldState.schema
                   )
 
-                  // Process children
-                  oldChange.children.forEach((child) => {
-                    createdTr = updateChangeAttrs(
-                      createdTr,
-                      child,
-                      {
-                        ...child.dataTracked,
-                        status,
-                        statusUpdateAt: changeTime,
-                        reviewedByID: userID,
-                      },
-                      oldState.schema
-                    )
+                  if (ChangeSet.isTextChange(child)) {
+                    textChanges.push(child)
+                  } else {
+                    nonTextChanges.push(child)
+                  }
+                })
 
-                    if (ChangeSet.isTextChange(child)) {
-                      textChanges.push(child)
-                    } else {
-                      nonTextChanges.push(child)
-                    }
-                  })
-
-                  nonTextChanges.push(oldChange)
-                }
-              })
+                nonTextChanges.push(oldChange)
+              }
+            })
           }
         }
       }

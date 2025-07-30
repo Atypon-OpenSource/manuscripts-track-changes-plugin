@@ -328,11 +328,6 @@ export class ChangeSet {
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
   }
-
-  static isMoveChange(change: TrackedAttrs): boolean {
-    return change.operation === CHANGE_OPERATION.move || change.operation === CHANGE_OPERATION.structure
-  }
-
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
     return currentChange.from === nextChange.from && currentChange.to === nextChange.to
   }

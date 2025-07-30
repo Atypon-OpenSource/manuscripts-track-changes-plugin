@@ -20,7 +20,7 @@ import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/n
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { NewDeleteAttrs } from '../types/track'
 import { log } from '../utils/logger'
-import { dropOrphanChanges, dropStructuralChangeShadow } from './dropStructureChange'
+import { dropStructuralChangeShadow } from './dropStructureChange'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first

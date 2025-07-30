@@ -376,7 +376,8 @@ export const handleDirectPendingMoveDeletions = (
           newTr.setNodeMarkup(step.from, undefined, {
             ...node.attrs,
             dataTracked: node.attrs.dataTracked.filter(
-              (t: TrackedAttrs) => !(ChangeSet.isMoveChange(t) && t.status === CHANGE_STATUS.pending)
+              (t: TrackedAttrs) =>
+                !(t.operation === CHANGE_OPERATION.move && t.status === CHANGE_STATUS.pending)
             ),
           })
         }

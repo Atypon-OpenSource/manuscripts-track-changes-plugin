@@ -104,7 +104,7 @@ const groupStructureChanges = (tr: Transaction, toNode: PMNode | null) => {
   return moveNodeIds
 }
 
-/** will join other structural changes in the range of transaction steps
+/** will join other structural changes in the range of transaction steps to the new change moveNodeId,
  * that join will be for both structure change and delete shadow */
 export const joinStructureChanges = (
   attrs: NewEmptyAttrs,
