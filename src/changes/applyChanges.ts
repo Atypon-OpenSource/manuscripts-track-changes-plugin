@@ -19,7 +19,6 @@ import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode, keepDeleteWithMoveNodeId } from '../mutate/deleteNode'
-import { dropOrphanChanges, unCoverShadow } from '../mutate/dropStructureChange'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
@@ -75,7 +74,6 @@ export function applyAcceptedRejectedChanges(
     const node = tr.doc.nodeAt(from)
     const noChangeNeeded = !ChangeSet.shouldDeleteChange(change)
     if (deleted) {
-      unCoverShadow(change.dataTracked.moveNodeId, tr)
       // Skip if the change was already deleted
       return
     }
@@ -117,7 +115,6 @@ export function applyAcceptedRejectedChanges(
         deleteNode(node, from, tr)
       }
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-      dropOrphanChanges(tr)
     } else if (ChangeSet.isNodeAttrChange(change) && change.dataTracked.status === CHANGE_STATUS.accepted) {
       tr.setNodeMarkup(
         from,
@@ -164,7 +161,6 @@ export function applyAcceptedRejectedChanges(
       if (!deleted && !node) {
         log.warn('No node found for move change', { change })
       }
-      unCoverShadow(change.dataTracked.moveNodeId, tr)
       return
     }
 

@@ -18,6 +18,7 @@ import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
+import { dropOrphanChanges } from '../mutate/dropStructureChange'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { applyAcceptedRejectedChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
@@ -64,13 +65,13 @@ export function updateChangesStatus(
                 c.dataTracked.operation === 'delete' &&
                 c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
             )
-            oldChange.map((oldChange) => {
-              if (ChangeSet.isNodeChange(oldChange)) {
+            oldChange.map((child) => {
+              if (ChangeSet.isNodeChange(child)) {
                 createdTr = updateChangeAttrs(
                   createdTr,
-                  oldChange,
+                  child,
                   {
-                    ...oldChange.dataTracked,
+                    ...child.dataTracked,
                     status,
                     statusUpdateAt: changeTime,
                     reviewedByID: userID,
@@ -79,7 +80,7 @@ export function updateChangesStatus(
                 )
 
                 // Process children
-                oldChange.children.forEach((child) => {
+                child.children.forEach((child) => {
                   createdTr = updateChangeAttrs(
                     createdTr,
                     child,
@@ -99,7 +100,7 @@ export function updateChangesStatus(
                   }
                 })
 
-                nonTextChanges.push(oldChange)
+                nonTextChanges.push(child)
               }
             })
           }
@@ -109,6 +110,7 @@ export function updateChangesStatus(
 
     const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
+    dropOrphanChanges(createdTr)
   } else {
     ids.forEach((changeId: string) => {
       const change = changeSet?.get(changeId)

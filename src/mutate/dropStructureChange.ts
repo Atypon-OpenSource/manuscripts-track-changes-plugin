@@ -43,45 +43,53 @@ export const dropStructuralChangeShadow = (
   return tr
 }
 
-export const unCoverShadow = (moveNodeId: string | undefined, tr: Transaction) => {
-  const changeSet = findChanges(EditorState.create({ doc: tr.doc }))
-  const shadows = changeSet.changes.filter(
-    (c) =>
-      c.dataTracked.operation === CHANGE_OPERATION.delete &&
-      c.dataTracked.moveNodeId &&
-      moveNodeId === c.dataTracked.moveNodeId
-  )
-  shadows.map((c) =>
-    updateChangeAttrs(tr, c, { ...c.dataTracked, status: CHANGE_STATUS.rejected }, tr.doc.type.schema)
-  )
-}
-
-/** convert to insert change structure and move change that has no delete change linked to it by moveNodId */
+/** convert to insert change structure and move change that has no delete change linked to it by moveNodId
+ * and remove delete change with moveNodeId that has no related change to it */
 export const dropOrphanChanges = (newTr: Transaction) => {
   const changeSet = findChanges(EditorState.create({ doc: newTr.doc }))
-  const moveNodeIds = new Set(
-    changeSet.changes
-      .filter((c) => c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete)
-      .map((c) => c.dataTracked.moveNodeId)
-  )
-  const orphanChanges = changeSet.changes.filter(
-    (c) =>
-      (c.dataTracked.operation === CHANGE_OPERATION.structure ||
-        c.dataTracked.operation === CHANGE_OPERATION.move) &&
-      !moveNodeIds.has(c.dataTracked.moveNodeId)
-  ) as NodeChange[]
-  if (!orphanChanges.length) {
+  const shadowIds = new Set()
+  const changesIds = new Set()
+  changeSet.changes.forEach((c) => {
+    if (c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete) {
+      shadowIds.add(c.dataTracked.moveNodeId)
+    }
+    if (
+      c.dataTracked.operation === CHANGE_OPERATION.structure ||
+      c.dataTracked.operation === CHANGE_OPERATION.move
+    ) {
+      changesIds.add(c.dataTracked.moveNodeId)
+    }
+  })
+
+  if (!shadowIds.size && !changesIds.size) {
     return
   }
 
-  orphanChanges.forEach((c) => {
-    let attrs = { ...c.dataTracked, operation: CHANGE_OPERATION.insert }
-    delete attrs.moveNodeId
-    newTr.replaceWith(
-      c.from,
-      c.to,
-      setFragmentAsInserted(Fragment.from(c.node), createNewInsertAttrs(attrs), newTr.doc.type.schema)
-    )
+  changeSet.nodeChanges.forEach((c) => {
+    if (
+      c.dataTracked.moveNodeId &&
+      !(shadowIds.has(c.dataTracked.moveNodeId) && changesIds.has(c.dataTracked.moveNodeId))
+    ) {
+      if (c.dataTracked.operation === CHANGE_OPERATION.delete) {
+        updateChangeAttrs(
+          newTr,
+          c,
+          { ...c.dataTracked, status: CHANGE_STATUS.rejected },
+          newTr.doc.type.schema
+        )
+      } else {
+        const { id, moveNodeId, ...attrs } = { ...c.dataTracked }
+        newTr.replaceWith(
+          c.from,
+          c.to,
+          setFragmentAsInserted(
+            Fragment.from((c as NodeChange).node),
+            createNewInsertAttrs(attrs),
+            newTr.doc.type.schema
+          )
+        )
+      }
+    }
   })
 }
 
