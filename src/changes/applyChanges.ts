@@ -23,7 +23,7 @@ import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
-import { updateChangeChildrenAttributes } from './updateChangeAttrs'
+import { RestoreRelatedNodes, updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
@@ -62,9 +62,16 @@ export function applyAcceptedRejectedChanges(
   })
 
   changes.forEach((change) => {
+    // Skip MOVE; full handling is in the second pass
     if (change.dataTracked.operation === CHANGE_OPERATION.move) {
       return
     }
+
+    // Skip DELETE that belongs to a MOVE; full handling is in the second pass
+    if (change.dataTracked.operation === CHANGE_OPERATION.delete && change.dataTracked.moveNodeId) {
+      return
+    }
+
     // Map change.from and skip those which don't need to be applied
     // or were already deleted by an applied block delete
     const { pos: from, deleted } = deleteMap.mapResult(change.from)
@@ -159,36 +166,54 @@ export function applyAcceptedRejectedChanges(
     }
 
     if (change.dataTracked.status === CHANGE_STATUS.accepted) {
-      // Find the original delete change for this move
-      const originalChange = changeSet.changes.find(
+      // Remove tracking from the moved node (new position)
+      const attrs = {
+        ...node.attrs,
+        dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+      }
+      tr.setNodeMarkup(from, undefined, attrs, node.marks)
+
+      // Find all the original delete changes for this move (there can be many)
+      const originalChanges = changeSet.changes.filter(
         (c) =>
           c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
           c.dataTracked.operation === CHANGE_OPERATION.delete
       )
 
-      if (originalChange) {
-        const { pos: originalFrom } = deleteMap.mapResult(originalChange.from)
-        const originalNode = tr.doc.nodeAt(originalFrom)
+      if (originalChanges.length === 0) {
+        log.warn('No original change found for move operation', { change })
+      }
 
-        // Remove tracking from the moved node (new position)
-        const attrs = {
-          ...node.attrs,
-          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+      originalChanges.forEach((originalChange) => {
+        const { pos: originalFrom, deleted } = deleteMap.mapResult(originalChange.from)
+        if (deleted) {
+          return
         }
-        tr.setNodeMarkup(from, undefined, attrs, node.marks)
+
+        const originalNode = tr.doc.nodeAt(originalFrom)
 
         // Delete the original node (old position)
         if (originalNode) {
           tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
           deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
         }
-      } else {
-        log.warn('No original change found for move operation', { change })
-      }
+      })
     } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
       // For rejected moves, delete the moved node (new position)
       tr.delete(from, from + node.nodeSize)
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+
+      // Restore all originals (and any sibling nodes that were moved together)
+      changeSet.changes
+        .filter(
+          (c) =>
+            c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
+            c.dataTracked.operation === CHANGE_OPERATION.delete
+        )
+        .forEach((orig) => {
+          const { pos } = deleteMap.mapResult(orig.from)
+          RestoreRelatedNodes(tr, change.dataTracked.moveNodeId, schema, pos)
+        })
     }
   })
 
