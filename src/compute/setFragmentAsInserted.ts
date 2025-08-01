@@ -116,7 +116,7 @@ export function setFragmentAsWrapChange(inserted: Fragment, attrs: NewEmptyAttrs
   return Fragment.from(content)
 }
 
-export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs) {
+export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewInsertAttrs) {
   const content: PMNode[] = []
 
   fragment.forEach((node) => {
@@ -124,7 +124,7 @@ export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs
       node.type.create(
         {
           ...node.attrs,
-          dataTracked: [addTrackIdIfDoesntExist(trackUtils.createNewMoveAttrs(attrs))],
+          dataTracked: [addTrackIdIfDoesntExist(attrs)],
         },
         node.content,
         node.marks
@@ -134,7 +134,6 @@ export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs
 
   return Fragment.from(content)
 }
-
 /**
  * Add split change to the source node parent, and to the last child which is the split content
  */

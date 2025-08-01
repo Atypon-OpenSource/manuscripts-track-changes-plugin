@@ -18,6 +18,7 @@ import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
+import { dropOrphanChanges } from '../mutate/dropStructureChange'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { applyAcceptedRejectedChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
@@ -54,29 +55,18 @@ export function updateChangesStatus(
               nonTextChanges.push(relatedRefChange)
             }
           }
-          if (c.dataTracked.operation === CHANGE_OPERATION.move) {
-            const oldChange = changeSet.changeTree.find(
+          if (
+            c.dataTracked.operation === CHANGE_OPERATION.move ||
+            c.dataTracked.operation === CHANGE_OPERATION.structure
+          ) {
+            const oldChange = changeSet.changeTree.filter(
               (c) =>
                 ChangeSet.isNodeChange(c) &&
                 c.dataTracked.operation === 'delete' &&
                 c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
             )
-
-            if (oldChange && ChangeSet.isNodeChange(oldChange)) {
-              createdTr = updateChangeAttrs(
-                createdTr,
-                oldChange,
-                {
-                  ...oldChange.dataTracked,
-                  status,
-                  statusUpdateAt: changeTime,
-                  reviewedByID: userID,
-                },
-                oldState.schema
-              )
-
-              // Process children
-              oldChange.children.forEach((child) => {
+            oldChange.map((child) => {
+              if (ChangeSet.isNodeChange(child)) {
                 createdTr = updateChangeAttrs(
                   createdTr,
                   child,
@@ -89,15 +79,30 @@ export function updateChangesStatus(
                   oldState.schema
                 )
 
-                if (ChangeSet.isTextChange(child)) {
-                  textChanges.push(child)
-                } else {
-                  nonTextChanges.push(child)
-                }
-              })
+                // Process children
+                child.children.forEach((child) => {
+                  createdTr = updateChangeAttrs(
+                    createdTr,
+                    child,
+                    {
+                      ...child.dataTracked,
+                      status,
+                      statusUpdateAt: changeTime,
+                      reviewedByID: userID,
+                    },
+                    oldState.schema
+                  )
 
-              nonTextChanges.push(oldChange)
-            }
+                  if (ChangeSet.isTextChange(child)) {
+                    textChanges.push(child)
+                  } else {
+                    nonTextChanges.push(child)
+                  }
+                })
+
+                nonTextChanges.push(child)
+              }
+            })
           }
         }
       }
@@ -105,6 +110,7 @@ export function updateChangesStatus(
 
     const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
+    dropOrphanChanges(createdTr)
   } else {
     ids.forEach((changeId: string) => {
       const change = changeSet?.get(changeId)
