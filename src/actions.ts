@@ -25,7 +25,7 @@ export enum TrackChangesAction {
   setChangeStatuses = 'track-changes-set-change-statuses',
   refreshChanges = 'track-changes-refresh-changes',
   updateMetaNode = 'track-changes-update-meta-node',
-  structuralChangeAction = 'structural-change-action',
+  structuralChangeAction = 'track-changes-structural-change-action',
 }
 
 export type TrackChangesActionParams = {

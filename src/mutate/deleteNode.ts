@@ -126,7 +126,7 @@ export function deleteOrSetNodeDeleted(
     dropStructuralChangeShadow(structure.moveNodeId, newTr)
   }
 }
-
+// that to keep delete change with moveNodeId as it should be hidden
 export const keepDeleteWithMoveNodeId = (node: PMNode) => {
   const dataTracked = getBlockInlineTrackedData(node)?.filter(
     (c) => c.operation === CHANGE_OPERATION.delete && c.moveNodeId

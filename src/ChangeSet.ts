@@ -116,10 +116,7 @@ export class ChangeSet {
     let currentInlineChange: RootChange | undefined
 
     this.changeTree.map((change, index) => {
-      if (
-        this.canJoinAdjacentInlineChanges(change, index) ||
-        this.canJoinAdjacentStructuralChanges(change, index)
-      ) {
+      if (this.canJoinAdjacentInlineChanges(change, index)) {
         currentInlineChange = currentInlineChange ? [...currentInlineChange, change] : [change]
         return
       } else if (currentInlineChange) {
@@ -127,6 +124,11 @@ export class ChangeSet {
         currentInlineChange = undefined
         return
       }
+
+      if (this.joinRelatedStructuralChanges(rootNodes, change)) {
+        return
+      }
+
       rootNodes.push([change])
     })
 
@@ -241,17 +243,22 @@ export class ChangeSet {
     )
   }
 
-  canJoinAdjacentStructuralChanges(change: TrackedChange, index: number) {
-    const nextChange = this.changeTree.at(index + 1)
-    const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
-      c1.dataTracked.operation === CHANGE_OPERATION.structure &&
-      c2.dataTracked.operation === CHANGE_OPERATION.structure &&
-      c2.dataTracked.moveNodeId === c1.dataTracked.moveNodeId
-    return (
-      nextChange &&
-      (change.to === nextChange.from || change.to === nextChange.from - 1) &&
-      hasMatchingOperation(change, nextChange)
+  joinRelatedStructuralChanges(rootNodes: RootChanges, change: TrackedChange) {
+    if (change.dataTracked.operation !== CHANGE_OPERATION.structure) {
+      return
+    }
+
+    const index = rootNodes.findIndex(
+      (c) =>
+        c[0].dataTracked.operation === CHANGE_OPERATION.structure &&
+        c[0].dataTracked.moveNodeId === change.dataTracked.moveNodeId
     )
+    if (index !== -1) {
+      rootNodes[index] = [...rootNodes[index], change]
+    } else {
+      rootNodes.push([change])
+    }
+    return true
   }
 
   /**

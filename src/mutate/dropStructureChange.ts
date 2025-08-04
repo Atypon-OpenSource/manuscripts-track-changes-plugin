@@ -19,11 +19,11 @@ import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { findChanges } from '../changes/findChanges'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
-import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { CHANGE_OPERATION, CHANGE_STATUS, NodeChange } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
-import { createNewInsertAttrs, updateBlockNodesAttrs } from '../utils/track-utils'
+import { createNewInsertAttrs, createNewStructureAttrs, updateBlockNodesAttrs } from '../utils/track-utils'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */
 export const dropStructuralChangeShadow = (
@@ -39,13 +39,14 @@ export const dropStructuralChangeShadow = (
   if (shadow.length > 0) {
     tr.delete(shadow[0].from, shadow[shadow.length - 1].to)
     mapping?.appendMap(tr.steps[tr.steps.length - 1].getMap())
+    dropOrphanChanges(tr, true)
   }
   return tr
 }
 
 /** convert to insert change structure and move change that has no delete change linked to it by moveNodId
  * and remove delete change with moveNodeId that has no related change to it */
-export const dropOrphanChanges = (newTr: Transaction) => {
+export const dropOrphanChanges = (newTr: Transaction, dropDataTracked?: boolean) => {
   const changeSet = findChanges(EditorState.create({ doc: newTr.doc }))
   const shadowIds = new Set()
   const changesIds = new Set()
@@ -66,18 +67,20 @@ export const dropOrphanChanges = (newTr: Transaction) => {
   }
 
   changeSet.nodeChanges.forEach((c) => {
+    // change if the change has connection with other change using moveNodeId
     if (
       c.dataTracked.moveNodeId &&
       !(shadowIds.has(c.dataTracked.moveNodeId) && changesIds.has(c.dataTracked.moveNodeId))
     ) {
-      if (c.dataTracked.operation === CHANGE_OPERATION.delete) {
-        updateChangeAttrs(
-          newTr,
-          c,
-          { ...c.dataTracked, status: CHANGE_STATUS.rejected },
-          newTr.doc.type.schema
-        )
+      if (c.dataTracked.operation === CHANGE_OPERATION.delete || dropDataTracked) {
+        if (c.type === 'text-change') {
+          newTr.removeMark(c.from, c.to, newTr.doc.type.schema.marks.tracked_delete)
+        } else if (c.type === 'node-change') {
+          newTr.setNodeMarkup(c.from, undefined, { ...c.node.attrs, dataTracked: null })
+        }
       } else {
+        // if we lose connection between two changes using moveNodeId, that will be for
+        // the case of removing parent node that holds shadow of other changes
         const { id, moveNodeId, ...attrs } = { ...c.dataTracked }
         newTr.replaceWith(
           c.from,
@@ -150,10 +153,7 @@ export const joinStructureChanges = (
     return setFragmentAsInserted(content, createNewInsertAttrs(attrs), newTr.doc.type.schema)
   }
 
-  return updateBlockNodesAttrs(content, (attrs, node) => {
-    const dataTracked = getBlockInlineTrackedData(node)?.map((c) =>
-      c.operation == CHANGE_OPERATION.structure ? { ...c, moveNodeId } : c
-    )
-    return { ...attrs, dataTracked }
+  return updateBlockNodesAttrs(sliceContent, (_, node) => {
+    return { ..._, dataTracked: [addTrackIdIfDoesntExist(createNewStructureAttrs({ ...attrs, moveNodeId }))] }
   })
 }

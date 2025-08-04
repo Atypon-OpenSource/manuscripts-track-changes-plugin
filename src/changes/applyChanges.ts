@@ -33,6 +33,34 @@ export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, change
   return newDataTracked.length ? newDataTracked : null
 }
 
+function approveRelatedChanges(
+  changeSet: ChangeSet,
+  change: TrackedChange,
+  deleteMap: Mapping,
+  tr: Transaction
+) {
+  // Find the original delete for move or structure changes
+  changeSet.changes
+    .filter(
+      (c) =>
+        c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
+        c.dataTracked.operation === CHANGE_OPERATION.delete
+    )
+    .map((originalChange) => {
+      if (originalChange) {
+        const { pos: originalFrom, deleted } = deleteMap.mapResult(originalChange.from)
+        const originalNode = tr.doc.nodeAt(originalFrom)
+        // Delete the original node (old position)
+        if (originalNode && !deleted) {
+          tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
+          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+        }
+      } else {
+        log.warn('No original change found for move operation', { change })
+      }
+    })
+}
+
 /**
  * Applies the accepted/rejected changes in the current document and sets them untracked
  *
@@ -171,27 +199,7 @@ export function applyAcceptedRejectedChanges(
         dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
       }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
-
-      // Find the original delete for move or structure changes
-      changeSet.changes
-        .filter(
-          (c) =>
-            c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
-            c.dataTracked.operation === CHANGE_OPERATION.delete
-        )
-        .map((originalChange) => {
-          if (originalChange) {
-            const { pos: originalFrom, deleted } = deleteMap.mapResult(originalChange.from)
-            const originalNode = tr.doc.nodeAt(originalFrom)
-            // Delete the original node (old position)
-            if (originalNode && !deleted) {
-              tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
-              deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-            }
-          } else {
-            log.warn('No original change found for move operation', { change })
-          }
-        })
+      approveRelatedChanges(changeSet, change, deleteMap, tr)
     } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
       // For rejected moves, delete the moved node (new position)
       tr.delete(from, from + node.nodeSize)

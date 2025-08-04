@@ -427,6 +427,7 @@ export const filterMeaninglessMoveSteps = (
       }
 
       // Check if this step inserts a node with pending insert tracking and no move operations
+      // will not allow that drop for structure change as some changes could be a mix of the deleted content and shadow, like convert first subsection and then converting it
       if (step instanceof ReplaceStep && !tr.getMeta(TrackChangesAction.structuralChangeAction)) {
         const { slice } = step
         if (slice?.content?.firstChild) {

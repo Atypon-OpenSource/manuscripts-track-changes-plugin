@@ -59,10 +59,6 @@ export function processChangeSteps(
             deleteAttrs.moveNodeId &&
             c.moveNodeId !== deleteAttrs.moveNodeId
         )
-        // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
-        // if yes, we can suppose that the current node was inserted too
-        isInserted = !!inserted || !!structure || (!trackedData && isInserted)
-
         let childOfDeleted = false
         // if it's a deletion of a node inside a deleted node in this transaction, there is node need for separate step
         if (prevDelete) {
@@ -89,6 +85,9 @@ export function processChangeSteps(
 
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
         prevDelete = c
+        // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
+        // if yes, we can suppose that the current node was inserted too
+        isInserted = !!inserted || !!structure || (!trackedData && isInserted)
 
         const newestStep = newTr.steps[newTr.steps.length - 1]
 
