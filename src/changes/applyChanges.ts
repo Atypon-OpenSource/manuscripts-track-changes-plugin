@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ManuscriptNode } from '@manuscripts/transform'
 import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
@@ -24,6 +25,27 @@ import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '..
 import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
+
+/**
+ * Collects all moveNodeIds from a container node and its descendants
+ */
+function collectMoveNodeIds(containerNode: ManuscriptNode, primaryMoveNodeId: string): Set<string> {
+  const moveNodeIds = new Set<string>()
+  moveNodeIds.add(primaryMoveNodeId)
+
+  containerNode.descendants((childNode: ManuscriptNode) => {
+    const dataTracked = childNode.attrs.dataTracked
+    if (Array.isArray(dataTracked)) {
+      dataTracked.forEach((trackingData: { moveNodeId?: string }) => {
+        if (trackingData.moveNodeId) {
+          moveNodeIds.add(trackingData.moveNodeId)
+        }
+      })
+    }
+  })
+
+  return moveNodeIds
+}
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
@@ -199,7 +221,10 @@ export function applyAcceptedRejectedChanges(
         }
       })
     } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
-      // For rejected moves, delete the moved node (new position)
+      // Collect all moveNodeIds from the moved node and its descendants
+      const moveNodeIdsToRestore = collectMoveNodeIds(node, change.dataTracked.moveNodeId!)
+
+      // For rejected moves, delete the moved node
       tr.delete(from, from + node.nodeSize)
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
 
@@ -207,8 +232,9 @@ export function applyAcceptedRejectedChanges(
       changeSet.changes
         .filter(
           (c) =>
-            c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
             c.dataTracked.operation === CHANGE_OPERATION.delete &&
+            c.dataTracked.moveNodeId &&
+            moveNodeIdsToRestore.has(c.dataTracked.moveNodeId) &&
             ChangeSet.isNodeChange(c)
         )
         .forEach((orig) => {
@@ -220,11 +246,11 @@ export function applyAcceptedRejectedChanges(
 
           // Check if this node has been initially moved. (e.g., it was moved and then marked deleted as part of another move)
           const dataTracked = node.attrs.dataTracked || []
-          const hasMoveTracking = dataTracked.some(
-            (d: any) => d.operation === CHANGE_OPERATION.move && d.status === CHANGE_STATUS.pending
+          const hasMoved = dataTracked.some(
+            (d: TrackedAttrs) => d.operation === CHANGE_OPERATION.move && d.status === CHANGE_STATUS.pending
           )
 
-          if (hasMoveTracking) {
+          if (hasMoved) {
             // delete instead of restore
             tr.delete(pos, pos + node.nodeSize)
             deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
