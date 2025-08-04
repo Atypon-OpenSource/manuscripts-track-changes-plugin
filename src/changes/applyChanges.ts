@@ -23,7 +23,7 @@ import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
-import { RestoreRelatedNodes, updateChangeChildrenAttributes } from './updateChangeAttrs'
+import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
 
 export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
   if (!dataTracked) {
@@ -203,16 +203,35 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, from + node.nodeSize)
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
 
-      // Restore all originals (and any sibling nodes that were moved together)
+      // Restore all originals
       changeSet.changes
         .filter(
           (c) =>
             c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
-            c.dataTracked.operation === CHANGE_OPERATION.delete
+            c.dataTracked.operation === CHANGE_OPERATION.delete &&
+            ChangeSet.isNodeChange(c)
         )
         .forEach((orig) => {
           const { pos } = deleteMap.mapResult(orig.from)
-          RestoreRelatedNodes(tr, change.dataTracked.moveNodeId, schema, pos)
+          const node = tr.doc.nodeAt(pos)
+          if (!node) {
+            return
+          }
+
+          // Check if this node has been initially moved. (e.g., it was moved and then marked deleted as part of another move)
+          const dataTracked = node.attrs.dataTracked || []
+          const hasMoveTracking = dataTracked.some(
+            (d: any) => d.operation === CHANGE_OPERATION.move && d.status === CHANGE_STATUS.pending
+          )
+
+          if (hasMoveTracking) {
+            // delete instead of restore
+            tr.delete(pos, pos + node.nodeSize)
+            deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
+            return
+          }
+
+          restoreNode(tr, node, pos, schema)
         })
     }
   })
