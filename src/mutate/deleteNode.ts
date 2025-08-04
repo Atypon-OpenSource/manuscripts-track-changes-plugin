@@ -91,7 +91,7 @@ export function deleteOrSetNodeDeleted(
       (d.operation === CHANGE_OPERATION.delete && d.moveNodeId)
   )
   const structure = dataTracked?.find((c) => c.operation === CHANGE_OPERATION.structure)
-  // will not need to keep structure change node to be in next change shadow
+  // that will remove next change shadow of structure change node
   if (deleteAttrs.moveNodeId && structure && structure.moveNodeId !== deleteAttrs.moveNodeId) {
     return newTr.delete(pos, pos + node.nodeSize)
   }
