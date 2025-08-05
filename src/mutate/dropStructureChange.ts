@@ -21,7 +21,7 @@ import { findChanges } from '../changes/findChanges'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import { CHANGE_OPERATION, CHANGE_STATUS, NodeChange } from '../types/change'
+import { CHANGE_OPERATION } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
 import { createNewInsertAttrs, createNewStructureAttrs, updateBlockNodesAttrs } from '../utils/track-utils'
 
@@ -45,7 +45,7 @@ export const dropStructuralChangeShadow = (
 }
 
 /** convert to insert change structure and move change that has no delete change linked to it by moveNodId
- * and remove delete change with moveNodeId that has no related change to it */
+ * and drop delete change with moveNodeId that has no related change to it */
 export const dropOrphanChanges = (newTr: Transaction, dropDataTracked?: boolean) => {
   const changeSet = findChanges(EditorState.create({ doc: newTr.doc }))
   const shadowIds = new Set()
@@ -66,8 +66,8 @@ export const dropOrphanChanges = (newTr: Transaction, dropDataTracked?: boolean)
     return
   }
 
-  changeSet.nodeChanges.forEach((c) => {
-    // change if the change has connection with other change using moveNodeId
+  changeSet.changes.forEach((c) => {
+    // this check if there is a connection between delete and change using moveNodeId
     if (
       c.dataTracked.moveNodeId &&
       !(shadowIds.has(c.dataTracked.moveNodeId) && changesIds.has(c.dataTracked.moveNodeId))
@@ -78,18 +78,14 @@ export const dropOrphanChanges = (newTr: Transaction, dropDataTracked?: boolean)
         } else if (c.type === 'node-change') {
           newTr.setNodeMarkup(c.from, undefined, { ...c.node.attrs, dataTracked: null })
         }
-      } else {
+      } else if (c.type === 'node-change') {
         // if we lose connection between two changes using moveNodeId, that will be for
         // the case of removing parent node that holds shadow of other changes
-        const { id, moveNodeId, ...attrs } = { ...c.dataTracked }
+        const { id, moveNodeId, ...attrs } = c.dataTracked
         newTr.replaceWith(
           c.from,
           c.to,
-          setFragmentAsInserted(
-            Fragment.from((c as NodeChange).node),
-            createNewInsertAttrs(attrs),
-            newTr.doc.type.schema
-          )
+          setFragmentAsInserted(Fragment.from(c.node), createNewInsertAttrs(attrs), newTr.doc.type.schema)
         )
       }
     }
