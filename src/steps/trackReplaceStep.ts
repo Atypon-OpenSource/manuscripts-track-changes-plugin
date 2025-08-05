@@ -30,7 +30,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isSplitStep } from '../utils/track-utils'
+import { isSplitStep, isStructureSteps } from '../utils/track-utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,
@@ -108,7 +108,7 @@ export function trackReplaceStep(
         oldState.schema
       )
 
-      if (tr.steps.length === 2 && moveID && tr.getMeta(TrackChangesAction.structuralChangeAction)) {
+      if (isStructureSteps(tr)) {
         fragment = joinStructureChanges(attrs, newSliceContent, fragment, tr, newTr)
       } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)

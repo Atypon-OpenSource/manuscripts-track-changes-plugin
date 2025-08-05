@@ -185,6 +185,12 @@ export function stepIsLift(
   return gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText
 }
 
+export const isStructureSteps = (tr: Transaction) =>
+  tr.getMeta(TrackChangesAction.structuralChangeAction) &&
+  tr.steps.length === 2 &&
+  tr.steps[0] instanceof ReplaceStep &&
+  tr.steps[1] instanceof ReplaceStep
+
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
 
