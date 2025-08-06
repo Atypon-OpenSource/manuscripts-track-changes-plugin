@@ -128,14 +128,11 @@ export const joinStructureChanges = (
   const idsSet = groupStructureChanges(tr, toNode)
   const changeSet = findChanges(EditorState.create({ doc: newTr.doc }))
 
-  const structuralChanges = changeSet.changes.filter(
-    (c) =>
-      c.dataTracked.operation === CHANGE_OPERATION.delete ||
-      (c.dataTracked.operation === CHANGE_OPERATION.structure &&
-        c.dataTracked.moveNodeId &&
-        idsSet.has(c.dataTracked.moveNodeId))
+  const relatedChanges = changeSet.changes.filter(
+    (c) => c.dataTracked.moveNodeId && idsSet.has(c.dataTracked.moveNodeId)
   )
-  structuralChanges.map((c) =>
+  // unified moveNodeId of the related transaction steps
+  relatedChanges.map((c) =>
     updateChangeAttrs(newTr, c, { ...c.dataTracked, moveNodeId }, newTr.doc.type.schema)
   )
 

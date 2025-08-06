@@ -47,6 +47,7 @@ import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
+  isStructureSteps,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
@@ -268,8 +269,17 @@ export function trackTransaction(
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
   if (setsNewSelection && tr.selection instanceof TextSelection) {
-    // preserving text selection if we track an element in which selection is set
-    const newPos = newTr.doc.resolve(tr.selection.from) // no mapping on purpose as tracking will misguide mapping
+    // this mapping will capture invert mapping of delete steps as that what plugin do, also will map the actual
+    // deleted nodes mapping in deleteNode.ts
+    const selectionMapping = new Mapping()
+    tr.steps.map((step) => {
+      const isDeleteStep = step instanceof ReplaceStep && step.from !== step.to && step.slice.size === 0
+      if (isDeleteStep) {
+        selectionMapping.appendMap(step.getMap().invert())
+      }
+    })
+    selectionMapping.appendMapping(deletedNodeMapping)
+    const newPos = newTr.doc.resolve(selectionMapping.map(tr.selection.from))
     newTr.setSelection(new TextSelection(newPos))
   }
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
