@@ -64,6 +64,9 @@ export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
 
 export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.move
+  indentationType?: 'indent' | 'unindent'
+  indentationNodeType?: 'section' | 'paragraph'
+  indentationCreatesContainer?: boolean
 }
 
 export type TrackedAttrs =

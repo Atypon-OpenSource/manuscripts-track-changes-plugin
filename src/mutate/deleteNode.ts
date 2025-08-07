@@ -87,6 +87,9 @@ export function deleteOrSetNodeDeleted(
     (d) => d.operation === CHANGE_OPERATION.set_node_attributes || d.operation === CHANGE_OPERATION.reference
   )
 
+  const moved = dataTracked?.find(
+    (d) => d.operation === CHANGE_OPERATION.move && d.status === CHANGE_STATUS.pending
+  )
   /*
     Removed condition "inserted.authorID === deleteAttrs.authorID" for this check because it resulted in a weird behaviour of deletion of approved changes
     Approved changes handling are in the process of revision at the time of writing this comment.
@@ -108,7 +111,7 @@ export function deleteOrSetNodeDeleted(
     undefined,
     {
       ...node.attrs,
-      dataTracked: updated ? [newDeleted, updated] : [newDeleted],
+      dataTracked: updated ? [newDeleted, updated] : moved ? [newDeleted, moved] : [newDeleted],
     },
     node.marks
   )
