@@ -84,7 +84,8 @@ export function processChangeSteps(
         */
         if (
           (prevDelete && c.pos < prevDelete.nodeEnd && isInserted && deletesCounter > 1) ||
-          (childOfDeleted && prevDeletedNodeInserted) || nodeWasAlreadyDeleted
+          (childOfDeleted && prevDeletedNodeInserted) ||
+          nodeWasAlreadyDeleted
         ) {
           return false
         }

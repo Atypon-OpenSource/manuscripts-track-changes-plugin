@@ -269,17 +269,21 @@ export function trackTransaction(
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
   if (setsNewSelection && tr.selection instanceof TextSelection) {
-    // this mapping will capture invert mapping of delete steps as that what plugin do, also will map the actual
-    // deleted nodes mapping in deleteNode.ts
-    const selectionMapping = new Mapping()
-    tr.steps.map((step) => {
-      const isDeleteStep = step instanceof ReplaceStep && step.from !== step.to && step.slice.size === 0
-      if (isDeleteStep) {
-        selectionMapping.appendMap(step.getMap().invert())
-      }
-    })
-    selectionMapping.appendMapping(deletedNodeMapping)
-    const newPos = newTr.doc.resolve(selectionMapping.map(tr.selection.from))
+    let from = tr.selection.from
+    if (isStructureSteps(tr)) {
+      // this mapping will capture invert mapping of delete steps as that what plugin do, also will map the actual
+      // deleted nodes mapping in deleteNode.ts
+      const selectionMapping = new Mapping()
+      tr.steps.map((step) => {
+        const isDeleteStep = step instanceof ReplaceStep && step.from !== step.to && step.slice.size === 0
+        if (isDeleteStep) {
+          selectionMapping.appendMap(step.getMap().invert())
+        }
+      })
+      selectionMapping.appendMapping(deletedNodeMapping)
+      from = selectionMapping.map(tr.selection.from)
+    }
+    const newPos = newTr.doc.resolve(from)
     newTr.setSelection(new TextSelection(newPos))
   }
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
