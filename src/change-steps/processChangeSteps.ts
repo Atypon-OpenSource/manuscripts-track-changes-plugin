@@ -22,7 +22,7 @@ import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
 import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
-import { ChangeStep } from '../types/step'
+import { ChangeStep, DeleteNodeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
@@ -41,7 +41,7 @@ export function processChangeSteps(
   // @TODO add custom handler / condition?
   let deletesCounter = 0 // counter for deletion
   let isInserted = false // flag for inserted node
-  let prevDeletedNode: Node
+  let prevDelete: DeleteNodeStep
 
   changes.forEach((c) => {
     let step = newTr.steps[newTr.steps.length - 1]
@@ -52,14 +52,17 @@ export function processChangeSteps(
         const prevDeletedNodeInserted = isInserted
         const trackedData = getBlockInlineTrackedData(c.node)
         const inserted = trackedData?.find((d) => d.operation === CHANGE_OPERATION.insert)
-        // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
-        // if yes, we can suppose that the current node was inserted too
-        isInserted = !!inserted || (!trackedData && isInserted)
-
+        // if that delete is a shadow for another structure change, we remove that node to avoid duplicating shadow
+        const structure = trackedData?.find(
+          (c) =>
+            c.operation === CHANGE_OPERATION.structure &&
+            deleteAttrs.moveNodeId &&
+            c.moveNodeId !== deleteAttrs.moveNodeId
+        )
         let childOfDeleted = false
         // if it's a deletion of a node inside a deleted node in this transaction, there is node need for separate step
-        if (prevDeletedNode) {
-          prevDeletedNode.descendants((node) => {
+        if (prevDelete) {
+          prevDelete.node.descendants((node) => {
             if (childOfDeleted) {
               return false
             }
@@ -79,16 +82,23 @@ export function processChangeSteps(
               a child of that node - don't produce a separate step to prevent collision and clutter
            3. If the node was already physically deleted as part of parent deletion, skip it
         */
-        if ((isInserted && deletesCounter > 1) || (childOfDeleted && prevDeletedNodeInserted) || nodeWasAlreadyDeleted) {
+        if (
+          (prevDelete && c.pos < prevDelete.nodeEnd && isInserted && deletesCounter > 1) ||
+          (childOfDeleted && prevDeletedNodeInserted) ||
+          nodeWasAlreadyDeleted
+        ) {
           return false
         }
 
         deleteOrSetNodeDeleted(c.node, mapping.map(c.pos), newTr, deleteAttrs)
-        prevDeletedNode = c.node
+        prevDelete = c
+        // for tables: not all children nodes have trackedData, so we need to check if the previous node was inserted
+        // if yes, we can suppose that the current node was inserted too
+        isInserted = !!inserted || !!structure || (!trackedData && isInserted)
 
         const newestStep = newTr.steps[newTr.steps.length - 1]
 
-        if (isInserted) {
+        if (isInserted || structure) {
           deletedNodeMapping.appendMap(newestStep.getMap())
         }
 
