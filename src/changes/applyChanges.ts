@@ -221,7 +221,7 @@ export function applyAcceptedRejectedChanges(
         }
       })
     } else if (change.dataTracked.status === CHANGE_STATUS.rejected) {
-      // Collect all moveNodeIds from the moved node and its descendants
+      // Collect all moveNodeIds from the moved node and its descendants to ensure complete restoration or deletion in cases of nested moves. This prevents orphaned nodes when moves are sequential or nested.
       const moveNodeIdsToRestore = collectMoveNodeIds(node, change.dataTracked.moveNodeId!)
 
       // For rejected moves, delete the moved node
