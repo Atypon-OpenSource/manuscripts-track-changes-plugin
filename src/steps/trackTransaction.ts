@@ -32,6 +32,7 @@ import {
   Step,
 } from 'prosemirror-transform'
 
+import { getAction, TrackChangesAction } from '../actions'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
@@ -100,7 +101,7 @@ export function trackTransaction(
   }
 
   // Check for indentation metadata and treat it like a move operation
-  const action = tr.getMeta('action') as string | undefined
+  const action = getAction(tr, TrackChangesAction.indentationAction)?.action
   const isIndentation = action === 'indent' || action === 'unindent'
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform
