@@ -100,7 +100,8 @@ export function trackTransaction(
   }
 
   // Check for indentation metadata and treat it like a move operation
-  const isIndentation = !!tr.getMeta('indentation')
+  const action = tr.getMeta('action') as string | undefined
+  const isIndentation = action === 'indent' || action === 'unindent'
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform
   const wasNodeSelection = tr.selection instanceof NodeSelectionClass

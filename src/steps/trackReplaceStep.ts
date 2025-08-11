@@ -17,12 +17,6 @@ import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepResult } from 'prosemirror-transform'
 
-interface IndentationMeta {
-  type?: 'indent' | 'unindent'
-  nodeType?: 'section' | 'paragraph'
-  createsContainer?: boolean
-}
-
 import {
   setFragmentAsInserted,
   setFragmentAsMoveChange,
@@ -122,17 +116,12 @@ export function trackReplaceStep(
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
       }
       if (moveID) {
-        // Extract indentation metadata from transaction
-        const indentation = tr.getMeta('indentation') as IndentationMeta | undefined
+        // Extract indentation type from transaction
+        const indentationType = tr.getMeta('action') as 'indent' | 'unindent'
 
         fragment = setFragmentAsMoveChange(
           newSliceContent,
-          trackUtils.createNewMoveAttrs(
-            attrs,
-            indentation?.type,
-            indentation?.nodeType,
-            indentation?.createsContainer
-          )
+          trackUtils.createNewMoveAttrs(attrs, indentationType)
         )
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,

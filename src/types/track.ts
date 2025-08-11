@@ -51,8 +51,6 @@ export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 export type NewMoveAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.move
   indentationType?: 'indent' | 'unindent'
-  indentationNodeType?: 'section' | 'paragraph'
-  indentationCreatesContainer?: boolean
 }
 export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.reference

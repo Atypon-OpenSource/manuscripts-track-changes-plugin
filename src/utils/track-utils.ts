@@ -67,16 +67,12 @@ export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
 
 export function createNewMoveAttrs(
   attrs: NewEmptyAttrs,
-  indentationType?: 'indent' | 'unindent',
-  indentationNodeType?: 'section' | 'paragraph',
-  indentationCreatesContainer?: boolean
+  indentationType?: 'indent' | 'unindent'
 ): NewMoveAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.move,
     ...(indentationType && { indentationType }),
-    ...(indentationNodeType && { indentationNodeType }),
-    ...(indentationCreatesContainer !== undefined && { indentationCreatesContainer }),
   }
 }
 
