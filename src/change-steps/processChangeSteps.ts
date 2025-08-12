@@ -79,7 +79,11 @@ export function processChangeSteps(
               a child of that node - don't produce a separate step to prevent collision and clutter
            3. If the node was already physically deleted as part of parent deletion, skip it
         */
-        if ((isInserted && deletesCounter > 1) || (childOfDeleted && prevDeletedNodeInserted) || nodeWasAlreadyDeleted) {
+        if (
+          (isInserted && deletesCounter > 1) ||
+          (childOfDeleted && prevDeletedNodeInserted) ||
+          nodeWasAlreadyDeleted
+        ) {
           return false
         }
 

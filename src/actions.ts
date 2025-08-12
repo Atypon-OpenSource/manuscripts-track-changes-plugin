@@ -25,6 +25,7 @@ export enum TrackChangesAction {
   setChangeStatuses = 'track-changes-set-change-statuses',
   refreshChanges = 'track-changes-refresh-changes',
   updateMetaNode = 'track-changes-update-meta-node',
+  indentationAction = 'track-changes-indentation-action',
 }
 
 export type TrackChangesActionParams = {
@@ -37,6 +38,9 @@ export type TrackChangesActionParams = {
   }
   [TrackChangesAction.refreshChanges]: boolean
   [TrackChangesAction.updateMetaNode]: boolean
+  [TrackChangesAction.indentationAction]: {
+    action: 'indent' | 'unindent'
+  }
 }
 
 /**
