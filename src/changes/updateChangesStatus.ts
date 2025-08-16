@@ -67,32 +67,8 @@ export function updateChangesStatus(
             )
             oldChange.map((child) => {
               if (ChangeSet.isNodeChange(child)) {
-                createdTr = updateChangeAttrs(
-                  createdTr,
-                  child,
-                  {
-                    ...child.dataTracked,
-                    status,
-                    statusUpdateAt: changeTime,
-                    reviewedByID: userID,
-                  },
-                  oldState.schema
-                )
-
                 // Process children
                 child.children.forEach((child) => {
-                  createdTr = updateChangeAttrs(
-                    createdTr,
-                    child,
-                    {
-                      ...child.dataTracked,
-                      status,
-                      statusUpdateAt: changeTime,
-                      reviewedByID: userID,
-                    },
-                    oldState.schema
-                  )
-
                   if (ChangeSet.isTextChange(child)) {
                     textChanges.push(child)
                   } else {

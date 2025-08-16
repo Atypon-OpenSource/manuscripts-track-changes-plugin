@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node, Schema } from 'prosemirror-model'
+import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
@@ -72,20 +72,13 @@ export function processChangeSteps(
           })
         }
 
-        // Additional check: if this node was already physically deleted as part of a parent node deletion,
-        // skip processing it to avoid marking wrong nodes at shifted positions
-        const nodeAtMappedPos = newTr.doc.nodeAt(mapping.map(c.pos))
-        const nodeWasAlreadyDeleted = !nodeAtMappedPos || nodeAtMappedPos !== c.node
-
         /* 1. For inserted node: the top node and its content (children nodes) is deleted in the first step
            2. Also if previous deleted node was "inserted" and the currently processed deleted node is
               a child of that node - don't produce a separate step to prevent collision and clutter
-           3. If the node was already physically deleted as part of parent deletion, skip it
         */
         if (
           (prevDelete && c.pos < prevDelete.nodeEnd && isInserted && deletesCounter > 1) ||
-          (childOfDeleted && prevDeletedNodeInserted) ||
-          nodeWasAlreadyDeleted
+          (childOfDeleted && prevDeletedNodeInserted)
         ) {
           return false
         }

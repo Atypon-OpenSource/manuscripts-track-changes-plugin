@@ -21,25 +21,27 @@ import { findChanges } from '../changes/findChanges'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import { CHANGE_OPERATION } from '../types/change'
+import { CHANGE_OPERATION, NodeChange } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
 import { createNewInsertAttrs, createNewStructureAttrs, updateBlockNodesAttrs } from '../utils/track-utils'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */
-export const dropStructuralChangeShadow = (
-  moveNodeId: string | undefined,
-  tr: Transaction,
-  mapping?: Mapping
-) => {
+export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: Transaction) => {
   const changeSet = findChanges(EditorState.create({ doc: tr.doc }))
   const changes = changeSet.changes.filter(
     (c) => c.type === 'node-change' && c.dataTracked.moveNodeId === moveNodeId
   )
   const shadow = changes.filter((c) => c.dataTracked.operation === CHANGE_OPERATION.delete)
+  const structures = changes.filter(
+    (c) => c.dataTracked.operation === CHANGE_OPERATION.structure
+  ) as NodeChange[]
+
+  structures.map((c) => {
+    tr.setNodeMarkup(c.from, undefined, { ...c.node.attrs, dataTracked: null })
+  })
+
   if (shadow.length > 0) {
     tr.delete(shadow[0].from, shadow[shadow.length - 1].to)
-    mapping?.appendMap(tr.steps[tr.steps.length - 1].getMap())
-    dropOrphanChanges(tr, true)
   }
   return tr
 }
