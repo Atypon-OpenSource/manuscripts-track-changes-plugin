@@ -78,9 +78,11 @@ export function processChangeSteps(
            2. Also if previous deleted node was "inserted" and the currently processed deleted node is
               a child of that node - don't produce a separate step to prevent collision and clutter
            3. If the node was already physically deleted as part of parent deletion, skip it
+           4. Exception: Don't skip insertions during move operations - they need proper deletion processing
         */
+        const isMoveOperation = !!emptyAttrs.moveNodeId
         if (
-          (isInserted && deletesCounter > 1) ||
+          (isInserted && deletesCounter > 1 && !isMoveOperation) ||
           (childOfDeleted && prevDeletedNodeInserted) ||
           nodeWasAlreadyDeleted
         ) {
