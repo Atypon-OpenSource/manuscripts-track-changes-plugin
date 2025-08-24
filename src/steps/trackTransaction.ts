@@ -145,9 +145,10 @@ export function trackTransaction(
       }
 
       const invertedStep = step.invert(tr.docs[i])
+      const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
-      if (deletedNodeMapping.maps.length) {
+      if (isDelete || isStructureSteps(tr)) {
         thisStepMapping = deletedNodeMapping
       }
       /*
@@ -283,6 +284,7 @@ export function trackTransaction(
       selectionMapping.appendMapping(deletedNodeMapping)
       from = selectionMapping.map(tr.selection.from)
     }
+    // preserving text selection if we track an element in which selection is set
     const newPos = newTr.doc.resolve(from)
     newTr.setSelection(new TextSelection(newPos))
   }
