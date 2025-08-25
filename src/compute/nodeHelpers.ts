@@ -66,14 +66,7 @@ export function getMarkTrackedData(
   node: PMNode | undefined | null,
   schema: Schema
 ): Partial<TrackedAttrs>[] | undefined {
-  if (node?.textContent == 'Patients') {
-    debugger
-  }
   const tracked = node?.marks.map((mark) => (isValidMark() ? mark.attrs.dataTracked : null)).filter(Boolean)
-  if (tracked?.length) {
-    console.log(tracked)
-    console.log('MARKS')
-  }
   if (tracked?.length) {
     return tracked as TrackedAttrs[]
   }
