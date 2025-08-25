@@ -17,16 +17,18 @@ import { Node as PMNode } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { getNodeTrackedData } from '../compute/nodeHelpers'
+import { getMarkTrackedData, getNodeTrackedData } from '../compute/nodeHelpers'
 import {
   CHANGE_OPERATION,
   IncompleteChange,
+  MarkChange,
   NodeAttrChange,
   NodeChange,
   PartialChange,
   ReferenceChange,
   TextChange,
 } from '../types/change'
+import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 
 /**
  * Finds all changes (basically text marks or node attributes) from document
@@ -43,6 +45,21 @@ export function findChanges(state: EditorState) {
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
     const tracked = getNodeTrackedData(node, state.schema) || []
+
+    const marksWitchTrackChanges = getMarkTrackedData(node, state.schema)
+    marksWitchTrackChanges?.forEach((tm) => {
+      const ch = {
+        id: tm.id,
+        type: 'mark-change',
+        from: pos,
+        to: pos + node.nodeSize,
+        dataTracked: { ...tm },
+        text: node.text,
+        nodeType: node.type,
+        markType: 'bold', // @TODO - get from the getMarkTrackedData
+      } as PartialChange<MarkChange>
+      changes.push(ch)
+    })
 
     for (let i = 0; i < tracked.length; i += 1) {
       const dataTracked = tracked[i]

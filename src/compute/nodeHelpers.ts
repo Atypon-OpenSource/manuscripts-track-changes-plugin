@@ -57,6 +57,28 @@ export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[]
   return dataTracked || []
 }
 
+function isValidMark() {
+  // exclude the marks that we use for tracking inline etc. even better check against the list of supported marks from schema
+  return true
+}
+
+export function getMarkTrackedData(
+  node: PMNode | undefined | null,
+  schema: Schema
+): Partial<TrackedAttrs>[] | undefined {
+  if (node?.textContent == 'Patients') {
+    debugger
+  }
+  const tracked = node?.marks.map((mark) => (isValidMark() ? mark.attrs.dataTracked : null)).filter(Boolean)
+  if (tracked?.length) {
+    console.log(tracked)
+    console.log('MARKS')
+  }
+  if (tracked?.length) {
+    return tracked as TrackedAttrs[]
+  }
+}
+
 export function getNodeTrackedData(
   node: PMNode | undefined | null,
   schema: Schema

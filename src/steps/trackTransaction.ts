@@ -44,6 +44,7 @@ import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
 import {
+  createNewInsertAttrs,
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
@@ -246,6 +247,23 @@ export function trackTransaction(
         deletedNodeMapping
       )
     } else if (step instanceof AddMarkStep) {
+      console.log('CAUGHT ADD MARK STEP')
+      // this is just for demo but in prod a list of trackable marks has to come from the editor referring to the schema marks name i.e. [schema.marks.bold, schema.marks.italic ...]
+      if (step.mark.type.name === 'bold') {
+        const markSource = step.mark.type.schema.marks[step.mark.type.name]
+        const newDataTracked = createNewInsertAttrs(emptyAttrs)
+        const newMark = markSource.create({
+          dataTracked: { ...newDataTracked, id: uuidv4() },
+        })
+        const newStep = new AddMarkStep(step.from, step.to, newMark)
+        try {
+          const inverted = step.invert()
+          newTr.step(inverted)
+          newTr.step(newStep)
+        } catch (e) {
+          console.error('Unable to record an add mark step:' + e)
+        }
+      }
       // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique
       const dataTracked = getNodeTrackedData(newTr.doc.nodeAt(step.from), oldState.schema)?.pop()
       if (dataTracked) {
