@@ -247,7 +247,6 @@ export function trackTransaction(
         deletedNodeMapping
       )
     } else if (step instanceof AddMarkStep) {
-      console.log('CAUGHT ADD MARK STEP')
       // this is just for demo but in prod a list of trackable marks has to come from the editor referring to the schema marks name i.e. [schema.marks.bold, schema.marks.italic ...]
       if (step.mark.type.name === 'bold') {
         const markSource = step.mark.type.schema.marks[step.mark.type.name]
