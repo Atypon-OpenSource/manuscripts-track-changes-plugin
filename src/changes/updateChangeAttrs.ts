@@ -135,3 +135,15 @@ export function updateChangeChildrenAttributes(changes: TrackedChange[], tr: Tra
     }
   })
 }
+
+// Restore a node to its original state by removing tracking attributes and marks.
+export function restoreNode(tr: Transaction, node: any, pos: number, schema: Schema): void {
+  const updatedAttrs = {
+    ...node.attrs,
+    dataTracked: null,
+  }
+
+  tr.setNodeMarkup(pos, undefined, updatedAttrs, node.marks)
+  tr.removeMark(pos, pos + node.nodeSize, schema.marks.tracked_insert)
+  tr.removeMark(pos, pos + node.nodeSize, schema.marks.tracked_delete)
+}

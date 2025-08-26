@@ -65,6 +65,7 @@ export type ReferenceAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
 
 export type NodeMoveAttrs = Omit<InsertDeleteAttrs, 'operation'> & {
   operation: CHANGE_OPERATION.move
+  indentationType?: 'indent' | 'unindent'
 }
 
 export type StructureAttrs = Omit<InsertDeleteAttrs, 'operation'> & {

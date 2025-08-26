@@ -17,7 +17,7 @@ import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, StepResult } from 'prosemirror-transform'
 
-import { TrackChangesAction } from '../actions'
+import { getAction, TrackChangesAction } from '../actions'
 import {
   setFragmentAsInserted,
   setFragmentAsMoveChange,
@@ -112,8 +112,18 @@ export function trackReplaceStep(
         fragment = joinStructureChanges(attrs, newSliceContent, fragment, tr, newTr)
       } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
-      } else if (moveID) {
-        fragment = setFragmentAsMoveChange(newSliceContent, trackUtils.createNewMoveAttrs(attrs))
+      }
+      if (moveID) {
+        // Extract indentation type from transaction
+        const indentationType = getAction(tr, TrackChangesAction.indentationAction)?.action as
+          | 'indent'
+          | 'unindent'
+          | undefined
+
+        fragment = setFragmentAsMoveChange(
+          newSliceContent,
+          trackUtils.createNewMoveAttrs(attrs, indentationType)
+        )
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?

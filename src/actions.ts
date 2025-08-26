@@ -26,6 +26,7 @@ export enum TrackChangesAction {
   refreshChanges = 'track-changes-refresh-changes',
   updateMetaNode = 'track-changes-update-meta-node',
   structuralChangeAction = 'track-changes-structural-change-action',
+  indentationAction = 'track-changes-indentation-action',
 }
 
 export type TrackChangesActionParams = {
@@ -39,6 +40,9 @@ export type TrackChangesActionParams = {
   [TrackChangesAction.refreshChanges]: boolean
   [TrackChangesAction.updateMetaNode]: boolean
   [TrackChangesAction.structuralChangeAction]: StructureAttrs['action']
+  [TrackChangesAction.indentationAction]: {
+    action: 'indent' | 'unindent'
+  }
 }
 
 /**
