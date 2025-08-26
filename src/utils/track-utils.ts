@@ -22,6 +22,7 @@ import {
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
+  NewMoveAttrs,
   NewReferenceAttrs,
   NewSplitNodeAttrs,
   NewUpdateAttrs,
@@ -64,10 +65,14 @@ export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
   }
 }
 
-export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+export function createNewMoveAttrs(
+  attrs: NewEmptyAttrs,
+  indentationType?: 'indent' | 'unindent'
+): NewMoveAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.move,
+    ...(indentationType && { indentationType }),
   }
 }
 
