@@ -55,34 +55,6 @@ export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, change
   return newDataTracked.length ? newDataTracked : null
 }
 
-function approveRelatedChanges(
-  changeSet: ChangeSet,
-  change: TrackedChange,
-  deleteMap: Mapping,
-  tr: Transaction
-) {
-  // Find the original delete for move or structure changes
-  changeSet.changes
-    .filter(
-      (c) =>
-        c.dataTracked.moveNodeId === change.dataTracked.moveNodeId &&
-        c.dataTracked.operation === CHANGE_OPERATION.delete
-    )
-    .map((originalChange) => {
-      if (originalChange) {
-        const { pos: originalFrom, deleted } = deleteMap.mapResult(originalChange.from)
-        const originalNode = tr.doc.nodeAt(originalFrom)
-        // Delete the original node (old position)
-        if (originalNode && !deleted) {
-          tr.delete(originalFrom, originalFrom + originalNode.nodeSize)
-          deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
-        }
-      } else {
-        log.warn('No original change found for move operation', { change })
-      }
-    })
-}
-
 /**
  * Applies the accepted/rejected changes in the current document and sets them untracked
  *
@@ -113,8 +85,10 @@ export function applyAcceptedRejectedChanges(
 
   changes.forEach((change) => {
     // Skip MOVE; full handling is in the second pass
-    if (change.dataTracked.operation === CHANGE_OPERATION.move ||
-       change.dataTracked.operation === CHANGE_OPERATION.structure) {
+    if (
+      change.dataTracked.operation === CHANGE_OPERATION.move ||
+      change.dataTracked.operation === CHANGE_OPERATION.structure
+    ) {
       return
     }
 

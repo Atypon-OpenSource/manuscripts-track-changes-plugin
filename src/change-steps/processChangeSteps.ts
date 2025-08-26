@@ -76,8 +76,13 @@ export function processChangeSteps(
            2. Also if previous deleted node was "inserted" and the currently processed deleted node is
               a child of that node - don't produce a separate step to prevent collision and clutter
         */
+        const isMoveOperation = !!emptyAttrs.moveNodeId
         if (
-          (prevDelete && c.pos < prevDelete.nodeEnd && isInserted && deletesCounter > 1) ||
+          (prevDelete &&
+            c.pos < prevDelete.nodeEnd &&
+            isInserted &&
+            deletesCounter > 1 &&
+            !isMoveOperation) ||
           (childOfDeleted && prevDeletedNodeInserted)
         ) {
           return false

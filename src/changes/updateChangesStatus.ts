@@ -55,30 +55,26 @@ export function updateChangesStatus(
               nonTextChanges.push(relatedRefChange)
             }
           }
-          if (
-            c.dataTracked.operation === CHANGE_OPERATION.move ||
-            c.dataTracked.operation === CHANGE_OPERATION.structure
-          ) {
-            const oldChange = changeSet.changeTree.filter(
+          if (c.dataTracked.operation === CHANGE_OPERATION.move) {
+            const oldChange = changeSet.changeTree.find(
               (c) =>
                 ChangeSet.isNodeChange(c) &&
                 c.dataTracked.operation === 'delete' &&
                 c.dataTracked.moveNodeId === change.dataTracked.moveNodeId
             )
-            oldChange.map((child) => {
-              if (ChangeSet.isNodeChange(child)) {
-                // Process children
-                child.children.forEach((child) => {
-                  if (ChangeSet.isTextChange(child)) {
-                    textChanges.push(child)
-                  } else {
-                    nonTextChanges.push(child)
-                  }
-                })
 
-                nonTextChanges.push(child)
-              }
-            })
+            if (oldChange && ChangeSet.isNodeChange(oldChange)) {
+              // Process children
+              oldChange.children.forEach((child) => {
+                if (ChangeSet.isTextChange(child)) {
+                  textChanges.push(child)
+                } else {
+                  nonTextChanges.push(child)
+                }
+              })
+
+              nonTextChanges.push(oldChange)
+            }
           }
         }
       }

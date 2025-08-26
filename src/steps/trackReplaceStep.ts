@@ -112,8 +112,7 @@ export function trackReplaceStep(
         fragment = joinStructureChanges(attrs, newSliceContent, fragment, tr, newTr)
       } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
-      }
-      if (moveID) {
+      } else if (moveID) {
         // Extract indentation type from transaction
         const indentationType = getAction(tr, TrackChangesAction.indentationAction)?.action as
           | 'indent'
