@@ -20,6 +20,7 @@ import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/n
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { NewDeleteAttrs } from '../types/track'
 import { log } from '../utils/logger'
+import { dropStructuralChangeShadow } from './dropStructureChange'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first
@@ -84,8 +85,16 @@ export function deleteOrSetNodeDeleted(
       (d.status === CHANGE_STATUS.pending || d.status === CHANGE_STATUS.accepted)
   )
   const updated = dataTracked?.find(
-    (d) => d.operation === CHANGE_OPERATION.set_node_attributes || d.operation === CHANGE_OPERATION.reference
+    (d) =>
+      d.operation === CHANGE_OPERATION.set_node_attributes ||
+      d.operation === CHANGE_OPERATION.reference ||
+      (d.operation === CHANGE_OPERATION.delete && d.moveNodeId)
   )
+  const structure = dataTracked?.find((c) => c.operation === CHANGE_OPERATION.structure)
+  // that will remove next change shadow of structure change node
+  if (deleteAttrs.moveNodeId && structure && structure.moveNodeId !== deleteAttrs.moveNodeId) {
+    return newTr.delete(pos, pos + node.nodeSize)
+  }
 
   const moved = dataTracked?.find(
     (d) => d.operation === CHANGE_OPERATION.move && d.status === CHANGE_STATUS.pending
@@ -115,4 +124,15 @@ export function deleteOrSetNodeDeleted(
     },
     node.marks
   )
+
+  if (!deleteAttrs.moveNodeId && structure?.moveNodeId) {
+    dropStructuralChangeShadow(structure.moveNodeId, newTr)
+  }
+}
+// that to keep delete change with moveNodeId as it should be hidden
+export const keepDeleteWithMoveNodeId = (node: PMNode) => {
+  const dataTracked = getBlockInlineTrackedData(node)?.filter(
+    (c) => c.operation === CHANGE_OPERATION.delete && c.moveNodeId
+  )
+  return dataTracked?.length ? dataTracked : null
 }

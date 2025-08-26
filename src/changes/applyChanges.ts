@@ -19,7 +19,7 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { deleteNode } from '../mutate/deleteNode'
+import { deleteNode, keepDeleteWithMoveNodeId } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
@@ -85,7 +85,10 @@ export function applyAcceptedRejectedChanges(
 
   changes.forEach((change) => {
     // Skip MOVE; full handling is in the second pass
-    if (change.dataTracked.operation === CHANGE_OPERATION.move) {
+    if (
+      change.dataTracked.operation === CHANGE_OPERATION.move ||
+      change.dataTracked.operation === CHANGE_OPERATION.structure
+    ) {
       return
     }
 
@@ -124,7 +127,7 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
-      const attrs = { ...node.attrs, dataTracked: null }
+      const attrs = { ...node.attrs, dataTracked: keepDeleteWithMoveNodeId(node) }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
       if (node.isAtom) {
@@ -173,7 +176,10 @@ export function applyAcceptedRejectedChanges(
 
   // Second pass: Handle move operations
   changes.forEach((change) => {
-    if (change.dataTracked.operation !== CHANGE_OPERATION.move) {
+    if (
+      change.dataTracked.operation !== CHANGE_OPERATION.move &&
+      change.dataTracked.operation !== CHANGE_OPERATION.structure
+    ) {
       return
     }
 

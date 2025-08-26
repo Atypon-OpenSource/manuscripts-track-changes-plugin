@@ -134,7 +134,6 @@ export function setFragmentAsMoveChange(fragment: Fragment, moveAttrs: NewMoveAt
 
   return Fragment.from(content)
 }
-
 /**
  * Add split change to the source node parent, and to the last child which is the split content
  */
