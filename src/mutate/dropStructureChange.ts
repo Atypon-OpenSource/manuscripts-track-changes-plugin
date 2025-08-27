@@ -15,7 +15,7 @@
  */
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
-import { Mapping, ReplaceStep } from 'prosemirror-transform'
+import { ReplaceStep } from 'prosemirror-transform'
 
 import { findChanges } from '../changes/findChanges'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
@@ -46,11 +46,15 @@ export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: T
   return tr
 }
 
-/** convert to insert change structure and move change that has no delete change linked to it by moveNodId
- * and drop delete change with moveNodeId that has no related change to it */
-export const dropOrphanChanges = (newTr: Transaction, dropDataTracked?: boolean) => {
+/**
+ *  This function check changes that have been paired with other changes, like (structure, move, split) change
+ *  - in case main change of (structure, move, split) has no connection with other paired change will convert that change to insert
+ *  - or if the paired change of (delete with moveNodeId, reference) has no connection will just remove dataTracked of that change
+ */
+export const dropOrphanChanges = (newTr: Transaction) => {
   const changeSet = findChanges(EditorState.create({ doc: newTr.doc }))
   const shadowIds = new Set()
+  const referenceIds = new Set()
   const changesIds = new Set()
   changeSet.changes.forEach((c) => {
     if (c.dataTracked.moveNodeId && c.dataTracked.operation === CHANGE_OPERATION.delete) {
@@ -62,19 +66,47 @@ export const dropOrphanChanges = (newTr: Transaction, dropDataTracked?: boolean)
     ) {
       changesIds.add(c.dataTracked.moveNodeId)
     }
+    if (c.dataTracked.operation === CHANGE_OPERATION.node_split) {
+      changesIds.add(c.dataTracked.id)
+    }
+    if (c.dataTracked.operation === CHANGE_OPERATION.reference) {
+      referenceIds.add(c.dataTracked.referenceId)
+    }
   })
 
-  if (!shadowIds.size && !changesIds.size) {
+  if (!shadowIds.size && !referenceIds.size && !changesIds.size) {
     return
   }
 
   changeSet.changes.forEach((c) => {
+    // remove reference if it's not pointing to any change
+    if (
+      c.dataTracked.operation === CHANGE_OPERATION.reference &&
+      !changesIds.has(c.dataTracked.referenceId)
+    ) {
+      const node = newTr.doc.nodeAt(c.from)
+      const dataTracked = node && (getBlockInlineTrackedData(node) || []).filter((d) => d.id !== c.id)
+      newTr.setNodeMarkup(c.from, undefined, { ...node?.attrs, dataTracked })
+    }
+    if (
+      c.type === 'node-change' &&
+      c.dataTracked.operation === CHANGE_OPERATION.node_split &&
+      !referenceIds.has(c.id)
+    ) {
+      const { id, ...attrs } = c.dataTracked
+      newTr.replaceWith(
+        c.from,
+        c.to,
+        setFragmentAsInserted(Fragment.from(c.node), createNewInsertAttrs(attrs), newTr.doc.type.schema)
+      )
+    }
+
     // this check if there is a connection between delete and change using moveNodeId
     if (
       c.dataTracked.moveNodeId &&
       !(shadowIds.has(c.dataTracked.moveNodeId) && changesIds.has(c.dataTracked.moveNodeId))
     ) {
-      if (c.dataTracked.operation === CHANGE_OPERATION.delete || dropDataTracked) {
+      if (c.dataTracked.operation === CHANGE_OPERATION.delete) {
         if (c.type === 'text-change') {
           newTr.removeMark(c.from, c.to, newTr.doc.type.schema.marks.tracked_delete)
         } else if (c.type === 'node-change') {
