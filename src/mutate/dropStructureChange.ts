@@ -99,6 +99,18 @@ export const dropOrphanChanges = (newTr: Transaction) => {
         c.to,
         setFragmentAsInserted(Fragment.from(c.node), createNewInsertAttrs(attrs), newTr.doc.type.schema)
       )
+      const referenceChanges = (getBlockInlineTrackedData(c.node) || []).filter(
+        (d) => d.operation === CHANGE_OPERATION.reference
+      )
+      // this to make sure we don't lose reference change, for the split change that has a reference for other node split
+      if (referenceChanges.length) {
+        const node = newTr.doc.nodeAt(c.from)
+        const dataTracked = (node && getBlockInlineTrackedData(node)) || []
+        newTr.setNodeMarkup(c.from, undefined, {
+          ...node?.attrs,
+          dataTracked: [...dataTracked, ...referenceChanges],
+        })
+      }
     }
 
     // this check if there is a connection between delete and change using moveNodeId
