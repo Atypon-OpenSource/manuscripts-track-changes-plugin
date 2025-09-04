@@ -146,7 +146,7 @@ export function applyAcceptedRejectedChanges(
     } else if (ChangeSet.isMarkChange(change)) {
       // marks are immutable so we need to remove a mark with dataTracked attributes and create a new one
       // if mark is marked for deletion - just delete that
-      var newMark = change.mark.type.create({
+      const newMark = change.mark.type.create({
         dataTracked: excludeFromTracked(change.mark.attrs.dataTracked, change.id),
       })
       if (isInlineMarkChange(change)) {

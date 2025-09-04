@@ -19,12 +19,12 @@ import { Mapping } from 'prosemirror-transform'
 
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
+import { stepIsLift } from '../steps/utils'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { stepIsLift } from '../steps/utils'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted

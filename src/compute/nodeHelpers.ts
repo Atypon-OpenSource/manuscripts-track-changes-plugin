@@ -17,8 +17,8 @@ import { Mark, MarkSpec, MarkType, Node as PMNode, Schema, SchemaSpec } from 'pr
 
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { log } from '../utils/logger'
-import { uuidv4 } from '../utils/uuidv4'
 import { isValidTrackableMark } from '../utils/track-utils'
+import { uuidv4 } from '../utils/uuidv4'
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
   if (!attrs.id) {

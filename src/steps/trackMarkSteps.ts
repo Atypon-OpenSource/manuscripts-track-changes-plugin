@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 import { Node as PMNode } from 'prosemirror-model'
-import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
-import { createNewDeleteAttrs, createNewInsertAttrs, isValidTrackableMark } from '../utils/track-utils'
-import { NewEmptyAttrs } from '../types/track'
-import { uuidv4 } from '../utils/uuidv4'
 import { Transaction } from 'prosemirror-state'
+import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
+
+import { NewEmptyAttrs } from '../types/track'
+import { createNewDeleteAttrs, createNewInsertAttrs, isValidTrackableMark } from '../utils/track-utils'
+import { uuidv4 } from '../utils/uuidv4'
 
 export function trackRemoveMarkStep(step: RemoveMarkStep, emptyAttrs: NewEmptyAttrs, newTr: Transaction) {
   if (isValidTrackableMark(step.mark)) {

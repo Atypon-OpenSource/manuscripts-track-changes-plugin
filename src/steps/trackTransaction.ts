@@ -53,14 +53,14 @@ import {
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
-import { trackReplaceAroundStep } from './trackReplaceAroundStep'
-import { trackReplaceStep } from './trackReplaceStep'
 import {
   trackAddMarkStep,
   trackAddNodeMarkStep,
   trackRemoveMarkStep,
   trackRemoveNodeMarkStep,
 } from './trackMarkSteps'
+import { trackReplaceAroundStep } from './trackReplaceAroundStep'
+import { trackReplaceStep } from './trackReplaceStep'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
