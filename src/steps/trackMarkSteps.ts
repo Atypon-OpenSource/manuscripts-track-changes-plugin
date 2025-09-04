@@ -34,7 +34,7 @@ export function trackRemoveMarkStep(step: RemoveMarkStep, emptyAttrs: NewEmptyAt
       newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
-      console.error('Unable to record an add mark step: ' + e)
+      console.error('Unable to record a RemoveMarkStep with error: ' + e)
     }
   }
 }
@@ -57,7 +57,7 @@ export function trackRemoveNodeMarkStep(
       newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
-      console.error('Unable to record an add mark step: ' + e)
+      console.error('Unable to record a RemoveNodeMarkStep with error: ' + e)
     }
   }
 }
@@ -98,7 +98,7 @@ export function trackAddNodeMarkStep(
       newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
-      console.error('Unable to record an add node mark step: ' + e)
+      console.error('Unable to record an AddNodeMarkStep with error: ' + e)
     }
   }
 }

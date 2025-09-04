@@ -46,8 +46,8 @@ export function findChanges(state: EditorState) {
   state.doc.descendants((node, pos) => {
     const tracked = getNodeTrackedData(node, state.schema) || []
 
-    const marksWitchTrackChanges = getMarkTrackedData(node)
-    marksWitchTrackChanges?.forEach((trackAttrs, mark) => {
+    const marksWithTrackChanges = getMarkTrackedData(node)
+    marksWithTrackChanges?.forEach((trackAttrs, mark) => {
       trackAttrs.forEach((c) => {
         const ch = {
           id: c.id,
