@@ -24,6 +24,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
+import { stepIsLift } from '../steps/utils'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted
@@ -144,7 +145,7 @@ export function deleteAndMergeSplitNodes(
             such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
             to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
           */
-          if (trackUtils.stepIsLift(gap, node, to)) {
+          if (stepIsLift(gap, node, to)) {
             gap.slice.content.forEach((node, offset) => {
               steps.push({
                 type: 'delete-node',

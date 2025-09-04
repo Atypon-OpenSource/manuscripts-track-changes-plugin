@@ -17,6 +17,7 @@ import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
   IncompleteChange,
+  MarkChange,
   NodeAttrChange,
   NodeChange,
   ReferenceChange,
@@ -299,6 +300,10 @@ export class ChangeSet {
 
   static isTextChange(change: TrackedChange): change is TextChange {
     return change.type === 'text-change'
+  }
+
+  static isMarkChange(change: TrackedChange): change is MarkChange {
+    return change.type === 'mark-change'
   }
 
   static isNodeChange(change: TrackedChange): change is NodeChange {

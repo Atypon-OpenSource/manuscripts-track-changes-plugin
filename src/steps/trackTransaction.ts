@@ -24,9 +24,11 @@ import {
 } from 'prosemirror-state'
 import {
   AddMarkStep,
+  AddNodeMarkStep,
   AttrStep,
   Mapping,
   RemoveMarkStep,
+  RemoveNodeMarkStep,
   ReplaceAroundStep,
   ReplaceStep,
   Step,
@@ -44,15 +46,21 @@ import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
 import {
-  createNewInsertAttrs,
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
+  isValidTrackableMark,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
+import {
+  trackAddMarkStep,
+  trackAddNodeMarkStep,
+  trackRemoveMarkStep,
+  trackRemoveNodeMarkStep,
+} from './trackMarkSteps'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -247,22 +255,7 @@ export function trackTransaction(
         deletedNodeMapping
       )
     } else if (step instanceof AddMarkStep) {
-      // this is just for demo but in prod a list of trackable marks has to come from the editor referring to the schema marks name i.e. [schema.marks.bold, schema.marks.italic ...]
-      if (step.mark.type.name === 'bold') {
-        const markSource = step.mark.type.schema.marks[step.mark.type.name]
-        const newDataTracked = createNewInsertAttrs(emptyAttrs)
-        const newMark = markSource.create({
-          dataTracked: { ...newDataTracked, id: uuidv4() },
-        })
-        const newStep = new AddMarkStep(step.from, step.to, newMark)
-        try {
-          const inverted = step.invert()
-          newTr.step(inverted)
-          newTr.step(newStep)
-        } catch (e) {
-          console.error('Unable to record an add mark step:' + e)
-        }
-      }
+      trackAddMarkStep(step, emptyAttrs, newTr)
       // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique
       const dataTracked = getNodeTrackedData(newTr.doc.nodeAt(step.from), oldState.schema)?.pop()
       if (dataTracked) {
@@ -273,8 +266,13 @@ export function trackTransaction(
           oldState.schema
         )
       }
+    } else if (step instanceof RemoveMarkStep) {
+      trackRemoveMarkStep(step, emptyAttrs, newTr)
+    } else if (step instanceof RemoveNodeMarkStep) {
+      trackRemoveNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof AddNodeMarkStep) {
+      trackAddNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
     }
-    // } else if (step instanceof RemoveMarkStep) {
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.

@@ -46,19 +46,21 @@ export function findChanges(state: EditorState) {
   state.doc.descendants((node, pos) => {
     const tracked = getNodeTrackedData(node, state.schema) || []
 
-    const marksWitchTrackChanges = getMarkTrackedData(node, state.schema)
-    marksWitchTrackChanges?.forEach((tm) => {
-      const ch = {
-        id: tm.id,
-        type: 'mark-change',
-        from: pos,
-        to: pos + node.nodeSize,
-        dataTracked: { ...tm },
-        text: node.text,
-        nodeType: node.type,
-        markType: 'bold', // @TODO - get from the getMarkTrackedData
-      } as PartialChange<MarkChange>
-      changes.push(ch)
+    const marksWitchTrackChanges = getMarkTrackedData(node)
+    marksWitchTrackChanges?.forEach((trackAttrs, mark) => {
+      trackAttrs.forEach((c) => {
+        const ch = {
+          id: c.id,
+          type: 'mark-change',
+          from: pos,
+          to: pos + node.nodeSize,
+          dataTracked: { ...c },
+          text: node.text,
+          nodeType: node.type,
+          mark: mark,
+        } as PartialChange<MarkChange>
+        changes.push(ch)
+      })
     })
 
     for (let i = 0; i < tracked.length; i += 1) {

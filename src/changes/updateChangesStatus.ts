@@ -124,8 +124,8 @@ export function updateChangesStatus(
     })
   }
   /*
-        History sometimes groups some steps, reversal of which, results in dataTracked loss.
-        This is also an action that we definitely need to be undoable separately
-      */
+    History sometimes groups some steps, reversal of which results in dataTracked loss.
+    This is also an action that we definitely need to be undoable separately
+  */
   closeHistory(createdTr)
 }

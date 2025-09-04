@@ -1,0 +1,103 @@
+/*!
+ * © 2025 Atypon Systems LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { Node as PMNode } from 'prosemirror-model'
+import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
+import { createNewDeleteAttrs, createNewInsertAttrs, isValidTrackableMark } from '../utils/track-utils'
+import { NewEmptyAttrs } from '../types/track'
+import { uuidv4 } from '../utils/uuidv4'
+import { Transaction } from 'prosemirror-state'
+
+export function trackRemoveMarkStep(step: RemoveMarkStep, emptyAttrs: NewEmptyAttrs, newTr: Transaction) {
+  if (isValidTrackableMark(step.mark)) {
+    const newDataTracked = createNewDeleteAttrs(emptyAttrs)
+    const markSource = step.mark.type.schema.marks[step.mark.type.name]
+    const newMark = markSource.create({
+      dataTracked: [{ ...newDataTracked, id: uuidv4() }],
+    })
+    const newStep = new RemoveMarkStep(step.from, step.to, newMark)
+    try {
+      const inverted = step.invert()
+      newTr.step(inverted)
+      newTr.step(newStep)
+    } catch (e) {
+      console.error('Unable to record an add mark step: ' + e)
+    }
+  }
+}
+
+export function trackRemoveNodeMarkStep(
+  step: RemoveNodeMarkStep,
+  emptyAttrs: NewEmptyAttrs,
+  newTr: Transaction,
+  stepDoc: PMNode
+) {
+  if (isValidTrackableMark(step.mark)) {
+    const newDataTracked = createNewDeleteAttrs(emptyAttrs)
+    const markSource = step.mark.type.schema.marks[step.mark.type.name]
+    const newMark = markSource.create({
+      dataTracked: [{ ...newDataTracked, id: uuidv4() }],
+    })
+    const newStep = new RemoveNodeMarkStep(step.pos, newMark)
+    try {
+      const inverted = step.invert(stepDoc)
+      newTr.step(inverted)
+      newTr.step(newStep)
+    } catch (e) {
+      console.error('Unable to record an add mark step: ' + e)
+    }
+  }
+}
+
+export function trackAddMarkStep(step: AddMarkStep, emptyAttrs: NewEmptyAttrs, newTr: Transaction) {
+  if (isValidTrackableMark(step.mark)) {
+    const markSource = step.mark.type.schema.marks[step.mark.type.name]
+    const newDataTracked = createNewInsertAttrs(emptyAttrs)
+    const newMark = markSource.create({
+      dataTracked: [{ ...newDataTracked, id: uuidv4() }],
+    })
+    const newStep = new AddMarkStep(step.from, step.to, newMark)
+    try {
+      const inverted = step.invert()
+      newTr.step(inverted)
+      newTr.step(newStep)
+    } catch (e) {
+      console.error('Unable to record a remove node mark step: ' + e)
+    }
+  }
+}
+
+export function trackAddNodeMarkStep(
+  step: AddNodeMarkStep,
+  emptyAttrs: NewEmptyAttrs,
+  newTr: Transaction,
+  stepDoc: PMNode
+) {
+  if (isValidTrackableMark(step.mark)) {
+    const newDataTracked = createNewInsertAttrs(emptyAttrs)
+    const markSource = step.mark.type.schema.marks[step.mark.type.name]
+    const newMark = markSource.create({
+      dataTracked: [{ ...newDataTracked, id: uuidv4() }],
+    })
+    const newStep = new AddNodeMarkStep(step.pos, newMark)
+    try {
+      const inverted = step.invert(stepDoc)
+      newTr.step(inverted)
+      newTr.step(newStep)
+    } catch (e) {
+      console.error('Unable to record an add node mark step: ' + e)
+    }
+  }
+}

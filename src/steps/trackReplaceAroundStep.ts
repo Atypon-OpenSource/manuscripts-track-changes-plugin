@@ -25,7 +25,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isLiftStep, isWrapStep } from '../utils/track-utils'
+import { isLiftStep, isWrapStep } from './utils'
 
 function preserveDataTrackedFromPreviousStep(
   newTr: Transaction,

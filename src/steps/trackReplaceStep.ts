@@ -28,7 +28,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isSplitStep } from '../utils/track-utils'
+import { isSplitStep } from './utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,

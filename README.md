@@ -17,8 +17,8 @@ ProseMirror plugin designed to track changes within a document, similar to the t
   Transactions are intercepted and reverted using default plugins lifecycle, unless transaction has meta commanding to skip tracking.
 
 - Annotate changes with metadata using node attributes and marks.
-  Before transaction is reverted the changes in each step of transaction are processed and created metadata that described the changes are stored in the dataTracked attributes. For text changes, dataTracked attributes are added to marks,
-  with which the inline change is marked on the document. For node changes the dataTracked metadata are assigned to nodes.
+  Before transaction is reverted the changes in each step of transaction are processed and metadata are created that describe the changes stored in the dataTracked attributes. For text changes, dataTracked attributes are added to marks,
+  with which the inline change is marked on the document. For node changes the dataTracked metadata are assigned to nodes via attributes.
 
 - ChangeSet class handles changes interpretation to create a more meaningful representation:
   - Creates a list of top level changes out of a list of nested changed.
@@ -48,7 +48,7 @@ Nodes that change are extended with dataTracked attributes:
 
 ## Requirements
 
-Node schema needs to have { dataTracked: null } attribute declared. Otherwise the node will not be tracked.
+Node or mark schema needs to have { dataTracked: null } attribute declared. Otherwise the node will not be tracked. Plugin also expects schema to support marks for highlighting current changes.
 
 ## Best practices and caveats
 

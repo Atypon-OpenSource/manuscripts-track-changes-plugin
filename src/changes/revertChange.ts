@@ -21,7 +21,7 @@ import { liftTarget, Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
-import { getUpdatedDataTracked } from './applyChanges'
+import { excludeFromTracked } from './applyChanges'
 
 /**
  *  move split-ed content back to the original node. and will update original node dataTracked in these cases:
@@ -62,7 +62,7 @@ export function revertSplitNodeChange(tr: Transaction, change: IncompleteChange,
     tr.setNodeMarkup(
       tr.mapping.map(deleteChange.from),
       undefined,
-      getUpdatedDataTracked(node.attrs.dataTracked, deleteChange.id)
+      excludeFromTracked(node.attrs.dataTracked, deleteChange.id)
     )
   }
 }

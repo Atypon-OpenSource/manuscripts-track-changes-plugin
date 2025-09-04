@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Mark, MarkSpec, MarkType, Node as PMNode, Schema, SchemaSpec } from 'prosemirror-model'
 
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { log } from '../utils/logger'
 import { uuidv4 } from '../utils/uuidv4'
+import { isValidTrackableMark } from '../utils/track-utils'
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
   if (!attrs.id) {
@@ -57,19 +58,15 @@ export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[]
   return dataTracked || []
 }
 
-function isValidMark() {
-  // exclude the marks that we use for tracking inline etc. even better check against the list of supported marks from schema
-  return true
-}
+export function getMarkTrackedData(node: PMNode | undefined | null) {
+  const tracked = node?.marks.reduce((acc, current) => {
+    if (isValidTrackableMark(current) && current.attrs.dataTracked) {
+      acc.set(current, current.attrs.dataTracked)
+    }
+    return acc
+  }, new Map<Mark, Array<Partial<TrackedAttrs>>>())
 
-export function getMarkTrackedData(
-  node: PMNode | undefined | null,
-  schema: Schema
-): Partial<TrackedAttrs>[] | undefined {
-  const tracked = node?.marks.map((mark) => (isValidMark() ? mark.attrs.dataTracked : null)).filter(Boolean)
-  if (tracked?.length) {
-    return tracked as TrackedAttrs[]
-  }
+  return tracked || new Map<Mark, Array<Partial<TrackedAttrs>>>()
 }
 
 export function getNodeTrackedData(
