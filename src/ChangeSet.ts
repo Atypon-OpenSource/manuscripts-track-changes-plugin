@@ -125,6 +125,11 @@ export class ChangeSet {
         currentInlineChange = undefined
         return
       }
+
+      if (this.joinRelatedStructuralChanges(rootNodes, change)) {
+        return
+      }
+
       rootNodes.push([change])
     })
 
@@ -239,6 +244,24 @@ export class ChangeSet {
     )
   }
 
+  joinRelatedStructuralChanges(rootNodes: RootChanges, change: TrackedChange) {
+    if (change.dataTracked.operation !== CHANGE_OPERATION.structure) {
+      return
+    }
+
+    const index = rootNodes.findIndex(
+      (c) =>
+        c[0].dataTracked.operation === CHANGE_OPERATION.structure &&
+        c[0].dataTracked.moveNodeId === change.dataTracked.moveNodeId
+    )
+    if (index !== -1) {
+      rootNodes[index] = [...rootNodes[index], change]
+    } else {
+      rootNodes.push([change])
+    }
+    return true
+  }
+
   /**
    * Flattens a changeTree into a list of IDs
    * @param changes
@@ -317,7 +340,6 @@ export class ChangeSet {
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
   }
-
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
     return currentChange.from === nextChange.from && currentChange.to === nextChange.to
   }

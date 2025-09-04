@@ -18,7 +18,7 @@ import { Fragment, Node as PMNode, ResolvedPos, Schema } from 'prosemirror-model
 import { Transaction } from 'prosemirror-state'
 
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
-import { NewEmptyAttrs, NewInsertAttrs, NewTrackedAttrs } from '../types/track'
+import { NewEmptyAttrs, NewInsertAttrs, NewMoveAttrs, NewTrackedAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
@@ -116,7 +116,7 @@ export function setFragmentAsWrapChange(inserted: Fragment, attrs: NewEmptyAttrs
   return Fragment.from(content)
 }
 
-export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs) {
+export function setFragmentAsMoveChange(fragment: Fragment, moveAttrs: NewMoveAttrs) {
   const content: PMNode[] = []
 
   fragment.forEach((node) => {
@@ -124,7 +124,7 @@ export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs
       node.type.create(
         {
           ...node.attrs,
-          dataTracked: [addTrackIdIfDoesntExist(trackUtils.createNewMoveAttrs(attrs))],
+          dataTracked: [addTrackIdIfDoesntExist(moveAttrs)],
         },
         node.content,
         node.marks
@@ -134,7 +134,6 @@ export function setFragmentAsMoveChange(fragment: Fragment, attrs: NewEmptyAttrs
 
   return Fragment.from(content)
 }
-
 /**
  * Add split change to the source node parent, and to the last child which is the split content
  */

@@ -15,8 +15,9 @@
  */
 
 import { Node as PMNode, Slice } from 'prosemirror-model'
-import { Selection } from 'prosemirror-state'
+import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
+import { TrackChangesAction } from '../actions'
 
 export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
   const { from, to, slice } = step
@@ -113,3 +114,9 @@ export function stepIsLift(
 ) {
   return gap.start < gap.end && gap.insert === 0 && gap.end === to && !node.isText
 }
+
+export const isStructureSteps = (tr: Transaction) =>
+  tr.getMeta(TrackChangesAction.structuralChangeAction) &&
+  tr.steps.length === 2 &&
+  tr.steps[0] instanceof ReplaceStep &&
+  tr.steps[1] instanceof ReplaceStep

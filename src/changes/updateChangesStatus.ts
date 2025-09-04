@@ -18,6 +18,7 @@ import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
+import { dropOrphanChanges } from '../mutate/dropStructureChange'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { applyAcceptedRejectedChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
@@ -63,32 +64,8 @@ export function updateChangesStatus(
             )
 
             if (oldChange && ChangeSet.isNodeChange(oldChange)) {
-              createdTr = updateChangeAttrs(
-                createdTr,
-                oldChange,
-                {
-                  ...oldChange.dataTracked,
-                  status,
-                  statusUpdateAt: changeTime,
-                  reviewedByID: userID,
-                },
-                oldState.schema
-              )
-
               // Process children
               oldChange.children.forEach((child) => {
-                createdTr = updateChangeAttrs(
-                  createdTr,
-                  child,
-                  {
-                    ...child.dataTracked,
-                    status,
-                    statusUpdateAt: changeTime,
-                    reviewedByID: userID,
-                  },
-                  oldState.schema
-                )
-
                 if (ChangeSet.isTextChange(child)) {
                   textChanges.push(child)
                 } else {
@@ -105,6 +82,7 @@ export function updateChangesStatus(
 
     const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
     applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
+    dropOrphanChanges(createdTr)
   } else {
     ids.forEach((changeId: string) => {
       const change = changeSet?.get(changeId)

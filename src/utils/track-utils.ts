@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Mark, Node as PMNode, Slice } from 'prosemirror-model'
+import { Attrs, Fragment, Mark, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
+import { TrackChangesAction } from '../actions'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
   NewInsertAttrs,
+  NewMoveAttrs,
   NewReferenceAttrs,
   NewSplitNodeAttrs,
   NewUpdateAttrs,
@@ -64,10 +66,14 @@ export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
   }
 }
 
-export function createNewMoveAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+export function createNewMoveAttrs(
+  attrs: NewEmptyAttrs,
+  indentationType?: 'indent' | 'unindent'
+): NewMoveAttrs {
   return {
     ...attrs,
     operation: CHANGE_OPERATION.move,
+    ...(indentationType && { indentationType }),
   }
 }
 
@@ -78,6 +84,13 @@ export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<stri
     ...attrs,
     operation: CHANGE_OPERATION.set_node_attributes,
     oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
+  }
+}
+
+export function createNewStructureAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.structure,
   }
 }
 
@@ -104,6 +117,13 @@ export const HasMoveOperations = (tr: Transaction) => {
 
   // Quick pre-check: Need at least 2 steps (delete + insert) to be a move
   if (tr.steps.length < 2) {
+    return movingAssoc
+  }
+
+  if (tr.getMeta(TrackChangesAction.structuralChangeAction)) {
+    const commonID = uuidv4()
+    movingAssoc.set(tr.steps[0] as ReplaceStep, commonID)
+    movingAssoc.set(tr.steps[1] as ReplaceStep, commonID)
     return movingAssoc
   }
 
@@ -316,7 +336,8 @@ export const filterMeaninglessMoveSteps = (
       }
 
       // Check if this step inserts a node with pending insert tracking and no move operations
-      if (step instanceof ReplaceStep) {
+      // skip will ruin complex tr steps mapping on invert, so will ignore it for node convert
+      if (step instanceof ReplaceStep && !tr.getMeta(TrackChangesAction.structuralChangeAction)) {
         const { slice } = step
         if (slice?.content?.firstChild) {
           const insertedNode = slice.content.firstChild
@@ -337,6 +358,27 @@ export const filterMeaninglessMoveSteps = (
     cleanSteps.push(step)
   }
   return cleanSteps
+}
+
+export const updateBlockNodesAttrs = (
+  fragment: Fragment,
+  predicate: (attrs: Attrs, node: PMNode) => Attrs
+) => {
+  const updatedNodes: PMNode[] = []
+
+  fragment.forEach((child) => {
+    if (!child.isBlock) {
+      updatedNodes.push(child)
+      return
+    }
+
+    const newContent = child.content.size ? updateBlockNodesAttrs(child.content, predicate) : child.content
+    const newAttrs = predicate(child.attrs, child)
+
+    updatedNodes.push(child.type.create(newAttrs, newContent, child.marks))
+  })
+
+  return Fragment.fromArray(updatedNodes)
 }
 
 /**

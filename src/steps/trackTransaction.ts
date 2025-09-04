@@ -34,6 +34,7 @@ import {
   Step,
 } from 'prosemirror-transform'
 
+import { getAction, TrackChangesAction } from '../actions'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
@@ -49,7 +50,6 @@ import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
-  isValidTrackableMark,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
@@ -61,6 +61,7 @@ import {
 } from './trackMarkSteps'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
+import { isStructureSteps } from './utils'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -107,6 +108,10 @@ export function trackTransaction(
     statusUpdateAt: 0, // has to be zero as first so changes are not differeniated at start
     status: CHANGE_STATUS.pending,
   }
+
+  // Check for indentation metadata and treat it like a move operation
+  const action = getAction(tr, TrackChangesAction.indentationAction)?.action
+  const isIndentation = action === 'indent' || action === 'unindent'
   // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
   // difficult than prosemirror-transform
   const wasNodeSelection = tr.selection instanceof NodeSelectionClass
@@ -117,7 +122,17 @@ export function trackTransaction(
   log.info('ORIGINAL transaction', tr)
 
   let trContext: TrTrackingContext = {}
-  const movingStepsAssociated = HasMoveOperations(tr)
+  let movingStepsAssociated = HasMoveOperations(tr)
+
+  if (isIndentation) {
+    const moveId = uuidv4()
+    // Assign the same moveId to all steps in the transaction
+    tr.steps.forEach((step) => {
+      if (step instanceof ReplaceStep) {
+        movingStepsAssociated.set(step, moveId)
+      }
+    })
+  }
 
   // First handle direct pending move deletions (not part of multiple moves)
   handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
@@ -156,10 +171,9 @@ export function trackTransaction(
       const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
 
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
-      if (isDelete) {
+      if (isDelete || isStructureSteps(tr)) {
         thisStepMapping = deletedNodeMapping
       }
-
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
@@ -284,10 +298,23 @@ export function trackTransaction(
     tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
     tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
-
   if (setsNewSelection && tr.selection instanceof TextSelection) {
+    let from = tr.selection.from
+    if (isStructureSteps(tr)) {
+      // this mapping will capture invert mapping of delete steps as that what plugin do, also will map the actual
+      // deleted nodes mapping in deleteNode.ts
+      const selectionMapping = new Mapping()
+      tr.steps.map((step) => {
+        const isDeleteStep = step instanceof ReplaceStep && step.from !== step.to && step.slice.size === 0
+        if (isDeleteStep) {
+          selectionMapping.appendMap(step.getMap().invert())
+        }
+      })
+      selectionMapping.appendMapping(deletedNodeMapping)
+      from = selectionMapping.map(tr.selection.from)
+    }
     // preserving text selection if we track an element in which selection is set
-    const newPos = newTr.doc.resolve(tr.selection.from) // no mapping on purpose as tracking will misguide mapping
+    const newPos = newTr.doc.resolve(from)
     newTr.setSelection(new TextSelection(newPos))
   }
   // This is kinda hacky solution at the moment to maintain NodeSelections over transactions

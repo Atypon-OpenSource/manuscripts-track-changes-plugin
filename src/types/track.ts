@@ -35,7 +35,7 @@ export interface TrackChangesState {
 
 export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
 export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.wrap_with_node | CHANGE_OPERATION.move
+  operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.wrap_with_node | CHANGE_OPERATION.structure
 }
 
 export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
@@ -48,11 +48,15 @@ export type NewUpdateAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
 export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.node_split
 }
+export type NewMoveAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.move
+  indentationType?: 'indent' | 'unindent'
+}
 export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
   operation: CHANGE_OPERATION.reference
   referenceId: string
 }
-export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs
+export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs | NewMoveAttrs
 
 export enum TrackChangesStatus {
   enabled = 'enabled',
