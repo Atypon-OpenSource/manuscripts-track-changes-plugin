@@ -17,6 +17,7 @@
 import { Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
+
 import { TrackChangesAction } from '../actions'
 
 export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
