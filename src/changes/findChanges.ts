@@ -55,11 +55,10 @@ export function findChanges(state: EditorState) {
           from: pos,
           to: pos + node.nodeSize,
           dataTracked: { ...c },
-          text: node.text,
           nodeType: node.type,
           node: node,
           mark: mark,
-        } as PartialChange<MarkChange>
+        } as MarkChange
         changes.push(ch)
       })
     })
