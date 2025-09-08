@@ -181,14 +181,22 @@ export function applyAcceptedRejectedChanges(
       const newMark = change.mark.type.create({
         dataTracked: excludeFromTracked(change.mark.attrs.dataTracked, change.id),
       })
+      const isInsert = change.dataTracked.operation === CHANGE_OPERATION.insert
+      const isDelete = change.dataTracked.operation === CHANGE_OPERATION.delete
+
+      // reinserting mark with removed dataTracked when an insertion is accepted or when deletion is rejected and we need to restore it back
+      const toBeRestored =
+        (change.dataTracked.status === CHANGE_STATUS.accepted && isInsert) ||
+        (change.dataTracked.status === CHANGE_STATUS.rejected && isDelete)
+
       if (isInlineMarkChange(change)) {
         tr.removeMark(change.from, change.to, change.mark)
-        if (change.dataTracked.status === CHANGE_STATUS.accepted) {
+        if (toBeRestored) {
           tr.addMark(change.from, change.to, newMark)
         }
       } else {
         tr.removeNodeMark(change.from, change.mark)
-        if (change.dataTracked.status === CHANGE_STATUS.accepted) {
+        if (toBeRestored) {
           tr.addNodeMark(change.from, newMark)
         }
       }

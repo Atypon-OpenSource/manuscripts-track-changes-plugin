@@ -28,7 +28,8 @@ export function trackRemoveMarkStep(step: RemoveMarkStep, emptyAttrs: NewEmptyAt
     const newMark = markSource.create({
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
     })
-    const newStep = new RemoveMarkStep(step.from, step.to, newMark)
+    // restoring back the deleted mark but with "deleted" attributes
+    const newStep = new AddMarkStep(step.from, step.to, newMark)
     try {
       const inverted = step.invert()
       newTr.step(inverted)
@@ -51,7 +52,8 @@ export function trackRemoveNodeMarkStep(
     const newMark = markSource.create({
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
     })
-    const newStep = new RemoveNodeMarkStep(step.pos, newMark)
+    // restoring back the deleted mark but with "deleted" attributes
+    const newStep = new AddNodeMarkStep(step.pos, newMark)
     try {
       const inverted = step.invert(stepDoc)
       newTr.step(inverted)
