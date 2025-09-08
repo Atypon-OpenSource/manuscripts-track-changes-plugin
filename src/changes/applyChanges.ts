@@ -23,9 +23,9 @@ import { deleteNode, keepDeleteWithMoveNodeId } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
+import { excludeFromTracked, isInlineMarkChange } from '../utils/track-utils'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
-import { excludeFromTracked, isInlineMarkChange } from '../utils/track-utils'
 
 /**
  * Collects all moveNodeIds from a container node and its descendants
