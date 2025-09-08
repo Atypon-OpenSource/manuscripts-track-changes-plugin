@@ -129,10 +129,13 @@ export function deleteOrSetNodeDeleted(
     dropStructuralChangeShadow(structure.moveNodeId, newTr)
   }
 }
-// that to keep delete change with moveNodeId as it should be hidden
-export const keepDeleteWithMoveNodeId = (node: PMNode) => {
+// keep change that is paired with other changes, like:
+// * delete change with moveNodeId as it should be hidden
+// * reference change of node split
+export const keepPairedChanges = (node: PMNode) => {
   const dataTracked = getBlockInlineTrackedData(node)?.filter(
-    (c) => c.operation === CHANGE_OPERATION.delete && c.moveNodeId
+    (c) =>
+      (c.operation === CHANGE_OPERATION.delete && c.moveNodeId) || c.operation === CHANGE_OPERATION.reference
   )
   return dataTracked?.length ? dataTracked : null
 }

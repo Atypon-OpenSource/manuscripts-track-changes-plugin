@@ -19,7 +19,7 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { deleteNode, keepDeleteWithMoveNodeId } from '../mutate/deleteNode'
+import { deleteNode, keepPairedChanges } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
@@ -119,7 +119,7 @@ export function applyAcceptedRejectedChanges(
       tr.delete(from, deleteMap.map(change.to))
       deleteMap.appendMap(tr.steps[tr.steps.length - 1].getMap())
     } else if (ChangeSet.isNodeChange(change) && noChangeNeeded) {
-      const attrs = { ...node.attrs, dataTracked: keepDeleteWithMoveNodeId(node) }
+      const attrs = { ...node.attrs, dataTracked: keepPairedChanges(node) }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
       // If the node is an atom, remove the tracked_insert and tracked_delete marks for the direct parent node
       if (node.isAtom) {
