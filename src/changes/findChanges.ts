@@ -57,6 +57,7 @@ export function findChanges(state: EditorState) {
           dataTracked: { ...c },
           text: node.text,
           nodeType: node.type,
+          node: node,
           mark: mark,
         } as PartialChange<MarkChange>
         changes.push(ch)

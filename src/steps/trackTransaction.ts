@@ -281,10 +281,13 @@ export function trackTransaction(
         )
       }
     } else if (step instanceof RemoveMarkStep) {
+      console.log('BONTON-1')
       trackRemoveMarkStep(step, emptyAttrs, newTr)
     } else if (step instanceof RemoveNodeMarkStep) {
+      console.log('BONTON')
       trackRemoveNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
     } else if (step instanceof AddNodeMarkStep) {
+      console.log('BONTON2')
       trackAddNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
     }
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.

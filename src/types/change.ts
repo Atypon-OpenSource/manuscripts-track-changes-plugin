@@ -116,6 +116,7 @@ export type MarkChange = Change & {
   type: 'mark-change'
   nodeType: NodeType
   mark: Mark
+  node: Node
 }
 
 export type TrackedChange =

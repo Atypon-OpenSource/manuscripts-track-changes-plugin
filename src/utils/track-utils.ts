@@ -18,7 +18,7 @@ import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
@@ -395,6 +395,21 @@ export function isValidTrackableMark(mark: Mark) {
     typeof spec.attrs?.dataTracked === 'object'
   ) {
     return true
+  }
+  return false
+}
+
+export function excludeFromTracked(dataTracked: TrackedAttrs[] | null, changeIdToExclude: string) {
+  if (!dataTracked) {
+    return null
+  }
+  const newDataTracked = dataTracked.filter((c) => c.id !== changeIdToExclude)
+  return newDataTracked.length ? newDataTracked : null
+}
+
+export function isInlineMarkChange(change: TrackedChange) {
+  if (change.type == 'mark-change') {
+    return change.nodeType.isInline || change.nodeType.isText
   }
   return false
 }

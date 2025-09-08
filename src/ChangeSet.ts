@@ -28,6 +28,7 @@ import {
   TrackedChange,
 } from './types/change'
 import { log } from './utils/logger'
+import { isInlineMarkChange } from './utils/track-utils'
 
 /**
  * ChangeSet is a data structure to contain the tracked changes with some utility methods and computed
@@ -221,26 +222,46 @@ export class ChangeSet {
     }
   }
 
+  areMatchingWrapOperations(c1: TrackedChange, c2: TrackedChange) {
+    const op1 = c1.dataTracked.operation
+    const op2 = c2.dataTracked.operation
+
+    return (
+      (op1 === 'wrap_with_node' && (op2 === 'insert' || op2 === 'set_attrs')) ||
+      (op2 === 'wrap_with_node' && (op1 === 'insert' || op1 === 'set_attrs'))
+    )
+  }
+
+  areMatchingMarkOperations(c1: TrackedChange, c2: TrackedChange) {
+    if (ChangeSet.isMarkChange(c1) && ChangeSet.isMarkChange(c2)) {
+      const op1 = c1.dataTracked.operation
+      const op2 = c2.dataTracked.operation
+      if (op1 == op2 && c1.mark.type === c2.mark.type) {
+        return true
+      }
+    }
+    return false
+  }
+
   /**
    * Group adjacent inline changes that has the same change operation
    */
   canJoinAdjacentInlineChanges(change: TrackedChange, index: number) {
     const nextChange = this.changeTree.at(index + 1)
+    if (!nextChange) {
+      return false
+    }
+
     const isInline = (c: TrackedChange) =>
-      c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline)
-    const hasMatchingOperation = (c1: TrackedChange, c2: TrackedChange) =>
-      c1.dataTracked.operation === c2.dataTracked.operation ||
-      (c1.dataTracked.operation === 'wrap_with_node' &&
-        (c2.dataTracked.operation === 'insert' || c2.dataTracked.operation === 'set_attrs')) ||
-      (c2.dataTracked.operation === 'wrap_with_node' &&
-        (c1.dataTracked.operation === 'insert' || c1.dataTracked.operation === 'set_attrs'))
+      c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline) || isInlineMarkChange(c)
 
     return (
       isInline(change) &&
-      nextChange &&
       isInline(nextChange) &&
       change.to === nextChange.from &&
-      hasMatchingOperation(change, nextChange)
+      (change === nextChange ||
+        this.areMatchingWrapOperations(change, nextChange) ||
+        this.areMatchingMarkOperations(change, nextChange))
     )
   }
 

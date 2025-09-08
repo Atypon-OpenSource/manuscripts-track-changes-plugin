@@ -25,6 +25,7 @@ import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChang
 import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
+import { excludeFromTracked, isInlineMarkChange } from '../utils/track-utils'
 
 /**
  * Collects all moveNodeIds from a container node and its descendants
@@ -46,19 +47,6 @@ function collectMoveNodeIds(containerNode: ManuscriptNode, primaryMoveNodeId: st
 
   return moveNodeIds
 }
-
-export function excludeFromTracked(dataTracked: TrackedAttrs[] | null, changeIdToExclude: string) {
-  if (!dataTracked) {
-    return null
-  }
-  const newDataTracked = dataTracked.filter((c) => c.id !== changeIdToExclude)
-  return newDataTracked.length ? newDataTracked : null
-}
-
-function isInlineMarkChange(change: MarkChange) {
-  return change.nodeType.isInline || change.nodeType.isText
-}
-
 /**
  * Applies the accepted/rejected changes in the current document and sets them untracked
  *
