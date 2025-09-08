@@ -259,7 +259,7 @@ export class ChangeSet {
       isInline(change) &&
       isInline(nextChange) &&
       change.to === nextChange.from &&
-      (change === nextChange ||
+      (change.dataTracked.operation === nextChange.dataTracked.operation ||
         this.areMatchingWrapOperations(change, nextChange) ||
         this.areMatchingMarkOperations(change, nextChange))
     )
