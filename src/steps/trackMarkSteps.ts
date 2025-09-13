@@ -13,23 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
+import { Mark, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
 
 import { NewEmptyAttrs } from '../types/track'
 import { createNewDeleteAttrs, createNewInsertAttrs, isValidTrackableMark } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
+import { DataTrackedAttrs } from '@manuscripts/transform'
+import { CHANGE_OPERATION } from '../types/change'
 
-export function trackRemoveMarkStep(step: RemoveMarkStep, emptyAttrs: NewEmptyAttrs, newTr: Transaction) {
+function markHasOp(mark: Mark, operation: CHANGE_OPERATION) {
+  if (mark.attrs.dataTracked && Array.isArray(mark.attrs.dataTracked)) {
+    const dtAttrs = mark.attrs.dataTracked as DataTrackedAttrs[]
+    return dtAttrs.some((at) => at.operation === operation)
+  }
+}
+
+export function trackRemoveMarkStep(
+  step: RemoveMarkStep,
+  emptyAttrs: NewEmptyAttrs,
+  newTr: Transaction,
+  doc: PMNode
+) {
   if (isValidTrackableMark(step.mark)) {
-    const newDataTracked = createNewDeleteAttrs(emptyAttrs)
+    const markName = step.mark.type.name
     const markSource = step.mark.type.schema.marks[step.mark.type.name]
+    let sameMark: Mark | null = null
+
+    const targetNode = doc.nodeAt(step.from)
+    if (targetNode && step.from + targetNode.nodeSize === step.to) {
+      /*
+        since we preserve the mark always only with different dataTracked attrs, Prosemirror will always send us RemoveMark or RemoveNodeMark
+        and we need to process it differently based on pre-existing dataTracked
+      */
+      targetNode.marks.find((mark) => {
+        if (mark.type.name === markName && mark.attrs.dataTracked?.length) {
+          sameMark = mark
+        }
+      })
+    }
+
+    const newDataTracked = createNewDeleteAttrs(emptyAttrs)
     const newMark = markSource.create({
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
     })
     // restoring back the deleted mark but with "deleted" attributes
-    const newStep = new AddMarkStep(step.from, step.to, newMark)
+    let newStep = new AddMarkStep(step.from, step.to, newMark)
+
+    if (sameMark) {
+      if (markHasOp(step.mark, CHANGE_OPERATION.delete)) {
+        newStep = new AddMarkStep(
+          step.from,
+          step.to,
+          markSource.create({
+            dataTracked: [],
+          })
+        )
+      }
+      if (markHasOp(step.mark, CHANGE_OPERATION.insert)) {
+        newStep = new RemoveMarkStep(step.from, step.to, step.mark)
+      }
+    }
+
     try {
       const inverted = step.invert()
       newTr.step(inverted)
@@ -44,18 +90,49 @@ export function trackRemoveNodeMarkStep(
   step: RemoveNodeMarkStep,
   emptyAttrs: NewEmptyAttrs,
   newTr: Transaction,
-  stepDoc: PMNode
+  doc: PMNode
 ) {
   if (isValidTrackableMark(step.mark)) {
+    const markName = step.mark.type.name
+    const markSource = step.mark.type.schema.marks[markName]
+
+    let sameMark: Mark | null = null
+
+    const targetNode = doc.nodeAt(step.pos)
+    if (targetNode) {
+      /*
+        since we preserve the mark always only with different dataTracked attrs, Prosemirror will always send us RemoveMark or RemoveNodeMark
+        and we need to process it differently based on pre-existing dataTracked
+      */
+      targetNode.marks.find((mark) => {
+        if (mark.type.name === markName && mark.attrs.dataTracked?.length) {
+          sameMark = mark
+        }
+      })
+    }
+
     const newDataTracked = createNewDeleteAttrs(emptyAttrs)
-    const markSource = step.mark.type.schema.marks[step.mark.type.name]
     const newMark = markSource.create({
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
     })
     // restoring back the deleted mark but with "deleted" attributes
-    const newStep = new AddNodeMarkStep(step.pos, newMark)
+    let newStep = new AddNodeMarkStep(step.pos, newMark)
+
+    if (sameMark) {
+      if (markHasOp(step.mark, CHANGE_OPERATION.delete)) {
+        newStep = new AddNodeMarkStep(
+          step.pos,
+          markSource.create({
+            dataTracked: [],
+          })
+        )
+      }
+      if (markHasOp(step.mark, CHANGE_OPERATION.insert)) {
+        newStep = new AddNodeMarkStep(step.pos, step.mark)
+      }
+    }
     try {
-      const inverted = step.invert(stepDoc)
+      const inverted = step.invert(doc)
       newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
@@ -64,9 +141,16 @@ export function trackRemoveNodeMarkStep(
   }
 }
 
-export function trackAddMarkStep(step: AddMarkStep, emptyAttrs: NewEmptyAttrs, newTr: Transaction) {
+export function trackAddMarkStep(
+  step: AddMarkStep,
+  emptyAttrs: NewEmptyAttrs,
+  newTr: Transaction,
+  doc: PMNode
+) {
   if (isValidTrackableMark(step.mark)) {
-    const markSource = step.mark.type.schema.marks[step.mark.type.name]
+    const markName = step.mark.type.name
+    const markSource = step.mark.type.schema.marks[markName]
+
     const newDataTracked = createNewInsertAttrs(emptyAttrs)
     const newMark = markSource.create({
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
