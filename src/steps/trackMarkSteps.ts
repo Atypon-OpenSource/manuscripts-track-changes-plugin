@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DataTrackedAttrs } from '@manuscripts/transform'
 import { Mark, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
 
+import { CHANGE_OPERATION } from '../types/change'
 import { NewEmptyAttrs } from '../types/track'
 import { createNewDeleteAttrs, createNewInsertAttrs, isValidTrackableMark } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
-import { DataTrackedAttrs } from '@manuscripts/transform'
-import { CHANGE_OPERATION } from '../types/change'
 
 function markHasOp(mark: Mark, operation: CHANGE_OPERATION) {
   if (mark.attrs.dataTracked && Array.isArray(mark.attrs.dataTracked)) {

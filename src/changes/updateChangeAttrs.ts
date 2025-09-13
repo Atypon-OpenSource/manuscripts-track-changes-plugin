@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DataTrackedAttrs } from '@manuscripts/transform'
 import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
@@ -30,7 +31,6 @@ import {
 } from '../types/change'
 import { log } from '../utils/logger'
 import { isInlineMarkChange } from '../utils/track-utils'
-import { DataTrackedAttrs } from '@manuscripts/transform'
 
 export function updateChangeAttrs(
   tr: Transaction,
