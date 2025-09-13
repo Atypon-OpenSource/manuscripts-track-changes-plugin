@@ -42,16 +42,32 @@ export function trackRemoveMarkStep(
     let sameMark: Mark | null = null
 
     const targetNode = doc.nodeAt(step.from)
-    if (targetNode && step.from + targetNode.nodeSize === step.to) {
+
+    if (targetNode) {
+      let targetNodePos = -1
+
+      doc.descendants((node, pos) => {
+        if (node === targetNode) {
+          targetNodePos = pos
+        }
+        if (targetNodePos >= 0) {
+          return false
+        }
+      })
+
+      const parentsSameMark = targetNode.marks.find((mark) => {
+        if (mark.type.name === markName && mark.attrs.dataTracked?.length) {
+          return mark
+        }
+      })
       /*
         since we preserve the mark always only with different dataTracked attrs, Prosemirror will always send us RemoveMark or RemoveNodeMark
         and we need to process it differently based on pre-existing dataTracked
       */
-      targetNode.marks.find((mark) => {
-        if (mark.type.name === markName && mark.attrs.dataTracked?.length) {
-          sameMark = mark
-        }
-      })
+      const nodeEnd = targetNodePos + targetNode.nodeSize
+      if (parentsSameMark && step.from <= nodeEnd && step.to <= nodeEnd) {
+        sameMark = parentsSameMark
+      }
     }
 
     const newDataTracked = createNewDeleteAttrs(emptyAttrs)
