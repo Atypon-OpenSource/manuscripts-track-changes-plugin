@@ -93,8 +93,6 @@ export function trackRemoveMarkStep(
     }
 
     try {
-      const inverted = step.invert()
-      newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
       console.error('Unable to record a RemoveMarkStep with error: ' + e)
@@ -148,8 +146,6 @@ export function trackRemoveNodeMarkStep(
       }
     }
     try {
-      const inverted = step.invert(doc)
-      newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
       console.error('Unable to record a RemoveNodeMarkStep with error: ' + e)
