@@ -282,12 +282,11 @@ export function trackTransaction(
       }
     } else if (step instanceof RemoveMarkStep) {
       trackRemoveMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof RemoveNodeMarkStep) {
+      trackRemoveNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof AddNodeMarkStep) {
+      trackAddNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
     }
-    //else if (step instanceof RemoveNodeMarkStep) {
-    //   trackRemoveNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
-    // } else if (step instanceof AddNodeMarkStep) {
-    //   trackAddNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
-    // }
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.
