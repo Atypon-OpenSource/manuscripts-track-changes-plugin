@@ -37,7 +37,6 @@ export function fixInconsistentChanges(
   newTr: Transaction,
   schema: Schema
 ) {
-  console.log('CALLED TO RESCUE OF INCONSITENT DATA')
   const iteratedIds = new Set()
   const validIds = new Set(changeSet.changes.map((c) => c.id))
   let changed = false
