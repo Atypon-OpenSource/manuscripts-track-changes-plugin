@@ -1,0 +1,25 @@
+{
+  "doc": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "dataTracked": null,
+          "testAttribute": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Hello World"
+          }
+        ]
+      }
+    ]
+  },
+  "selection": {
+    "type": "text",
+    "anchor": 1,
+    "head": 1
+  }
+}
