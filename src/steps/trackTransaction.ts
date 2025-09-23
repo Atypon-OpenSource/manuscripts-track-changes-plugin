@@ -24,9 +24,11 @@ import {
 } from 'prosemirror-state'
 import {
   AddMarkStep,
+  AddNodeMarkStep,
   AttrStep,
   Mapping,
   RemoveMarkStep,
+  RemoveNodeMarkStep,
   ReplaceAroundStep,
   ReplaceStep,
   Step,
@@ -48,12 +50,18 @@ import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
   HasMoveOperations,
-  isStructureSteps,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
+import {
+  trackAddMarkStep,
+  trackAddNodeMarkStep,
+  trackRemoveMarkStep,
+  trackRemoveNodeMarkStep,
+} from './trackMarkSteps'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
+import { isStructureSteps } from './utils'
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
  *
@@ -261,6 +269,7 @@ export function trackTransaction(
         deletedNodeMapping
       )
     } else if (step instanceof AddMarkStep) {
+      trackAddMarkStep(step, emptyAttrs, newTr, tr.docs[i])
       // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique
       const dataTracked = getNodeTrackedData(newTr.doc.nodeAt(step.from), oldState.schema)?.pop()
       if (dataTracked) {
@@ -271,8 +280,13 @@ export function trackTransaction(
           oldState.schema
         )
       }
+    } else if (step instanceof RemoveMarkStep) {
+      trackRemoveMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof RemoveNodeMarkStep) {
+      trackRemoveNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof AddNodeMarkStep) {
+      trackAddNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
     }
-    // } else if (step instanceof RemoveMarkStep) {
     // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.

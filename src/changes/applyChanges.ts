@@ -21,8 +21,9 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode, keepPairedChanges } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
+import { excludeFromTracked, isInlineMarkChange } from '../utils/track-utils'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
 
@@ -46,15 +47,6 @@ function collectMoveNodeIds(containerNode: ManuscriptNode, primaryMoveNodeId: st
 
   return moveNodeIds
 }
-
-export function getUpdatedDataTracked(dataTracked: TrackedAttrs[] | null, changeId: string) {
-  if (!dataTracked) {
-    return null
-  }
-  const newDataTracked = dataTracked.filter((c) => c.id !== changeId)
-  return newDataTracked.length ? newDataTracked : null
-}
-
 /**
  * Applies the accepted/rejected changes in the current document and sets them untracked
  *
@@ -150,7 +142,7 @@ export function applyAcceptedRejectedChanges(
         undefined,
         {
           ...change.newAttrs,
-          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+          dataTracked: excludeFromTracked(node.attrs.dataTracked, change.id),
         },
         node.marks
       )
@@ -160,7 +152,7 @@ export function applyAcceptedRejectedChanges(
         undefined,
         {
           ...change.oldAttrs,
-          dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+          dataTracked: excludeFromTracked(node.attrs.dataTracked, change.id),
         },
         node.marks
       )
@@ -168,9 +160,34 @@ export function applyAcceptedRejectedChanges(
       tr.setNodeMarkup(
         from,
         undefined,
-        { ...node.attrs, dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id) },
+        { ...node.attrs, dataTracked: excludeFromTracked(node.attrs.dataTracked, change.id) },
         node.marks
       )
+    } else if (ChangeSet.isMarkChange(change)) {
+      // marks are immutable so we need to remove a mark with dataTracked attributes and create a new one
+      // if mark is marked for deletion - just delete that
+      const newMark = change.mark.type.create({
+        dataTracked: excludeFromTracked(change.mark.attrs.dataTracked, change.id),
+      })
+      const isInsert = change.dataTracked.operation === CHANGE_OPERATION.insert
+      const isDelete = change.dataTracked.operation === CHANGE_OPERATION.delete
+
+      // reinserting mark with removed dataTracked when an insertion is accepted or when deletion is rejected and we need to restore it back
+      const toBeRestored =
+        (change.dataTracked.status === CHANGE_STATUS.accepted && isInsert) ||
+        (change.dataTracked.status === CHANGE_STATUS.rejected && isDelete)
+
+      if (isInlineMarkChange(change)) {
+        tr.removeMark(change.from, change.to, change.mark)
+        if (toBeRestored) {
+          tr.addMark(change.from, change.to, newMark)
+        }
+      } else {
+        tr.removeNodeMark(change.from, change.mark)
+        if (toBeRestored) {
+          tr.addNodeMark(change.from, newMark)
+        }
+      }
     }
   })
 
@@ -197,7 +214,7 @@ export function applyAcceptedRejectedChanges(
       // Remove tracking from the moved node (new position)
       const attrs = {
         ...node.attrs,
-        dataTracked: getUpdatedDataTracked(node.attrs.dataTracked, change.id),
+        dataTracked: excludeFromTracked(node.attrs.dataTracked, change.id),
       }
       tr.setNodeMarkup(from, undefined, attrs, node.marks)
 

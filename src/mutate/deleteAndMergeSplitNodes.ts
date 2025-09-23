@@ -19,6 +19,7 @@ import { Mapping } from 'prosemirror-transform'
 
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { splitSliceIntoMergedParts } from '../compute/splitSliceIntoMergedParts'
+import { stepIsLift } from '../steps/utils'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
@@ -144,7 +145,7 @@ export function deleteAndMergeSplitNodes(
             such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
             to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
           */
-          if (trackUtils.stepIsLift(gap, node, to)) {
+          if (stepIsLift(gap, node, to)) {
             gap.slice.content.forEach((node, offset) => {
               steps.push({
                 type: 'delete-node',

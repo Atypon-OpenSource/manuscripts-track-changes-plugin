@@ -30,7 +30,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isSplitStep, isStructureSteps } from '../utils/track-utils'
+import { isSplitStep, isStructureSteps } from './utils'
 
 export function trackReplaceStep(
   step: ReplaceStep,

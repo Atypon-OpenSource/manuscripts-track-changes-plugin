@@ -17,10 +17,12 @@ import { Node as PMNode } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { getNodeTrackedData } from '../compute/nodeHelpers'
+import { getMarkTrackedData, getNodeTrackedData } from '../compute/nodeHelpers'
+import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 import {
   CHANGE_OPERATION,
   IncompleteChange,
+  MarkChange,
   NodeAttrChange,
   NodeChange,
   PartialChange,
@@ -43,6 +45,23 @@ export function findChanges(state: EditorState) {
   let current: { change: IncompleteChange; node: PMNode } | undefined
   state.doc.descendants((node, pos) => {
     const tracked = getNodeTrackedData(node, state.schema) || []
+
+    const marksWithTrackChanges = getMarkTrackedData(node)
+    marksWithTrackChanges?.forEach((trackAttrs, mark) => {
+      trackAttrs.forEach((c) => {
+        const ch = {
+          id: c.id,
+          type: 'mark-change',
+          from: pos,
+          to: pos + node.nodeSize,
+          dataTracked: { ...c },
+          nodeType: node.type,
+          node: node,
+          mark: mark,
+        } as MarkChange
+        changes.push(ch)
+      })
+    })
 
     for (let i = 0; i < tracked.length; i += 1) {
       const dataTracked = tracked[i]

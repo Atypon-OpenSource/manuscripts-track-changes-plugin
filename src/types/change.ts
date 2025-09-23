@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Node, NodeType } from 'prosemirror-model'
+import { Mark, MarkType, Node, NodeType } from 'prosemirror-model'
 
 export enum CHANGE_OPERATION {
   insert = 'insert',
@@ -114,6 +114,9 @@ export type ReferenceChange = Change & {
 }
 export type MarkChange = Change & {
   type: 'mark-change'
+  nodeType: NodeType
+  mark: Mark
+  node: Node
 }
 
 export type TrackedChange =
