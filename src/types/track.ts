@@ -15,10 +15,11 @@
  */
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import type { PluginKey } from 'prosemirror-state'
-import { ReplaceAroundStep } from 'prosemirror-transform'
+import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './change'
+import { getAction } from '../actions'
 
 export interface TrackChangesOptions {
   debug?: boolean
@@ -67,4 +68,8 @@ export enum TrackChangesStatus {
 export type TrTrackingContext = {
   prevLiftStep?: ReplaceAroundStep
   liftFragment?: Fragment
+  action: ReturnType<typeof getAction>
+  // emptyAttrs: NewEmptyAttrs
+  stepsByGroupIDMap: Map<ReplaceStep, string>
+  selectionPosFromInsertion?: number
 }

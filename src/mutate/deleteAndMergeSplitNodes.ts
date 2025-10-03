@@ -1,5 +1,5 @@
 /*!
- * © 2023 Atypon Systems LLC
+ * © 2025 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,7 +144,7 @@ export function deleteAndMergeSplitNodes(
             such operation will not be recognised as 'nodeCompletelyDeleted' as all nodes will have openEnd, which means that they are going to be glued
             to their older versions at the place of harvesting of lifted nodes. Such condition has to be captured and harvested node reinserted as deleted
           */
-          if (trackUtils.stepIsLift(gap, node, to)) {
+          if (trackUtils.isLiftStep(gap, node, to)) {
             gap.slice.content.forEach((node, offset) => {
               steps.push({
                 type: 'delete-node',

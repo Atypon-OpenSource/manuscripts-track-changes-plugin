@@ -22,9 +22,16 @@ import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
 import { updateChangesStatus } from './changes/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
 import { trackTransaction } from './steps/trackTransaction'
-import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
+import { TrackChangesOptions, TrackChangesState, TrackChangesStatus, TrTrackingContext } from './types/track'
 import { enableDebug, log } from './utils/logger'
-import { trFromHistory } from './utils/track-utils'
+import {
+  filterMeaninglessMoveSteps,
+  getIndentationOperationSteps,
+  getMoveOperationsSteps,
+  handleDirectPendingMoveDeletions,
+  processStepsBeforeTracking,
+  trFromHistory,
+} from './utils/track-utils'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -130,7 +137,19 @@ export const trackChangesPlugin = (
           !trFromHistory(tr) &&
           !(wasAppended && tr.getMeta('origin') === 'paragraphs')
         ) {
-          createdTr = trackTransaction(tr, oldState, createdTr, userID, changeSet)
+          const action = getAction(tr, TrackChangesAction.indentationAction)?.action
+
+          const trContext: TrTrackingContext = {
+            action,
+            stepsByGroupIDMap: new Map(),
+          }
+          const clearedSteps = processStepsBeforeTracking(tr, trContext, [
+            getMoveOperationsSteps,
+            getIndentationOperationSteps,
+            filterMeaninglessMoveSteps,
+          ])
+          handleDirectPendingMoveDeletions(tr, createdTr, trContext) // cleaning up deleted moves base on ref map in the context
+          createdTr = trackTransaction(tr, oldState, createdTr, userID, clearedSteps, trContext)
         }
         docChanged = docChanged || tr.docChanged
 

@@ -17,7 +17,7 @@ import { Attrs, Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
-import { TrackChangesAction } from '../actions'
+import { getAction, isIndentationAction, TrackChangesAction } from '../actions'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import {
   NewDeleteAttrs,
@@ -27,8 +27,10 @@ import {
   NewReferenceAttrs,
   NewSplitNodeAttrs,
   NewUpdateAttrs,
+  TrTrackingContext,
 } from '../types/track'
 import { uuidv4 } from './uuidv4'
+import { log } from './logger'
 
 export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   return {
@@ -94,6 +96,9 @@ export function createNewStructureAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
   }
 }
 
+/*
+  Detects a step that splits a node into 2 nodes
+*/
 export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
   const { from, to, slice } = step
 
@@ -149,25 +154,25 @@ export const isWrapStep = (step: ReplaceAroundStep) =>
   step.slice.openStart === 0 &&
   step.slice.openEnd === 0
 
-export const isLiftStep = (step: ReplaceAroundStep) => {
-  if (
-    step.from < step.gapFrom &&
-    step.to > step.gapTo &&
-    step.slice.size === 0 &&
-    step.gapTo - step.gapFrom > 0
-  ) {
-    return true
-  }
-  return false
-  /* qualifies as a lift step when:
-    - there is a retained gap (captured original content that we insert)
-    - step.from < gapFrom  - meaning we remove content in front of the gap
-    - step.to > gapTo     - meaning we remove content after the gap
-    - nothing new is inserted: slice is empty
-  */
-}
+// export const isLiftStep = (step: ReplaceAroundStep) => {
+//   if (
+//     step.from < step.gapFrom &&
+//     step.to > step.gapTo &&
+//     step.slice.size === 0 &&
+//     step.gapTo - step.gapFrom > 0
+//   ) {
+//     return true
+//   }
+//   return false
+//   /* qualifies as a lift step when:
+//     - there is a retained gap (captured original content that we insert)
+//     - step.from < gapFrom  - meaning we remove content in front of the gap
+//     - step.to > gapTo     - meaning we remove content after the gap
+//     - nothing new is inserted: slice is empty
+//   */
+// }
 
-export function stepIsLift(
+export function isLiftStep(
   /*
     The step is a lift from an end of the step range.
     In other words it means that we removed a piece of content from the end of the step range,
@@ -199,9 +204,10 @@ export const isStructureSteps = (tr: Transaction) =>
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
 
-export const HasMoveOperations = (tr: Transaction) => {
+export const getMoveOperationsSteps = (tr: Transaction, context: TrTrackingContext) => {
   /**
-   * Determines if a transaction represents a node move operation (like drag-and-drop).
+   * Determines if a transaction represents a node move operation (like drag-and-drop) and
+   * returns a map of steps with created id of change to which that step pertains.
    *
    * Our approach to detecting moves involves:
    * 1. Checking basic preconditions (multiple steps, all ReplaceSteps)
@@ -213,9 +219,7 @@ export const HasMoveOperations = (tr: Transaction) => {
    * - The exact same content is being deleted and inserted elsewhere
    */
 
-  type InsertStep = ReplaceStep
-  type DeletStep = ReplaceStep
-  const movingAssoc = new Map<ReplaceStep, string>()
+  const movingAssoc = context.stepsByGroupIDMap
 
   // Quick pre-check: Need at least 2 steps (delete + insert) to be a move
   if (tr.steps.length < 2) {
@@ -298,8 +302,7 @@ export const HasMoveOperations = (tr: Transaction) => {
       }
     }
   }
-
-  return movingAssoc
+  // return movingAssoc
 }
 
 /**
@@ -374,12 +377,13 @@ export const isDirectPendingMoveDeletion = (
 export const handleDirectPendingMoveDeletions = (
   tr: Transaction,
   newTr: Transaction,
-  movingSteps: Map<ReplaceStep, string>
+  trContext: TrTrackingContext
 ) => {
-  tr.steps.forEach((step) => {
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
     if (step instanceof ReplaceStep) {
       const doc = tr.docs[tr.steps.indexOf(step)]
-      if (isDirectPendingMoveDeletion(step, doc, movingSteps)) {
+      if (isDirectPendingMoveDeletion(step, doc, trContext.stepsByGroupIDMap)) {
         const node = doc.nodeAt(step.from)
         if (node?.attrs.dataTracked) {
           // Remove the pending move tracking record
@@ -393,7 +397,7 @@ export const handleDirectPendingMoveDeletions = (
         }
       }
     }
-  })
+  }
 }
 
 /**
@@ -411,29 +415,27 @@ export const handleDirectPendingMoveDeletions = (
  * @param movingSteps Map of move operations in the transaction
  * @returns Filtered array of steps with meaningless moves removed
  */
-export const filterMeaninglessMoveSteps = (
-  tr: Transaction,
-  movingSteps: Map<ReplaceStep, string>
-): Step[] => {
-  const cleanSteps: Step[] = []
+export const filterMeaninglessMoveSteps = (tr: Transaction, context: TrTrackingContext) => {
+  const cleanSteps: Array<Step | null> = []
 
   for (let i = 0; i < tr.steps.length; i++) {
     const step = tr.steps[i]
     // if this steps again moves a node that was previously moved and is under pending move change, then dont track that deletion
     // and associate original deletion with the new move
-    const moveID = movingSteps.get(step as ReplaceStep)
+    const moveID = context.stepsByGroupIDMap.get(step as ReplaceStep)
 
     if (moveID) {
       // Check if this step moves a node that was previously moved and is under pending move change
       const prevMoveID = isDeletingPendingMovedNode(step as ReplaceStep, tr.docs[i])
       if (prevMoveID) {
         // find the peer step for the ignored step and change its key to previous moveNodeID
-        movingSteps.forEach((replaceStepMoveID, replaceStep) => {
+        context.stepsByGroupIDMap.forEach((replaceStepMoveID, replaceStep) => {
           if (replaceStep !== step && moveID === replaceStepMoveID) {
             // get previous moveID
-            movingSteps.set(replaceStep, prevMoveID)
+            context.stepsByGroupIDMap.set(replaceStep, prevMoveID)
           }
         })
+        cleanSteps.push(null)
         continue
       }
 
@@ -482,4 +484,80 @@ export const updateBlockNodesAttrs = (
   })
 
   return Fragment.fromArray(updatedNodes)
+}
+
+export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
+  if (isIndentationAction(trContext.action)) {
+    // Assign the same moveId to all steps in the transaction if it's an indentation or an unindentation
+    const moveId = uuidv4()
+    for (let i = 0; i < tr.steps.length; i++) {
+      const step = tr.steps[i]
+      if (step instanceof ReplaceStep) {
+        trContext.stepsByGroupIDMap.set(step, moveId)
+      }
+    }
+  }
+}
+
+/**
+ * Retrieves a static property from Selection class instead of having to use direct imports
+ *
+ * This skips the direct dependency to prosemirror-state where multiple versions might cause conflicts
+ * as the created instances might belong to different prosemirror-state import than one used in the editor.
+ * @param sel
+ * @returns
+ */
+export const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
+
+export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - add it to schema in highlight marker
+
+export function passThroughMeta(oldTr: Transaction, newTr: Transaction) {
+  // The old meta keys are not copied to the new transaction since this will cause race-conditions
+  // when a single meta-field is expected to having been processed / removed. Generic input meta keys,
+  // inputType and uiEvent, are re-added since some plugins might depend on them and process the transaction
+  // after track-changes plugin.
+  oldTr.getMeta('inputType') && newTr.setMeta('inputType', oldTr.getMeta('inputType'))
+  oldTr.getMeta('uiEvent') && newTr.setMeta('uiEvent', oldTr.getMeta('uiEvent'))
+  return newTr
+}
+
+export function iterationIsValid(iterations: number, oldTr: Transaction, newTr: Transaction, step: Step) {
+  const uiEvent = oldTr.getMeta('uiEvent')
+  const isMassReplace = oldTr.getMeta('massSearchReplace')
+  if (iterations > 20 && uiEvent != 'cut' && !isMassReplace) {
+    console.error(
+      '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
+        'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
+      newTr
+    )
+    return false
+  } else if (!(step instanceof ReplaceStep) && step.constructor.name === 'ReplaceStep') {
+    console.error(
+      '@manuscripts/track-changes-plugin: Multiple prosemirror-transform packages imported, alias/dedupe them ' +
+        'or instanceof checks fail as well as creating new steps'
+    )
+    return false
+  }
+  return true
+}
+
+export function processStepsBeforeTracking(
+  tr: Transaction,
+  trContext: TrTrackingContext,
+  processors: Array<(tr: Transaction, context: TrTrackingContext) => Step[] | void>
+) {
+  let steps: Step[] = []
+  processors.forEach((p) => {
+    const res = p(tr, trContext)
+    if (res) {
+      steps = res
+    }
+
+    if (steps.length < tr.steps.length) {
+      log.warn(
+        'Bug! A processor function filtered steps incorrectly. Filtered out steps should be replaced with null and not popped out of the array. Length and order has to be preserved'
+      )
+    }
+  })
+  return steps
 }

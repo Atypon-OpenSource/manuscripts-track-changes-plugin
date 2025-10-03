@@ -15,7 +15,7 @@
  */
 import { Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceStep, StepResult } from 'prosemirror-transform'
+import { Mapping, ReplaceStep, StepResult } from 'prosemirror-transform'
 
 import { getAction, TrackChangesAction } from '../actions'
 import {
@@ -27,21 +27,31 @@ import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { joinStructureChanges } from '../mutate/dropStructureChange'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
+import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isSplitStep, isStructureSteps } from '../utils/track-utils'
 
 export function trackReplaceStep(
-  step: ReplaceStep,
+  i: number,
   oldState: EditorState,
   newTr: Transaction,
   attrsTemplate: NewEmptyAttrs,
-  stepResult: StepResult,
-  currentStepDoc: PMNode,
   tr: Transaction,
-  moveID?: string
+  deletedNodeMapping: Mapping,
+  trContext: TrTrackingContext
 ) {
+  const step = tr.steps[i] as ReplaceStep
+  const moveID = trContext.stepsByGroupIDMap.get(step)
+
+  const invertedStep = step.invert(tr.docs[i])
+
+  const newStep = new ReplaceStep(
+    deletedNodeMapping.map(invertedStep.from),
+    deletedNodeMapping.map(invertedStep.to),
+    invertedStep.slice
+  )
+  const stepResult = newTr.maybeStep(newStep)
   log.info('###### ReplaceStep ######')
   let selectionPos = 0
   const changeSteps: ChangeStep[] = []
@@ -69,7 +79,7 @@ export function trackReplaceStep(
       sliceWasSplit,
       newSliceContent,
       steps: deleteSteps,
-    } = deleteAndMergeSplitNodes(fromA, toA, undefined, currentStepDoc, newTr, oldState.schema, attrs, slice)
+    } = deleteAndMergeSplitNodes(fromA, toA, undefined, tr.docs[i], newTr, oldState.schema, attrs, slice)
     changeSteps.push(...deleteSteps)
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', [...changeSteps])

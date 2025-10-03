@@ -47,25 +47,19 @@ import { mapChangeSteps } from '../utils/mapChangeStep'
 import {
   filterMeaninglessMoveSteps,
   handleDirectPendingMoveDeletions,
-  HasMoveOperations,
+  getMoveOperationsSteps,
   isStructureSteps,
+  getIndentationOperationSteps,
+  excludeFromTracking,
+  passThroughMeta,
+  iterationIsValid,
+  processStepsBeforeTracking,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
-/**
- * Retrieves a static property from Selection class instead of having to use direct imports
- *
- * This skips the direct dependency to prosemirror-state where multiple versions might cause conflicts
- * as the created instances might belong to different prosemirror-state import than one used in the editor.
- * @param sel
- * @returns
- */
-const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
-
-const isHighlightMarkerNode = (node: PMNode): node is PMNode =>
-  node && node.type === node.type.schema.nodes.highlight_marker
+import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -90,7 +84,8 @@ export function trackTransaction(
   oldState: EditorState,
   newTr: Transaction,
   authorID: string,
-  changeSet: ChangeSet
+  clearedSteps: Step[],
+  trContext: TrTrackingContext
 ) {
   const emptyAttrs: NewEmptyAttrs = {
     authorID,
@@ -102,98 +97,45 @@ export function trackTransaction(
   }
 
   // Check for indentation metadata and treat it like a move operation
-  const action = getAction(tr, TrackChangesAction.indentationAction)?.action
-  const isIndentation = action === 'indent' || action === 'unindent'
-  // Must use constructor.name instead of instanceof as aliasing prosemirror-state is a lot more
-  // difficult than prosemirror-transform
-  const wasNodeSelection = tr.selection instanceof NodeSelectionClass
-  const setsNewSelection = tr.selectionSet
+
   // mapping for deleted content, that was inserted before
   const deletedNodeMapping = new Mapping()
-  let iters = 0
+  trContext = { ...trContext, deletedNodeMapping } as TrTrackingContext & { deletedNodeMapping: Mapping }
+  let iterations = 0
   log.info('ORIGINAL transaction', tr)
 
-  let trContext: TrTrackingContext = {}
-  let movingStepsAssociated = HasMoveOperations(tr)
-
-  if (isIndentation) {
-    const moveId = uuidv4()
-    // Assign the same moveId to all steps in the transaction
-    tr.steps.forEach((step) => {
-      if (step instanceof ReplaceStep) {
-        movingStepsAssociated.set(step, moveId)
-      }
-    })
-  }
-
-  // First handle direct pending move deletions (not part of multiple moves)
-  handleDirectPendingMoveDeletions(tr, newTr, movingStepsAssociated)
-
-  const cleanSteps = filterMeaninglessMoveSteps(tr, movingStepsAssociated)
-
-  for (let i = cleanSteps.length - 1; i >= 0; i--) {
-    const step = cleanSteps[i]
-
-    log.info('transaction step', step)
-    iters += 1
-
-    const uiEvent = tr.getMeta('uiEvent')
-    const isMassReplace = tr.getMeta('massSearchReplace')
-    if (iters > 20 && uiEvent != 'cut' && !isMassReplace) {
-      console.error(
-        '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
-          'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
-        newTr
-      )
+  for (let i = clearedSteps.length - 1; i >= 0; i--) {
+    const step = clearedSteps[i]
+    if (!step) {
       continue
-    } else if (!(step instanceof ReplaceStep) && step.constructor.name === 'ReplaceStep') {
-      console.error(
-        '@manuscripts/track-changes-plugin: Multiple prosemirror-transform packages imported, alias/dedupe them ' +
-          'or instanceof checks fail as well as creating new steps'
-      )
+    }
+    log.info('transaction step', step)
+    iterations++
+    if (!iterationIsValid(iterations, tr, newTr, step)) {
       continue
     } else if (step instanceof ReplaceStep) {
       const { slice } = step as ExposedReplaceStep
-      if (slice?.content?.content?.length === 1 && isHighlightMarkerNode(slice.content.content[0])) {
+      if (slice?.content?.content?.length === 1 && excludeFromTracking(slice.content.content[0])) {
         // don't track highlight marker nodes
         continue
       }
-
-      const invertedStep = step.invert(tr.docs[i])
-      const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size
-
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
+      const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size // i moved inverted step inside the step processor, @TODO - figure out the next steps
+
       if (isDelete || isStructureSteps(tr)) {
         thisStepMapping = deletedNodeMapping
       }
+
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
       So here, during tracking processing, each step is intended for its own document but not for the final document - the tr.doc
       Because of that when a step is processed it has to be remapped to all the steps that occured after it or it will be mismatched as if there were no steps after it.
       This is apparent only in transactions with multiple insertions/deletions across the document and, withtout such mapping, if the last
-      step adds content before the first step, the plugin will attempt to insert tracked replacement for the first change at a position
+      step adds content before (in terms of position in the doc) the first step, the plugin will attempt to insert tracked replacement for the first change at a position
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
-      // @TODO - check if needed to be done for other types of steps
-
-      const newStep = new ReplaceStep(
-        thisStepMapping.map(invertedStep.from),
-        thisStepMapping.map(invertedStep.to),
-        invertedStep.slice
-      )
-      const stepResult = newTr.maybeStep(newStep)
-
-      let [steps, startPos] = trackReplaceStep(
-        step,
-        oldState,
-        newTr,
-        emptyAttrs,
-        stepResult,
-        tr.docs[i],
-        tr,
-        movingStepsAssociated.get(step)
-      )
+      let [steps, startPos] = trackReplaceStep(i, oldState, newTr, emptyAttrs, tr, thisStepMapping, trContext)
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -214,25 +156,18 @@ export function trackTransaction(
       log.info('DIFFED STEPS: ', steps)
 
       // if step is in movingPairs, add its uuid (Map entry key) as moveNodeId
-      const [mapping, selectionPos] = processChangeSteps(
+      const [_, selectionPos] = processChangeSteps(
         steps,
-        startPos || tr.selection.head, // Incase startPos is it's default value 0, use the old selection head
+        startPos || tr.selection.head, // In case startPos is it's default value 0, use the old selection head
         newTr,
-        movingStepsAssociated.has(step)
-          ? { ...emptyAttrs, moveNodeId: movingStepsAssociated.get(step) }
+        trContext.stepsByGroupIDMap.has(step)
+          ? { ...emptyAttrs, moveNodeId: trContext.stepsByGroupIDMap.get(step) }
           : emptyAttrs,
         oldState.schema,
         deletedNodeMapping
       )
-      if (!wasNodeSelection && !setsNewSelection) {
-        const sel: typeof Selection = getSelectionStaticConstructor(tr.selection)
-        // Use Selection.near to fix selections that point to a block node instead of inline content
-        // eg when inserting a complete new paragraph. -1 finds the first valid position moving backwards
-        // inside the content
 
-        const near: Selection = sel.near(newTr.doc.resolve(selectionPos), -1)
-        newTr.setSelection(near)
-      }
+      trContext.selectionPosFromInsertion = selectionPos
     } else if (step instanceof ReplaceAroundStep) {
       let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
       const deleted = steps.filter((s) => s.type !== 'insert-slice')
@@ -241,18 +176,10 @@ export function trackTransaction(
       steps = diffChangeSteps(deleted, inserted)
       log.info('DIFFED STEPS: ', steps)
 
-      const [mapping, selectionPos] = processChangeSteps(
-        steps,
-        tr.selection.from,
-        newTr,
-        emptyAttrs,
-        oldState.schema,
-        deletedNodeMapping
-      )
+      processChangeSteps(steps, tr.selection.from, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
     } else if (step instanceof AttrStep) {
       const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
-
-      const [mapping, selectionPos] = processChangeSteps(
+      processChangeSteps(
         changeSteps,
         tr.selection.from,
         newTr,
@@ -272,47 +199,12 @@ export function trackTransaction(
         )
       }
     }
-    // } else if (step instanceof RemoveMarkStep) {
-    // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
+    // TODO: here we could check whether adjacent inserts & deletes cancel each other out. - update: probably not a valid concern
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.
-
-    // The old meta keys are not copied to the new transaction since this will cause race-conditions
-    // when a single meta-field is expected to having been processed / removed. Generic input meta keys,
-    // inputType and uiEvent, are re-added since some plugins might depend on them and process the transaction
-    // after track-changes plugin.
-    tr.getMeta('inputType') && newTr.setMeta('inputType', tr.getMeta('inputType'))
-    tr.getMeta('uiEvent') && newTr.setMeta('uiEvent', tr.getMeta('uiEvent'))
   }
-  if (setsNewSelection && tr.selection instanceof TextSelection) {
-    let from = tr.selection.from
-    if (isStructureSteps(tr)) {
-      // this mapping will capture invert mapping of delete steps as that what plugin do, also will map the actual
-      // deleted nodes mapping in deleteNode.ts
-      const selectionMapping = new Mapping()
-      tr.steps.map((step) => {
-        const isDeleteStep = step instanceof ReplaceStep && step.from !== step.to && step.slice.size === 0
-        if (isDeleteStep) {
-          selectionMapping.appendMap(step.getMap().invert())
-        }
-      })
-      selectionMapping.appendMapping(deletedNodeMapping)
-      from = selectionMapping.map(tr.selection.from)
-    }
-    // preserving text selection if we track an element in which selection is set
-    const newPos = newTr.doc.resolve(from)
-    newTr.setSelection(new TextSelection(newPos))
-  }
-  // This is kinda hacky solution at the moment to maintain NodeSelections over transactions
-  // These are required by at least cross-references and links to activate their selector pop-ups
-  if (wasNodeSelection) {
-    log.info('Getting into node select!')
-    // And -1 here is necessary to keep the selection pointing at the start of the node
-    // (or something, breaks with cross-references otherwise)
-    const mappedPos = newTr.mapping.map(tr.selection.from, -1)
-    const sel: typeof NodeSelection = getSelectionStaticConstructor(tr.selection)
-    newTr.setSelection(sel.create(newTr.doc, mappedPos))
-  }
+  newTr = passThroughMeta(tr, newTr)
+  newTr = fixAndSetSelectionAfterTracking(newTr, tr, deletedNodeMapping, trContext)
   log.info('NEW transaction', newTr)
   return newTr
 }
