@@ -51,7 +51,12 @@ function cutFragment(matched: number, deleted: number, content: Fragment) {
   return [matched, Fragment.fromArray(newContent)] as [number, ExposedFragment]
 }
 
-export function diffChangeSteps(deleted: ChangeStep[], inserted: InsertSliceStep[]) {
+export function diffChangeSteps(steps: ChangeStep[]) {
+  const deleted = steps.filter((s) => s.type !== 'insert-slice')
+  const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
+
+  log.info('INSERT STEPS: ', inserted)
+
   const updated: ChangeStep[] = []
   let updatedDeleted = [...deleted]
   inserted.forEach((ins) => {

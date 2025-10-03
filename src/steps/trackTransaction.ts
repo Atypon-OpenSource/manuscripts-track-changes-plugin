@@ -13,47 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
-import {
-  EditorState,
-  NodeSelection,
-  NodeSelection as NodeSelectionClass,
-  Selection,
-  TextSelection,
-  Transaction,
-} from 'prosemirror-state'
-import {
-  AddMarkStep,
-  AttrStep,
-  Mapping,
-  RemoveMarkStep,
-  ReplaceAroundStep,
-  ReplaceStep,
-  Step,
-} from 'prosemirror-transform'
+import { EditorState, Transaction } from 'prosemirror-state'
+import { AddMarkStep, AttrStep, Mapping, ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
-import { getAction, TrackChangesAction } from '../actions'
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
-import { ChangeSet } from '../ChangeSet'
 import { getNodeTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_STATUS } from '../types/change'
 import { ExposedReplaceStep } from '../types/pm'
-import { InsertSliceStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
 import {
-  filterMeaninglessMoveSteps,
-  handleDirectPendingMoveDeletions,
-  getMoveOperationsSteps,
   isStructureSteps,
-  getIndentationOperationSteps,
   excludeFromTracking,
   passThroughMeta,
   iterationIsValid,
-  processStepsBeforeTracking,
 } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
@@ -116,16 +92,10 @@ export function trackTransaction(
     } else if (step instanceof ReplaceStep) {
       const { slice } = step as ExposedReplaceStep
       if (slice?.content?.content?.length === 1 && excludeFromTracking(slice.content.content[0])) {
-        // don't track highlight marker nodes
+        // don't track nodes that don't have dataTracked attrs in schema, such as highlight marker nodes
         continue
       }
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
-      const isDelete = step.from !== step.to && step.slice.content.size < invertedStep.slice.content.size // i moved inverted step inside the step processor, @TODO - figure out the next steps
-
-      if (isDelete || isStructureSteps(tr)) {
-        thisStepMapping = deletedNodeMapping
-      }
-
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
       Remember that every step in a transaction is applied on top of the previous step in that transaction.
@@ -135,11 +105,17 @@ export function trackTransaction(
       step adds content before (in terms of position in the doc) the first step, the plugin will attempt to insert tracked replacement for the first change at a position
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
+      const isDelete = step.from !== step.to && step.slice.content.size < step.to - step.from // i moved inverted step inside the step processor, @TODO - figure out the next steps
+
+      if (isDelete || isStructureSteps(tr)) {
+        thisStepMapping = deletedNodeMapping
+      }
+
       let [steps, startPos] = trackReplaceStep(i, oldState, newTr, emptyAttrs, tr, thisStepMapping, trContext)
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
-        if (isHighlightMarkerNode(step?.node || step?.slice?.content?.content[0])) {
+        if (excludeFromTracking(step?.node || step?.slice?.content?.content[0])) {
           // don't track deleted highlight marker nodes
           continue
         }
@@ -149,10 +125,7 @@ export function trackTransaction(
       steps = mapChangeSteps(steps, thisStepMapping)
 
       log.info('CHANGES: ', steps)
-      // deleted and merged really...
-      const deleted = steps.filter((s) => s.type !== 'insert-slice')
-      const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
-      steps = diffChangeSteps(deleted, inserted)
+      steps = diffChangeSteps(steps)
       log.info('DIFFED STEPS: ', steps)
 
       // if step is in movingPairs, add its uuid (Map entry key) as moveNodeId
@@ -170,12 +143,8 @@ export function trackTransaction(
       trContext.selectionPosFromInsertion = selectionPos
     } else if (step instanceof ReplaceAroundStep) {
       let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
-      const deleted = steps.filter((s) => s.type !== 'insert-slice')
-      const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]
-      log.info('INSERT STEPS: ', inserted)
-      steps = diffChangeSteps(deleted, inserted)
+      steps = diffChangeSteps(steps)
       log.info('DIFFED STEPS: ', steps)
-
       processChangeSteps(steps, tr.selection.from, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
     } else if (step instanceof AttrStep) {
       const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])

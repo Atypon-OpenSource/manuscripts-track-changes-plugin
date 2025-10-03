@@ -16,8 +16,18 @@
 
 import { NodeSelection as NodeSelectionClass, TextSelection, Transaction, Selection } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
-import { getSelectionStaticConstructor, isStructureSteps } from '../utils/track-utils'
+import { isStructureSteps } from '../utils/track-utils'
 import { TrTrackingContext } from '../types/track'
+
+/**
+ * Retrieves a static property from Selection class instead of having to use direct imports
+ *
+ * This skips the direct dependency to prosemirror-state where multiple versions might cause conflicts
+ * as the created instances might belong to different prosemirror-state import than one used in the editor.
+ * @param sel
+ * @returns
+ */
+export const getSelectionStaticConstructor = (sel: Selection) => Object.getPrototypeOf(sel).constructor
 
 export function fixAndSetSelectionAfterTracking(
   newTr: Transaction,
