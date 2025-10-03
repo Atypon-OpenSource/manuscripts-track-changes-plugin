@@ -30,7 +30,7 @@ import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isSplitStep, isStructureSteps } from '../utils/track-utils'
+import { isSplitStep, isStructureSteps } from './utils'
 
 export function trackReplaceStep(
   i: number,
@@ -166,5 +166,6 @@ export function trackReplaceStep(
       selectionPos = isDeleteEvent || isDeleteContentForward ? toA : fromA
     }
   })
+  selectionPos = deletedNodeMapping.map(selectionPos)
   return [changeSteps, selectionPos] as [ChangeStep[], number]
 }

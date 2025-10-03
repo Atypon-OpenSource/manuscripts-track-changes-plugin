@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Schema } from 'prosemirror-model'
+import { Mark, MarkSpec, MarkType, Node as PMNode, Schema, SchemaSpec } from 'prosemirror-model'
 
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 import { log } from '../utils/logger'
+import { isValidTrackableMark } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
@@ -55,6 +56,17 @@ export function getBlockInlineTrackedData(node: PMNode): Partial<TrackedAttrs>[]
     return [dataTracked]
   }
   return dataTracked || []
+}
+
+export function getMarkTrackedData(node: PMNode | undefined | null) {
+  const tracked = node?.marks.reduce((acc, current) => {
+    if (isValidTrackableMark(current) && current.attrs.dataTracked) {
+      acc.set(current, current.attrs.dataTracked)
+    }
+    return acc
+  }, new Map<Mark, Array<Partial<TrackedAttrs>>>())
+
+  return tracked || new Map<Mark, Array<Partial<TrackedAttrs>>>()
 }
 
 export function getNodeTrackedData(

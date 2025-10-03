@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DataTrackedAttrs } from '@manuscripts/transform'
 import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
@@ -24,10 +25,12 @@ import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
   IncompleteChange,
+  MarkChange,
   TrackedAttrs,
   TrackedChange,
 } from '../types/change'
 import { log } from '../utils/logger'
+import { isInlineMarkChange } from '../utils/track-utils'
 
 export function updateChangeAttrs(
   tr: Transaction,
@@ -118,6 +121,32 @@ export function updateChangeAttrs(
       { ...(restoredAttrs || node.attrs), dataTracked: newDataTracked.length === 0 ? null : newDataTracked },
       node.marks
     )
+  } else if (change.type === 'mark-change') {
+    const markChange = change as MarkChange
+    if (markChange.mark && markChange.from && markChange.to) {
+      const markDataTracked = Array.isArray(markChange.mark.attrs.dataTracked)
+        ? (markChange.mark.attrs.dataTracked as DataTrackedAttrs[])
+        : []
+      const newDT = markDataTracked?.map((dt) => {
+        if (dt.createdAt === change.dataTracked.createdAt && dt.operation === change.dataTracked.operation) {
+          return {
+            ...dt,
+            ...trackedAttrs,
+          }
+        }
+        return dt
+      })
+      const newMark = markChange.mark.type.create({ ...markChange.mark.attrs, dataTracked: newDT })
+      if (isInlineMarkChange(markChange)) {
+        tr.removeMark(markChange.from, markChange.to, markChange.mark)
+        tr.addMark(markChange.from, markChange.to, newMark)
+      } else {
+        tr.removeNodeMark(markChange.from, markChange.mark)
+        tr.addNodeMark(markChange.from, newMark)
+      }
+    } else {
+      console.warn('Unable to update a mark change because the mark change data are incomplete')
+    }
   }
   return tr
 }

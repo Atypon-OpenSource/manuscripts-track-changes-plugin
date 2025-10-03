@@ -17,8 +17,8 @@ import { Attrs, Fragment, Mark, Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
-import { getAction, isIndentationAction, TrackChangesAction } from '../actions'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
+import { isIndentationAction, TrackChangesAction } from '../actions'
+import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
 import {
   NewDeleteAttrs,
   NewEmptyAttrs,
@@ -356,7 +356,6 @@ export const filterMeaninglessMoveSteps = (tr: Transaction, context: TrTrackingC
 
     cleanSteps.push(step)
   }
-
   return cleanSteps
 }
 
@@ -427,7 +426,7 @@ export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrack
   }
 }
 
-export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - add it to schema in highlight marker
+export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - verify highlight marker functionality and add it to schema in highlight marker
 
 export function passThroughMeta(oldTr: Transaction, newTr: Transaction) {
   // The old meta keys are not copied to the new transaction since this will cause race-conditions

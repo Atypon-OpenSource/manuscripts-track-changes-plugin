@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 import { EditorState, Transaction } from 'prosemirror-state'
-import { AddMarkStep, AttrStep, Mapping, ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
+import {
+  AddMarkStep,
+  AddNodeMarkStep,
+  AttrStep,
+  Mapping,
+  RemoveMarkStep,
+  RemoveNodeMarkStep,
+  ReplaceAroundStep,
+  ReplaceStep,
+  Step,
+} from 'prosemirror-transform'
 
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
@@ -25,17 +35,19 @@ import { ExposedReplaceStep } from '../types/pm'
 import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
-import {
-  isStructureSteps,
-  excludeFromTracking,
-  passThroughMeta,
-  iterationIsValid,
-} from '../utils/track-utils'
+import { excludeFromTracking, passThroughMeta, iterationIsValid } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import trackAttrsChange from './trackAttrsChange'
+import {
+  trackAddMarkStep,
+  trackAddNodeMarkStep,
+  trackRemoveMarkStep,
+  trackRemoveNodeMarkStep,
+} from './trackMarkSteps'
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
 import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
+import { isStructureSteps } from './utils'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -105,7 +117,7 @@ export function trackTransaction(
       step adds content before (in terms of position in the doc) the first step, the plugin will attempt to insert tracked replacement for the first change at a position
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
-      const isDelete = step.from !== step.to && step.slice.content.size < step.to - step.from // i moved inverted step inside the step processor, @TODO - figure out the next steps
+      const isDelete = step.from !== step.to && step.slice.content.size < step.to - step.from
 
       if (isDelete || isStructureSteps(tr)) {
         thisStepMapping = deletedNodeMapping
@@ -121,7 +133,6 @@ export function trackTransaction(
         }
       }
 
-      startPos = thisStepMapping.map(startPos)
       steps = mapChangeSteps(steps, thisStepMapping)
 
       log.info('CHANGES: ', steps)
@@ -157,6 +168,7 @@ export function trackTransaction(
         deletedNodeMapping
       )
     } else if (step instanceof AddMarkStep) {
+      trackAddMarkStep(step, emptyAttrs, newTr, tr.docs[i])
       // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique
       const dataTracked = getNodeTrackedData(newTr.doc.nodeAt(step.from), oldState.schema)?.pop()
       if (dataTracked) {
@@ -167,8 +179,14 @@ export function trackTransaction(
           oldState.schema
         )
       }
+    } else if (step instanceof RemoveMarkStep) {
+      trackRemoveMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof RemoveNodeMarkStep) {
+      trackRemoveNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
+    } else if (step instanceof AddNodeMarkStep) {
+      trackAddNodeMarkStep(step, emptyAttrs, newTr, tr.docs[i])
     }
-    // TODO: here we could check whether adjacent inserts & deletes cancel each other out. - update: probably not a valid concern
+    // TODO: here we could check whether adjacent inserts & deletes cancel each other out.
     // However, this should not be done by diffing and only matching node or char by char instead since
     // it's A easier and B more intuitive to user.
   }
