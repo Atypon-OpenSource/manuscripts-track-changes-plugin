@@ -80,8 +80,11 @@ export function revertWrapNodeChange(tr: Transaction, change: IncompleteChange, 
     tr.doc.nodesBetween(from, to, (node, pos) => {
       const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
       const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
-      const nodeRange = $fromPos.blockRange($toPos, (node) =>
-        change.node.type.contentMatch.matchType(node.type)
+      const nodeRange = $fromPos.blockRange(
+        $toPos,
+        (node) =>
+          // this to make sure we apply lift to compatible content with change node type
+          !!(change as NodeChange).node?.type.contentMatch.matchType(node.type)
       )
       if (!nodeRange) {
         return
