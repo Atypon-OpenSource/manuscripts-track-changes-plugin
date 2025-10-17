@@ -15,7 +15,7 @@
  */
 import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
-import { Mapping, ReplaceStep } from 'prosemirror-transform'
+import { AddNodeMarkStep, Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
@@ -27,9 +27,18 @@ import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 
+/**
+ * Applies worked out change steps to the new transaction and creating a document that has all the changes recorded
+ *
+ * @param changes
+ * @param newTr
+ * @param emptyAttrs
+ * @param schema
+ * @param deletedNodeMapping
+ * @returns mapping, position of selection if changed
+ */
 export function processChangeSteps(
   changes: ChangeStep[],
-  startPos: number,
   newTr: Transaction,
   emptyAttrs: NewEmptyAttrs,
   schema: Schema,
@@ -37,7 +46,7 @@ export function processChangeSteps(
 ) {
   const mapping = new Mapping()
   const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs)
-  let selectionPos = startPos
+  let selectionPos = undefined
   // @TODO add custom handler / condition?
   let deletesCounter = 0 // counter for deletion
   let isInserted = false // flag for inserted node
@@ -238,6 +247,16 @@ export function processChangeSteps(
         )
         break
       }
+      case 'add-mark': {
+        const newStep = new AddNodeMarkStep(step.pos, newMark)
+        newTr.step(newStep)
+        const oldDataTracked = getBlockInlineTrackedData(c.node) || []
+        break
+      }
+      case 'remove-mark': {
+        const oldDataTracked = getBlockInlineTrackedData(c.node) || []
+        break
+      }
       default:
         log.error(`processChangeSteps: unknown change type`, c)
         return
@@ -249,5 +268,5 @@ export function processChangeSteps(
     }
   })
 
-  return [mapping, selectionPos] as [Mapping, number]
+  return [mapping, selectionPos] as [Mapping, number | undefined]
 }

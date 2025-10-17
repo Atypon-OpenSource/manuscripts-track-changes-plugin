@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
+import { Mark, Node as PMNode } from 'prosemirror-model'
 
 import { ExposedFragment, ExposedSlice } from './pm'
 
@@ -54,9 +54,25 @@ export interface UpdateNodeAttrsStep {
   node: PMNode
   newAttrs: Record<string, any>
 }
+export interface _RemoveMarkStep {
+  pos: number
+  isNodeMark: boolean
+  type: 'remove-mark'
+  node: PMNode
+  newAttrs: Record<string, any>
+}
+export interface _AddMarkStep {
+  pos: number
+  isNodeMark: boolean
+  type: 'add-mark'
+  mark: Mark
+  newAttrs: Record<string, any>
+}
 export type ChangeStep =
   | DeleteNodeStep
   | DeleteTextStep
   | MergeFragmentStep
   | InsertSliceStep
   | UpdateNodeAttrsStep
+  | _AddMarkStep
+  | _RemoveMarkStep

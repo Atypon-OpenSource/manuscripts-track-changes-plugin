@@ -51,6 +51,9 @@ function cutFragment(matched: number, deleted: number, content: Fragment) {
   return [matched, Fragment.fromArray(newContent)] as [number, ExposedFragment]
 }
 
+/**
+ * Finds text changes that overlap and creates single change for them. Needed only for ReplaceAround and Replace steps as those are only once making such changes
+ */
 export function diffChangeSteps(steps: ChangeStep[]) {
   const deleted = steps.filter((s) => s.type !== 'insert-slice')
   const inserted = steps.filter((s) => s.type === 'insert-slice') as InsertSliceStep[]

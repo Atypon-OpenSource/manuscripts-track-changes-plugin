@@ -457,24 +457,3 @@ export function iterationIsValid(iterations: number, oldTr: Transaction, newTr: 
   }
   return true
 }
-
-export function processStepsBeforeTracking(
-  tr: Transaction,
-  trContext: TrTrackingContext,
-  processors: Array<(tr: Transaction, context: TrTrackingContext) => Step[] | void>
-) {
-  let steps: Step[] = []
-  processors.forEach((p) => {
-    const res = p(tr, trContext)
-    if (res) {
-      steps = res
-    }
-
-    if (steps.length < tr.steps.length) {
-      log.warn(
-        'Bug! A processor function filtered steps incorrectly. Filtered out steps should be replaced with null and not popped out of the array. Length and order has to be preserved'
-      )
-    }
-  })
-  return steps
-}

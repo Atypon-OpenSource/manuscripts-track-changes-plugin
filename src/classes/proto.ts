@@ -16,7 +16,18 @@
 
 import { EditorState, Transaction } from 'prosemirror-state'
 import { Change, CHANGE_STATUS, IncompleteChange, TrackedChange } from '../types/change'
-import { Mapping, Step } from 'prosemirror-transform'
+import {
+  Mapping,
+  ReplaceStep,
+  ReplaceAroundStep,
+  Step,
+  AddMarkStep,
+  AddNodeMarkStep,
+  RemoveNodeMarkStep,
+  RemoveMarkStep,
+  AttrStep,
+  DocAttrStep,
+} from 'prosemirror-transform'
 import { Schema } from 'prosemirror-model'
 import { ChangeSet } from '../ChangeSet'
 import { TrTrackingContext } from '../types/track'
@@ -46,16 +57,38 @@ import { TrTrackingContext } from '../types/track'
  */
 
 abstract class ChangeOwner<T extends Change> {
-  abstract revert(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet, deleteMap: Mapping)
+  type: T
 
-  // to simplify transition, for now the steps loop will be kept as global. However, it is likey, that
-  abstract processTransaction(
-    tr: Transaction,
-    newTr: Transaction,
-    currentStep: Step,
-    next: () => void,
-    context: TrTrackingContext
-  ): Transaction
+  constructor() {
+    this.type = T
+  }
+
+  // abstract onReplaceStep?(step: ReplaceStep, i: number, tr: Transaction): void
+  // abstract onReplaceAroundStep?(step: ReplaceAroundStep, i: number, tr: Transaction): void
+  // abstract onAddMarkStep?(step: AddMarkStep, i: number, tr: Transaction): void
+  // abstract onAddNodeMarkStep?(step: AddNodeMarkStep, i: number, tr: Transaction): void
+  // abstract onRemoveNodeMarkStep?(step: RemoveNodeMarkStep, i: number, tr: Transaction): void
+  // abstract onRemoveMarkStep?(step: RemoveMarkStep, i: number, tr: Transaction): void
+  // abstract onAttrStep?(step: AttrStep, i: number, tr: Transaction): void
+  // abstract onDocAttrStep?(step: DocAttrStep, i: number, tr: Transaction): void
+
+  /**
+   * Called when a user approves a change in the document and it needs to become a part of the document
+   */
+  abstract applyChange() {
+    //   abstract applyAcceptedRejectedChanges(
+    //   tr: Transaction,
+    //   schema: Schema,
+    //   changes: TrackedChange[],
+    //   changeSet: ChangeSet,
+    //   deleteMap: Mapping
+    // ): Mapping
+  }
+
+  /**
+   * Called when a user rejects a change in the document
+   */
+  abstract revertChange(tr: Transaction, change: IncompleteChange, changeSet: ChangeSet, deleteMap: Mapping)
 
   abstract updateChangeStatus(
     createdTr: Transaction,
@@ -65,12 +98,4 @@ abstract class ChangeOwner<T extends Change> {
     userID: string,
     oldState: EditorState
   ): void
-
-  abstract applyAcceptedRejectedChanges(
-    tr: Transaction,
-    schema: Schema,
-    changes: TrackedChange[],
-    changeSet: ChangeSet,
-    deleteMap: Mapping
-  ): Mapping
 }

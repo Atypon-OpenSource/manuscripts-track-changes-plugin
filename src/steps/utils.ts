@@ -19,6 +19,11 @@ import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
+import { TrTrackingContext } from '../types/track'
+import { log } from '../utils/logger'
+
+export const isDeleteStep = (step: ReplaceStep) =>
+  step.from !== step.to && step.slice.content.size < step.to - step.from
 
 export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: string) => {
   const { from, to, slice } = step
@@ -75,25 +80,25 @@ export const isWrapStep = (step: ReplaceAroundStep) =>
   step.slice.openStart === 0 &&
   step.slice.openEnd === 0
 
-// export const isLiftStep = (step: ReplaceAroundStep) => {
-//   if (
-//     step.from < step.gapFrom &&
-//     step.to > step.gapTo &&
-//     step.slice.size === 0 &&
-//     step.gapTo - step.gapFrom > 0
-//   ) {
-//     return true
-//   }
-//   return false
-//   /* qualifies as a lift step when:
-//     - there is a retained gap (captured original content that we insert)
-//     - step.from < gapFrom  - meaning we remove content in front of the gap
-//     - step.to > gapTo     - meaning we remove content after the gap
-//     - nothing new is inserted: slice is empty
-//   */
-// }
+export const isLiftStep = (step: ReplaceAroundStep) => {
+  if (
+    step.from < step.gapFrom &&
+    step.to > step.gapTo &&
+    step.slice.size === 0 &&
+    step.gapTo - step.gapFrom > 0
+  ) {
+    return true
+  }
+  return false
+  /* qualifies as a lift step when:
+    - there is a retained gap (captured original content that we insert)
+    - step.from < gapFrom  - meaning we remove content in front of the gap
+    - step.to > gapTo     - meaning we remove content after the gap
+    - nothing new is inserted: slice is empty
+  */
+}
 
-export function isLiftStep(
+export function isLiftStepForGap(
   /*
     The step is a lift from an end of the step range.
     In other words it means that we removed a piece of content from the end of the step range,
@@ -121,3 +126,24 @@ export const isStructureSteps = (tr: Transaction) =>
   tr.steps.length === 2 &&
   tr.steps[0] instanceof ReplaceStep &&
   tr.steps[1] instanceof ReplaceStep
+
+export function processStepsBeforeTracking(
+  tr: Transaction,
+  trContext: TrTrackingContext,
+  processors: Array<(tr: Transaction, context: TrTrackingContext) => Step[] | void>
+) {
+  let steps: Step[] = []
+  processors.forEach((p) => {
+    const res = p(tr, trContext)
+    if (res) {
+      steps = res
+    }
+
+    if (steps.length < tr.steps.length) {
+      log.warn(
+        'Bug! A processor function filtered steps incorrectly. Filtered out steps should be replaced with null and not popped out of the array. Length and order has to be preserved'
+      )
+    }
+  })
+  return steps
+}

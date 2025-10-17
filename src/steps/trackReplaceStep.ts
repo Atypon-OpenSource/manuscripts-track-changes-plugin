@@ -31,6 +31,8 @@ import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
 import { isSplitStep, isStructureSteps } from './utils'
+import { Change } from '../types/change'
+import { mapChangeSteps } from '../utils/mapChangeStep'
 
 export function trackReplaceStep(
   i: number,
@@ -55,6 +57,10 @@ export function trackReplaceStep(
   log.info('###### ReplaceStep ######')
   let selectionPos = 0
   const changeSteps: ChangeStep[] = []
+  if (stepResult.failed) {
+    log.error(`invert ReplaceStep failed: "${stepResult.failed}"`)
+    return [changeSteps, undefined] as [ChangeStep[], number | undefined]
+  }
 
   const attrs = { ...attrsTemplate }
 
@@ -69,11 +75,6 @@ export function trackReplaceStep(
     log.info('TR: steps before applying delete', [...newTr.steps])
     // First apply the deleted range and update the insert slice to not include content that was deleted,
     // eg partial nodes in an open-ended slice
-
-    if (stepResult.failed) {
-      log.error(`invert ReplaceStep failed: "${stepResult.failed}"`)
-      return
-    }
 
     const {
       sliceWasSplit,
@@ -167,5 +168,6 @@ export function trackReplaceStep(
     }
   })
   selectionPos = deletedNodeMapping.map(selectionPos)
-  return [changeSteps, selectionPos] as [ChangeStep[], number]
+  const doneSteps = mapChangeSteps(changeSteps, deletedNodeMapping)
+  return [doneSteps, selectionPos] as [ChangeStep[], number]
 }

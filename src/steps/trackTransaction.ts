@@ -47,7 +47,7 @@ import {
 import { trackReplaceAroundStep } from './trackReplaceAroundStep'
 import { trackReplaceStep } from './trackReplaceStep'
 import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
-import { isStructureSteps } from './utils'
+import { isDeleteStep, isStructureSteps } from './utils'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -75,6 +75,15 @@ export function trackTransaction(
   clearedSteps: Step[],
   trContext: TrTrackingContext
 ) {
+  /*
+      1. Import all change owners
+      2. For each step, call a change owner method that to corresponds to that step
+      i.e.
+      else if (step instanceof ReplaceStep) {
+        owners.forEach(o => o.onReplaceStep?(step, tr)          
+      }
+    */
+
   const emptyAttrs: NewEmptyAttrs = {
     authorID,
     reviewedByID: null,
@@ -117,13 +126,10 @@ export function trackTransaction(
       step adds content before (in terms of position in the doc) the first step, the plugin will attempt to insert tracked replacement for the first change at a position
       that corresponds to the first change position if the second change (second in time but occuring earlier in doc) never occured.
       */
-      const isDelete = step.from !== step.to && step.slice.content.size < step.to - step.from
-
-      if (isDelete || isStructureSteps(tr)) {
+      if (isDeleteStep(step) || isStructureSteps(tr)) {
         thisStepMapping = deletedNodeMapping
       }
-
-      let [steps, startPos] = trackReplaceStep(i, oldState, newTr, emptyAttrs, tr, thisStepMapping, trContext)
+      let [steps] = trackReplaceStep(i, oldState, newTr, emptyAttrs, tr, thisStepMapping, trContext)
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -132,17 +138,13 @@ export function trackTransaction(
           continue
         }
       }
-
-      steps = mapChangeSteps(steps, thisStepMapping)
-
-      log.info('CHANGES: ', steps)
+      log.info('TRACK REPLACE CHANGES: ', steps)
       steps = diffChangeSteps(steps)
       log.info('DIFFED STEPS: ', steps)
 
       // if step is in movingPairs, add its uuid (Map entry key) as moveNodeId
-      const [_, selectionPos] = processChangeSteps(
+      const [_, updatedSelectionPos] = processChangeSteps(
         steps,
-        startPos || tr.selection.head, // In case startPos is it's default value 0, use the old selection head
         newTr,
         trContext.stepsByGroupIDMap.has(step)
           ? { ...emptyAttrs, moveNodeId: trContext.stepsByGroupIDMap.get(step) }
@@ -151,22 +153,15 @@ export function trackTransaction(
         deletedNodeMapping
       )
 
-      trContext.selectionPosFromInsertion = selectionPos
+      trContext.selectionPosFromInsertion = updatedSelectionPos
     } else if (step instanceof ReplaceAroundStep) {
       let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
       steps = diffChangeSteps(steps)
       log.info('DIFFED STEPS: ', steps)
-      processChangeSteps(steps, tr.selection.from, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
+      processChangeSteps(steps, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
     } else if (step instanceof AttrStep) {
       const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
-      processChangeSteps(
-        changeSteps,
-        tr.selection.from,
-        newTr,
-        emptyAttrs,
-        oldState.schema,
-        deletedNodeMapping
-      )
+      processChangeSteps(changeSteps, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
     } else if (step instanceof AddMarkStep) {
       trackAddMarkStep(step, emptyAttrs, newTr, tr.docs[i])
       // adding a mark between text that has tracking_mark will split that text with tracking attributes that have the same id, so we update id to be unique
