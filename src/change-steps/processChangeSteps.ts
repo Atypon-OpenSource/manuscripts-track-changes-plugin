@@ -15,7 +15,14 @@
  */
 import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
-import { AddNodeMarkStep, Mapping, ReplaceStep } from 'prosemirror-transform'
+import {
+  AddMarkStep,
+  AddNodeMarkStep,
+  Mapping,
+  RemoveMarkStep,
+  RemoveNodeMarkStep,
+  ReplaceStep,
+} from 'prosemirror-transform'
 
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
@@ -248,13 +255,23 @@ export function processChangeSteps(
         break
       }
       case 'add-mark': {
-        const newStep = new AddNodeMarkStep(step.pos, newMark)
-        newTr.step(newStep)
-        const oldDataTracked = getBlockInlineTrackedData(c.node) || []
+        if (c.isNodeMark) {
+          const newStep = new AddNodeMarkStep(c.pos, c.mark)
+          newTr.step(newStep)
+        } else {
+          const newStep = new AddMarkStep(c.pos, c.mark)
+          newTr.step(newStep)
+        }
         break
       }
       case 'remove-mark': {
-        const oldDataTracked = getBlockInlineTrackedData(c.node) || []
+        if (c.isNodeMark) {
+          const newStep = new RemoveNodeMarkStep(c.pos, c.mark)
+          newTr.step(newStep)
+        } else {
+          const newStep = new RemoveMarkStep(c.pos, c.mark)
+          newTr.step(newStep)
+        }
         break
       }
       default:
