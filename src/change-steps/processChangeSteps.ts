@@ -51,7 +51,9 @@ export function processChangeSteps(
         deletesCounter++ // increase the counter for deleted nodes
         const prevDeletedNodeInserted = isInserted
         const trackedData = getBlockInlineTrackedData(c.node)
-        const inserted = trackedData?.find((d) => d.operation === CHANGE_OPERATION.insert)
+        const inserted = trackedData?.find(
+          (d) => d.operation === CHANGE_OPERATION.insert || d.operation === CHANGE_OPERATION.wrap_with_node
+        )
         // if that delete is a shadow for another structure change, we remove that node to avoid duplicating shadow
         const structure = trackedData?.find(
           (c) =>
