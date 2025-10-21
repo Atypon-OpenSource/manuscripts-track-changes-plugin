@@ -23,8 +23,8 @@ import { updateChangesStatus } from './changes/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
-import { trFromHistory } from './utils/track-utils'
-import { maybeTrackTransaction } from './track-changes/maybe-track-transaction'
+import { trFromHistory } from './utils/tracking'
+import { maybeTrackTransaction } from './track-changes/maybeTrackTransaction'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 

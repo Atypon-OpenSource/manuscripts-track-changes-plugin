@@ -33,26 +33,21 @@ import { getNodeTrackedData } from '../compute/nodeHelpers'
 import { ExposedReplaceStep } from '../types/pm'
 import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
-import {
-  excludeFromTracking,
-  passThroughMeta,
-  iterationIsValid,
-  isStructuralChange,
-} from '../utils/track-utils'
+import { excludeFromTracking, passThroughMeta, iterationIsValid, isStructuralChange } from '../utils/tracking'
 import { uuidv4 } from '../utils/uuidv4'
 import { NewEmptyAttrs } from '../attributes/types'
 import { createNewPendingAttrs } from '../attributes'
 import { trackReplaceStep } from '../steps/trackReplaceStep'
 import { isDeleteStep } from '../steps/qualifiers'
 import { trackReplaceAroundStep } from '../steps/trackReplaceAroundStep'
-import trackAttrsChange from '../steps/trackAttrsChange'
 import {
   trackAddMarkStep,
   trackAddNodeMarkStep,
   trackRemoveMarkStep,
   trackRemoveNodeMarkStep,
 } from '../steps/trackMarkSteps'
-import { fixAndSetSelectionAfterTracking } from '../steps/fixAndHandleSelection'
+import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
+import trackAttrsChangeStep from '../steps/trackAttrsChangeStep'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -146,7 +141,7 @@ export function trackTransaction(
       log.info('DIFFED STEPS: ', steps)
       processChangeSteps(steps, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
     } else if (step instanceof AttrStep) {
-      const changeSteps = trackAttrsChange(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
+      const changeSteps = trackAttrsChangeStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i])
       processChangeSteps(changeSteps, newTr, emptyAttrs, oldState.schema, deletedNodeMapping)
     } else if (step instanceof AddMarkStep) {
       trackAddMarkStep(step, emptyAttrs, newTr, tr.docs[i])

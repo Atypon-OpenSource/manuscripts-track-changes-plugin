@@ -19,10 +19,10 @@ import { Transaction } from 'prosemirror-state'
 import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION } from '../types/change'
-import { isValidTrackableMark } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
 import { createNewDeleteAttrs, createNewInsertAttrs } from '../attributes'
 import { NewEmptyAttrs } from '../attributes/types'
+import { isValidTrackableMark } from '../utils/tracking'
 
 function markHasOp(mark: Mark, operation: CHANGE_OPERATION) {
   if (mark.attrs.dataTracked && Array.isArray(mark.attrs.dataTracked)) {

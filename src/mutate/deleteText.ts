@@ -17,8 +17,7 @@ import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 
 import { addTrackIdIfDoesntExist, getMergeableMarkTrackedAttrs } from '../compute/nodeHelpers'
-import { NewDeleteAttrs } from '../types/track'
-import { log } from '../utils/logger'
+import { NewDeleteAttrs } from '../attributes/types'
 
 /**
  * Deletes inserted text directly, otherwise wraps it with tracked_delete mark

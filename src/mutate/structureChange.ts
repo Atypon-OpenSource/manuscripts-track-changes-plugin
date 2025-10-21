@@ -23,8 +23,8 @@ import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/n
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { CHANGE_OPERATION, NodeChange } from '../types/change'
 import { createNewInsertAttrs, createNewStructureAttrs } from '../attributes'
-import { updateBlockNodesAttrs } from '../utils/track-utils'
 import { NewEmptyAttrs } from '../attributes/types'
+import { updateBlockNodesAttrs } from '../utils/tracking'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */
 export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: Transaction) => {

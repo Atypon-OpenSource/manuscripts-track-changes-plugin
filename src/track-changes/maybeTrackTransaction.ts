@@ -17,7 +17,6 @@
 import { Transaction, EditorState, PluginKey } from 'prosemirror-state'
 
 import { getAction, TrackChangesAction } from '../actions'
-import { processStepsBeforeTracking } from '../steps/processStepsBeforeTracking'
 import { TrTrackingContext } from '../types/track'
 import {
   trFromHistory,
@@ -25,8 +24,9 @@ import {
   getIndentationOperationSteps,
   filterMeaninglessMoveSteps,
   changeMovedToInsertsOnSourceDeletion,
-} from '../utils/track-utils'
-import { trackTransaction } from './track-transaction'
+} from '../utils/tracking'
+import { trackTransaction } from './trackTransaction'
+import { processStepsBeforeTracking } from './processStepsBeforeTracking'
 
 export function maybeTrackTransaction(
   tr: Transaction,

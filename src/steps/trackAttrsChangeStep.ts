@@ -19,10 +19,10 @@ import { EditorState, Transaction } from 'prosemirror-state'
 import { AttrStep } from 'prosemirror-transform'
 
 import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
+import { NewEmptyAttrs } from '../attributes/types'
 
-function trackAttrsChange(
+function trackAttrsChangeStep(
   step: AttrStep,
   oldState: EditorState,
   tr: Transaction,
@@ -58,4 +58,4 @@ function trackAttrsChange(
   return [changeStep]
 }
 
-export default trackAttrsChange
+export default trackAttrsChangeStep
