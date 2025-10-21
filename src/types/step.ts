@@ -54,25 +54,10 @@ export interface UpdateNodeAttrsStep {
   node: PMNode
   newAttrs: Record<string, any>
 }
-export interface _RemoveMarkStep {
-  pos: number
-  isNodeMark: boolean
-  type: 'remove-mark'
-  node: PMNode
-  newAttrs: Record<string, any>
-}
-export interface _AddMarkStep {
-  pos: number
-  isNodeMark: boolean
-  type: 'add-mark'
-  mark: Mark
-  newAttrs: Record<string, any>
-}
+
 export type ChangeStep =
   | DeleteNodeStep
   | DeleteTextStep
   | MergeFragmentStep
   | InsertSliceStep
   | UpdateNodeAttrsStep
-  | _AddMarkStep
-  | _RemoveMarkStep

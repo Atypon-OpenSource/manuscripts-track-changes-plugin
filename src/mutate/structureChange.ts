@@ -22,8 +22,9 @@ import { updateChangeAttrs } from '../changes/updateChangeAttrs'
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
 import { CHANGE_OPERATION, NodeChange } from '../types/change'
-import { NewEmptyAttrs } from '../types/track'
-import { createNewInsertAttrs, createNewStructureAttrs, updateBlockNodesAttrs } from '../utils/track-utils'
+import { createNewInsertAttrs, createNewStructureAttrs } from '../attributes'
+import { updateBlockNodesAttrs } from '../utils/track-utils'
+import { NewEmptyAttrs } from '../attributes/types'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */
 export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: Transaction) => {
@@ -157,7 +158,7 @@ const groupStructureChanges = (tr: Transaction, toNode: PMNode | null) => {
   return moveNodeIds
 }
 
-/** will join other structural changes in the range of transaction steps to the new change moveNodeId,
+/** Will join other structural changes in the range of transaction steps to the new change moveNodeId,
  * that join will be for both structure change and delete shadow */
 export const joinStructureChanges = (
   attrs: NewEmptyAttrs,

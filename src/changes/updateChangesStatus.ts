@@ -18,10 +18,10 @@ import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
-import { dropOrphanChanges } from '../mutate/dropStructureChange'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
 import { applyAcceptedRejectedChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
+import { dropOrphanChanges } from '../mutate/structureChange'
 
 export function updateChangesStatus(
   createdTr: Transaction,

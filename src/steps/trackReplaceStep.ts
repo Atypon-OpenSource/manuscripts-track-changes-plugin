@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode, Slice } from 'prosemirror-model'
+import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import type { EditorState, Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep, StepResult } from 'prosemirror-transform'
 
@@ -24,15 +24,17 @@ import {
   setFragmentAsNodeSplit,
 } from '../compute/setFragmentAsInserted'
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
-import { joinStructureChanges } from '../mutate/dropStructureChange'
+import { joinStructureChanges } from '../mutate/structureChange'
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
+import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import * as trackUtils from '../utils/track-utils'
-import { isSplitStep, isStructureSteps } from './utils'
-import { Change } from '../types/change'
 import { mapChangeSteps } from '../utils/mapChangeStep'
+import { NewEmptyAttrs } from '../attributes/types'
+import { isStructuralChange } from '../changes/qualifiers'
+import { isSplitStep } from './qualifiers'
+import { createNewInsertAttrs, createNewMoveAttrs } from '../attributes'
 
 export function trackReplaceStep(
   i: number,
@@ -80,46 +82,23 @@ export function trackReplaceStep(
       sliceWasSplit,
       newSliceContent,
       steps: deleteSteps,
-    } = deleteAndMergeSplitNodes(fromA, toA, undefined, tr.docs[i], newTr, oldState.schema, attrs, slice)
+    } = deleteAndMergeSplitNodes(fromA, toA, undefined, tr.docs[i], oldState.schema, attrs, slice)
     changeSteps.push(...deleteSteps)
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', [...changeSteps])
 
-    function sameThingBackSpaced() {
-      /*
-      When deleting text with backspace and getting to the point of when a space and a character before a deleted piece of text is deleted
-      the prosemirror would interpret it as moving the <del> node (this is a tracked deletion) one characted behind.       
-      It normally results in [delete, delete, insert] set of ChangSteps where the 1st delete is for the delete done by
-      the backspace key, the second delete and the insert are a misinterpretation of the moved text. So these last 2 steps have to be caught
-      and removed as they are not meaningful.
-      */
+    const backSpacedText = sameThingBackSpaced(changeSteps, newSliceContent)
 
-      if (changeSteps.length == 2 && newSliceContent.size > 0) {
-        const correspondingDeletion = changeSteps.find(
-          // @ts-ignore
-          (step) => step.type === 'delete-text' && step.node.text === newSliceContent.content[0].text //  @TODO - get more precise proof of match. E.g.: position approximation
-        )
-        return correspondingDeletion
-      }
-      return undefined
-    }
-
-    const backSpacedText = sameThingBackSpaced()
     if (backSpacedText) {
-      console.log('Detected backspacing')
       changeSteps.splice(changeSteps.indexOf(backSpacedText))
     }
 
     if (!backSpacedText && newSliceContent.size > 0) {
       log.info('newSliceContent', newSliceContent)
 
-      let fragment = setFragmentAsInserted(
-        newSliceContent,
-        trackUtils.createNewInsertAttrs(attrs),
-        oldState.schema
-      )
+      let fragment = setFragmentAsInserted(newSliceContent, createNewInsertAttrs(attrs), oldState.schema)
 
-      if (isStructureSteps(tr)) {
+      if (isStructuralChange(tr)) {
         fragment = joinStructureChanges(attrs, newSliceContent, fragment, tr, newTr)
       } else if (isSplitStep(step, oldState.selection, tr.getMeta('uiEvent'))) {
         fragment = setFragmentAsNodeSplit(newTr.doc.resolve(step.from), newTr, fragment, attrs)
@@ -130,10 +109,7 @@ export function trackReplaceStep(
           | 'unindent'
           | undefined
 
-        fragment = setFragmentAsMoveChange(
-          newSliceContent,
-          trackUtils.createNewMoveAttrs(attrs, indentationType)
-        )
+        fragment = setFragmentAsMoveChange(newSliceContent, createNewMoveAttrs(attrs, indentationType))
       }
       // Since deleteAndMergeSplitBlockNodes modified the slice to not to contain any merged nodes,
       // the sides should be equal. TODO can they be other than 0?
@@ -144,7 +120,6 @@ export function trackReplaceStep(
         where the user added inserted content
       */
       const textWasDeleted = !!changeSteps.length && !(fromA === fromB)
-
       const isBlock = !!fragment.firstChild?.isBlock
 
       changeSteps.push({
@@ -170,4 +145,23 @@ export function trackReplaceStep(
   selectionPos = deletedNodeMapping.map(selectionPos)
   const doneSteps = mapChangeSteps(changeSteps, deletedNodeMapping)
   return [doneSteps, selectionPos] as [ChangeStep[], number]
+}
+
+function sameThingBackSpaced(changeSteps: ChangeStep[], newSliceContent: Fragment) {
+  /*
+      When deleting text with backspace and getting to the point of when a space and a character before a deleted piece of text is deleted
+      the prosemirror would interpret it as moving the <del> node (this is a tracked deletion) one characted behind.       
+      It normally results in [delete, delete, insert] set of ChangSteps where the 1st delete is for the delete done by
+      the backspace key, the second delete and the insert are a misinterpretation of the moved text. So these last 2 steps have to be caught
+      and removed as they are not meaningful.
+      */
+
+  if (changeSteps.length == 2 && newSliceContent.size > 0) {
+    const correspondingDeletion = changeSteps.find(
+      // @ts-ignore
+      (step) => step.type === 'delete-text' && step.node.text === newSliceContent.content[0].text //  @TODO - get more precise proof of match. E.g.: position approximation
+    )
+    return correspondingDeletion
+  }
+  return undefined
 }

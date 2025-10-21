@@ -21,17 +21,10 @@ import { findChanges } from './changes/findChanges'
 import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
 import { updateChangesStatus } from './changes/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
-import { trackTransaction } from './steps/trackTransaction'
-import { TrackChangesOptions, TrackChangesState, TrackChangesStatus, TrTrackingContext } from './types/track'
+import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
-import {
-  filterMeaninglessMoveSteps,
-  getIndentationOperationSteps,
-  getMoveOperationsSteps,
-  handleDirectPendingMoveDeletions,
-  processStepsBeforeTracking,
-  trFromHistory,
-} from './utils/track-utils'
+import { trFromHistory } from './utils/track-utils'
+import { maybeTrackTransaction } from './track-changes/maybe-track-transaction'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -113,9 +106,6 @@ export const trackChangesPlugin = (
       log.info('TRS', trs)
 
       trs.forEach((tr) => {
-        const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
-        const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
-
         // track changes allows free reign for client sync, because, if the changes was supposed to be tracked it should've been done on the respective client.
         const collabRebased = tr.getMeta('rebased')
         if (collabRebased !== undefined) {
@@ -123,42 +113,15 @@ export const trackChangesPlugin = (
           docChanged = true
           return
         }
-        const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
-
-        const skipTrackUsed =
-          getAction(tr, TrackChangesAction.skipTrack) ||
-          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
-
-        if (
-          !setChangeStatuses &&
-          tr.docChanged &&
-          !skipMetaUsed &&
-          !skipTrackUsed &&
-          !trFromHistory(tr) &&
-          !(wasAppended && tr.getMeta('origin') === 'paragraphs')
-        ) {
-          const action = getAction(tr, TrackChangesAction.indentationAction)?.action
-
-          const trContext: TrTrackingContext = {
-            action,
-            stepsByGroupIDMap: new Map(),
-          }
-          const clearedSteps = processStepsBeforeTracking(tr, trContext, [
-            getMoveOperationsSteps,
-            getIndentationOperationSteps,
-            filterMeaninglessMoveSteps,
-          ])
-          handleDirectPendingMoveDeletions(tr, createdTr, trContext) // cleaning up deleted moves base on ref map in the context
-          createdTr = trackTransaction(tr, oldState, createdTr, userID, clearedSteps, trContext)
-        }
-        docChanged = docChanged || tr.docChanged
-
-        if (setChangeStatuses) {
-          const { status, ids } = setChangeStatuses
-
+        const setsChangeStatus = getAction(tr, TrackChangesAction.setChangeStatuses)
+        if (setsChangeStatus) {
+          const { status, ids } = setsChangeStatus
           updateChangesStatus(createdTr, changeSet, ids, status, userID, oldState)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
+        } else {
+          createdTr = maybeTrackTransaction(tr, createdTr, oldState, userID, skipTrsWithMetas) || createdTr
         }
+        docChanged = docChanged || tr.docChanged
       })
       const changed =
         pluginState.changeSet.hasInconsistentData &&

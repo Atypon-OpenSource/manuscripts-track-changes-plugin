@@ -19,10 +19,10 @@ import { Transaction } from 'prosemirror-state'
 import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep, Step } from 'prosemirror-transform'
 
 import { CHANGE_OPERATION } from '../types/change'
-import { NewEmptyAttrs } from '../types/track'
-import { createNewDeleteAttrs, createNewInsertAttrs, isValidTrackableMark } from '../utils/track-utils'
+import { isValidTrackableMark } from '../utils/track-utils'
 import { uuidv4 } from '../utils/uuidv4'
-import { _AddMarkStep } from '../types/step'
+import { createNewDeleteAttrs, createNewInsertAttrs } from '../attributes'
+import { NewEmptyAttrs } from '../attributes/types'
 
 function markHasOp(mark: Mark, operation: CHANGE_OPERATION) {
   if (mark.attrs.dataTracked && Array.isArray(mark.attrs.dataTracked)) {
@@ -147,6 +147,8 @@ export function trackRemoveNodeMarkStep(
       }
     }
     try {
+      const inverted = step.invert(doc)
+      newTr.step(inverted)
       newTr.step(newStep)
     } catch (e) {
       console.error('Unable to record a RemoveNodeMarkStep with error: ' + e)
@@ -169,13 +171,12 @@ export function trackAddMarkStep(
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
     })
     const newStep = new AddMarkStep(step.from, step.to, newMark)
-    // const inverted = step.invert()
-    // newTr.step(inverted)
-    return {
-      pos: step.from,
-      mark: newMark,
-      type: 'add-mark',
-      newAttrs: [{ ...newDataTracked, id: uuidv4() }],
+    try {
+      const inverted = step.invert()
+      newTr.step(inverted)
+      newTr.step(newStep)
+    } catch (e) {
+      console.error('Unable to record a remove node mark step: ' + e)
     }
   }
 }
@@ -185,7 +186,7 @@ export function trackAddNodeMarkStep(
   emptyAttrs: NewEmptyAttrs,
   newTr: Transaction,
   stepDoc: PMNode
-): _AddMarkStep | undefined {
+) {
   if (isValidTrackableMark(step.mark)) {
     const newDataTracked = createNewInsertAttrs(emptyAttrs)
     const markSource = step.mark.type.schema.marks[step.mark.type.name]
@@ -193,16 +194,12 @@ export function trackAddNodeMarkStep(
       dataTracked: [{ ...newDataTracked, id: uuidv4() }],
     })
     const newStep = new AddNodeMarkStep(step.pos, newMark)
-    // try {
-    // const inverted = step.invert(stepDoc)
-    // newTr.step(inverted)
-    // newTr.step(newStep)
-    return {
-      pos: step.pos,
-      isNodeMark: false,
-      mark: newMark,
-      type: 'add-mark',
-      newAttrs: [{ ...newDataTracked, id: uuidv4() }],
+    try {
+      const inverted = step.invert(stepDoc)
+      newTr.step(inverted)
+      newTr.step(newStep)
+    } catch (e) {
+      console.error('Unable to record an AddNodeMarkStep with error: ' + e)
     }
   }
 }

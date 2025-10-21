@@ -1,5 +1,5 @@
 /*!
- * © 2023 Atypon Systems LLC
+ * © 2025 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,82 +19,10 @@ import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
 
 import { isIndentationAction, TrackChangesAction } from '../actions'
 import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
-import {
-  NewDeleteAttrs,
-  NewEmptyAttrs,
-  NewInsertAttrs,
-  NewMoveAttrs,
-  NewReferenceAttrs,
-  NewSplitNodeAttrs,
-  NewUpdateAttrs,
-  TrTrackingContext,
-} from '../types/track'
+import { TrTrackingContext } from '../types/track'
 import { uuidv4 } from './uuidv4'
-import { log } from './logger'
-
-export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.insert,
-  }
-}
-
-export function createNewWrapAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.wrap_with_node,
-  }
-}
-
-export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.node_split,
-  }
-}
-
-export function createNewReferenceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.reference,
-    referenceId: id,
-  }
-}
-
-export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.delete,
-  }
-}
-
-export function createNewMoveAttrs(
-  attrs: NewEmptyAttrs,
-  indentationType?: 'indent' | 'unindent'
-): NewMoveAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.move,
-    ...(indentationType && { indentationType }),
-  }
-}
-
-export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<string, any>): NewUpdateAttrs {
-  // Omit dataTracked
-  const { dataTracked, ...restAttrs } = oldAttrs
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.set_node_attributes,
-    oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
-  }
-}
-
-export function createNewStructureAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
-  return {
-    ...attrs,
-    operation: CHANGE_OPERATION.structure,
-  }
-}
+import { isDirectPendingMoveDeletion } from '../changes/qualifiers'
+import { ChangeSet } from '../ChangeSet'
 
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
@@ -201,16 +129,6 @@ export const getMoveOperationsSteps = (tr: Transaction, context: TrTrackingConte
 }
 
 /**
- * Checks if the given `TrackedAttrs` array contains a pending change of the specified operation type.
- */
-export const isPendingChange = (
-  trackedAttrs: TrackedAttrs[] | undefined,
-  operation: CHANGE_OPERATION
-): boolean => {
-  return !!trackedAttrs?.some((t) => t.operation === operation)
-}
-
-/**
  * Detects if we're deleting a pending moved node
  */
 export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
@@ -233,43 +151,12 @@ export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
 }
 
 /**
- * Checks if this is a direct pending move deletion (not part of multiple moves)
- *
- * A direct pending move deletion occurs when:
- * 1. The step is a deletion (from ≠ to and empty slice)
- * 2. The step is not part of a larger move operation (not in movingSteps map)
- * 3. The deleted node has pending move tracking attributes
- *
- * This is different from move operations that involve multiple steps (like cut-paste)
- * where we need to track the relationship between deletion and insertion.
+ * Cleaning up deleted moves based on ref map in the context (not part of moving pending moved node).
+ * Having some pending moved content (a node was moved and there is a shadow of it on its former position), when
+ * a parent of that shadow is removed, we requalify the "MOVE" operation into an insertion using this function.
+ * Shadow - is a lingo for a hidden node that exists to track back a pending change that caused this node to be hidden (move or indent, but not deletion - deletions are visible)
  */
-export const isDirectPendingMoveDeletion = (
-  step: ReplaceStep,
-  doc: PMNode,
-  movingSteps: Map<ReplaceStep, string>
-): boolean => {
-  // Not a deletion
-  if (step.from === step.to || step.slice.content.size > 0) {
-    return false
-  }
-
-  // Part of a move operation
-  if (movingSteps.has(step)) {
-    return false
-  }
-
-  const node = doc.nodeAt(step.from)
-  if (!node) {
-    return false
-  }
-
-  return isPendingChange(node.attrs.dataTracked as TrackedAttrs[] | undefined, CHANGE_OPERATION.move)
-}
-
-/**
- * Handles direct pending move deletions (not part of moving pending moved node)
- */
-export const handleDirectPendingMoveDeletions = (
+export const changeMovedToInsertsOnSourceDeletion = (
   tr: Transaction,
   newTr: Transaction,
   trContext: TrTrackingContext
@@ -341,7 +228,7 @@ export const filterMeaninglessMoveSteps = (tr: Transaction, context: TrTrackingC
         if (slice?.content?.firstChild) {
           const insertedNode = slice.content.firstChild
           if (insertedNode.attrs.dataTracked) {
-            const isPendingInsert = isPendingChange(
+            const isPendingInsert = ChangeSet.isPendingChange(
               insertedNode.attrs.dataTracked as TrackedAttrs[],
               CHANGE_OPERATION.insert
             )
@@ -385,13 +272,6 @@ export function excludeFromTracked(dataTracked: TrackedAttrs[] | null, changeIdT
   return newDataTracked.length ? newDataTracked : null
 }
 
-export function isInlineMarkChange(change: TrackedChange) {
-  if (change.type == 'mark-change') {
-    return change.nodeType.isInline || change.nodeType.isText
-  }
-  return false
-}
-
 export const updateBlockNodesAttrs = (
   fragment: Fragment,
   predicate: (attrs: Attrs, node: PMNode) => Attrs
@@ -429,10 +309,10 @@ export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrack
 export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - verify highlight marker functionality and add it to schema in highlight marker
 
 export function passThroughMeta(oldTr: Transaction, newTr: Transaction) {
-  // The old meta keys are not copied to the new transaction since this will cause race-conditions
-  // when a single meta-field is expected to having been processed / removed. Generic input meta keys,
-  // inputType and uiEvent, are re-added since some plugins might depend on them and process the transaction
-  // after track-changes plugin.
+  /* The old meta keys are not copied to the new transaction since this will cause race-conditions
+   when a single meta-field is expected to having been processed / removed. Generic input meta keys,
+   inputType and uiEvent are re-added since some plugins might depend on them and process the transaction
+   after track-changes plugin. */
   oldTr.getMeta('inputType') && newTr.setMeta('inputType', oldTr.getMeta('inputType'))
   oldTr.getMeta('uiEvent') && newTr.setMeta('uiEvent', oldTr.getMeta('uiEvent'))
   return newTr
@@ -456,4 +336,7 @@ export function iterationIsValid(iterations: number, oldTr: Transaction, newTr: 
     return false
   }
   return true
+}
+export function isStructuralChange(tr: Transaction) {
+  throw new Error('Function not implemented.')
 }

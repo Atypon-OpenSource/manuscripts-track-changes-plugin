@@ -15,14 +15,7 @@
  */
 import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
-import {
-  AddMarkStep,
-  AddNodeMarkStep,
-  Mapping,
-  RemoveMarkStep,
-  RemoveNodeMarkStep,
-  ReplaceStep,
-} from 'prosemirror-transform'
+import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
@@ -30,9 +23,9 @@ import { deleteTextIfInserted } from '../mutate/deleteText'
 import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
 import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
 import { ChangeStep, DeleteNodeStep } from '../types/step'
-import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
-import * as trackUtils from '../utils/track-utils'
+import { NewEmptyAttrs } from '../attributes/types'
+import { createNewDeleteAttrs, createNewUpdateAttrs } from '../attributes'
 
 /**
  * Applies worked out change steps to the new transaction and creating a document that has all the changes recorded
@@ -52,7 +45,7 @@ export function processChangeSteps(
   deletedNodeMapping: Mapping
 ) {
   const mapping = new Mapping()
-  const deleteAttrs = trackUtils.createNewDeleteAttrs(emptyAttrs)
+  const deleteAttrs = createNewDeleteAttrs(emptyAttrs)
   let selectionPos = undefined
   // @TODO add custom handler / condition?
   let deletesCounter = 0 // counter for deletion
@@ -111,11 +104,9 @@ export function processChangeSteps(
         isInserted = !!inserted || !!structure || (!trackedData && isInserted)
 
         const newestStep = newTr.steps[newTr.steps.length - 1]
-
         if (isInserted || structure) {
           deletedNodeMapping.appendMap(newestStep.getMap())
         }
-
         if (step !== newestStep) {
           mapping.appendMap(newestStep.getMap())
           step = newestStep
@@ -226,7 +217,7 @@ export function processChangeSteps(
                 ...oldUpdate,
                 updatedAt: emptyAttrs.updatedAt,
               }
-            : addTrackIdIfDoesntExist(trackUtils.createNewUpdateAttrs(emptyAttrs, c.node.attrs))
+            : addTrackIdIfDoesntExist(createNewUpdateAttrs(emptyAttrs, c.node.attrs))
         // Dont add update changes if there exists already an insert change for this node
         if (
           (JSON.stringify(oldAttrs) !== JSON.stringify(c.newAttrs) ||
@@ -252,26 +243,6 @@ export function processChangeSteps(
           },
           c.node.marks
         )
-        break
-      }
-      case 'add-mark': {
-        if (c.isNodeMark) {
-          const newStep = new AddNodeMarkStep(c.pos, c.mark)
-          newTr.step(newStep)
-        } else {
-          const newStep = new AddMarkStep(c.pos, c.mark)
-          newTr.step(newStep)
-        }
-        break
-      }
-      case 'remove-mark': {
-        if (c.isNodeMark) {
-          const newStep = new RemoveNodeMarkStep(c.pos, c.mark)
-          newTr.step(newStep)
-        } else {
-          const newStep = new RemoveMarkStep(c.pos, c.mark)
-          newTr.step(newStep)
-        }
         break
       }
       default:

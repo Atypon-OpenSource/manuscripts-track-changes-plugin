@@ -30,7 +30,6 @@ import {
   TrackedChange,
 } from '../types/change'
 import { log } from '../utils/logger'
-import { isInlineMarkChange } from '../utils/track-utils'
 
 export function updateChangeAttrs(
   tr: Transaction,
@@ -137,7 +136,7 @@ export function updateChangeAttrs(
         return dt
       })
       const newMark = markChange.mark.type.create({ ...markChange.mark.attrs, dataTracked: newDT })
-      if (isInlineMarkChange(markChange)) {
+      if (ChangeSet.isInlineMarkChange(markChange)) {
         tr.removeMark(markChange.from, markChange.to, markChange.mark)
         tr.addMark(markChange.from, markChange.to, newMark)
       } else {

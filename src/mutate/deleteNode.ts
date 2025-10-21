@@ -18,9 +18,9 @@ import { Transaction } from 'prosemirror-state'
 
 import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
-import { NewDeleteAttrs } from '../types/track'
 import { log } from '../utils/logger'
-import { dropStructuralChangeShadow } from './dropStructureChange'
+import { NewDeleteAttrs } from '../attributes/types'
+import { dropStructuralChangeShadow } from './structureChange'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first
@@ -32,24 +32,6 @@ import { dropStructuralChangeShadow } from './dropStructureChange'
  * @returns
  */
 export function deleteNode(node: PMNode, pos: number, tr: Transaction) {
-  const startPos = tr.doc.resolve(pos + 1)
-
-  /*
-    The following code is commented out due the fact that it provides an unclear behaviour and causes bugs but
-    since its original purpose is unclear it is not deleted and should be check in cases of bugs related to deleting
-    of entire content of a block level node.
-  */
-  // Checking if the content deleted is the entire content of a block parent element
-  // const range = startPos.blockRange(
-  //   tr.doc.resolve(startPos.pos - 2 + node.nodeSize)
-  // );
-  // Checking if the original content can be lifted up a level
-  // const targetDepth = range && liftTarget(range);
-  // Check with typeof since with prosemirror-transform pre 1.6.0 targetDepth is undefined
-  // if (range && typeof targetDepth === 'number') {
-  //   return tr.lift(range, targetDepth);
-  // }
-
   const resPos = tr.doc.resolve(pos)
   // Block nodes can be deleted by just removing their start token which should then merge the text
   // content to above node's content (if there is one)
@@ -129,9 +111,11 @@ export function deleteOrSetNodeDeleted(
     dropStructuralChangeShadow(structure.moveNodeId, newTr)
   }
 }
-// keep change that is paired with other changes, like:
-// * delete change with moveNodeId as it should be hidden
-// * reference change of node split
+/**
+ * Keep change that is paired with other changes, like:
+ * delete change with moveNodeId as it should be hidden
+ * reference change of node split
+ */
 export const keepPairedChanges = (node: PMNode) => {
   const dataTracked = getBlockInlineTrackedData(node)?.filter(
     (c) =>

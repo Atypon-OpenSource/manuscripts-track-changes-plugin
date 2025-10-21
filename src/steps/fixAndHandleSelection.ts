@@ -1,5 +1,5 @@
 /*!
- * © 2023 Atypon Systems LLC
+ * © 2025 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 import { NodeSelection as NodeSelectionClass, TextSelection, Transaction, Selection } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
-import { isStructureSteps } from '../utils/track-utils'
 import { TrTrackingContext } from '../types/track'
+import { isStructuralChange } from '../changes/qualifiers'
 
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
@@ -49,7 +49,7 @@ export function fixAndSetSelectionAfterTracking(
 
   if (oldTr.selectionSet && oldTr.selection instanceof TextSelection) {
     let from = oldTr.selection.from
-    if (isStructureSteps(oldTr)) {
+    if (isStructuralChange(oldTr)) {
       // this mapping will capture invert mapping of delete steps as that what plugin do, also will map the actual
       // deleted nodes mapping in deleteNode.ts
       const selectionMapping = new Mapping()

@@ -22,10 +22,11 @@ import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFr
 import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
-import { NewEmptyAttrs, TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
-import * as trackUtils from '../utils/track-utils'
-import { isLiftStep, isWrapStep } from './utils'
+import { NewEmptyAttrs } from '../attributes/types'
+import { TrTrackingContext } from '../types/track'
+import { isLiftStep, isWrapStep } from './qualifiers'
+import { createNewInsertAttrs } from '../attributes'
 
 function preserveDataTrackedFromPreviousStep(
   newTr: Transaction,
@@ -36,7 +37,7 @@ function preserveDataTrackedFromPreviousStep(
   // some changes (like in lifting when parent reinserted for every node that is lifted separately)
   const prevDoc = newTr.docs[newTr.docs.length - 2]
   if (prevDoc && (step.slice.openEnd || step.slice.openStart)) {
-    // meaning there are nodes that we regluing and we need to preserve the dataTracked that appeared
+    // meaning there are nodes that we are gluing back together and we need to preserve the dataTracked that appeared
     // prevStepDoc has to be the doc created by the previously handled ReplaceAroundStep
 
     prevDoc.nodesBetween(newStep.from, newStep.to, (node, pos) => {
@@ -111,7 +112,6 @@ export function trackReplaceAroundStep(
     to,
     { start: gapFrom, end: gapTo, slice: gap, insert },
     newTr.doc,
-    newTr,
     oldState.schema,
     attrs,
     slice
@@ -121,11 +121,11 @@ export function trackReplaceAroundStep(
   if (isWrapStep(step)) {
     fragment = setFragmentAsWrapChange(newSliceContent, attrs, oldState.schema)
   } else {
-    fragment = setFragmentAsInserted(newSliceContent, trackUtils.createNewInsertAttrs(attrs), oldState.schema)
+    fragment = setFragmentAsInserted(newSliceContent, createNewInsertAttrs(attrs), oldState.schema)
   }
 
   let steps: ChangeStep[] = deleteSteps
-  log.info('TR: new steps after applying delete', [...newTr.steps])
+  // log.info('TR: new steps after applying delete', [...newTr.steps])
   log.info('DELETE STEPS: ', deleteSteps)
   // We only want to insert when there something inside the gap (actually would this be always true?)
   // or insert slice wasn't just start/end tokens (which we already merged inside deleteAndMergeSplitBlockNodes)
@@ -176,7 +176,7 @@ export function trackReplaceAroundStep(
         // last step detection, as we iterate backwards
         const fragmentTracked = setFragmentAsInserted(
           trContext.liftFragment,
-          trackUtils.createNewInsertAttrs(attrs),
+          createNewInsertAttrs(attrs),
           oldState.schema
         )
         steps.push({

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
-import type { Transaction } from 'prosemirror-state'
 
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'

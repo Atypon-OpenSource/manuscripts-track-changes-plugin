@@ -24,6 +24,7 @@ import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { NewEmptyAttrs } from '../types/track'
 import { log } from '../utils/logger'
+import { createNewInsertAttrs } from '../utils/track-utils'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted
@@ -55,7 +56,6 @@ export function deleteAndMergeSplitNodes(
   to: number,
   gap: { start: number; end: number; slice: Slice; insert: number } | undefined,
   startDoc: PMNode,
-  newTr: Transaction,
   schema: Schema,
   trackAttrs: NewEmptyAttrs,
   insertSlice: ExposedSlice
@@ -172,7 +172,7 @@ export function deleteAndMergeSplitNodes(
             node,
             fragment: setFragmentAsInserted(
               mergeContent,
-              trackUtils.createNewInsertAttrs(trackAttrs),
+              createNewInsertAttrs(trackAttrs),
               schema
             ) as ExposedFragment,
           })

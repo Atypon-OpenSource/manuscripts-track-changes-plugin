@@ -21,9 +21,9 @@ import { Mapping } from 'prosemirror-transform'
 import { ChangeSet } from '../ChangeSet'
 import { deleteNode, keepPairedChanges } from '../mutate/deleteNode'
 import { mergeNode } from '../mutate/mergeNode'
-import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
-import { excludeFromTracked, isInlineMarkChange } from '../utils/track-utils'
+import { excludeFromTracked } from '../utils/track-utils'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
 
@@ -177,7 +177,7 @@ export function applyAcceptedRejectedChanges(
         (change.dataTracked.status === CHANGE_STATUS.accepted && isInsert) ||
         (change.dataTracked.status === CHANGE_STATUS.rejected && isDelete)
 
-      if (isInlineMarkChange(change)) {
+      if (ChangeSet.isInlineMarkChange(change)) {
         tr.removeMark(change.from, change.to, change.mark)
         if (toBeRestored) {
           tr.addMark(change.from, change.to, newMark)
