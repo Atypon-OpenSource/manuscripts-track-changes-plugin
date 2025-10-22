@@ -28,7 +28,7 @@ import {
   TrackedChange,
 } from '../types/change'
 import { log } from '../utils/logger'
-import { getTextNodeTrackedMarkData, getBlockInlineTrackedData } from '../attributes'
+import { getBlockInlineTrackedData, getTextNodeTrackedMarkData } from '../helpers/attributes'
 
 export function updateChangeAttrs(
   tr: Transaction,

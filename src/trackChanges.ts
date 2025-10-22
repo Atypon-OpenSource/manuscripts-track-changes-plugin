@@ -20,12 +20,12 @@ import { processStepsBeforeTracking } from './tracking/lib/processStepsBeforeTra
 import { trackTransaction } from './tracking/trackTransaction'
 import { TrTrackingContext } from './types/track'
 import {
-  trFromHistory,
-  getMoveOperationsSteps,
-  getIndentationOperationSteps,
-  filterMeaninglessMoveSteps,
   changeMovedToInsertsOnSourceDeletion,
-} from './utils/tracking'
+  filterMeaninglessMoveSteps,
+  getIndentationOperationSteps,
+  getMoveOperationsSteps,
+  trFromHistory,
+} from './tracking/transactionProcessing'
 
 export function trackChanges(
   tr: Transaction,

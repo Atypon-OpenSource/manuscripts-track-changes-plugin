@@ -26,30 +26,28 @@ import {
   Step,
 } from 'prosemirror-transform'
 
-import { diffChangeSteps } from '../change-steps/diffChangeSteps'
-import { processChangeSteps } from '../change-steps/processChangeSteps'
-import { updateChangeAttrs } from '../changes/updateChangeAttrs'
-
 import { ExposedReplaceStep } from '../types/pm'
 import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
-import { excludeFromTracking, passThroughMeta, iterationIsValid } from '../utils/tracking'
 import { uuidv4 } from '../utils/uuidv4'
 
 import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
-
-import { isStructuralChange } from '../changes/qualifiers'
-import { NewEmptyAttrs, createNewPendingAttrs, getNodeTrackedData } from '../attributes'
-import { isDeleteStep } from '../steps-trackers/qualifiers'
-import trackAttrsChangeStep from '../steps-trackers/trackAttrsChangeStep'
+import { processChangeSteps } from './change-step/processChangeSteps'
+import { isStructuralChange } from '../changeHelpers/structureChange'
+import { updateChangeAttrs } from '../changeHelpers/updateChangeAttrs'
+import { NewEmptyAttrs, createNewPendingAttrs, getNodeTrackedData } from '../helpers/attributes'
+import { diffChangeSteps } from './change-step/diffChangeSteps'
+import { isDeleteStep } from './steps-trackers/qualifiers'
+import trackAttrsChangeStep from './steps-trackers/trackAttrsChangeStep'
 import {
   trackAddMarkStep,
   trackRemoveMarkStep,
   trackRemoveNodeMarkStep,
   trackAddNodeMarkStep,
-} from '../steps-trackers/trackMarkSteps'
-import { trackReplaceAroundStep } from '../steps-trackers/trackReplaceAroundStep'
-import { trackReplaceStep } from '../steps-trackers/trackReplaceStep'
+} from './steps-trackers/trackMarkSteps'
+import { trackReplaceAroundStep } from './steps-trackers/trackReplaceAroundStep'
+import { trackReplaceStep } from './steps-trackers/trackReplaceStep'
+import { excludeFromTracking, iterationIsValid, passThroughMeta } from './transactionProcessing'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -76,7 +74,7 @@ export function trackTransaction(
   clearedSteps: Step[],
   trContext: TrTrackingContext
 ) {
-  const emptyAttrs: NewEmptyAttrs = createNewPendingAttrs(tr.time, authorID)
+  const emptyAttrs = createNewPendingAttrs(tr.time, authorID)
 
   // mapping for deleted content, that was inserted before
   const deletedNodeMapping = new Mapping()

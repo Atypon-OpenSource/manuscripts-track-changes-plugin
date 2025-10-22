@@ -24,10 +24,10 @@ import {
   NewEmptyAttrs,
   addTrackIdIfDoesntExist,
   createNewStructureAttrs,
+  updateBlockNodesAttrs,
 } from '../helpers/attributes'
 import { setFragmentAsInserted } from '../helpers/fragment'
 import { CHANGE_OPERATION, NodeChange } from '../types/change'
-import { updateBlockNodesAttrs } from '../utils/tracking'
 import { updateChangeAttrs } from './updateChangeAttrs'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */

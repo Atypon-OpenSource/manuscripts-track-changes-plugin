@@ -15,9 +15,8 @@
  */
 import { Transaction } from 'prosemirror-state'
 import { Step } from 'prosemirror-transform'
-
-import { TrTrackingContext } from '../types/track'
-import { log } from '../utils/logger'
+import { TrTrackingContext } from '../../types/track'
+import { log } from '../../utils/logger'
 
 export function processStepsBeforeTracking(
   tr: Transaction,

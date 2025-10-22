@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Mark, MarkSpec, MarkType, Node as PMNode, Schema, SchemaSpec } from 'prosemirror-model'
+import { Attrs, Fragment, Mark, Node as PMNode, Schema } from 'prosemirror-model'
 
-import { log } from './utils/logger'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './types/change'
-import { uuidv4 } from './utils/uuidv4'
-import { isValidTrackableMark } from './utils/tracking'
+import { log } from '../utils/logger'
+import { TrackedAttrs, CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
+import { uuidv4 } from '../utils/uuidv4'
+import { isValidTrackableMark } from './mark'
 
 export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
 export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
@@ -117,7 +117,7 @@ export function createNewPendingAttrs(time: number, authorID: string) {
     updatedAt: time,
     statusUpdateAt: 0, // has to be zero as first so changes are not differeniated at start
     status: CHANGE_STATUS.pending,
-  }
+  } as NewEmptyAttrs
 }
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
@@ -205,4 +205,33 @@ export function getMergeableMarkTrackedAttrs(
 ) {
   const nodeAttrs = getTextNodeTrackedMarkData(node, schema)
   return nodeAttrs && shouldMergeTrackedAttributes(nodeAttrs, attrs) ? nodeAttrs : null
+}
+
+export const updateBlockNodesAttrs = (
+  fragment: Fragment,
+  predicate: (attrs: Attrs, node: PMNode) => Attrs
+) => {
+  const updatedNodes: PMNode[] = []
+
+  fragment.forEach((child) => {
+    if (!child.isBlock) {
+      updatedNodes.push(child)
+      return
+    }
+
+    const newContent = child.content.size ? updateBlockNodesAttrs(child.content, predicate) : child.content
+    const newAttrs = predicate(child.attrs, child)
+
+    updatedNodes.push(child.type.create(newAttrs, newContent, child.marks))
+  })
+
+  return Fragment.fromArray(updatedNodes)
+}
+
+export function excludeFromTracked(dataTracked: TrackedAttrs[] | null, changeIdToExclude: string) {
+  if (!dataTracked) {
+    return null
+  }
+  const newDataTracked = dataTracked.filter((c) => c.id !== changeIdToExclude)
+  return newDataTracked.length ? newDataTracked : null
 }

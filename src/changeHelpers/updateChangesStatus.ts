@@ -19,9 +19,9 @@ import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
-import { applyChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
-import { dropOrphanChanges } from '../steps-trackers/lib/structureChange'
+import { applyChanges } from '../applyChanges'
+import { dropOrphanChanges } from './structureChange'
 
 export function updateChangesStatus(
   createdTr: Transaction,

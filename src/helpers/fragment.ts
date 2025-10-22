@@ -29,11 +29,11 @@ import {
   NewMoveAttrs,
   NewTrackedAttrs,
 } from './attributes'
-import { CHANGE_STATUS, CHANGE_OPERATION } from './types/change'
-import { ExposedFragment } from './types/pm'
-import { equalMarks } from './utils/tracking'
-import { uuidv4 } from './utils/uuidv4'
-import { log } from './utils/logger'
+import { log } from '../utils/logger'
+import { ExposedFragment } from '../types/pm'
+import { uuidv4 } from '../utils/uuidv4'
+import { CHANGE_STATUS, CHANGE_OPERATION } from '../types/change'
+import { equalMarks } from './mark'
 
 export function setFragmentAsInserted(inserted: Fragment, insertAttrs: NewInsertAttrs, schema: Schema) {
   // Recurse the content in the inserted slice and either mark it tracked_insert or set node attrs

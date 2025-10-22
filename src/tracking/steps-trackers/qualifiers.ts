@@ -17,8 +17,8 @@
 import { Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
-import { ChangeSet } from '../ChangeSet'
-import { TrackedAttrs, CHANGE_OPERATION } from '../types/change'
+import { ChangeSet } from '../../ChangeSet'
+import { TrackedAttrs, CHANGE_OPERATION, CHANGE_STATUS } from '../../types/change'
 
 export const isDeleteStep = (step: ReplaceStep) =>
   step.from !== step.to && step.slice.content.size < step.to - step.from
@@ -153,4 +153,26 @@ export const isDirectPendingMoveDeletion = (
     node.attrs.dataTracked as TrackedAttrs[] | undefined,
     CHANGE_OPERATION.move
   )
+}
+
+/**
+ * Detects if we're deleting a pending moved node
+ */
+export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
+  if (!step.slice || step.from === step.to || step.slice.content.size > 0) {
+    return undefined
+  }
+
+  const node = doc.nodeAt(step.from)
+  if (!node) {
+    return undefined
+  }
+  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[]
+  const found = trackedAttrs?.find(
+    (tracked) => tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
+  )
+  if (found?.moveNodeId) {
+    return found.moveNodeId
+  }
+  return undefined
 }

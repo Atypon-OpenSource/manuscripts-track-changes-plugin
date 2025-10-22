@@ -15,9 +15,9 @@
  */
 import { Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
-import { shouldMergeTrackedAttributes } from '../../attributes'
 import { TrackedAttrs } from '../../types/change'
 import { uuidv4 } from '../../utils/uuidv4'
+import { shouldMergeTrackedAttributes } from '../../helpers/attributes'
 
 // Update the id of the mark to a new uuid if it is the same as the left or right mark, to avoid
 // conflicts when merging marks

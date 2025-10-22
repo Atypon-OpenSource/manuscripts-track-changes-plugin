@@ -13,19 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Attrs, Fragment, Mark, Node as PMNode, Slice } from 'prosemirror-model'
-import { Selection, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
-
+import { Transaction } from 'prosemirror-state'
+import { ReplaceStep, Step } from 'prosemirror-transform'
+import { Node as PMNode } from 'prosemirror-model'
 import { isIndentationAction, TrackChangesAction } from '../actions'
-import { CHANGE_OPERATION, CHANGE_STATUS, MarkChange, TrackedAttrs, TrackedChange } from '../types/change'
 import { TrTrackingContext } from '../types/track'
-import { uuidv4 } from './uuidv4'
-import { isDirectPendingMoveDeletion } from '../changes/qualifiers'
+import { uuidv4 } from '../utils/uuidv4'
 import { ChangeSet } from '../ChangeSet'
+import { TrackedAttrs, CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
+import { isDirectPendingMoveDeletion, isDeletingPendingMovedNode } from './steps-trackers/qualifiers'
 
-// @ts-ignore
-export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
+export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
+  if (isIndentationAction(trContext.action)) {
+    // Assign the same moveId to all steps in the transaction if it's an indentation or an unindentation
+    const moveId = uuidv4()
+    for (let i = 0; i < tr.steps.length; i++) {
+      const step = tr.steps[i]
+      if (step instanceof ReplaceStep) {
+        trContext.stepsByGroupIDMap.set(step, moveId)
+      }
+    }
+  }
+}
+
+export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - verify highlight marker functionality and add it to schema in highlight marker
+
+export function passThroughMeta(oldTr: Transaction, newTr: Transaction) {
+  /* The old meta keys are not copied to the new transaction since this will cause race-conditions
+   when a single meta-field is expected to having been processed / removed. Generic input meta keys,
+   inputType and uiEvent are re-added since some plugins might depend on them and process the transaction
+   after track-changes plugin. */
+  oldTr.getMeta('inputType') && newTr.setMeta('inputType', oldTr.getMeta('inputType'))
+  oldTr.getMeta('uiEvent') && newTr.setMeta('uiEvent', oldTr.getMeta('uiEvent'))
+  return newTr
+}
+
+export function iterationIsValid(iterations: number, oldTr: Transaction, newTr: Transaction, step: Step) {
+  const uiEvent = oldTr.getMeta('uiEvent')
+  const isMassReplace = oldTr.getMeta('massSearchReplace')
+  if (iterations > 20 && uiEvent != 'cut' && !isMassReplace) {
+    console.error(
+      '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
+        'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
+      newTr
+    )
+    return false
+  } else if (!(step instanceof ReplaceStep) && step.constructor.name === 'ReplaceStep') {
+    console.error(
+      '@manuscripts/track-changes-plugin: Multiple prosemirror-transform packages imported, alias/dedupe them ' +
+        'or instanceof checks fail as well as creating new steps'
+    )
+    return false
+  }
+  return true
+}
 
 export const getMoveOperationsSteps = (tr: Transaction, context: TrTrackingContext) => {
   /**
@@ -129,28 +170,6 @@ export const getMoveOperationsSteps = (tr: Transaction, context: TrTrackingConte
 }
 
 /**
- * Detects if we're deleting a pending moved node
- */
-export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
-  if (!step.slice || step.from === step.to || step.slice.content.size > 0) {
-    return undefined
-  }
-
-  const node = doc.nodeAt(step.from)
-  if (!node) {
-    return undefined
-  }
-  const trackedAttrs = node.attrs.dataTracked as TrackedAttrs[]
-  const found = trackedAttrs?.find(
-    (tracked) => tracked.operation === CHANGE_OPERATION.move && tracked.status === CHANGE_STATUS.pending
-  )
-  if (found?.moveNodeId) {
-    return found.moveNodeId
-  }
-  return undefined
-}
-
-/**
  * Cleaning up deleted moves based on ref map in the context (not part of moving pending moved node).
  * Having some pending moved content (a node was moved and there is a shadow of it on its former position), when
  * a parent of that shadow is removed, we requalify the "MOVE" operation into an insertion using this function.
@@ -161,6 +180,7 @@ export const changeMovedToInsertsOnSourceDeletion = (
   newTr: Transaction,
   trContext: TrTrackingContext
 ) => {
+  /* @TODO: we have orphanRemove...something-something function that does pretty much the same thing */
   for (let i = 0; i < tr.steps.length; i++) {
     const step = tr.steps[i]
     if (step instanceof ReplaceStep) {
@@ -246,101 +266,5 @@ export const filterMeaninglessMoveSteps = (tr: Transaction, context: TrTrackingC
   return cleanSteps
 }
 
-/**
- * Check it the given mark can be tracked.
- *
- * @param mark Mark to be checked for trackability
- */
-export function isValidTrackableMark(mark: Mark) {
-  const spec = mark.type.spec
-  const name = mark.type.name
-  if (
-    !name.startsWith('tracked_') &&
-    spec.attrs?.dataTracked &&
-    typeof spec.attrs?.dataTracked === 'object'
-  ) {
-    return true
-  }
-  return false
-}
-
-export function excludeFromTracked(dataTracked: TrackedAttrs[] | null, changeIdToExclude: string) {
-  if (!dataTracked) {
-    return null
-  }
-  const newDataTracked = dataTracked.filter((c) => c.id !== changeIdToExclude)
-  return newDataTracked.length ? newDataTracked : null
-}
-
-export const updateBlockNodesAttrs = (
-  fragment: Fragment,
-  predicate: (attrs: Attrs, node: PMNode) => Attrs
-) => {
-  const updatedNodes: PMNode[] = []
-
-  fragment.forEach((child) => {
-    if (!child.isBlock) {
-      updatedNodes.push(child)
-      return
-    }
-
-    const newContent = child.content.size ? updateBlockNodesAttrs(child.content, predicate) : child.content
-    const newAttrs = predicate(child.attrs, child)
-
-    updatedNodes.push(child.type.create(newAttrs, newContent, child.marks))
-  })
-
-  return Fragment.fromArray(updatedNodes)
-}
-
-export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
-  if (isIndentationAction(trContext.action)) {
-    // Assign the same moveId to all steps in the transaction if it's an indentation or an unindentation
-    const moveId = uuidv4()
-    for (let i = 0; i < tr.steps.length; i++) {
-      const step = tr.steps[i]
-      if (step instanceof ReplaceStep) {
-        trContext.stepsByGroupIDMap.set(step, moveId)
-      }
-    }
-  }
-}
-
-export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - verify highlight marker functionality and add it to schema in highlight marker
-
-export function passThroughMeta(oldTr: Transaction, newTr: Transaction) {
-  /* The old meta keys are not copied to the new transaction since this will cause race-conditions
-   when a single meta-field is expected to having been processed / removed. Generic input meta keys,
-   inputType and uiEvent are re-added since some plugins might depend on them and process the transaction
-   after track-changes plugin. */
-  oldTr.getMeta('inputType') && newTr.setMeta('inputType', oldTr.getMeta('inputType'))
-  oldTr.getMeta('uiEvent') && newTr.setMeta('uiEvent', oldTr.getMeta('uiEvent'))
-  return newTr
-}
-
-export function iterationIsValid(iterations: number, oldTr: Transaction, newTr: Transaction, step: Step) {
-  const uiEvent = oldTr.getMeta('uiEvent')
-  const isMassReplace = oldTr.getMeta('massSearchReplace')
-  if (iterations > 20 && uiEvent != 'cut' && !isMassReplace) {
-    console.error(
-      '@manuscripts/track-changes-plugin: Possible infinite loop in iterating tr.steps, tracking skipped!\n' +
-        'This is probably an error with the library, please report back to maintainers with a reproduction if possible',
-      newTr
-    )
-    return false
-  } else if (!(step instanceof ReplaceStep) && step.constructor.name === 'ReplaceStep') {
-    console.error(
-      '@manuscripts/track-changes-plugin: Multiple prosemirror-transform packages imported, alias/dedupe them ' +
-        'or instanceof checks fail as well as creating new steps'
-    )
-    return false
-  }
-  return true
-}
-
-export function equalMarks(n1: PMNode, n2: PMNode) {
-  return (
-    n1.marks.length === n2.marks.length &&
-    n1.marks.every((mark) => n1.marks.find((m) => m.type === mark.type))
-  )
-}
+// @ts-ignore
+export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
