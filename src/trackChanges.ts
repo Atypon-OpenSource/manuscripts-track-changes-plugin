@@ -26,7 +26,7 @@ import {
   getMoveOperationsSteps,
   trFromHistory,
 } from './tracking/transactionProcessing'
-import { TrTrackingContext } from './types/track'
+import { TrTrackingContext } from './tracking/types'
 
 export function trackChanges(
   tr: Transaction,

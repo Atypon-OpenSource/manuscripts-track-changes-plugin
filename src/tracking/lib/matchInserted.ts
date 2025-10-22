@@ -15,7 +15,7 @@
  */
 
 import { ExposedFragment } from '../../types/pm'
-import { ChangeStep } from '../change-step/type'
+import { ChangeStep } from '../types'
 
 /**
  * Matches deleted to inserted content and returns the first pos they differ and the updated

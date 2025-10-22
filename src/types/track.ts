@@ -38,12 +38,3 @@ export enum TrackChangesStatus {
   viewSnapshots = 'view-snapshots',
   disabled = 'disabled',
 }
-
-export type TrTrackingContext = {
-  prevLiftStep?: ReplaceAroundStep
-  liftFragment?: Fragment
-  action: ReturnType<typeof getAction>
-  // emptyAttrs: NewEmptyAttrs
-  stepsByGroupIDMap: Map<ReplaceStep, string>
-  selectionPosFromInsertion?: number
-}

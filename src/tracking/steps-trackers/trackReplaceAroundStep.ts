@@ -21,11 +21,10 @@ import { TrackChangesAction } from '../../actions'
 import { createNewInsertAttrs, NewEmptyAttrs } from '../../helpers/attributes'
 import { setFragmentAsInserted, setFragmentAsWrapChange } from '../../helpers/fragment'
 import { ExposedSlice } from '../../types/pm'
-import { TrTrackingContext } from '../../types/track'
 import { log } from '../../utils/logger'
-import { ChangeStep } from '../change-step/type'
 import { deleteAndMergeSplitNodes } from '../lib/deleteAndMergeSplitNodes'
 import { isLiftStep, isWrapStep } from './qualifiers'
+import { TrTrackingContext, ChangeStep } from '../types'
 
 function preserveDataTrackedFromPreviousStep(
   newTr: Transaction,

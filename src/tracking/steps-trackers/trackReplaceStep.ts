@@ -26,12 +26,11 @@ import {
   setFragmentAsNodeSplit,
 } from '../../helpers/fragment'
 import { ExposedReplaceStep, ExposedSlice } from '../../types/pm'
-import { TrTrackingContext } from '../../types/track'
 import { log } from '../../utils/logger'
 import { mapChangeSteps } from '../change-step/diffChangeSteps'
-import { ChangeStep } from '../change-step/type'
 import { deleteAndMergeSplitNodes } from '../lib/deleteAndMergeSplitNodes'
 import { isSplitStep } from './qualifiers'
+import { TrTrackingContext, ChangeStep } from '../types'
 
 export function trackReplaceStep(
   i: number,

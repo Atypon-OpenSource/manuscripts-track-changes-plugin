@@ -29,7 +29,7 @@ import { log } from '../../utils/logger'
 import { deleteOrSetNodeDeleted } from '../lib/deleteNode'
 import { deleteTextIfInserted } from '../lib/deleteTextIfInserted'
 import { mergeTrackedMarks } from '../lib/mergeTrackedMarks'
-import { ChangeStep, DeleteNodeStep } from './type'
+import { ChangeStep, DeleteNodeStep } from '../types'
 
 /**
  * Applies worked out change steps to the new transaction and creating a document that has all the changes recorded

@@ -21,7 +21,7 @@ import { cutFragment } from '../../helpers/fragment'
 import { ExposedSlice } from '../../types/pm'
 import { log } from '../../utils/logger'
 import { matchInserted } from '../lib/matchInserted'
-import { ChangeStep, InsertSliceStep } from './type'
+import { ChangeStep, InsertSliceStep } from '../types'
 
 /**
  * Finds text changes that overlap and creates single change for them. Needed only for ReplaceAround and Replace steps as those are only once making such changes

@@ -20,7 +20,7 @@ import { AttrStep } from 'prosemirror-transform'
 
 import { NewEmptyAttrs } from '../../helpers/attributes'
 import { log } from '../../utils/logger'
-import { ChangeStep } from '../change-step/type'
+import { ChangeStep } from '../types'
 
 function trackAttrsChangeStep(
   step: AttrStep,

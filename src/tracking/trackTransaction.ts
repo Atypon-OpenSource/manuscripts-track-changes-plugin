@@ -30,7 +30,6 @@ import { isStructuralChange } from '../changeHelpers/structureChange'
 import { updateChangeAttrs } from '../changeHelpers/updateChangeAttrs'
 import { createNewPendingAttrs, getNodeTrackedData, NewEmptyAttrs } from '../helpers/attributes'
 import { ExposedReplaceStep } from '../types/pm'
-import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { uuidv4 } from '../utils/uuidv4'
 import { diffChangeSteps } from './change-step/diffChangeSteps'
@@ -47,6 +46,7 @@ import {
 import { trackReplaceAroundStep } from './steps-trackers/trackReplaceAroundStep'
 import { trackReplaceStep } from './steps-trackers/trackReplaceStep'
 import { excludeFromTracking, iterationIsValid, passThroughMeta } from './transactionProcessing'
+import { TrTrackingContext } from './types'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead

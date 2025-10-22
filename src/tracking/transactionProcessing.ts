@@ -20,9 +20,9 @@ import { ReplaceStep, Step } from 'prosemirror-transform'
 import { isIndentationAction, TrackChangesAction } from '../actions'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
-import { TrTrackingContext } from '../types/track'
 import { uuidv4 } from '../utils/uuidv4'
 import { isDeletingPendingMovedNode, isDirectPendingMoveDeletion } from './steps-trackers/qualifiers'
+import { TrTrackingContext } from './types'
 
 export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
   if (isIndentationAction(trContext.action)) {

@@ -18,9 +18,9 @@ import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import { createNewInsertAttrs, NewEmptyAttrs } from '../../helpers/attributes'
 import { setFragmentAsInserted } from '../../helpers/fragment'
 import { ExposedFragment, ExposedSlice } from '../../types/pm'
-import { ChangeStep } from '../change-step/type'
 import { isLiftStepForGap } from '../steps-trackers/qualifiers'
 import { splitSliceIntoMergedParts } from './splitSliceIntoMergedParts'
+import { ChangeStep } from '../types'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted
