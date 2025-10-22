@@ -19,7 +19,6 @@ import { Node as PMNode, Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 
 import { skipTracking, trackCommands } from '../../src'
-import { shouldMergeTrackedAttributes } from '../../src/compute/nodeHelpers'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
 import { SECOND_USER } from '../__fixtures__/users'
