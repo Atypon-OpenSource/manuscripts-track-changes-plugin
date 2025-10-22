@@ -17,10 +17,11 @@ import { DataTrackedAttrs } from '@manuscripts/transform'
 import { Mark, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { AddMarkStep, AddNodeMarkStep, RemoveMarkStep, RemoveNodeMarkStep } from 'prosemirror-transform'
-import { CHANGE_OPERATION } from '../../types/change'
+
 import { createNewDeleteAttrs, createNewInsertAttrs, NewEmptyAttrs } from '../../helpers/attributes'
-import { uuidv4 } from '../../utils/uuidv4'
 import { isValidTrackableMark } from '../../helpers/mark'
+import { CHANGE_OPERATION } from '../../types/change'
+import { uuidv4 } from '../../utils/uuidv4'
 
 function markHasOp(mark: Mark, operation: CHANGE_OPERATION) {
   if (mark.attrs.dataTracked && Array.isArray(mark.attrs.dataTracked)) {

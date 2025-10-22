@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Transaction, EditorState, PluginKey } from 'prosemirror-state'
+import { EditorState, PluginKey, Transaction } from 'prosemirror-state'
+
 import { getAction, TrackChangesAction } from './actions'
 import { processStepsBeforeTracking } from './tracking/lib/processStepsBeforeTracking'
 import { trackTransaction } from './tracking/trackTransaction'
-import { TrTrackingContext } from './types/track'
 import {
   changeMovedToInsertsOnSourceDeletion,
   filterMeaninglessMoveSteps,
@@ -26,6 +26,7 @@ import {
   getMoveOperationsSteps,
   trFromHistory,
 } from './tracking/transactionProcessing'
+import { TrTrackingContext } from './types/track'
 
 export function trackChanges(
   tr: Transaction,

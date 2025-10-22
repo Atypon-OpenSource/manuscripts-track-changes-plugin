@@ -17,8 +17,9 @@
 import { Node as PMNode, Slice } from 'prosemirror-model'
 import { Selection, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+
 import { ChangeSet } from '../../ChangeSet'
-import { TrackedAttrs, CHANGE_OPERATION, CHANGE_STATUS } from '../../types/change'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../../types/change'
 
 export const isDeleteStep = (step: ReplaceStep) =>
   step.from !== step.to && step.slice.content.size < step.to - step.from

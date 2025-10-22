@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
+import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import { Mapping } from 'prosemirror-transform'
 
-import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import { cutFragment } from '../../helpers/fragment'
 import { ExposedSlice } from '../../types/pm'
+import { log } from '../../utils/logger'
 import { matchInserted } from '../lib/matchInserted'
 import { ChangeStep, InsertSliceStep } from './type'
-import { log } from '../../utils/logger'
 
 /**
  * Finds text changes that overlap and creates single change for them. Needed only for ReplaceAround and Replace steps as those are only once making such changes

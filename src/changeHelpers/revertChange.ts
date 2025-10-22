@@ -19,8 +19,8 @@ import { Transaction } from 'prosemirror-state'
 import { liftTarget, Mapping, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
 import { excludeFromTracked, getBlockInlineTrackedData } from '../helpers/attributes'
+import { CHANGE_OPERATION, CHANGE_STATUS, IncompleteChange, NodeChange, TrackedChange } from '../types/change'
 
 /**
  *  move split-ed content back to the original node. and will update original node dataTracked in these cases:

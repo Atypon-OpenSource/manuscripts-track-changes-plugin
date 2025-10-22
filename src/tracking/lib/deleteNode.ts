@@ -16,10 +16,10 @@
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 
-import { log } from '../../utils/logger'
-import { CHANGE_OPERATION, CHANGE_STATUS } from '../../types/change'
 import { dropStructuralChangeShadow } from '../../changeHelpers/structureChange'
-import { NewDeleteAttrs, getBlockInlineTrackedData, addTrackIdIfDoesntExist } from '../../helpers/attributes'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData, NewDeleteAttrs } from '../../helpers/attributes'
+import { CHANGE_OPERATION, CHANGE_STATUS } from '../../types/change'
+import { log } from '../../utils/logger'
 
 /**
  * Deletes node but tries to leave its content intact by trying to unwrap it first

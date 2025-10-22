@@ -17,8 +17,8 @@ import { Fragment } from 'prosemirror-model'
 import type { PluginKey } from 'prosemirror-state'
 import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
-import { ChangeSet } from '../ChangeSet'
 import { getAction } from '../actions'
+import { ChangeSet } from '../ChangeSet'
 
 export interface TrackChangesOptions {
   debug?: boolean

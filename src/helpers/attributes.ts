@@ -15,8 +15,8 @@
  */
 import { Attrs, Fragment, Mark, Node as PMNode, Schema } from 'prosemirror-model'
 
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { log } from '../utils/logger'
-import { TrackedAttrs, CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
 import { uuidv4 } from '../utils/uuidv4'
 import { isValidTrackableMark } from './mark'
 

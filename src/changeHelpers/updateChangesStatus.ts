@@ -17,11 +17,11 @@
 import { closeHistory } from 'prosemirror-history'
 import { EditorState, Transaction } from 'prosemirror-state'
 
+import { applyChanges } from '../applyChanges'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
-import { updateChangeAttrs } from './updateChangeAttrs'
-import { applyChanges } from '../applyChanges'
 import { dropOrphanChanges } from './structureChange'
+import { updateChangeAttrs } from './updateChangeAttrs'
 
 export function updateChangesStatus(
   createdTr: Transaction,

@@ -15,6 +15,7 @@
  */
 
 import { Mapping } from 'prosemirror-transform'
+
 import { ChangeStep } from './type'
 
 export function mapChangeSteps(steps: ChangeStep[], mapping: Mapping) {

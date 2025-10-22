@@ -17,9 +17,10 @@
 import { Node as PMNode } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { AttrStep } from 'prosemirror-transform'
+
 import { NewEmptyAttrs } from '../../helpers/attributes'
-import { ChangeStep } from '../change-step/type'
 import { log } from '../../utils/logger'
+import { ChangeStep } from '../change-step/type'
 
 function trackAttrsChangeStep(
   step: AttrStep,

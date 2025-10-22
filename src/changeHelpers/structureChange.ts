@@ -16,14 +16,15 @@
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep } from 'prosemirror-transform'
+
 import { TrackChangesAction } from '../actions'
 import { findChanges } from '../findChanges'
 import {
-  getBlockInlineTrackedData,
-  createNewInsertAttrs,
-  NewEmptyAttrs,
   addTrackIdIfDoesntExist,
+  createNewInsertAttrs,
   createNewStructureAttrs,
+  getBlockInlineTrackedData,
+  NewEmptyAttrs,
   updateBlockNodesAttrs,
 } from '../helpers/attributes'
 import { setFragmentAsInserted } from '../helpers/fragment'

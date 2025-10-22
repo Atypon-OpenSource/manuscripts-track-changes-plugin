@@ -19,6 +19,7 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
+import { getBlockInlineTrackedData, getTextNodeTrackedMarkData } from '../helpers/attributes'
 import {
   CHANGE_OPERATION,
   CHANGE_STATUS,
@@ -28,7 +29,6 @@ import {
   TrackedChange,
 } from '../types/change'
 import { log } from '../utils/logger'
-import { getBlockInlineTrackedData, getTextNodeTrackedMarkData } from '../helpers/attributes'
 
 export function updateChangeAttrs(
   tr: Transaction,

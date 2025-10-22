@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { NodeSelection as NodeSelectionClass, TextSelection, Transaction, Selection } from 'prosemirror-state'
+import { NodeSelection as NodeSelectionClass, Selection, TextSelection, Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
-import { TrTrackingContext } from '../types/track'
+
 import { isStructuralChange } from '../changeHelpers/structureChange'
+import { TrTrackingContext } from '../types/track'
 
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports

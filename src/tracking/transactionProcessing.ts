@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Node as PMNode } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { ReplaceStep, Step } from 'prosemirror-transform'
-import { Node as PMNode } from 'prosemirror-model'
+
 import { isIndentationAction, TrackChangesAction } from '../actions'
+import { ChangeSet } from '../ChangeSet'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { TrTrackingContext } from '../types/track'
 import { uuidv4 } from '../utils/uuidv4'
-import { ChangeSet } from '../ChangeSet'
-import { TrackedAttrs, CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
-import { isDirectPendingMoveDeletion, isDeletingPendingMovedNode } from './steps-trackers/qualifiers'
+import { isDeletingPendingMovedNode, isDirectPendingMoveDeletion } from './steps-trackers/qualifiers'
 
 export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
   if (isIndentationAction(trContext.action)) {

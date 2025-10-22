@@ -16,23 +16,24 @@
 import { ManuscriptNode } from '@manuscripts/transform'
 import { Fragment, Node as PMNode, ResolvedPos, Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
+
+import { CHANGE_OPERATION, CHANGE_STATUS } from '../types/change'
+import { ExposedFragment } from '../types/pm'
+import { log } from '../utils/logger'
+import { uuidv4 } from '../utils/uuidv4'
 import {
   addTrackIdIfDoesntExist,
-  createNewWrapAttrs,
   createNewInsertAttrs,
-  getBlockInlineTrackedData,
   createNewReferenceAttrs,
   createNewSplitAttrs,
+  createNewWrapAttrs,
+  getBlockInlineTrackedData,
   getTextNodeTrackedMarkData,
   NewEmptyAttrs,
   NewInsertAttrs,
   NewMoveAttrs,
   NewTrackedAttrs,
 } from './attributes'
-import { log } from '../utils/logger'
-import { ExposedFragment } from '../types/pm'
-import { uuidv4 } from '../utils/uuidv4'
-import { CHANGE_STATUS, CHANGE_OPERATION } from '../types/change'
 import { equalMarks } from './mark'
 
 export function setFragmentAsInserted(inserted: Fragment, insertAttrs: NewInsertAttrs, schema: Schema) {

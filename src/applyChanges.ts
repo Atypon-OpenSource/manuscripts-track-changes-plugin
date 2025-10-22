@@ -17,14 +17,15 @@ import { ManuscriptNode } from '@manuscripts/transform'
 import { Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
+
 import { revertSplitNodeChange, revertWrapNodeChange } from './changeHelpers/revertChange'
-import { updateChangeChildrenAttributes, restoreNode } from './changeHelpers/updateChangeAttrs'
+import { restoreNode, updateChangeChildrenAttributes } from './changeHelpers/updateChangeAttrs'
 import { ChangeSet } from './ChangeSet'
-import { keepPairedChanges, deleteNode } from './tracking/lib/deleteNode'
-import { mergeNode } from './tracking/lib/mergeNode'
-import { TrackedChange, CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './types/change'
-import { log } from './utils/logger'
 import { excludeFromTracked } from './helpers/attributes'
+import { deleteNode, keepPairedChanges } from './tracking/lib/deleteNode'
+import { mergeNode } from './tracking/lib/mergeNode'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from './types/change'
+import { log } from './utils/logger'
 
 /**
  * Collects all moveNodeIds from a container node and its descendants

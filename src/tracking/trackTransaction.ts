@@ -26,24 +26,23 @@ import {
   Step,
 } from 'prosemirror-transform'
 
+import { isStructuralChange } from '../changeHelpers/structureChange'
+import { updateChangeAttrs } from '../changeHelpers/updateChangeAttrs'
+import { createNewPendingAttrs, getNodeTrackedData, NewEmptyAttrs } from '../helpers/attributes'
 import { ExposedReplaceStep } from '../types/pm'
 import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { uuidv4 } from '../utils/uuidv4'
-
-import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
-import { processChangeSteps } from './change-step/processChangeSteps'
-import { isStructuralChange } from '../changeHelpers/structureChange'
-import { updateChangeAttrs } from '../changeHelpers/updateChangeAttrs'
-import { NewEmptyAttrs, createNewPendingAttrs, getNodeTrackedData } from '../helpers/attributes'
 import { diffChangeSteps } from './change-step/diffChangeSteps'
+import { processChangeSteps } from './change-step/processChangeSteps'
+import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
 import { isDeleteStep } from './steps-trackers/qualifiers'
 import trackAttrsChangeStep from './steps-trackers/trackAttrsChangeStep'
 import {
   trackAddMarkStep,
+  trackAddNodeMarkStep,
   trackRemoveMarkStep,
   trackRemoveNodeMarkStep,
-  trackAddNodeMarkStep,
 } from './steps-trackers/trackMarkSteps'
 import { trackReplaceAroundStep } from './steps-trackers/trackReplaceAroundStep'
 import { trackReplaceStep } from './steps-trackers/trackReplaceStep'

@@ -17,15 +17,15 @@ import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
-import { log } from '../../utils/logger'
-import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../../types/change'
 import {
-  NewEmptyAttrs,
-  createNewDeleteAttrs,
-  getBlockInlineTrackedData,
   addTrackIdIfDoesntExist,
+  createNewDeleteAttrs,
   createNewUpdateAttrs,
+  getBlockInlineTrackedData,
+  NewEmptyAttrs,
 } from '../../helpers/attributes'
+import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../../types/change'
+import { log } from '../../utils/logger'
 import { deleteOrSetNodeDeleted } from '../lib/deleteNode'
 import { deleteTextIfInserted } from '../lib/deleteTextIfInserted'
 import { mergeTrackedMarks } from '../lib/mergeTrackedMarks'

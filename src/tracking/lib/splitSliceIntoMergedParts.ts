@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
+
 import { ExposedFragment, ExposedSlice } from '../../types/pm'
 
 /**
