@@ -33,7 +33,7 @@ export function diffChangeSteps(steps: ChangeStep[]) {
   log.info('INSERT STEPS: ', inserted)
 
   const updated: ChangeStep[] = []
-  let updatedDeleted = [...deleted]
+  let updatedDeleted: ChangeStep[] = [...deleted]
   inserted.forEach((ins) => {
     log.info('DIFF ins ', ins)
     //
