@@ -37,7 +37,12 @@ export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrack
   }
 }
 
-export const excludeFromTracking = (node: PMNode) => node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - verify highlight marker functionality and add it to schema in highlight marker
+export const excludeFromTracking = (node: PMNode) => {
+  if (node.isText) {
+    return false
+  }
+  return node && !node.type.spec.attrs?.dataTracked // currently only highlight marker, @TODO - verify highlight marker functionality and add it to schema in highlight marker
+}
 
 export function passThroughMeta(oldTr: Transaction, newTr: Transaction) {
   /* The old meta keys are not copied to the new transaction since this will cause race-conditions

@@ -96,6 +96,7 @@ export function trackTransaction(
         // don't track nodes that don't have dataTracked attrs in schema, such as highlight marker nodes
         continue
       }
+      console.log('REPLACE STEP - IN ACTION')
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
@@ -133,7 +134,7 @@ export function trackTransaction(
         deletedNodeMapping
       )
 
-      trContext.selectionPosFromInsertion = updatedSelectionPos
+      trContext.selectionPosFromInsertion = updatedSelectionPos || tr.selection.head
     } else if (step instanceof ReplaceAroundStep) {
       let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
       steps = diffChangeSteps(steps)

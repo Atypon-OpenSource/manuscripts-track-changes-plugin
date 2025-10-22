@@ -27,10 +27,10 @@ import {
 } from '../../helpers/fragment'
 import { ExposedReplaceStep, ExposedSlice } from '../../types/pm'
 import { log } from '../../utils/logger'
-import { mapChangeSteps } from '../change-step/diffChangeSteps'
 import { deleteAndMergeSplitNodes } from '../lib/deleteAndMergeSplitNodes'
 import { isSplitStep } from './qualifiers'
 import { TrTrackingContext, ChangeStep } from '../types'
+import { mapChangeSteps } from '../change-step/mapChangeSteps'
 
 export function trackReplaceStep(
   i: number,

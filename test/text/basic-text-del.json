@@ -4,10 +4,7 @@
     "content": [
       {
         "type": "paragraph",
-        "attrs": {
-          "dataTracked": null,
-          "testAttribute": null
-        },
+        "attrs": { "dataTracked": null, "testAttribute": null },
         "content": [
           {
             "type": "text",
