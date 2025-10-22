@@ -29,25 +29,27 @@ import {
 import { diffChangeSteps } from '../change-steps/diffChangeSteps'
 import { processChangeSteps } from '../change-steps/processChangeSteps'
 import { updateChangeAttrs } from '../changes/updateChangeAttrs'
-import { getNodeTrackedData } from '../compute/nodeHelpers'
+
 import { ExposedReplaceStep } from '../types/pm'
 import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
-import { excludeFromTracking, passThroughMeta, iterationIsValid, isStructuralChange } from '../utils/tracking'
+import { excludeFromTracking, passThroughMeta, iterationIsValid } from '../utils/tracking'
 import { uuidv4 } from '../utils/uuidv4'
-import { NewEmptyAttrs } from '../attributes/types'
-import { createNewPendingAttrs } from '../attributes'
-import { trackReplaceStep } from '../steps/trackReplaceStep'
-import { isDeleteStep } from '../steps/qualifiers'
-import { trackReplaceAroundStep } from '../steps/trackReplaceAroundStep'
+
+import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
+
+import { isStructuralChange } from '../changes/qualifiers'
+import { NewEmptyAttrs, createNewPendingAttrs, getNodeTrackedData } from '../attributes'
+import { isDeleteStep } from '../steps-trackers/qualifiers'
+import trackAttrsChangeStep from '../steps-trackers/trackAttrsChangeStep'
 import {
   trackAddMarkStep,
-  trackAddNodeMarkStep,
   trackRemoveMarkStep,
   trackRemoveNodeMarkStep,
-} from '../steps/trackMarkSteps'
-import { fixAndSetSelectionAfterTracking } from './fixAndHandleSelection'
-import trackAttrsChangeStep from '../steps/trackAttrsChangeStep'
+  trackAddNodeMarkStep,
+} from '../steps-trackers/trackMarkSteps'
+import { trackReplaceAroundStep } from '../steps-trackers/trackReplaceAroundStep'
+import { trackReplaceStep } from '../steps-trackers/trackReplaceStep'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead

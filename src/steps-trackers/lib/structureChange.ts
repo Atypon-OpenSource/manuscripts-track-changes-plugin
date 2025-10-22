@@ -16,15 +16,18 @@
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep } from 'prosemirror-transform'
-
-import { findChanges } from '../changes/findChanges'
-import { updateChangeAttrs } from '../changes/updateChangeAttrs'
-import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { setFragmentAsInserted } from '../compute/setFragmentAsInserted'
-import { CHANGE_OPERATION, NodeChange } from '../types/change'
-import { createNewInsertAttrs, createNewStructureAttrs } from '../attributes'
-import { NewEmptyAttrs } from '../attributes/types'
-import { updateBlockNodesAttrs } from '../utils/tracking'
+import {
+  getBlockInlineTrackedData,
+  createNewInsertAttrs,
+  NewEmptyAttrs,
+  addTrackIdIfDoesntExist,
+  createNewStructureAttrs,
+} from '../../attributes'
+import { findChanges } from '../../changes/findChanges'
+import { updateChangeAttrs } from '../../changes/updateChangeAttrs'
+import { setFragmentAsInserted } from '../../fragment'
+import { CHANGE_OPERATION, NodeChange } from '../../types/change'
+import { updateBlockNodesAttrs } from '../../utils/tracking'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */
 export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: Transaction) => {

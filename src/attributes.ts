@@ -1,5 +1,5 @@
 /*!
- * © 2023 Atypon Systems LLC
+ * © 2025 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,110 @@
  */
 import { Mark, MarkSpec, MarkType, Node as PMNode, Schema, SchemaSpec } from 'prosemirror-model'
 
-import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
-import { log } from '../utils/logger'
-import { isValidTrackableMark } from '../utils/track-utils'
-import { uuidv4 } from '../utils/uuidv4'
+import { log } from './utils/logger'
+import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './types/change'
+import { uuidv4 } from './utils/uuidv4'
+import { isValidTrackableMark } from './utils/tracking'
+
+export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
+export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.wrap_with_node | CHANGE_OPERATION.structure
+}
+
+export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.delete
+}
+export type NewUpdateAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.set_node_attributes
+  oldAttrs: Record<string, any>
+}
+export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.node_split
+}
+export type NewMoveAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.move
+  indentationType?: 'indent' | 'unindent'
+}
+export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
+  operation: CHANGE_OPERATION.reference
+  referenceId: string
+}
+export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs | NewMoveAttrs
+
+export function createNewInsertAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.insert,
+  }
+}
+
+export function createNewWrapAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.wrap_with_node,
+  }
+}
+
+export function createNewSplitAttrs(attrs: NewEmptyAttrs): NewSplitNodeAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.node_split,
+  }
+}
+
+export function createNewReferenceAttrs(attrs: NewEmptyAttrs, id: string): NewReferenceAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.reference,
+    referenceId: id,
+  }
+}
+
+export function createNewDeleteAttrs(attrs: NewEmptyAttrs): NewDeleteAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.delete,
+  }
+}
+
+export function createNewMoveAttrs(
+  attrs: NewEmptyAttrs,
+  indentationType?: 'indent' | 'unindent'
+): NewMoveAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.move,
+    ...(indentationType && { indentationType }),
+  }
+}
+
+export function createNewUpdateAttrs(attrs: NewEmptyAttrs, oldAttrs: Record<string, any>): NewUpdateAttrs {
+  // Omit dataTracked
+  const { dataTracked, ...restAttrs } = oldAttrs
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.set_node_attributes,
+    oldAttrs: JSON.parse(JSON.stringify(restAttrs)),
+  }
+}
+
+export function createNewStructureAttrs(attrs: NewEmptyAttrs): NewInsertAttrs {
+  return {
+    ...attrs,
+    operation: CHANGE_OPERATION.structure,
+  }
+}
+
+export function createNewPendingAttrs(time: number, authorID: string) {
+  return {
+    authorID,
+    reviewedByID: null,
+    createdAt: time,
+    updatedAt: time,
+    statusUpdateAt: 0, // has to be zero as first so changes are not differeniated at start
+    status: CHANGE_STATUS.pending,
+  }
+}
 
 export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
   if (!attrs.id) {
@@ -30,7 +130,7 @@ export function addTrackIdIfDoesntExist(attrs: Partial<TrackedAttrs>) {
   return attrs
 }
 
-export function getTextNodeTrackedMarkData(node: PMNode | undefined | null, schema: Schema) {
+export function getTextNodeTrackedMarkData(node: PMNode | null, schema: Schema) {
   if (!node || !node.isText) {
     return undefined
   }
@@ -85,13 +185,6 @@ export function getNodeTrackedData(
   return tracked
 }
 
-export function equalMarks(n1: PMNode, n2: PMNode) {
-  return (
-    n1.marks.length === n2.marks.length &&
-    n1.marks.every((mark) => n1.marks.find((m) => m.type === mark.type))
-  )
-}
-
 export function shouldMergeTrackedAttributes(left?: Partial<TrackedAttrs>, right?: Partial<TrackedAttrs>) {
   if (!left || !right) {
     log.warn('passed undefined dataTracked attributes to shouldMergeTrackedAttributes', {
@@ -106,7 +199,7 @@ export function shouldMergeTrackedAttributes(left?: Partial<TrackedAttrs>, right
 }
 
 export function getMergeableMarkTrackedAttrs(
-  node: PMNode | undefined | null,
+  node: PMNode | null,
   attrs: Partial<TrackedAttrs>,
   schema: Schema
 ) {

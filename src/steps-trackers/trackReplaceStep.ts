@@ -18,22 +18,20 @@ import type { EditorState, Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep, StepResult } from 'prosemirror-transform'
 
 import { getAction, TrackChangesAction } from '../actions'
-import {
-  setFragmentAsInserted,
-  setFragmentAsMoveChange,
-  setFragmentAsNodeSplit,
-} from '../compute/setFragmentAsInserted'
-import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
-import { joinStructureChanges } from '../mutate/structureChange'
+
 import { ExposedReplaceStep, ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { TrTrackingContext } from '../types/track'
 import { log } from '../utils/logger'
 import { mapChangeSteps } from '../utils/mapChangeStep'
-import { NewEmptyAttrs } from '../attributes/types'
+
 import { isStructuralChange } from '../changes/qualifiers'
 import { isSplitStep } from './qualifiers'
-import { createNewInsertAttrs, createNewMoveAttrs } from '../attributes'
+import { createNewInsertAttrs, createNewMoveAttrs, NewEmptyAttrs } from '../attributes'
+import { deleteAndMergeSplitNodes } from './lib/deleteAndMergeSplitNodes'
+
+import { joinStructureChanges } from './lib/structureChange'
+import { setFragmentAsInserted, setFragmentAsNodeSplit, setFragmentAsMoveChange } from '../fragment'
 
 export function trackReplaceStep(
   i: number,

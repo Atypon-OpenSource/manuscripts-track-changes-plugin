@@ -19,9 +19,9 @@ import { EditorState, Transaction } from 'prosemirror-state'
 
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TextChange, TrackedChange } from '../types/change'
-import { applyAcceptedRejectedChanges } from './applyChanges'
+import { applyChanges } from './applyChanges'
 import { updateChangeAttrs } from './updateChangeAttrs'
-import { dropOrphanChanges } from '../mutate/structureChange'
+import { dropOrphanChanges } from '../steps-trackers/lib/structureChange'
 
 export function updateChangesStatus(
   createdTr: Transaction,
@@ -80,8 +80,8 @@ export function updateChangesStatus(
       }
     })
 
-    const mapping = applyAcceptedRejectedChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
-    applyAcceptedRejectedChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
+    const mapping = applyChanges(createdTr, oldState.schema, nonTextChanges, changeSet)
+    applyChanges(createdTr, oldState.schema, textChanges, changeSet, mapping)
     dropOrphanChanges(createdTr)
   } else {
     ids.forEach((changeId: string) => {

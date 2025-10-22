@@ -19,8 +19,6 @@ import { Transaction } from 'prosemirror-state'
 import { Mapping } from 'prosemirror-transform'
 
 import { ChangeSet } from '../ChangeSet'
-import { deleteNode, keepPairedChanges } from '../mutate/deleteNode'
-import { mergeNode } from '../mutate/mergeNode'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs, TrackedChange } from '../types/change'
 import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
@@ -56,13 +54,13 @@ function collectMoveNodeIds(containerNode: ManuscriptNode, primaryMoveNodeId: st
  * @param changeSet
  * @param deleteMap
  */
-export function applyAcceptedRejectedChanges(
+export function applyChanges(
   tr: Transaction,
   schema: Schema,
   changes: TrackedChange[],
   changeSet: ChangeSet,
   deleteMap = new Mapping()
-): Mapping {
+) {
   // this will make sure that node-attr-change apply first as the editor prevent deleting node & update attribute
   changes.sort((c1, c2) => {
     // list change need to be first to lift list item then we can apply paragraph children changes

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
-
-import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { log } from '../utils/logger'
+import { ExposedFragment, ExposedSlice } from '../../types/pm'
 
 /**
  * Recurses node children and returns the merged first/last node's content and the unmerged children

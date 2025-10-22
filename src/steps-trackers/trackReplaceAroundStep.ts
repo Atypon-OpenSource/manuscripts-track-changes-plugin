@@ -18,15 +18,14 @@ import type { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceAroundStep } from 'prosemirror-transform'
 
 import { TrackChangesAction } from '../actions'
-import { setFragmentAsInserted, setFragmentAsWrapChange } from '../compute/setFragmentAsInserted'
-import { deleteAndMergeSplitNodes } from '../mutate/deleteAndMergeSplitNodes'
 import { ExposedSlice } from '../types/pm'
 import { ChangeStep } from '../types/step'
 import { log } from '../utils/logger'
-import { NewEmptyAttrs } from '../attributes/types'
 import { TrTrackingContext } from '../types/track'
 import { isLiftStep, isWrapStep } from './qualifiers'
-import { createNewInsertAttrs } from '../attributes'
+import { createNewInsertAttrs, NewEmptyAttrs } from '../attributes'
+import { deleteAndMergeSplitNodes } from './lib/deleteAndMergeSplitNodes'
+import { setFragmentAsWrapChange, setFragmentAsInserted } from '../fragment'
 
 function preserveDataTrackedFromPreviousStep(
   newTr: Transaction,

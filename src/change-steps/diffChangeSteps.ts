@@ -21,36 +21,6 @@ import { log } from '../utils/logger'
 import { matchInserted } from './matchInserted'
 
 /**
- * Cuts a fragment similar to Fragment.cut but also removes the parent node.
- *
- * @param matched
- * @param deleted
- * @param content
- * @returns
- */
-function cutFragment(matched: number, deleted: number, content: Fragment) {
-  const newContent: PMNode[] = []
-  for (let i = 0; matched <= deleted && i < content.childCount; i += 1) {
-    const child = content.child(i)
-    if (!child.isText && child.content.size > 0) {
-      const cut = cutFragment(matched + 1, deleted, child.content)
-      matched = cut[0]
-      newContent.push(...cut[1].content)
-    } else if (child.isText && matched + child.nodeSize > deleted) {
-      if (deleted - matched > 0) {
-        newContent.push(child.cut(deleted - matched))
-      } else {
-        newContent.push(child)
-      }
-      matched = deleted + 1
-    } else {
-      matched += child.nodeSize
-    }
-  }
-  return [matched, Fragment.fromArray(newContent)] as [number, ExposedFragment]
-}
-
-/**
  * Finds text changes that overlap and creates single change for them. Needed only for ReplaceAround and Replace steps as those are only once making such changes
  */
 export function diffChangeSteps(steps: ChangeStep[]) {

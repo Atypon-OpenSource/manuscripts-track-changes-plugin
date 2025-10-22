@@ -337,6 +337,10 @@ export function iterationIsValid(iterations: number, oldTr: Transaction, newTr: 
   }
   return true
 }
-export function isStructuralChange(tr: Transaction) {
-  throw new Error('Function not implemented.')
+
+export function equalMarks(n1: PMNode, n2: PMNode) {
+  return (
+    n1.marks.length === n2.marks.length &&
+    n1.marks.every((mark) => n1.marks.find((m) => m.type === mark.type))
+  )
 }
