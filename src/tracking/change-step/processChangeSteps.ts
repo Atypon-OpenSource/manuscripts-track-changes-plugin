@@ -17,15 +17,19 @@ import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
-import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../compute/nodeHelpers'
-import { deleteOrSetNodeDeleted } from '../mutate/deleteNode'
-import { deleteTextIfInserted } from '../mutate/deleteText'
-import { mergeTrackedMarks } from '../mutate/mergeTrackedMarks'
-import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../types/change'
-import { ChangeStep, DeleteNodeStep } from '../types/step'
-import { log } from '../utils/logger'
-import { NewEmptyAttrs } from '../attributes/types'
-import { createNewDeleteAttrs, createNewUpdateAttrs } from '../attributes'
+import { log } from '../../utils/logger'
+import { CHANGE_OPERATION, CHANGE_STATUS, UpdateAttrs } from '../../types/change'
+import {
+  NewEmptyAttrs,
+  createNewDeleteAttrs,
+  getBlockInlineTrackedData,
+  addTrackIdIfDoesntExist,
+  createNewUpdateAttrs,
+} from '../../helpers/attributes'
+import { deleteOrSetNodeDeleted } from '../lib/deleteNode'
+import { deleteTextIfInserted } from '../lib/deleteTextIfInserted'
+import { mergeTrackedMarks } from '../lib/mergeTrackedMarks'
+import { ChangeStep, DeleteNodeStep } from './type'
 
 /**
  * Applies worked out change steps to the new transaction and creating a document that has all the changes recorded

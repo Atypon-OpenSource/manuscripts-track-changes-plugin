@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import { Mark, Node as PMNode } from 'prosemirror-model'
-
-import { ExposedFragment, ExposedSlice } from './pm'
+import { ExposedFragment, ExposedSlice } from '../../types/pm'
 
 export interface DeleteNodeStep {
   pos: number

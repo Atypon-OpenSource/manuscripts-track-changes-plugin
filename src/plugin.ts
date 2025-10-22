@@ -17,14 +17,14 @@ import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
-import { findChanges } from './changes/findChanges'
-import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
-import { updateChangesStatus } from './changes/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
 import { trFromHistory } from './utils/tracking'
-import { maybeTrackTransaction } from './track-changes/maybeTrackTransaction'
+import { findChanges } from './findChanges'
+import { fixInconsistentChanges } from './changeHelpers/fixInconsistentChanges'
+import { updateChangesStatus } from './changeHelpers/updateChangesStatus'
+import { trackChanges } from './trackChanges'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -119,7 +119,7 @@ export const trackChangesPlugin = (
           updateChangesStatus(createdTr, changeSet, ids, status, userID, oldState)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         } else {
-          createdTr = maybeTrackTransaction(tr, createdTr, oldState, userID, skipTrsWithMetas) || createdTr
+          createdTr = trackChanges(tr, createdTr, oldState, userID, skipTrsWithMetas) || createdTr
         }
         docChanged = docChanged || tr.docChanged
       })

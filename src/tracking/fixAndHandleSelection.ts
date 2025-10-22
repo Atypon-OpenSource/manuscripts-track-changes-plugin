@@ -17,7 +17,7 @@
 import { NodeSelection as NodeSelectionClass, TextSelection, Transaction, Selection } from 'prosemirror-state'
 import { Mapping, ReplaceStep } from 'prosemirror-transform'
 import { TrTrackingContext } from '../types/track'
-import { isStructuralChange } from '../changes/qualifiers'
+import { isStructuralChange } from '../changeHelpers/structureChange'
 
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports

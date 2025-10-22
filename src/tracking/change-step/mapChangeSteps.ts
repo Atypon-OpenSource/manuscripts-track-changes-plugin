@@ -1,5 +1,5 @@
 /*!
- * © 2023 Atypon Systems LLC
+ * © 2025 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
  */
 
 import { Mapping } from 'prosemirror-transform'
-
-import { ChangeStep } from '../types/step'
+import { ChangeStep } from './type'
 
 export function mapChangeSteps(steps: ChangeStep[], mapping: Mapping) {
   steps.forEach((step) => {

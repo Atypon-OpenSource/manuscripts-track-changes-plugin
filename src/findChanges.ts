@@ -15,7 +15,6 @@
  */
 import { Node as PMNode } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
-import { getNodeTrackedData, getMarkTrackedData } from './attributes'
 import { ChangeSet } from './ChangeSet'
 import {
   IncompleteChange,
@@ -27,6 +26,7 @@ import {
   ReferenceChange,
   NodeChange,
 } from './types/change'
+import { getMarkTrackedData, getNodeTrackedData } from './helpers/attributes'
 
 /**
  * Finds all changes (basically text marks or node attributes) from document
