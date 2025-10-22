@@ -15,9 +15,9 @@
  */
 import { Node as PMNode } from 'prosemirror-model'
 
-import { ExposedFragment, ExposedSlice } from '../types/pm'
-import { ChangeStep, DeleteNodeStep, DeleteTextStep } from '../types/step'
-import { log } from '../utils/logger'
+import { log } from '../../utils/logger'
+import { ChangeStep, DeleteTextStep } from '../../types/step'
+import { ExposedFragment } from '../../types/pm'
 
 /**
  * Matches deleted-text recursively to inserted text

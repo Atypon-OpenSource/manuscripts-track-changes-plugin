@@ -34,6 +34,7 @@ export function updateChangesStatus(
   const change = changeSet.get(ids[0])
   const changeTime = new Date().getTime()
 
+  // applying or reverting changes
   if (change && status !== CHANGE_STATUS.pending) {
     const textChanges: TextChange[] = []
     const nonTextChanges: TrackedChange[] = []

@@ -18,8 +18,7 @@ import { Transaction } from 'prosemirror-state'
 
 import { dropStructuralChangeShadow } from './structureChange'
 import { log } from '../../utils/logger'
-import { addTrackIdIfDoesntExist, getBlockInlineTrackedData } from '../../attributes'
-import { NewDeleteAttrs } from '../../attributes/types'
+import { addTrackIdIfDoesntExist, getBlockInlineTrackedData, NewDeleteAttrs } from '../../attributes'
 import { CHANGE_OPERATION, CHANGE_STATUS } from '../../types/change'
 
 /**

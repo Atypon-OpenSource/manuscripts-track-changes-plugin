@@ -15,15 +15,11 @@
  */
 import { Fragment, Node as PMNode, Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
-
-import { NewDeleteAttrs } from '../attributes/types'
-import { addTrackIdIfDoesntExist, getMergeableMarkTrackedAttrs } from '../attributes'
+import { NewDeleteAttrs, getMergeableMarkTrackedAttrs, addTrackIdIfDoesntExist } from '../../attributes'
 
 /**
  * Deletes inserted text directly, otherwise wraps it with tracked_delete mark
  *
- * This would work for general inline nodes too, but since node marks don't work properly
- * with Yjs, attributes are used instead.
  * @param node
  * @param pos
  * @param newTr

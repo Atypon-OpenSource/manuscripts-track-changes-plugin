@@ -24,6 +24,7 @@ import { log } from '../utils/logger'
 import { revertSplitNodeChange, revertWrapNodeChange } from './revertChange'
 import { restoreNode, updateChangeChildrenAttributes } from './updateChangeAttrs'
 import { excludeFromTracked } from '../utils/tracking'
+import { deleteNode, keepPairedChanges } from '../steps-trackers/lib/deleteNode'
 
 /**
  * Collects all moveNodeIds from a container node and its descendants
