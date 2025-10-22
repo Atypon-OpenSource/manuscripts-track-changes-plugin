@@ -13,61 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
 
-import { log } from '../../utils/logger'
 import { ChangeStep, DeleteTextStep } from '../../types/step'
 import { ExposedFragment } from '../../types/pm'
-
-/**
- * Matches deleted-text recursively to inserted text
- *
- * This is needed as text containing various marks is split into multiple parts even though it's
- * continously deleted. Therefore, we need to find the next part if there is any and keep going until
- * we've reached the end of the deleted text or inserted content.
- * @param adjDeleted
- * @param insNode
- * @param offset
- * @param matchedDeleted
- * @param deleted
- * @returns
- */
-function matchText(
-  adjDeleted: DeleteTextStep,
-  insNode: PMNode,
-  offset: number,
-  matchedDeleted: number,
-  deleted: ChangeStep[]
-): [number, ChangeStep[]] {
-  const { pos, from, to, node: delNode } = adjDeleted
-  let j = offset,
-    d = from - pos,
-    maxSteps = to - Math.max(pos, from)
-  // Match text inside the inserted text node to the deleted text node
-  for (
-    ;
-    maxSteps !== j && insNode.text![j] !== undefined && insNode.text![j] === delNode.text![d];
-    j += 1, d += 1
-  ) {
-    matchedDeleted += 1
-  }
-  deleted = deleted.filter((d) => d !== adjDeleted)
-  if (maxSteps !== j) {
-    deleted.push({
-      pos,
-      from: from + j - offset,
-      to,
-      type: 'delete-text',
-      node: delNode,
-    })
-    return [matchedDeleted, deleted]
-  }
-  const nextTextDelete = deleted.find((d) => d.type === 'delete-text' && d.pos === to)
-  if (nextTextDelete) {
-    return matchText(nextTextDelete as DeleteTextStep, insNode, j, matchedDeleted, deleted)
-  }
-  return [matchedDeleted, deleted]
-}
 
 /**
  * Matches deleted to inserted content and returns the first pos they differ and the updated

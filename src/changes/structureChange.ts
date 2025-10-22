@@ -16,18 +16,19 @@
 import { Fragment, Node as PMNode } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep } from 'prosemirror-transform'
+import { TrackChangesAction } from '../actions'
+import { findChanges } from '../findChanges'
 import {
   getBlockInlineTrackedData,
   createNewInsertAttrs,
   NewEmptyAttrs,
   addTrackIdIfDoesntExist,
   createNewStructureAttrs,
-} from '../../attributes'
-import { findChanges } from '../../changes/findChanges'
-import { updateChangeAttrs } from '../../changes/updateChangeAttrs'
-import { setFragmentAsInserted } from '../../fragment'
-import { CHANGE_OPERATION, NodeChange } from '../../types/change'
-import { updateBlockNodesAttrs } from '../../utils/tracking'
+} from '../helpers/attributes'
+import { setFragmentAsInserted } from '../helpers/fragment'
+import { CHANGE_OPERATION, NodeChange } from '../types/change'
+import { updateBlockNodesAttrs } from '../utils/tracking'
+import { updateChangeAttrs } from './updateChangeAttrs'
 
 /** remove the copy of structure change that was set as delete with moveNodeId */
 export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: Transaction) => {
@@ -200,3 +201,9 @@ export const joinStructureChanges = (
     return { ..._, dataTracked: [addTrackIdIfDoesntExist(createNewStructureAttrs({ ...attrs, moveNodeId }))] }
   })
 }
+
+export const isStructuralChange = (tr: Transaction) =>
+  tr.getMeta(TrackChangesAction.structuralChangeAction) &&
+  tr.steps.length === 2 &&
+  tr.steps[0] instanceof ReplaceStep &&
+  tr.steps[1] instanceof ReplaceStep

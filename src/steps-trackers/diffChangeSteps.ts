@@ -18,7 +18,8 @@ import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 import { ChangeStep, InsertSliceStep } from '../types/step'
 import { log } from '../utils/logger'
-import { matchInserted } from './matchInserted'
+import { matchInserted } from './lib/matchInserted'
+import { cutFragment } from '../helpers/fragment'
 
 /**
  * Finds text changes that overlap and creates single change for them. Needed only for ReplaceAround and Replace steps as those are only once making such changes
