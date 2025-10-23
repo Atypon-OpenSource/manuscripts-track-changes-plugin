@@ -136,6 +136,8 @@ export function processChangeSteps(
           mapping.map(c.to)
         )
 
+        console.log(where)
+
         const textNewestStep = newTr.steps[newTr.steps.length - 1]
 
         if (node.marks.find((m) => m.type === schema.marks.tracked_insert)) {
