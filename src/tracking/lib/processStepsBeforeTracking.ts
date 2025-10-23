@@ -29,13 +29,13 @@ export function processStepsBeforeTracking(
     const res = p(tr, trContext)
     if (res) {
       steps = res
-    }
-
-    if (steps.length < tr.steps.length) {
-      log.warn(
-        'Bug! A processor function filtered steps incorrectly. Filtered out steps should be replaced with null and not popped out of the array. Length and order has to be preserved'
-      )
+      if (steps.length < tr.steps.length) {
+        log.warn(
+          'Bug! A processor function filtered steps incorrectly. Filtered out steps should be replaced with null and not popped out of the array. Length and order has to be preserved'
+        )
+      }
     }
   })
+
   return steps
 }
