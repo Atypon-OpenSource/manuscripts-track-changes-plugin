@@ -53,6 +53,7 @@ export function trackReplaceStep(
   )
   const stepResult = newTr.maybeStep(newStep)
   log.info('###### ReplaceStep ######')
+
   let selectionPos = 0
   const changeSteps: ChangeStep[] = []
   if (stepResult.failed) {
@@ -80,6 +81,7 @@ export function trackReplaceStep(
       steps: deleteSteps,
     } = deleteAndMergeSplitNodes(fromA, toA, undefined, tr.docs[i], oldState.schema, attrs, slice)
     changeSteps.push(...deleteSteps)
+
     log.info('TR: steps after applying delete', [...newTr.steps])
     log.info('DELETE STEPS: ', [...changeSteps])
 

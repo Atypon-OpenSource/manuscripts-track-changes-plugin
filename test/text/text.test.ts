@@ -65,44 +65,43 @@ describe('text.test', () => {
   //   expect(log.error).toHaveBeenCalledTimes(0)
   // })
 
-  test('should track basic text inserts and deletes', async () => {
-    const tester = setupEditor({
-      doc: docs.paragraph,
-    })
-      .insertText('inserted text')
-      .backspace(4)
-      .moveCursor(5)
-      .backspace(4)
-
-    fs.writeFileSync('test-dump.json', JSON.stringify(tester.toJSON()))
-    expect(tester.toJSON()).toEqual(basicTextDelete)
-    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(2)
-    expect(log.warn).toHaveBeenCalledTimes(0)
-    expect(log.error).toHaveBeenCalledTimes(0)
-  })
-
-  // test('should continue delete content when backspace is pressed repeatedly', async () => {
+  // test('should track basic text inserts and deletes', async () => {
   //   const tester = setupEditor({
-  //     doc: docs.manyParagraphs,
+  //     doc: docs.paragraph,
   //   })
-  //     .moveCursor('end')
-  //     .moveCursor(-2)
+  //     .insertText('inserted text')
+  //     .backspace(4)
+  //     .moveCursor(5)
+  //     .backspace(4)
 
-  //   for (let i = 0; i < 400; i += 1) {
-  //     tester.backspace(1)
-  //   }
-
-  //   // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-
-  //   // @TODO should delete links & their text and blockquotes
-  //   // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
-  //   expect(tester.toJSON()).toEqual(repeatedDelete)
+  //   expect(tester.toJSON()).toEqual(basicTextDelete)
   //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(19)
+  //   expect(uuidv4Mock.mock.calls.length).toBe(2)
   //   expect(log.warn).toHaveBeenCalledTimes(0)
   //   expect(log.error).toHaveBeenCalledTimes(0)
   // })
+
+  test('should continue delete content when backspace is pressed repeatedly', async () => {
+    const tester = setupEditor({
+      doc: docs.manyParagraphs,
+    })
+      .moveCursor('end')
+      .moveCursor(-2)
+
+    for (let i = 0; i < 400; i += 1) {
+      tester.backspace(1)
+    }
+
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+
+    // @TODO should delete links & their text and blockquotes
+    // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
+    expect(tester.toJSON()).toEqual(repeatedDelete)
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(19)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 
   // test('should join adjacent text inserts and deletes by same user', async () => {
   //   // delete first user inserts

@@ -47,6 +47,7 @@ import { trackReplaceAroundStep } from './steps-trackers/trackReplaceAroundStep'
 import { trackReplaceStep } from './steps-trackers/trackReplaceStep'
 import { excludeFromTracking, iterationIsValid, passThroughMeta } from './transactionProcessing'
 import { TrTrackingContext } from './types'
+import { writeFileSync } from 'fs'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -96,7 +97,6 @@ export function trackTransaction(
         // don't track nodes that don't have dataTracked attrs in schema, such as highlight marker nodes
         continue
       }
-      console.log('REPLACE STEP - IN ACTION')
       let thisStepMapping = tr.mapping.slice(i + 1, i + 1)
       /*
       In reference to "const thisStepMapping = tr.mapping.slice(i + 1)""
@@ -121,6 +121,8 @@ export function trackTransaction(
       }
       log.info('TRACK REPLACE CHANGES: ', [...steps])
       steps = diffChangeSteps(steps)
+      writeFileSync('steps-test.json', JSON.stringify(steps), { flag: 'a' })
+
       log.info('DIFFED STEPS: ', steps)
 
       // if step is in movingPairs, add its uuid (Map entry key) as moveNodeId
