@@ -19,8 +19,8 @@ import { createNewInsertAttrs, NewEmptyAttrs } from '../../helpers/attributes'
 import { setFragmentAsInserted } from '../../helpers/fragment'
 import { ExposedFragment, ExposedSlice } from '../../types/pm'
 import { isLiftStepForGap } from '../steps-trackers/qualifiers'
-import { splitSliceIntoMergedParts } from './splitSliceIntoMergedParts'
 import { ChangeStep } from '../types'
+import { splitSliceIntoMergedParts } from './splitSliceIntoMergedParts'
 
 /**
  * Applies deletion to the doc without actually deleting nodes that have not been inserted

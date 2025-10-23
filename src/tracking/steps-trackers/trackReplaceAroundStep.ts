@@ -23,8 +23,8 @@ import { setFragmentAsInserted, setFragmentAsWrapChange } from '../../helpers/fr
 import { ExposedSlice } from '../../types/pm'
 import { log } from '../../utils/logger'
 import { deleteAndMergeSplitNodes } from '../lib/deleteAndMergeSplitNodes'
+import { ChangeStep, TrTrackingContext } from '../types'
 import { isLiftStep, isWrapStep } from './qualifiers'
-import { TrTrackingContext, ChangeStep } from '../types'
 
 function preserveDataTrackedFromPreviousStep(
   newTr: Transaction,

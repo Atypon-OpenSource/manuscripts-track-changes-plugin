@@ -16,6 +16,7 @@
 
 import { Fragment } from 'prosemirror-model'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
+
 import { getAction } from '../actions'
 
 export type TrTrackingContext = {
@@ -43,6 +44,7 @@ export type TrTrackingContext = {
  * limitations under the License.
  */
 import { Mark, Node as PMNode } from 'prosemirror-model'
+
 import { ExposedFragment, ExposedSlice } from '../types/pm'
 
 export interface DeleteNodeStep {
