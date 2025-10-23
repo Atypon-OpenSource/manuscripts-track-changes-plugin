@@ -61,6 +61,7 @@ export function processChangeSteps(
 
     switch (c.type) {
       case 'delete-node': {
+        console.log('DELETING A NODE')
         deletesCounter++ // increase the counter for deleted nodes
         const prevDeletedNodeInserted = isInserted
         const trackedData = getBlockInlineTrackedData(c.node)
@@ -135,8 +136,6 @@ export function processChangeSteps(
           mapping.map(c.from),
           mapping.map(c.to)
         )
-
-        console.log(where)
 
         const textNewestStep = newTr.steps[newTr.steps.length - 1]
 

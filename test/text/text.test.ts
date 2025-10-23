@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import fs from 'fs'
+import fs, { writeFile, writeFileSync } from 'fs'
 import { Node as PMNode, Schema } from 'prosemirror-model'
 import { Transaction } from 'prosemirror-state'
 
@@ -92,7 +92,7 @@ describe('text.test', () => {
       tester.backspace(1)
     }
 
-    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    writeFileSync('test-real-result.json', JSON.stringify(tester.toJSON()))
 
     // @TODO should delete links & their text and blockquotes
     // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
