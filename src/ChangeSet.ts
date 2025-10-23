@@ -28,7 +28,6 @@ import {
   TrackedChange,
 } from './types/change'
 import { log } from './utils/logger'
-import { isInlineMarkChange } from './utils/track-utils'
 
 /**
  * ChangeSet is a data structure to contain the tracked changes with some utility methods and computed
@@ -252,12 +251,9 @@ export class ChangeSet {
       return false
     }
 
-    const isInline = (c: TrackedChange) =>
-      c.type === 'text-change' || (c.type === 'node-change' && c.node.isInline) || isInlineMarkChange(c)
-
     return (
-      isInline(change) &&
-      isInline(nextChange) &&
+      ChangeSet.isInline(change) &&
+      ChangeSet.isInline(nextChange) &&
       change.to === nextChange.from &&
       (change.dataTracked.operation === nextChange.dataTracked.operation ||
         this.areMatchingWrapOperations(change, nextChange) ||
@@ -297,12 +293,14 @@ export class ChangeSet {
    */
   static shouldDeleteChange(change: TrackedChange) {
     const { status, operation } = change.dataTracked
+    const allowedRejectedForDeletion = [
+      CHANGE_OPERATION.insert,
+      CHANGE_OPERATION.node_split,
+      CHANGE_OPERATION.wrap_with_node,
+      CHANGE_OPERATION.move,
+    ]
     return (
-      ((operation === CHANGE_OPERATION.insert ||
-        operation === CHANGE_OPERATION.node_split ||
-        operation === CHANGE_OPERATION.wrap_with_node ||
-        operation === CHANGE_OPERATION.move) &&
-        status === CHANGE_STATUS.rejected) ||
+      (allowedRejectedForDeletion.includes(operation) && status === CHANGE_STATUS.rejected) ||
       (operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.accepted)
     )
   }
@@ -342,6 +340,21 @@ export class ChangeSet {
     )
   }
 
+  static isInlineMarkChange(change: TrackedChange) {
+    if (ChangeSet.isMarkChange(change)) {
+      return change.nodeType.isInline || change.nodeType.isText
+    }
+    return false
+  }
+
+  static isInline(c: TrackedChange) {
+    return (
+      c.type === 'text-change' ||
+      (c.type === 'node-change' && c.node.isInline) ||
+      ChangeSet.isInlineMarkChange(c)
+    )
+  }
+
   static isTextChange(change: TrackedChange): change is TextChange {
     return change.type === 'text-change'
   }
@@ -361,6 +374,14 @@ export class ChangeSet {
   static isReferenceChange(change: TrackedChange): change is ReferenceChange {
     return change.type === 'reference-change'
   }
+
+  /**
+   * Checks if the given `TrackedAttrs` array contains a pending change of the specified operation type.
+   */
+  static isPendingChange(trackedAttrs: TrackedAttrs[] | undefined, operation: CHANGE_OPERATION) {
+    return !!trackedAttrs?.some((t) => t.operation === operation)
+  }
+
   #isSameNodeChange(currentChange: NodeChange, nextChange: TrackedChange) {
     return currentChange.from === nextChange.from && currentChange.to === nextChange.to
   }

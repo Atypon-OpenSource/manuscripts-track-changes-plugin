@@ -1,5 +1,5 @@
 /*!
- * © 2023 Atypon Systems LLC
+ * © 2025 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Fragment, Node as PMNode } from 'prosemirror-model'
+import { Fragment } from 'prosemirror-model'
 import type { PluginKey } from 'prosemirror-state'
-import { ReplaceAroundStep } from 'prosemirror-transform'
+import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
+import { getAction } from '../actions'
 import { ChangeSet } from '../ChangeSet'
-import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from './change'
 
 export interface TrackChangesOptions {
   debug?: boolean
@@ -33,38 +33,8 @@ export interface TrackChangesState {
   changeSet: ChangeSet
 }
 
-export type NewEmptyAttrs = Omit<TrackedAttrs, 'id' | 'operation'>
-export type NewInsertAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.insert | CHANGE_OPERATION.wrap_with_node | CHANGE_OPERATION.structure
-}
-
-export type NewDeleteAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.delete
-}
-export type NewUpdateAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.set_node_attributes
-  oldAttrs: Record<string, any>
-}
-export type NewSplitNodeAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.node_split
-}
-export type NewMoveAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.move
-  indentationType?: 'indent' | 'unindent'
-}
-export type NewReferenceAttrs = Omit<TrackedAttrs, 'id' | 'operation'> & {
-  operation: CHANGE_OPERATION.reference
-  referenceId: string
-}
-export type NewTrackedAttrs = NewInsertAttrs | NewDeleteAttrs | NewUpdateAttrs | NewMoveAttrs
-
 export enum TrackChangesStatus {
   enabled = 'enabled',
   viewSnapshots = 'view-snapshots',
   disabled = 'disabled',
-}
-
-export type TrTrackingContext = {
-  prevLiftStep?: ReplaceAroundStep
-  liftFragment?: Fragment
 }

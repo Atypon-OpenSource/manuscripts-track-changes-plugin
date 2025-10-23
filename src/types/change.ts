@@ -82,7 +82,7 @@ export type TrackedAttrs =
   | NodeMoveAttrs
   | StructureAttrs
 
-type Change = {
+export type Change = {
   id: string
   from: number
   to: number
