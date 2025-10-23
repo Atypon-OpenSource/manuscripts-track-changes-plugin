@@ -47,7 +47,6 @@ import { trackReplaceAroundStep } from './steps-trackers/trackReplaceAroundStep'
 import { trackReplaceStep } from './steps-trackers/trackReplaceStep'
 import { excludeFromTracking, iterationIsValid, passThroughMeta } from './transactionProcessing'
 import { TrTrackingContext } from './types'
-import { writeFileSync } from 'fs'
 
 /**
  * Inverts transactions to wrap their contents/operations with track data instead
@@ -110,7 +109,15 @@ export function trackTransaction(
       if (isDeleteStep(step) || isStructuralChange(tr)) {
         thisStepMapping = deletedNodeMapping
       }
-      let [steps] = trackReplaceStep(i, oldState, newTr, emptyAttrs, tr, thisStepMapping, trContext)
+      let [steps, newSelectionPos] = trackReplaceStep(
+        i,
+        oldState,
+        newTr,
+        emptyAttrs,
+        tr,
+        thisStepMapping,
+        trContext
+      )
 
       if (steps.length === 1) {
         const step: any = steps[0] // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -121,8 +128,6 @@ export function trackTransaction(
       }
       log.info('TRACK REPLACE CHANGES: ', [...steps])
       steps = diffChangeSteps(steps)
-      writeFileSync('steps-test.json', JSON.stringify(steps), { flag: 'a' })
-
       log.info('DIFFED STEPS: ', steps)
 
       // if step is in movingPairs, add its uuid (Map entry key) as moveNodeId
@@ -135,8 +140,7 @@ export function trackTransaction(
         oldState.schema,
         deletedNodeMapping
       )
-
-      trContext.selectionPosFromInsertion = updatedSelectionPos || tr.selection.head
+      trContext.selectionPosFromInsertion = updatedSelectionPos || newSelectionPos || tr.selection.head
     } else if (step instanceof ReplaceAroundStep) {
       let steps = trackReplaceAroundStep(step, oldState, tr, newTr, emptyAttrs, tr.docs[i], trContext)
       steps = diffChangeSteps(steps)

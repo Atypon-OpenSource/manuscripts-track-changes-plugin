@@ -53,33 +53,33 @@ describe('text.test', () => {
     jest.clearAllMocks()
   })
 
-  // test('should track basic text inserts', async () => {
-  //   const tester = setupEditor({
-  //     doc: docs.paragraph,
-  //   }).insertText('inserted text')
+  test('should track basic text inserts', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    }).insertText('inserted text')
 
-  //   expect(tester.toJSON()).toEqual(basicTextInsert)
-  //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(1)
-  //   expect(log.warn).toHaveBeenCalledTimes(0)
-  //   expect(log.error).toHaveBeenCalledTimes(0)
-  // })
+    expect(tester.toJSON()).toEqual(basicTextInsert)
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(1)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 
-  // test('should track basic text inserts and deletes', async () => {
-  //   const tester = setupEditor({
-  //     doc: docs.paragraph,
-  //   })
-  //     .insertText('inserted text')
-  //     .backspace(4)
-  //     .moveCursor(5)
-  //     .backspace(4)
+  test('should track basic text inserts and deletes', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .insertText('inserted text')
+      .backspace(4)
+      .moveCursor(5)
+      .backspace(4)
 
-  //   expect(tester.toJSON()).toEqual(basicTextDelete)
-  //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(2)
-  //   expect(log.warn).toHaveBeenCalledTimes(0)
-  //   expect(log.error).toHaveBeenCalledTimes(0)
-  // })
+    expect(tester.toJSON()).toEqual(basicTextDelete)
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(2)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 
   test('should continue delete content when backspace is pressed repeatedly', async () => {
     const tester = setupEditor({
@@ -103,98 +103,98 @@ describe('text.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
-  // test('should join adjacent text inserts and deletes by same user', async () => {
-  //   // delete first user inserts
-  //   // delete at first user deletes -> should not replace marks
-  //   // check inserts joined, deletes still separate
-  //   // MISSING: check timestamps merged correctly
-  //   const tester = setupEditor({
-  //     doc: docs.paragraph,
-  //   })
-  //     .insertText('a')
-  //     .insertText('b')
-  //     .moveCursor('end')
-  //     .backspace(1)
-  //     .backspace(1)
-  //     .insertText('c')
+  test('should join adjacent text inserts and deletes by same user', async () => {
+    // delete first user inserts
+    // delete at first user deletes -> should not replace marks
+    // check inserts joined, deletes still separate
+    // MISSING: check timestamps merged correctly
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .insertText('a')
+      .insertText('b')
+      .moveCursor('end')
+      .backspace(1)
+      .backspace(1)
+      .insertText('c')
 
-  //   // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
 
-  //   expect(tester.toJSON()).toEqual(basicTextJoin[0])
-  //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(5)
+    expect(tester.toJSON()).toEqual(basicTextJoin[0])
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(5)
 
-  //   tester
-  //     .cmd(trackCommands.setUserID(SECOND_USER.id))
-  //     .moveCursor('start')
-  //     .insertText('d')
-  //     .insertText('e')
-  //     .moveCursor(2)
-  //     .insertText('f')
-  //     .insertText('g')
-  //     .moveCursor(-2)
-  //     .backspace(2) // Delete Mike's insertions to see that Rebecca's insertions are joined
-  //     .moveCursor('end')
-  //     .insertText('h')
-  //     .moveCursor(-2)
-  //     .backspace(1) // Overwrites Mike's deletion of 'l' TODO -> disallow? keep original deleter
-  //     .backspace(1) // Deletes Mike's inserted 'c'
-  //     .backspace(1) // Regular deletion of 'r'
+    tester
+      .cmd(trackCommands.setUserID(SECOND_USER.id))
+      .moveCursor('start')
+      .insertText('d')
+      .insertText('e')
+      .moveCursor(2)
+      .insertText('f')
+      .insertText('g')
+      .moveCursor(-2)
+      .backspace(2) // Delete Mike's insertions to see that Rebecca's insertions are joined
+      .moveCursor('end')
+      .insertText('h')
+      .moveCursor(-2)
+      .backspace(1) // Overwrites Mike's deletion of 'l' TODO -> disallow? keep original deleter
+      .backspace(1) // Deletes Mike's inserted 'c'
+      .backspace(1) // Regular deletion of 'r'
 
-  //   expect(tester.toJSON()).toEqual(basicTextJoin[1])
-  //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(14)
-  //   expect(log.warn).toHaveBeenCalledTimes(0)
-  //   expect(log.error).toHaveBeenCalledTimes(0)
-  // })
+    expect(tester.toJSON()).toEqual(basicTextJoin[1])
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(14)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 
-  // test('should fix inconsistent text inserts and deletes', async () => {
-  //   const tester = setupEditor({
-  //     doc: docs.paragraph,
-  //   })
-  //     .insertText('abcd')
-  //     .cmd((state, dispatch) => {
-  //       const tr = state.tr
-  //       const pos = 1
-  //       const oldMarkAttrs = state.doc.resolve(pos + 1).marks()[0].attrs
-  //       tr.removeMark(pos, pos + 1)
-  //       tr.addMark(
-  //         pos + 1,
-  //         pos + 2,
-  //         state.schema.marks.tracked_delete.create({
-  //           dataTracked: {
-  //             id: oldMarkAttrs.dataTracked.id,
-  //           },
-  //         })
-  //       )
-  //       tr.addMark(
-  //         pos + 2,
-  //         pos + 3,
-  //         state.schema.marks.tracked_insert.create({
-  //           dataTracked: {},
-  //         })
-  //       )
-  //       skipTracking(tr)
-  //       dispatch && dispatch(tr)
-  //       return true
-  //     })
+  test('should fix inconsistent text inserts and deletes', async () => {
+    const tester = setupEditor({
+      doc: docs.paragraph,
+    })
+      .insertText('abcd')
+      .cmd((state, dispatch) => {
+        const tr = state.tr
+        const pos = 1
+        const oldMarkAttrs = state.doc.resolve(pos + 1).marks()[0].attrs
+        tr.removeMark(pos, pos + 1)
+        tr.addMark(
+          pos + 1,
+          pos + 2,
+          state.schema.marks.tracked_delete.create({
+            dataTracked: {
+              id: oldMarkAttrs.dataTracked.id,
+            },
+          })
+        )
+        tr.addMark(
+          pos + 2,
+          pos + 3,
+          state.schema.marks.tracked_insert.create({
+            dataTracked: {},
+          })
+        )
+        skipTracking(tr)
+        dispatch && dispatch(tr)
+        return true
+      })
 
-  //   // Check the insert mark was overwritten and the data is now inconsistent
-  //   expect(tester.toJSON()).toEqual(basicTextInconsistent[0])
-  //   // Should contain one duplicate id
-  //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(true)
-  //   expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(true)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(1)
+    // Check the insert mark was overwritten and the data is now inconsistent
+    expect(tester.toJSON()).toEqual(basicTextInconsistent[0])
+    // Should contain one duplicate id
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(true)
+    expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(true)
+    expect(uuidv4Mock.mock.calls.length).toBe(1)
 
-  //   // TODO should not need moveCursor(0)
-  //   tester.moveCursor(0).insertText('e').moveCursor(-4).backspace()
+    // TODO should not need moveCursor(0)
+    tester.moveCursor(0).insertText('e').moveCursor(-4).backspace()
 
-  //   // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
-  //   expect(tester.toJSON()).toEqual(basicTextInconsistent[1])
-  //   expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
-  //   expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(false)
-  //   expect(uuidv4Mock.mock.calls.length).toBe(5)
-  //   expect(log.warn).toHaveBeenCalledTimes(1)
-  //   expect(log.error).toHaveBeenCalledTimes(0)
-  // })
+    // await fs.writeFile('test.json', JSON.stringify(tester.toJSON()))
+    expect(tester.toJSON()).toEqual(basicTextInconsistent[1])
+    expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
+    expect(tester.trackState()?.changeSet.hasIncompleteAttrs).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(5)
+    expect(log.warn).toHaveBeenCalledTimes(1)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
 })
