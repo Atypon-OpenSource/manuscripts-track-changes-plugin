@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
+import { EditorState, Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
@@ -141,9 +141,14 @@ export const trackChangesPlugin = (
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
         }
       })
+
+      const currentChangeSet = createdTr.docChanged
+        ? findChanges(EditorState.create({ doc: createdTr.doc, schema: oldState.schema }))
+        : pluginState.changeSet
+
       const changed =
-        pluginState.changeSet.hasInconsistentData &&
-        fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
+        currentChangeSet.hasInconsistentData &&
+        fixInconsistentChanges(currentChangeSet, userID, createdTr, oldState.schema)
       if (changed) {
         log.warn('had to fix inconsistent changes in', createdTr)
       }
