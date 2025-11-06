@@ -84,3 +84,6 @@ export function setAction<K extends keyof TrackChangesActionParams>(
  * @returns
  */
 export const skipTracking = (tr: Transaction) => setAction(tr, TrackChangesAction.skipTrack, true)
+
+export const isIndentationAction = (action: ReturnType<typeof getAction>) =>
+  action === 'indent' || action === 'unindent'

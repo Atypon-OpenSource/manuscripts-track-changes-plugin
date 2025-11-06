@@ -17,14 +17,14 @@ import { Plugin, PluginKey, Transaction } from 'prosemirror-state'
 import type { EditorProps, EditorView } from 'prosemirror-view'
 
 import { getAction, hasAction, setAction, TrackChangesAction } from './actions'
-import { findChanges } from './changes/findChanges'
-import { fixInconsistentChanges } from './changes/fixInconsistentChanges'
-import { updateChangesStatus } from './changes/updateChangesStatus'
+import { fixInconsistentChanges } from './changeHelpers/fixInconsistentChanges'
+import { updateChangesStatus } from './changeHelpers/updateChangesStatus'
 import { ChangeSet } from './ChangeSet'
-import { trackTransaction } from './steps/trackTransaction'
+import { findChanges } from './findChanges'
+import { trackChanges } from './trackChanges'
+import { trFromHistory } from './tracking/transactionProcessing'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
-import { trFromHistory } from './utils/track-utils'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -106,9 +106,6 @@ export const trackChangesPlugin = (
       log.info('TRS', trs)
 
       trs.forEach((tr) => {
-        const wasAppended = tr.getMeta('appendedTransaction') as Transaction | undefined
-        const skipMetaUsed = skipTrsWithMetas.some((m) => tr.getMeta(m) || wasAppended?.getMeta(m))
-
         // track changes allows free reign for client sync, because, if the changes was supposed to be tracked it should've been done on the respective client.
         const collabRebased = tr.getMeta('rebased')
         if (collabRebased !== undefined) {
@@ -116,30 +113,15 @@ export const trackChangesPlugin = (
           docChanged = true
           return
         }
-        const setChangeStatuses = getAction(tr, TrackChangesAction.setChangeStatuses)
-
-        const skipTrackUsed =
-          getAction(tr, TrackChangesAction.skipTrack) ||
-          (wasAppended && getAction(wasAppended, TrackChangesAction.skipTrack))
-
-        if (
-          !setChangeStatuses &&
-          tr.docChanged &&
-          !skipMetaUsed &&
-          !skipTrackUsed &&
-          !trFromHistory(tr) &&
-          !(wasAppended && tr.getMeta('origin') === 'paragraphs')
-        ) {
-          createdTr = trackTransaction(tr, oldState, createdTr, userID, changeSet)
-        }
-        docChanged = docChanged || tr.docChanged
-
-        if (setChangeStatuses) {
-          const { status, ids } = setChangeStatuses
-
+        const setsChangeStatus = getAction(tr, TrackChangesAction.setChangeStatuses)
+        if (setsChangeStatus) {
+          const { status, ids } = setsChangeStatus
           updateChangesStatus(createdTr, changeSet, ids, status, userID, oldState)
           setAction(createdTr, TrackChangesAction.refreshChanges, true)
+        } else {
+          createdTr = trackChanges(tr, createdTr, oldState, userID, skipTrsWithMetas) || createdTr
         }
+        docChanged = docChanged || tr.docChanged
       })
       const changed =
         pluginState.changeSet.hasInconsistentData &&

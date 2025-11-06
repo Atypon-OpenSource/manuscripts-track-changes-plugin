@@ -1,6 +1,6 @@
 {
   "name": "@manuscripts/track-changes-plugin",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-track-changes-plugin",
@@ -17,7 +17,7 @@
     "build:es": "tsc --outDir dist/es --declarationDir dist/types --declaration",
     "dev": "npm-run-all --parallel 'build:* --watch'",
     "test": "jest --runInBand",
-    "test-rs": "jest -i test/diff/diff.test.ts",
+    "test-rs": "jest -i test/nodes/nodes.test.ts",
     "format": "prettier --write \"*.+(js|json|yml|yaml|ts|md|graphql|mdx)\" src/ test/",
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
