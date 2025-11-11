@@ -36,6 +36,8 @@
   "devDependencies": {
     "@manuscripts/eslint-config": "0.5.1",
     "@manuscripts/transform": "3.0.48",
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "9.39.1",
     "@types/debug": "4.1.12",
     "@types/jest": "30.0.0",
     "@types/node": "20.17.46",
