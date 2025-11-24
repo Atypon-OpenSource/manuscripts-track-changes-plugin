@@ -15,7 +15,7 @@
  */
 import { Schema } from 'prosemirror-model'
 import type { Transaction } from 'prosemirror-state'
-import { Mapping, ReplaceStep } from 'prosemirror-transform'
+import { Mapping, replaceStep } from 'prosemirror-transform'
 
 import {
   addTrackIdIfDoesntExist,
@@ -186,9 +186,9 @@ export function processChangeSteps(
         break
       }
       case 'insert-slice': {
-        const newStep = new ReplaceStep(mapping.map(c.from), mapping.map(c.to), c.slice, false)
-        const stepResult = newTr.maybeStep(newStep)
-        if (stepResult.failed) {
+        const newStep = replaceStep(newTr.doc, mapping.map(c.from), mapping.map(c.to), c.slice)
+        const stepResult = newStep && newTr.maybeStep(newStep)
+        if (stepResult && stepResult.failed) {
           log.error(`processChangeSteps: insert-slice ReplaceStep failed "${stepResult.failed}"`, newStep)
           return
         }

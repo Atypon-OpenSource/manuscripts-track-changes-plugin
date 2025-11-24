@@ -41,11 +41,13 @@ function getMergedNode(
 ): {
   mergedNodeContent: ExposedFragment
   unmergedContent: ExposedFragment | undefined
+  depth: number
 } {
   if (currentDepth === depth) {
     return {
       mergedNodeContent: node.content as ExposedFragment,
       unmergedContent: undefined,
+      depth,
     }
   }
   const result: PMNode[] = []
@@ -64,6 +66,7 @@ function getMergedNode(
   return {
     mergedNodeContent: merged,
     unmergedContent: result.length > 0 ? (Fragment.fromArray(result) as ExposedFragment) : undefined,
+    depth: currentDepth,
   }
 }
 
