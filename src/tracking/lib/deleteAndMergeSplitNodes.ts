@@ -62,6 +62,7 @@ export function deleteAndMergeSplitNodes(
     return {
       newSliceContent: insertSlice.content,
       sliceWasSplit: false,
+      depth: { start: 0, end: 0 },
       steps,
     }
   }
@@ -223,7 +224,7 @@ export function deleteAndMergeSplitNodes(
   return {
     sliceWasSplit: !!(firstMergedNode || lastMergedNode),
     newSliceContent: updatedSliceNodes ? Fragment.fromArray(updatedSliceNodes) : insertSlice.content,
-    side: { start: firstMergedNode?.depth || 0, end: lastMergedNode?.depth || 0 },
+    depth: { start: firstMergedNode?.depth || 0, end: lastMergedNode?.depth || 0 },
     steps,
   }
 }

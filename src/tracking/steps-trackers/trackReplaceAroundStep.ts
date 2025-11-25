@@ -105,7 +105,7 @@ export function trackReplaceAroundStep(
     sliceWasSplit,
     newSliceContent,
     steps: deleteSteps,
-    side,
+    depth,
   } = deleteAndMergeSplitNodes(
     from,
     to,
@@ -161,12 +161,13 @@ export function trackReplaceAroundStep(
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
       let sliceContent = gap.content
-      let size = insert
-      if (fragment.size > 0 && sliceWasSplit && side) {
-        insertedSlice = new Slice(fragment, side.start, side.end) as ExposedSlice
-        size = insert - (slice.size - insertedSlice.size)
+      let insertPos = insert
+      if (insert > insertedSlice.size && fragment.size > 0) {
+        // when the inserted slice shrink we need to recalculate insert position based on the difference from original slice
+        insertedSlice = new Slice(fragment, depth.start, depth.end) as ExposedSlice
+        insertPos = insert - (slice.size - insertedSlice.size)
       }
-      insertedSlice = insertedSlice.insertAt(fragment.size === 0 ? 0 : size, sliceContent)
+      insertedSlice = insertedSlice.insertAt(fragment.size === 0 ? 0 : insertPos, sliceContent)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
 
