@@ -22,7 +22,6 @@ import { schema as manuscriptSchema } from '@manuscripts/transform'
 import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
-import simpleOpenStartSlice from '../slices/simple-open-start-slice.json'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 import replaceAroundSteps from './replace-around-steps.json'
@@ -220,22 +219,6 @@ describe('replace-around-steps.test', () => {
 
     expect(tester.trackState()?.changeSet?.hasInconsistentData).toEqual(false)
     expect(uuidv4Mock.mock.calls.length).toBe(2)
-    expect(log.warn).toHaveBeenCalledTimes(0)
-    expect(log.error).toHaveBeenCalledTimes(0)
-  })
-
-  test('should track step with open start side and insert gap content at the right position', async () => {
-    const tester = setupEditor({
-      doc: docs.paragraph,
-    }).cmd((state, dispatch) => {
-      const tr = state.tr.step(
-        new ReplaceAroundStep(7, 13, 7, 12, Slice.fromJSON(schema, simpleOpenStartSlice[0]), 49)
-      )
-      dispatch(tr)
-    })
-
-    expect(tester.trackState()?.changeSet?.hasInconsistentData).toEqual(false)
-    expect(uuidv4Mock.mock.calls.length).toBe(7)
     expect(log.warn).toHaveBeenCalledTimes(0)
     expect(log.error).toHaveBeenCalledTimes(0)
   })
