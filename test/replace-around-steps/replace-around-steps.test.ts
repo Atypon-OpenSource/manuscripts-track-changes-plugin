@@ -189,6 +189,41 @@ describe('replace-around-steps.test', () => {
     expect(log.error).toHaveBeenCalledTimes(0)
   })
 
+  test('should track step with open side', async () => {
+    const tester = setupEditor({
+      schema: manuscriptSchema,
+      doc: docs.manuscriptSimple[0],
+    }).cmd((state, dispatch) => {
+      const slice = new Slice(
+        Fragment.fromJSON(manuscriptSchema, [
+          {
+            type: 'paragraph',
+            attrs: {
+              id: 'MPParagraphElement:628749AD-BBFE-4A83-B98B-9D14F069D6C2',
+              placeholder: '',
+              dataTracked: null,
+            },
+            content: [
+              {
+                type: 'text',
+                text: 'I am a quote',
+              },
+            ],
+          },
+        ]),
+        1,
+        0
+      )
+      const transaction = state.tr.step(new ReplaceAroundStep(18, 26, 18, 25, slice, 5))
+      dispatch(transaction)
+    })
+
+    expect(tester.trackState()?.changeSet?.hasInconsistentData).toEqual(false)
+    expect(uuidv4Mock.mock.calls.length).toBe(2)
+    expect(log.warn).toHaveBeenCalledTimes(0)
+    expect(log.error).toHaveBeenCalledTimes(0)
+  })
+
   test('should track step with open start side and insert gap content at the right position', async () => {
     const tester = setupEditor({
       doc: docs.paragraph,
