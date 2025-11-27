@@ -101,11 +101,10 @@ export function trackReplaceAroundStep(
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  const {
+  let {
     sliceWasSplit,
     newSliceContent,
     steps: deleteSteps,
-    side,
   } = deleteAndMergeSplitNodes(
     from,
     to,
@@ -161,12 +160,7 @@ export function trackReplaceAroundStep(
     if (gap.size > 0 || tr.getMeta(TrackChangesAction.updateMetaNode)) {
       log.info('insertedSlice before inserted gap', insertedSlice)
       let sliceContent = gap.content
-      let size = insert
-      if (fragment.size > 0 && sliceWasSplit && side) {
-        insertedSlice = new Slice(fragment, side.start, side.end) as ExposedSlice
-        size = insert - (slice.size - insertedSlice.size)
-      }
-      insertedSlice = insertedSlice.insertAt(fragment.size === 0 ? 0 : size, sliceContent)
+      insertedSlice = insertedSlice.insertAt(insertedSlice.size === 0 ? 0 : insert, sliceContent)
       log.info('insertedSlice after inserted gap', insertedSlice)
     }
 
@@ -194,7 +188,7 @@ export function trackReplaceAroundStep(
     } else {
       steps.push({
         type: 'insert-slice',
-        from: sliceWasSplit ? gapTo : gapFrom,
+        from: gapFrom,
         to: gapTo,
         slice: insertedSlice,
         sliceWasSplit,

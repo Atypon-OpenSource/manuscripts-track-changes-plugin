@@ -126,21 +126,11 @@ export function deleteAndMergeSplitNodes(
         // Then we only have to ensure the depth is at the right level, so say a fully open blockquote insert will
         // be merged at the lowest, paragraph level, instead of blockquote level.
         const mergeStartNode =
-          endTokenDeleted &&
-          firstMergedNode &&
-          firstMergedNode.depth > 0 &&
-          depth === firstMergedNode.depth &&
-          mergeContent &&
-          mergeContent.size
+          endTokenDeleted && openStart > 0 && depth === openStart && mergeContent && mergeContent.size
         // Same as above, merge nodes manually if there exists an open slice with mergeable content.
         // Compared to deleting an end token however, the merged block node is set as deleted. This is due to
         // ProseMirror node semantics as start tokens are considered to contain the actual node itself.
-        const mergeEndNode =
-          startTokenDeleted &&
-          lastMergedNode &&
-          lastMergedNode.depth > 0 &&
-          depth === lastMergedNode.depth &&
-          mergeContent
+        const mergeEndNode = startTokenDeleted && openEnd > 0 && depth === openEnd && mergeContent
 
         const mergeEndNodeNotEmpty = mergeEndNode && mergeContent.size
         if (mergeEndNode && !mergeEndNodeNotEmpty && gap) {
@@ -172,9 +162,7 @@ export function deleteAndMergeSplitNodes(
           steps.push({
             type: 'merge-fragment',
             pos,
-            mergePos: mergeStartNode
-              ? nodeEnd - (firstMergedNode?.depth || 0)
-              : pos + (lastMergedNode?.depth || 0),
+            mergePos: mergeStartNode ? nodeEnd - openStart : pos + openEnd,
             from,
             to,
             node,
@@ -223,7 +211,6 @@ export function deleteAndMergeSplitNodes(
   return {
     sliceWasSplit: !!(firstMergedNode || lastMergedNode),
     newSliceContent: updatedSliceNodes ? Fragment.fromArray(updatedSliceNodes) : insertSlice.content,
-    side: { start: firstMergedNode?.depth || 0, end: lastMergedNode?.depth || 0 },
     steps,
   }
 }
