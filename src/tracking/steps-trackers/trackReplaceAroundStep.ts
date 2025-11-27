@@ -101,7 +101,7 @@ export function trackReplaceAroundStep(
   log.info('RETAINED GAP CONTENT', gap)
   // First apply the deleted range and update the insert slice to not include content that was deleted,
   // eg partial nodes in an open-ended slice
-  let {
+  const {
     sliceWasSplit,
     newSliceContent,
     steps: deleteSteps,
