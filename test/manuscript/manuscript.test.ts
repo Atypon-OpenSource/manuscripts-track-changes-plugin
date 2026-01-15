@@ -50,8 +50,8 @@ describe('manuscript.test', () => {
       doc: docs.manuscriptSimple[0],
       schema: schema as unknown as Schema,
     })
-      .insertNode(schema.nodes.table_element.createAndFill() as unknown as PMNode, 11)
-      .insertNode(schema.nodes.figure_element.createAndFill() as unknown as PMNode, 11)
+      .insertNode(schema.nodes.table_element.createAndFill() as unknown as PMNode, 15)
+      .insertNode(schema.nodes.figure_element.createAndFill() as unknown as PMNode, 15)
       .cmd((state, dispatch) => {
         const trackChangesState = trackChangesPluginKey.getState(state)
         if (!trackChangesState) {

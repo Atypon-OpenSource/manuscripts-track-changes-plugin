@@ -407,20 +407,20 @@ describe('nodes.test', () => {
       const tr = state.tr
 
       const tableFooter = manuscriptSchema.nodes.table_element_footer.create()
-      tr.insert(144, tableFooter)
+      tr.insert(163, tableFooter)
 
       const generalTableFootnote = manuscriptSchema.nodes.general_table_footnote.create({}, [
         manuscriptSchema.nodes.paragraph.create(),
       ])
-      tr.insert(145, generalTableFootnote)
+      tr.insert(164, generalTableFootnote)
 
       dispatch(tr)
     })
 
-    expect(tester.view.state.doc.nodeAt(144)?.type.name).toBe(
+    expect(tester.view.state.doc.nodeAt(163)?.type.name).toBe(
       manuscriptSchema.nodes.table_element_footer.name
     )
-    expect(tester.view.state.doc.nodeAt(145)?.type.name).toBe(
+    expect(tester.view.state.doc.nodeAt(164)?.type.name).toBe(
       manuscriptSchema.nodes.general_table_footnote.name
     )
     expect(log.warn).toHaveBeenCalledTimes(0)
