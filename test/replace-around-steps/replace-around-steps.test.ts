@@ -16,7 +16,7 @@
 /// <reference types="@types/jest" />;
 import { promises as fs } from 'fs'
 import { Fragment, Slice } from 'prosemirror-model'
-import { liftTarget } from 'prosemirror-transform'
+import { liftTarget, ReplaceAroundStep } from 'prosemirror-transform'
 
 import { CHANGE_STATUS, ChangeSet, trackChangesPluginKey, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
@@ -24,6 +24,7 @@ import docs from '../__fixtures__/docs'
 import { schema } from '../utils/schema'
 import { setupEditor } from '../utils/setupEditor'
 import replaceAroundSteps from './replace-around-steps.json'
+import { schema as manuscriptSchema } from '@manuscripts/transform'
 
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
@@ -48,6 +49,92 @@ describe('replace-around-steps.test', () => {
     jest.clearAllMocks()
   })
 
+  test.skip('should track join of paragraph to the nested blockquote', async () => {
+    setupEditor({
+      doc: docs.nestedBlockquotes,
+    })
+      .selectText(12, 14)
+      .cmd((state, dispatch) => {
+        const { tr, schema } = state
+        const slice = new Slice(Fragment.from(schema.nodes.blockquote.create()), 1, 0)
+        const step = new ReplaceAroundStep(48, 64, 49, 64, slice, 0, true)
+        dispatch(tr.step(step))
+      })
+  })
+
+  test.skip('should track inserted content of merged slice', async () => {
+    setupEditor({
+      doc: docs.nestedBlockquotes,
+    })
+      .selectText(47)
+      .cmd((state, dispatch) => {
+        const { tr } = state
+        const slice = new Slice(
+          Fragment.from([
+            schema.nodes.blockquote.create(undefined, [
+              schema.nodes.paragraph.create(undefined, schema.text('merged text')),
+              schema.nodes.blockquote.create(
+                undefined,
+                schema.nodes.paragraph.create(undefined, schema.text('remaining content'))
+              ),
+            ]),
+          ]),
+          2,
+          0
+        )
+        const step = new ReplaceAroundStep(47, 49, 47, 47, slice, 31)
+        dispatch(tr.step(step))
+      })
+  })
+
+  test.skip('should track merged content within a shrunk slice', async () => {
+    setupEditor({
+      doc: docs.nestedBlockquotes,
+    })
+      .selectText(44)
+      .cmd((state, dispatch) => {
+        const { tr } = state
+        const slice = new Slice(
+          Fragment.from([
+            schema.nodes.blockquote.create(undefined, [
+              schema.nodes.paragraph.create(undefined, schema.text('merged text')),
+              schema.nodes.blockquote.create(
+                undefined,
+                schema.nodes.paragraph.create(undefined, schema.text('remaining:'))
+              ),
+            ]),
+          ]),
+          2,
+          0
+        )
+        const step = new ReplaceAroundStep(44, 49, 44, 47, slice, 24)
+        dispatch(tr.step(step))
+      })
+  })
+
+  test.skip('should track split of block nodes from uneven open slice ends', async () => {
+    setupEditor({
+      doc: docs.manuscriptSimple[0],
+      schema: manuscriptSchema,
+    })
+      .selectText(29)
+      .cmd((state, dispatch) => {
+        const { tr, schema } = state
+        const slice = new Slice(
+          Fragment.from([
+            schema.nodes.paragraph.create(undefined, schema.text('merged text')),
+            schema.nodes.section.create(undefined, [
+              schema.nodes.section_title.create(),
+              schema.nodes.paragraph.create(undefined, schema.text('remaining:')),
+            ]),
+          ]),
+          1,
+          2
+        )
+        dispatch(tr.replaceSelection(slice))
+      })
+  })
+
   test('should track basic wrapping and unwrapping of blockquotes', async () => {
     const tester = setupEditor({
       doc: docs.nestedBlockquotes,
@@ -66,16 +153,6 @@ describe('replace-around-steps.test', () => {
       // .backspace(4)
       // Unwrap the innermost blockquote which should set it deleted but leave the content intact
       .liftnode(17)
-      // This simulates pressing backspace inside 4th paragraph which should try to lift it inside the blockquote
-      // .cmd((state, dispatch) => {
-      //   const { tr, schema } = state
-      //   const bq = schema.nodes.blockquote.create()
-      //   // Or, more challenging?
-      //   // const bq = schema.nodes.blockquote.create(undefined, schema.nodes.paragraph.create())
-      //   const slice = new Slice(Fragment.from(bq), 1, 0)
-      //   const step = new ReplaceAroundStep(48, 64, 49, 64, slice, 0, true)
-      //   dispatch(tr.step(step))
-      // })
       // Wrap the 4th paragraph in a blockquote and see whether track-changes-plugin correctly handles the positions
       // when adjacent to blockquote above and end of doc at the bottom
       .selectText(50)
@@ -116,10 +193,9 @@ describe('replace-around-steps.test', () => {
     setupEditor({
       doc: docs.list,
     })
-      .selectText(26, 37)
       .cmd((state, dispatch) => {
         const { tr } = state
-        state.doc.nodesBetween(22, 22 + (state.doc.nodeAt(22)?.nodeSize || 0), (node, pos) => {
+      state.doc.nodesBetween(0, state.doc.nodeAt(22)?.nodeSize || 0, (node, pos) => {
           const $fromPos = tr.doc.resolve(tr.mapping.map(pos))
           const $toPos = tr.doc.resolve(tr.mapping.map(pos + node.nodeSize - 1))
           const nodeRange = $fromPos.blockRange($toPos)
