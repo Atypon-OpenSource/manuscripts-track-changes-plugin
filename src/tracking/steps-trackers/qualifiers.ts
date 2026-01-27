@@ -177,3 +177,11 @@ export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
   }
   return undefined
 }
+
+export function isShadowDelete(node: PMNode) {
+  if (node.attrs.dataTracked) {
+    const changes = node.attrs.dataTracked as TrackedAttrs[]
+    return changes.some(({ operation, moveNodeId }) => operation === 'delete' && moveNodeId)
+  }
+  return false
+}
