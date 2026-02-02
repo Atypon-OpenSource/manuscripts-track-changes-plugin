@@ -25,6 +25,7 @@ import { trackChanges } from './trackChanges'
 import { trFromHistory } from './tracking/transactionProcessing'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
+import { installShadowNodeFilter, uninstallShadowNodeFilter } from './utils/shadow-node-filter'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -42,6 +43,9 @@ export const trackChangesPlugin = (
   if (debug) {
     enableDebug(true)
   }
+
+  // Install shadow node filtering to make shadow content invisible to the editor
+  installShadowNodeFilter()
 
   return new Plugin<TrackChangesState>({
     key: trackChangesPluginKey,
@@ -92,7 +96,10 @@ export const trackChangesPlugin = (
       editorView = p
       return {
         update: undefined,
-        destroy: undefined,
+        destroy() {
+          // Clean up shadow node filtering when plugin is destroyed
+          uninstallShadowNodeFilter()
+        },
       }
     },
     appendTransaction(trs, oldState, newState) {
