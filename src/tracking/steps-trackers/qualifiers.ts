@@ -42,7 +42,11 @@ export const isSplitStep = (step: ReplaceStep, selection: Selection, uiEvent: st
   } = selection
   const parentSize = $from.node().content.size
 
-  if (uiEvent === 'paste') {
+  if (
+    uiEvent === 'paste' &&
+    slice.content.firstChild?.inlineContent &&
+    slice.content.lastChild?.inlineContent
+  ) {
     // paste of content on the side of selection will not be considered as node split
     return !(
       (startOffset === 0 && endOffset === 0) ||

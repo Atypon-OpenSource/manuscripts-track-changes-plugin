@@ -21,7 +21,10 @@ import { processStepsBeforeTracking } from './tracking/lib/processStepsBeforeTra
 import { trackTransaction } from './tracking/trackTransaction'
 import {
   changeMovedToInsertsOnSourceDeletion,
+<<<<<<< HEAD
   clearShadowsFromNewlyInserted,
+=======
+>>>>>>> a7a563fed809ba17ac7b0fb04257754f38cd8c0a
   filterMeaninglessMoveSteps,
   getIndentationOperationSteps,
   getMoveOperationsSteps,
@@ -60,7 +63,11 @@ export function trackChanges(
       filterMeaninglessMoveSteps,
     ])
     changeMovedToInsertsOnSourceDeletion(tr, createdTr, trContext)
+<<<<<<< HEAD
     const clearTr = clearShadowsFromNewlyInserted(tr, oldState)
     return trackTransaction(clearTr, oldState, createdTr, userID, clearedSteps, trContext)
+=======
+    return trackTransaction(tr, oldState, createdTr, userID, clearedSteps, trContext)
+>>>>>>> a7a563fed809ba17ac7b0fb04257754f38cd8c0a
   }
 }

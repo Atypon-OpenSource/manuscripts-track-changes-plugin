@@ -72,7 +72,11 @@ export function fixAndSetSelectionAfterTracking(
   if (wasNodeSelection) {
     // And -1 here is necessary to keep the selection pointing at the start of the node
     // (or something, breaks with cross-references otherwise)
-    const mappedPos = newTr.mapping.map(oldTr.selection.from, -1)
+    let mappedPos = newTr.mapping.map(oldTr.selection.from, -1)
+    // newTr mapping will not be correct for the cases of insert into nested section, will keep it to use original selection for paste as now it simply inserts content
+    if (oldTr.getMeta('uiEvent') === 'paste') {
+      mappedPos = oldTr.selection.from
+    }
     const sel: typeof NodeSelectionClass = getSelectionStaticConstructor(oldTr.selection)
     newTr.setSelection(sel.create(newTr.doc, mappedPos))
   }

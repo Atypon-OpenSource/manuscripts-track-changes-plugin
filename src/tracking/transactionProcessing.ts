@@ -15,17 +15,13 @@
  */
 import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
-import { ReplaceAroundStep, ReplaceStep, Step } from 'prosemirror-transform'
+import { ReplaceStep, Step } from 'prosemirror-transform'
 
 import { isIndentationAction, TrackChangesAction } from '../actions'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { uuidv4 } from '../utils/uuidv4'
-import {
-  isDeletingPendingMovedNode,
-  isDirectPendingMoveDeletion,
-  isShadowDelete,
-} from './steps-trackers/qualifiers'
+import { isDeletingPendingMovedNode, isDirectPendingMoveDeletion } from './steps-trackers/qualifiers'
 import { TrTrackingContext } from './types'
 
 export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
