@@ -16,7 +16,6 @@
 import { schema } from '@manuscripts/transform'
 import { Attrs, Fragment, Mark, Node as ProsemirrorNode } from 'prosemirror-model'
 
-import { isShadowDelete } from '../tracking/steps-trackers/qualifiers'
 import { CHANGE_OPERATION, TrackedAttrs } from '../types/change'
 
 export function isDeleted(node: ProsemirrorNode | Mark) {
@@ -153,28 +152,4 @@ export const addTrackChangesClassNames = (attrs: Attrs, dom: Element) => {
   const change = changes[0]
   const className = classNames.get(change.operation)
   className && dom.classList.add(className)
-}
-
-/**
- * Returns descendants that excludes any content in the supplied doc of which external consumers shouldn't be aware. Primarily shadow content.
- */
-export function RealDescendants(
-  doc: ProsemirrorNode,
-  callback: (
-    node: ProsemirrorNode,
-    pos: number,
-    parent: ProsemirrorNode | null,
-    index: number
-  ) => void | boolean,
-  skipDeleted = true
-) {
-  doc.descendants((...args) => {
-    if (isShadowDelete(args[0])) {
-      return true
-    }
-    if (skipDeleted && (isDeleted(args[0]) || isDeletedText(args[0]))) {
-      return true
-    }
-    return callback(...args)
-  })
 }

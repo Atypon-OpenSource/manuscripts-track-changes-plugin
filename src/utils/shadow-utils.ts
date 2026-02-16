@@ -15,7 +15,7 @@
  */
 
 import { Node as PMNode } from 'prosemirror-model'
-import { isShadowDelete } from '../tracking/steps-trackers/qualifiers'
+import { isMoved, isShadowDelete } from '../tracking/steps-trackers/qualifiers'
 import { isDeleted, isDeletedText } from './shared-utils'
 
 type callback = (node: PMNode, pos: number, parent: PMNode | null, index: number) => void | boolean
@@ -37,11 +37,14 @@ export function clear(node: PMNode, include = Include.CLEAN) {
     descendants: (fn: callback) => {
       node.descendants((node, pos, parent, index) => {
         // Include clean will expose only real inserted content
-        if (include == Include.CLEAN && (isShadowDelete(node) || isDeleted(node) || isDeletedText(node))) {
+        if (
+          include == Include.CLEAN &&
+          (isShadowDelete(node) || isMoved(node) || isDeleted(node) || isDeletedText(node))
+        ) {
           return false
         }
         // Include.PENDING will skip shadows but will expose otherwise pending content visible to user - either deleted or inserted
-        if (include == Include.PENDING && isShadowDelete(node)) {
+        if ((include == Include.PENDING && isShadowDelete(node)) || isMoved(node)) {
           return false
         }
 
