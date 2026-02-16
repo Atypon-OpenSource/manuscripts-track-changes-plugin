@@ -281,6 +281,7 @@ export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) 
 
 /** Removes shadow content from inserted content, such as during pasting or indentation or moving around */
 export function clearShadowsFromNewlyInserted(tr: Transaction, baseState: EditorState) {
+  // return tr
   // First check if any step actually contains shadow content that needs filtering
   let hasShadowContent = false
   for (let i = 0; i < tr.steps.length; i++) {

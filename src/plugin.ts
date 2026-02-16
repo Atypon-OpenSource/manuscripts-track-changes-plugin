@@ -88,6 +88,13 @@ export const trackChangesPlugin = (
         }
       },
     },
+    view(p) {
+      editorView = p // this crucial for the correct work of the plugin
+      return {
+        update: undefined,
+        destroy: undefined,
+      }
+    },
     appendTransaction(trs, oldState, newState) {
       const pluginState = trackChangesPluginKey.getState(newState)
       if (!pluginState || pluginState.status === TrackChangesStatus.disabled || !editorView?.editable) {
