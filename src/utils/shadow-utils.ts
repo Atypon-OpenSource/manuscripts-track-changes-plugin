@@ -14,6 +14,40 @@
  * limitations under the License.
  */
 
-// Re-export shadow node filtering utilities
-// Re-export isShadowDelete qualifier for convenience
-export { isShadowDelete } from '../tracking/steps-trackers/qualifiers'
+import { Node as PMNode } from 'prosemirror-model'
+import { isShadowDelete } from '../tracking/steps-trackers/qualifiers'
+import { isDeleted, isDeletedText } from './shared-utils'
+
+type callback = (node: PMNode, pos: number, parent: PMNode | null, index: number) => void | boolean
+
+export enum Include {
+  CLEAN,
+  PENDING,
+  ALL,
+}
+
+/**
+ *
+ * @param node - for which we want to read descendants but cleared from track changes information
+ * @param include - level of inclusion or visibility that we want: CLEAN for only real confirmed content, PENDING to include tc changes if needed, and ALL to expose the DOM completely
+ * @returns object with masked descendants with identical API as Node.descendants in prosemirror that can be used identically
+ */
+export function clear(node: PMNode, include = Include.CLEAN) {
+  return {
+    descendants: (fn: callback) => {
+      node.descendants((node, pos, parent, index) => {
+        // Include clean will expose only real inserted content
+        if (include == Include.CLEAN && (isShadowDelete(node) || isDeleted(node) || isDeletedText(node))) {
+          return false
+        }
+        // Include.PENDING will skip shadows but will expose otherwise pending content visible to user - either deleted or inserted
+        if (include == Include.PENDING && isShadowDelete(node)) {
+          return false
+        }
+
+        // by exclusion - if neither Include.PENDING nor Include.CLEAN haven't thwarted access to this node at this point - we can show it
+        return fn(node, pos, parent, index)
+      })
+    },
+  }
+}
