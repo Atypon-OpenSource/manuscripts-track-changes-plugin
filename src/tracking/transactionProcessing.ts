@@ -281,22 +281,43 @@ export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) 
 
 /** Removes shadow content from inserted content, such as during pasting or indentation or moving around */
 export function clearShadowsFromNewlyInserted(tr: Transaction, baseState: EditorState) {
+  // First check if any step actually contains shadow content that needs filtering
+  let hasShadowContent = false
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
+    if (step instanceof ReplaceStep && step.slice.content.size) {
+      step.slice.content.descendants((node) => {
+        if (isShadowDelete(node)) {
+          hasShadowContent = true
+          return false // stop traversal
+        }
+      })
+      if (hasShadowContent) break
+    }
+  }
+
+  // If no shadow content found, return the original transaction unchanged
+  if (!hasShadowContent) {
+    return tr
+  }
+
+  // Shadow content exists, create a new transaction with filtered steps
   const newTr = baseState.tr
   for (let i = 0; i < tr.steps.length; i++) {
     const step = tr.steps[i]
     const clearStep = clearShadowContent(step)
     const remapped = clearStep.map(newTr.mapping)
     if (remapped) {
-      newTr.step(step)
+      newTr.step(remapped)
     }
   }
 
   // @ts-ignore - there is no legit way to iterate meta :/
-  Object.keys(tr.meta).forEach(([k, v]) => {
-    // k - is inferred to be a string, although may not alway be that
-    newTr.setMeta(k, v)
+  Object.keys(tr.meta).forEach((k) => {
+    // k - is inferred to be a string, although may not always be that
+    newTr.setMeta(k, tr.getMeta(k))
   })
-  return tr
+  return newTr
 }
 
 function filterNodes(fragment: Fragment, predicate: (node: PMNode) => boolean) {
@@ -326,7 +347,8 @@ function clearShadowContent(step: Step) {
   // ReplaceAround doesnt really changes the slice content, or better say it's the content that was already in the doc at that position
   // is just wrapped with some new content.
   if (step instanceof ReplaceStep && step.slice.content.size) {
-    const newContent = filterNodes(step.slice.content, isShadowDelete)
+    // Filter OUT shadow delete nodes - keep nodes that are NOT shadow deletes
+    const newContent = filterNodes(step.slice.content, (node) => !isShadowDelete(node))
     const newSlice = new Slice(newContent, step.slice.openStart, step.slice.openEnd)
     return new ReplaceStep(step.from, step.to, newSlice)
   }
