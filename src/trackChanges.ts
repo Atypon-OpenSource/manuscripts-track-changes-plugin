@@ -1,5 +1,5 @@
 /*!
- * © 2025 Atypon Systems LLC
+ * © 2026 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import { EditorState, PluginKey, Transaction } from 'prosemirror-state'
 
 import { getAction, TrackChangesAction } from './actions'
 import { processStepsBeforeTracking } from './tracking/lib/processStepsBeforeTracking'
+import { normalizeShadowIds } from './tracking/normalizeShadowIds'
 import { trackTransaction } from './tracking/trackTransaction'
 import {
   changeMovedToInsertsOnSourceDeletion,
@@ -61,6 +62,8 @@ export function trackChanges(
     ])
     changeMovedToInsertsOnSourceDeletion(tr, createdTr, trContext)
     const clearTr = clearShadowsFromNewlyInserted(tr, oldState)
-    return trackTransaction(clearTr, oldState, createdTr, userID, clearedSteps, trContext)
+    const trackedTr = trackTransaction(clearTr, oldState, createdTr, userID, clearedSteps, trContext)
+    // Post-process: normalize IDs in shadow/moved nodes to avoid duplicate DOM IDs
+    return normalizeShadowIds(trackedTr)
   }
 }
