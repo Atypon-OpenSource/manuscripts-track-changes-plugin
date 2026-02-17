@@ -18,7 +18,6 @@ import { EditorState, PluginKey, Transaction } from 'prosemirror-state'
 
 import { getAction, TrackChangesAction } from './actions'
 import { processStepsBeforeTracking } from './tracking/lib/processStepsBeforeTracking'
-import { normalizeShadowIds } from './tracking/normalizeShadowIds'
 import { trackTransaction } from './tracking/trackTransaction'
 import {
   changeMovedToInsertsOnSourceDeletion,
@@ -62,8 +61,6 @@ export function trackChanges(
     ])
     changeMovedToInsertsOnSourceDeletion(tr, createdTr, trContext)
     const clearTr = clearShadowsFromNewlyInserted(tr, oldState)
-    const trackedTr = trackTransaction(clearTr, oldState, createdTr, userID, clearedSteps, trContext)
-    // Post-process: normalize IDs in shadow/moved nodes to avoid duplicate DOM IDs
-    return normalizeShadowIds(trackedTr)
+    return trackTransaction(clearTr, oldState, createdTr, userID, clearedSteps, trContext)
   }
 }
