@@ -19,7 +19,7 @@ import { Transaction } from 'prosemirror-state'
 
 import { isMoved, isShadowDelete } from './steps-trackers/qualifiers'
 
-const SHADOW_ID_PREFIX = 'shadow-'
+export const SHADOW_ID_PREFIX = '__track__changes_shadow__'
 
 /**
  * Adding prefixes for nodes in shadow/moved elements and removing prefixes when nodes are not in shadow anymore
@@ -57,7 +57,7 @@ export function normalizeShadowIds(tr: Transaction): Transaction {
     return true
   })
 
-  // Apply changes in reverse document order to maintain valid positions without a need to use a mapping
+  // Apply changes in reverse document order to maintain valid positions without a need to use mapping
   for (let i = changes.length - 1; i >= 0; i--) {
     const { pos, node, newId } = changes[i]
     tr.setNodeMarkup(pos, null, { ...node.attrs, id: newId })
