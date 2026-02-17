@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 /// <reference types="@types/jest" />;
-import fs, { writeFile, writeFileSync } from 'fs'
-import { Node as PMNode, Schema } from 'prosemirror-model'
-import { Transaction } from 'prosemirror-state'
-
 import { skipTracking, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
@@ -92,9 +88,6 @@ describe('text.test', () => {
       tester.backspace(1)
     }
 
-    writeFileSync('test-real-result.json', JSON.stringify(tester.toJSON()))
-
-    // @TODO should delete links & their text and blockquotes
     // but also backspace(1) might not behave like actual backspace -> selection doesnt move the same
     expect(tester.toJSON()).toEqual(repeatedDelete)
     expect(tester.trackState()?.changeSet.hasDuplicateIds).toEqual(false)
