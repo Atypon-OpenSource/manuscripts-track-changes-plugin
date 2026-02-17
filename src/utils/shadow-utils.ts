@@ -19,6 +19,7 @@ import { isMoved, isShadowDelete } from '../tracking/steps-trackers/qualifiers'
 import { isDeleted, isDeletedText } from './shared-utils'
 
 type callback = (node: PMNode, pos: number, parent: PMNode | null, index: number) => void | boolean
+type forEachCallback = (node: PMNode, offset: number, index: number) => void
 
 export enum Include {
   CLEAN,
@@ -26,31 +27,63 @@ export enum Include {
   ALL,
 }
 
+export function isValid(node: PMNode, include = Include.PENDING) {
+  // Include clean will expose only real inserted content
+  if (
+    include == Include.CLEAN &&
+    (isShadowDelete(node) || isMoved(node) || isDeleted(node) || isDeletedText(node))
+  ) {
+    return false
+  }
+  // Include.PENDING will skip shadows but will expose otherwise pending content visible to user - either deleted or inserted
+  if (include == Include.PENDING && (isShadowDelete(node) || isMoved(node))) {
+    return false
+  }
+  // by exclusion - if neither Include.PENDING nor Include.CLEAN haven't thwarted access to this node at this point - we can show it
+  return true
+}
+
 /**
  *
  * @param node - for which we want to read descendants but cleared from track changes information
  * @param include - level of inclusion or visibility that we want: CLEAN for only real confirmed content, PENDING to include tc changes if needed, and ALL to expose the DOM completely
- * @returns object with masked descendants with identical API as Node.descendants in prosemirror that can be used identically
+ * @returns object with masked descendants with identical API as Node.descendants, forEach and other in prosemirror that can be used identically
  */
-export function clear(node: PMNode, include = Include.CLEAN) {
+export function clear(node: PMNode, include = Include.PENDING) {
   return {
     descendants: (fn: callback) => {
       node.descendants((node, pos, parent, index) => {
-        // Include clean will expose only real inserted content
-        if (
-          include == Include.CLEAN &&
-          (isShadowDelete(node) || isMoved(node) || isDeleted(node) || isDeletedText(node))
-        ) {
+        if (!isValid(node, include)) {
           return false
         }
-        // Include.PENDING will skip shadows but will expose otherwise pending content visible to user - either deleted or inserted
-        if ((include == Include.PENDING && isShadowDelete(node)) || isMoved(node)) {
-          return false
-        }
-
-        // by exclusion - if neither Include.PENDING nor Include.CLEAN haven't thwarted access to this node at this point - we can show it
         return fn(node, pos, parent, index)
       })
+    },
+    forEach: (fn: forEachCallback) => {
+      node.forEach((node, offset, index) => {
+        if (!isValid(node, include)) {
+          return
+        }
+        fn(node, offset, index)
+      })
+    },
+    nodesBetween: (
+      from: number,
+      to: number,
+      fn: (node: PMNode, pos: number, parent: PMNode | null, index: number) => void | boolean,
+      startPos?: number
+    ) => {
+      node.nodesBetween(
+        from,
+        to,
+        (node, pos, parent, index) => {
+          if (!isValid(node, include)) {
+            return
+          }
+          fn(node, pos, parent, index)
+        },
+        startPos
+      )
     },
   }
 }
