@@ -302,6 +302,18 @@
                 ]
               },
               {
+                "type": "alt_text",
+                "attrs": {
+                  "dataTracked": null
+                }
+              },
+              {
+                "type": "long_desc",
+                "attrs": {
+                  "dataTracked": null
+                }
+              },
+              {
                 "type": "listing",
                 "attrs": {
                   "id": "MPListing:910EEF2F-12F7-4C49-91B7-BC499646A0B1",
