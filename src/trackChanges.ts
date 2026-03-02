@@ -1,5 +1,5 @@
 /*!
- * © 2025 Atypon Systems LLC
+ * © 2026 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import { processStepsBeforeTracking } from './tracking/lib/processStepsBeforeTra
 import { trackTransaction } from './tracking/trackTransaction'
 import {
   changeMovedToInsertsOnSourceDeletion,
+  clearShadowsFromNewlyInserted,
   filterMeaninglessMoveSteps,
   getIndentationOperationSteps,
   getMoveOperationsSteps,
@@ -59,6 +60,7 @@ export function trackChanges(
       filterMeaninglessMoveSteps,
     ])
     changeMovedToInsertsOnSourceDeletion(tr, createdTr, trContext)
-    return trackTransaction(tr, oldState, createdTr, userID, clearedSteps, trContext)
+    const clearTr = clearShadowsFromNewlyInserted(tr, oldState)
+    return trackTransaction(clearTr, oldState, createdTr, userID, clearedSteps, trContext)
   }
 }
