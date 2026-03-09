@@ -11,7 +11,7 @@ ProseMirror plugin designed to track changes within a document, similar to the t
 
 ## Core Architecture Overview
 
-### Main design points
+### Main design points 
 
 - Intercept transactions (insert/delete).
   Transactions are intercepted and reverted using default plugins lifecycle, unless transaction has meta commanding to skip tracking.
