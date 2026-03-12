@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@manuscripts/track-changes-plugin':
-        specifier: 'link:'
-        version: 'link:'
       debug:
         specifier: 4.4.1
         version: 4.4.1

@@ -25,7 +25,6 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@manuscripts/track-changes-plugin": "link:",
     "debug": "4.4.1",
     "prosemirror-commands": "1.7.1",
     "prosemirror-history": "1.4.1",
@@ -35,10 +34,10 @@
     "prosemirror-view": "1.41.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "3.3.1",
-    "@eslint/js": "9.39.1",
     "@manuscripts/eslint-config": "0.5.1",
     "@manuscripts/transform": "4.3.26",
+    "@eslint/eslintrc": "3.3.1",
+    "@eslint/js": "9.39.1",
     "@types/debug": "4.1.12",
     "@types/jest": "30.0.0",
     "@types/node": "20.17.46",
