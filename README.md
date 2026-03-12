@@ -2,7 +2,7 @@
 
 ProseMirror plugin designed to track changes within a document, similar to the track changes functionality found in Google Docs or Microsoft Word. It allows for the tracking of insertions and deletions of nodes, text and node attributes, preserving information about past changes using dataTracked attributes on nodes.
 
-## Features
+## Features 
 
 1. **Tracking of Changes:** Monitors and records insertions and deletions of block nodes, inline nodes, attributes on nodes and text within the ProseMirror editor.
 2. **Changes management:** Allows to reject/accept a single change or a list of changes.
@@ -11,7 +11,7 @@ ProseMirror plugin designed to track changes within a document, similar to the t
 
 ## Core Architecture Overview
 
-### Main design points
+### Main design points 
 
 - Intercept transactions (insert/delete).
   Transactions are intercepted and reverted using default plugins lifecycle, unless transaction has meta commanding to skip tracking.
