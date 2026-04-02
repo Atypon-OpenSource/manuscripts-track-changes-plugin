@@ -15,7 +15,7 @@
  */
 
 import { Node as PMNode, Slice } from 'prosemirror-model'
-import { Selection, Transaction } from 'prosemirror-state'
+import { Selection } from 'prosemirror-state'
 import { ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform'
 
 import { ChangeSet } from '../../ChangeSet'
@@ -180,4 +180,27 @@ export const isDeletingPendingMovedNode = (step: ReplaceStep, doc: PMNode) => {
     return found.moveNodeId
   }
   return undefined
+}
+
+export function isShadowDelete(node: PMNode) {
+  if (node.attrs.dataTracked) {
+    const changes = node.attrs.dataTracked as TrackedAttrs[]
+    return changes.some(({ operation, moveNodeId }) => operation === 'delete' && moveNodeId)
+  }
+  return false
+}
+
+/**
+ * Check if a node is moved (has pending delete with moveNodeId)
+ * Meaning the ORIGINAL node. That is from where the node was moved.
+ */
+export function isMoved(node: PMNode) {
+  if (node.attrs.dataTracked) {
+    const changes = node.attrs.dataTracked as TrackedAttrs[]
+    return changes.some(
+      ({ operation, status, moveNodeId }) =>
+        operation === CHANGE_OPERATION.delete && status === CHANGE_STATUS.pending && moveNodeId
+    )
+  }
+  return false
 }

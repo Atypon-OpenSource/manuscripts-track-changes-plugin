@@ -25,6 +25,7 @@ import { trackChanges } from './trackChanges'
 import { trFromHistory } from './tracking/transactionProcessing'
 import { TrackChangesOptions, TrackChangesState, TrackChangesStatus } from './types/track'
 import { enableDebug, log } from './utils/logger'
+import { normalizeShadowIds } from './tracking/normalizeShadowIds'
 
 export const trackChangesPluginKey = new PluginKey<TrackChangesState>('track-changes')
 
@@ -89,7 +90,7 @@ export const trackChangesPlugin = (
       },
     },
     view(p) {
-      editorView = p
+      editorView = p // this crucial for the correct work of the plugin
       return {
         update: undefined,
         destroy: undefined,
@@ -128,6 +129,9 @@ export const trackChangesPlugin = (
         fixInconsistentChanges(pluginState.changeSet, userID, createdTr, oldState.schema)
       if (changed) {
         log.warn('had to fix inconsistent changes in', createdTr)
+      }
+      if (createdTr.docChanged) {
+        createdTr = normalizeShadowIds(createdTr)
       }
       if (docChanged || createdTr.docChanged || changed) {
         createdTr.setMeta('origin', trackChangesPluginKey)
