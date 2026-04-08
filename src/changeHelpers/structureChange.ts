@@ -53,7 +53,7 @@ export const dropStructuralChangeShadow = (moveNodeId: string | undefined, tr: T
 }
 
 /**
- *  This function check changes that have been paired with other changes, like (structure, move, split) change
+ *  This function checks changes that have been paired with other changes, like (structure, move, split) change
  *  - in case main change of (structure, move, split) has no connection with other paired change will convert that change to insert
  *  - or if the paired change of (delete with moveNodeId, reference) has no connection will just remove dataTracked of that change
  */

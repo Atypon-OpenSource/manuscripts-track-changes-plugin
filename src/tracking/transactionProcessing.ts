@@ -1,5 +1,5 @@
 /*!
- * © 2025 Atypon Systems LLC
+ * © 2026 Atypon Systems LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Node as PMNode } from 'prosemirror-model'
-import { Transaction } from 'prosemirror-state'
+import { Fragment, Node as PMNode, Slice } from 'prosemirror-model'
+import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, Step } from 'prosemirror-transform'
 
 import { isIndentationAction, TrackChangesAction } from '../actions'
 import { ChangeSet } from '../ChangeSet'
 import { CHANGE_OPERATION, CHANGE_STATUS, TrackedAttrs } from '../types/change'
 import { uuidv4 } from '../utils/uuidv4'
-import { isDeletingPendingMovedNode, isDirectPendingMoveDeletion } from './steps-trackers/qualifiers'
+import {
+  isDeletingPendingMovedNode,
+  isDirectPendingMoveDeletion,
+  isShadowDelete,
+} from './steps-trackers/qualifiers'
 import { TrTrackingContext } from './types'
 
 export function getIndentationOperationSteps(tr: Transaction, trContext: TrTrackingContext) {
@@ -274,3 +278,80 @@ export const filterMeaninglessMoveSteps = (tr: Transaction, context: TrTrackingC
 
 // @ts-ignore
 export const trFromHistory = (tr: Transaction) => Object.keys(tr.meta).find((s) => s.startsWith('history$'))
+
+/** Removes shadow content from inserted content, such as during pasting or indentation or moving around */
+export function clearShadowsFromNewlyInserted(tr: Transaction, baseState: EditorState) {
+  // return tr
+  // First check if any step actually contains shadow content that needs filtering
+  let hasShadowContent = false
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
+    if (step instanceof ReplaceStep && step.slice.content.size) {
+      step.slice.content.descendants((node) => {
+        if (isShadowDelete(node)) {
+          hasShadowContent = true
+          return false // stop traversal
+        }
+      })
+      if (hasShadowContent) break
+    }
+  }
+
+  // If no shadow content found, return the original transaction unchanged
+  if (!hasShadowContent) {
+    return tr
+  }
+
+  // Shadow content exists, create a new transaction with filtered steps
+  const newTr = baseState.tr
+  for (let i = 0; i < tr.steps.length; i++) {
+    const step = tr.steps[i]
+    const clearStep = clearShadowContent(step)
+    const remapped = clearStep.map(newTr.mapping)
+    if (remapped) {
+      newTr.step(remapped)
+    }
+  }
+
+  // @ts-ignore - there is no legit way to iterate meta :/
+  Object.keys(tr.meta).forEach((k) => {
+    // k - is inferred to be a string, although may not always be that
+    newTr.setMeta(k, tr.getMeta(k))
+  })
+  return newTr
+}
+
+function filterNodes(fragment: Fragment, predicate: (node: PMNode) => boolean) {
+  if (fragment.childCount === 0) {
+    return fragment
+  }
+  const checked: PMNode[] = []
+
+  for (let i = 0; i < fragment.childCount; i++) {
+    const node = fragment.child(i)
+    if (predicate(node)) {
+      const newContent = filterNodes(node.content, predicate)
+      if (newContent !== node.content) {
+        const newNode = node.type.create(node.attrs, newContent, node.marks)
+        checked.push(newNode)
+        continue
+      }
+      checked.push(node)
+    }
+  }
+
+  return Fragment.fromArray(checked)
+}
+
+function clearShadowContent(step: Step) {
+  // @TODO: check if there are any special cases when we need to remove such content from ReplaceAround steps.
+  // ReplaceAround doesnt really changes the slice content, or better say it's the content that was already in the doc at that position
+  // is just wrapped with some new content.
+  if (step instanceof ReplaceStep && step.slice.content.size) {
+    // Filter OUT shadow delete nodes - keep nodes that are NOT shadow deletes
+    const newContent = filterNodes(step.slice.content, (node) => !isShadowDelete(node))
+    const newSlice = new Slice(newContent, step.slice.openStart, step.slice.openEnd)
+    return new ReplaceStep(step.from, step.to, newSlice)
+  }
+  return step
+}

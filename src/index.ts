@@ -23,3 +23,5 @@ export { ChangeSet } from './ChangeSet'
 
 export * from './types/change'
 export * from './types/track'
+export * from './utils/shared-utils'
+export * from './utils/shadow-utils'
