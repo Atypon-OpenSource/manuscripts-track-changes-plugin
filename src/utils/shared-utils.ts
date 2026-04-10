@@ -111,19 +111,16 @@ export function sanitizeAttrsChange<T extends ProsemirrorNode>(
   newAttr: T['attrs'],
   currentAttrs: T['attrs']
 ) {
-  return Object.keys(newAttr).reduce(
-    (acc, attr) => {
-      const key = attr as keyof T['attrs']
-      if (!currentAttrs[key] && currentAttrs[key] !== 0 && !newAttr[key] && newAttr[key] !== 0) {
-        return acc
-      }
-      acc[key] = newAttr[key]
+  return Object.keys(newAttr).reduce((acc, attr) => {
+    const key = attr as keyof T['attrs']
+    if (!currentAttrs[key] && currentAttrs[key] !== 0 && !newAttr[key] && newAttr[key] !== 0) {
       return acc
-    },
-    {} as T['attrs']
-  )
+    }
+    acc[key] = newAttr[key]
+    return acc
+  }, {} as T['attrs'])
 }
-
+/* */
 export const addTrackChangesAttributes = (attrs: Attrs, dom: Element) => {
   dom.removeAttribute('data-track-id')
   dom.removeAttribute('data-track-op')
