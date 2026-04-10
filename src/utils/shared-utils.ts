@@ -111,20 +111,24 @@ export function sanitizeAttrsChange<T extends ProsemirrorNode>(
   newAttr: T['attrs'],
   currentAttrs: T['attrs']
 ) {
-  return Object.keys(newAttr).reduce((acc, attr) => {
-    const key = attr as keyof T['attrs']
-    if (!currentAttrs[key] && currentAttrs[key] !== 0 && !newAttr[key] && newAttr[key] !== 0) {
+  return Object.keys(newAttr).reduce(
+    (acc, attr) => {
+      const key = attr as keyof T['attrs']
+      if (!currentAttrs[key] && currentAttrs[key] !== 0 && !newAttr[key] && newAttr[key] !== 0) {
+        return acc
+      }
+      acc[key] = newAttr[key]
       return acc
-    }
-    acc[key] = newAttr[key]
-    return acc
-  }, {} as T['attrs'])
+    },
+    {} as T['attrs']
+  )
 }
 
 export const addTrackChangesAttributes = (attrs: Attrs, dom: Element) => {
   dom.removeAttribute('data-track-id')
   dom.removeAttribute('data-track-op')
   dom.removeAttribute('data-track-status')
+  dom.removeAttribute('data-track-author')
 
   const changes = attrs.dataTracked as TrackedAttrs[]
   if (!changes || !changes.length) {
@@ -134,6 +138,7 @@ export const addTrackChangesAttributes = (attrs: Attrs, dom: Element) => {
   dom.setAttribute('data-track-id', change.id)
   dom.setAttribute('data-track-op', change.operation)
   dom.setAttribute('data-track-status', change.status)
+  dom.setAttribute('data-track-author', change.authorID)
 }
 
 const classNames = new Map([
