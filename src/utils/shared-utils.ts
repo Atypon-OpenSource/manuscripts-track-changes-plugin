@@ -120,7 +120,7 @@ export function sanitizeAttrsChange<T extends ProsemirrorNode>(
     return acc
   }, {} as T['attrs'])
 }
-/* */
+
 export const addTrackChangesAttributes = (attrs: Attrs, dom: Element) => {
   dom.removeAttribute('data-track-id')
   dom.removeAttribute('data-track-op')
