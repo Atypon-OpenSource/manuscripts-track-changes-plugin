@@ -125,6 +125,7 @@ export const addTrackChangesAttributes = (attrs: Attrs, dom: Element) => {
   dom.removeAttribute('data-track-id')
   dom.removeAttribute('data-track-op')
   dom.removeAttribute('data-track-status')
+  dom.removeAttribute('data-track-author')
 
   const changes = attrs.dataTracked as TrackedAttrs[]
   if (!changes || !changes.length) {
@@ -134,6 +135,7 @@ export const addTrackChangesAttributes = (attrs: Attrs, dom: Element) => {
   dom.setAttribute('data-track-id', change.id)
   dom.setAttribute('data-track-op', change.operation)
   dom.setAttribute('data-track-status', change.status)
+  dom.setAttribute('data-track-author', change.authorID)
 }
 
 const classNames = new Map([
