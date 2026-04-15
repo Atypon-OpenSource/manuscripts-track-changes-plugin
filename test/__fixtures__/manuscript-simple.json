@@ -124,24 +124,13 @@
                   "label": "",
                   "src": "",
                   "contentType": ""
-                },
-                "content": [
-                  {
-                    "type": "figcaption"
-                  }
-                ]
+                }
               },
               {
-                "type": "figcaption",
+                "type": "caption",
                 "content": [
                   {
-                    "type": "caption_title",
-                    "attrs": {
-                      "placeholder": "Title..."
-                    }
-                  },
-                  {
-                    "type": "caption",
+                    "type": "text_block",
                     "attrs": {
                       "placeholder": "Caption..."
                     },
@@ -175,26 +164,11 @@
             },
             "content": [
               {
-                "type": "figcaption",
+                "type": "caption_title",
                 "attrs": {
+                  "placeholder": "Title...",
                   "dataTracked": null
-                },
-                "content": [
-                  {
-                    "type": "caption_title",
-                    "attrs": {
-                      "placeholder": "Title...",
-                      "dataTracked": null
-                    }
-                  },
-                  {
-                    "type": "caption",
-                    "attrs": {
-                      "placeholder": "Caption...",
-                      "dataTracked": null
-                    }
-                  }
-                ]
+                }
               },
               {
                 "type": "table",
