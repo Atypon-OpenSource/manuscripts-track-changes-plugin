@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/// <reference types="@types/jest" />;
 import { Node as PMNode } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 
@@ -21,7 +20,8 @@ import { normalizeShadowIds, SHADOW_ID_PREFIX } from '../../src/tracking/normali
 import { isMoved, isShadowDelete } from '../../src/tracking/steps-trackers/qualifiers'
 import { schema } from '../utils/schema'
 
-jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2020-01-01'))
 
 describe('shadow-ids.test', () => {
   test('should prefix IDs with ' + SHADOW_ID_PREFIX + ' for nodes inside shadow/moved context', () => {

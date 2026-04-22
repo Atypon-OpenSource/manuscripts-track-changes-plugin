@@ -38,7 +38,7 @@ export function polyfillDom() {
       return {
         item: () => null,
         length: 0,
-        [Symbol.iterator]: jest.fn(),
+        [Symbol.iterator]: vi.fn(),
       }
     }
 
