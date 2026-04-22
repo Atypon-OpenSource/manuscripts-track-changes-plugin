@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/// <reference types="@types/jest" />;
+import { type Mock } from 'vitest'
+
 import { skipTracking, trackCommands } from '../../src'
 import { log } from '../../src/utils/logger'
 import docs from '../__fixtures__/docs'
@@ -28,25 +29,25 @@ import repeatedDelete from './repeated-delete.json'
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
-var uuidv4Mock: jest.Mock
+var uuidv4Mock: Mock
 
-jest.mock('../../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
-  uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
+vi.mock('../../src/utils/uuidv4', async (importOriginal) => {
+  const mockOriginal = await importOriginal<typeof import('../../src/utils/uuidv4')>()
+  uuidv4Mock = vi.fn(() => `MOCK-ID-${counter++}`)
   return {
-    __esModule: true,
     ...mockOriginal,
     uuidv4: uuidv4Mock,
   }
 })
 
-jest.mock('../../src/utils/logger')
-jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
+vi.mock('../../src/utils/logger')
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2020-01-01'))
 
 describe('text.test', () => {
   afterEach(() => {
     counter = 0
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('should track basic text inserts', async () => {
