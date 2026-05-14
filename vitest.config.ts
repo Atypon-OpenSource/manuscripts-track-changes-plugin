@@ -27,6 +27,7 @@ const require = createRequire(import.meta.url)
 // it the only approach that works reliably when a dep may be a pnpm workspace symlink.
 const pmEsm = (name: string) => path.resolve(require.resolve(name), '../../dist/index.js')
 const transformEsm = path.resolve(require.resolve('@manuscripts/transform'), '../../..', 'dist/es/index.js')
+const uuidCjs = path.resolve(require.resolve('@manuscripts/transform'), '../../..', 'node_modules/uuid/dist/index.js')
 
 export default defineConfig({
   resolve: {
@@ -36,16 +37,12 @@ export default defineConfig({
       'prosemirror-transform': pmEsm('prosemirror-transform'),
       'prosemirror-view': pmEsm('prosemirror-view'),
       '@manuscripts/transform': transformEsm,
+      'uuid': uuidCjs,
     },
   },
   test: {
     environment: 'jsdom',
     globals: true,
     include: ['test/**/*.test.{ts,tsx}'],
-    server: {
-      deps: {
-        inline: ['uuid'],
-      },
-    },
   },
 })
