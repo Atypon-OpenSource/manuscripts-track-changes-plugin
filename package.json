@@ -35,7 +35,7 @@
     "prosemirror-view": "1.41.0"
   },
   "devDependencies": {
-    "@manuscripts/eslint-config": "0.5.1",
+    "@manuscripts/eslint-config": "1.0.0",
     "@manuscripts/transform": "4.3.27",
     "@types/debug": "4.1.12",
     "@types/jest": "30.0.0",
