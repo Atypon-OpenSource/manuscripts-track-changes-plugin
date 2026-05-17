@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/// <reference types="@types/jest" />;
+import { type Mock } from 'vitest'
+
 import fs from 'fs'
 import { undo } from 'prosemirror-history'
 import { Fragment, Node as PMNode, Schema, Slice } from 'prosemirror-model'
@@ -30,24 +31,24 @@ import textDiff from './text-diff.json'
 let counter = 0
 // https://stackoverflow.com/questions/65554910/jest-referenceerror-cannot-access-before-initialization
 // eslint-disable-next-line
-var uuidv4Mock: jest.Mock
+var uuidv4Mock: Mock
 
-jest.mock('../../src/utils/uuidv4', () => {
-  const mockOriginal = jest.requireActual('../../src/utils/uuidv4')
-  uuidv4Mock = jest.fn(() => `MOCK-ID-${counter++}`)
+vi.mock('../../src/utils/uuidv4', async (importOriginal) => {
+  const mockOriginal = await importOriginal<typeof import('../../src/utils/uuidv4')>()
+  uuidv4Mock = vi.fn(() => `MOCK-ID-${counter++}`)
   return {
-    __esModule: true,
     ...mockOriginal,
     uuidv4: uuidv4Mock,
   }
 })
-jest.mock('../../src/utils/logger')
-jest.useFakeTimers().setSystemTime(new Date('2020-01-01').getTime())
+vi.mock('../../src/utils/logger')
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2020-01-01'))
 
 describe('diff.test', () => {
   afterEach(() => {
     counter = 0
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // test('should diff text starting from the start of the deleted range', async () => {
@@ -135,7 +136,7 @@ describe('diff.test', () => {
 
     expect(tester.toJSON()).toEqual(nodeDiff[0])
 
-    jest.useFakeTimers().setSystemTime(new Date('2020-05-05').getTime())
+    vi.setSystemTime(new Date('2020-05-05'))
 
     tester.setNodeMarkup(14, { TeXRepresentation: '1+1=2' }).setChangeStatuses(CHANGE_STATUS.accepted)
 
@@ -145,7 +146,7 @@ describe('diff.test', () => {
 
     expect(tester.toJSON()).toEqual(nodeDiff[3])
 
-    jest.useFakeTimers().setSystemTime(new Date('2020-09-09').getTime())
+    vi.setSystemTime(new Date('2020-09-09'))
 
     const x = tester
       .setNodeMarkup(14, { TeXRepresentation: '1+2=3' })
