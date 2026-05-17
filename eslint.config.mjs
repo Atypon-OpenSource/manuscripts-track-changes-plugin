@@ -15,27 +15,9 @@
  *
  */
 
-import { FlatCompat } from '@eslint/eslintrc'
-import js from '@eslint/js'
 import config from '@manuscripts/eslint-config'
-import vitest from '@vitest/eslint-plugin'
 import { defineConfig } from 'eslint/config'
-import header from 'eslint-plugin-header'
-
-header.rules.header.meta.schema = false
-
-const compat = new FlatCompat({
-  recommendedConfig: js.configs.recommended,
-})
 
 export default defineConfig([
-  ...compat.config(config),
-  ...compat.extends('plugin:diff/diff'),
-  {
-    files: ['test/**/*.{ts,tsx}'],
-    plugins: { vitest },
-    rules: {
-      ...vitest.configs.recommended.rules,
-    },
-  },
+  ...config,
 ])
