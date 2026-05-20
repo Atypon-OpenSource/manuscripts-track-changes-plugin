@@ -28,7 +28,7 @@ ProseMirror plugin designed to track changes within a document, similar to the t
   Rejecting the change means reverting to the state of nodes or text or attributes before the change and discarding metadata about it.
 - History of edits (who, what, when) is supported only in the boundaries of dataTracked attributes metadata. The plugin doesn't provide Undo/Redo capabilities but perfectly compatible with default prosemirror-history plugin.
 
-### How it works under the hood
+### How it works under the hood 
 
 1. Transaction intercepted and decided upon if needs to be tracked or not. Done in appendTransaction method of the plugin. Besides explicit disabling there is a number of internal cases that disables tracking
 2. Each type of prosemirror change step type is processed by differently. **trackTransaction** function invokes a function for each of those, such as trackReplaceStep or trackReplaceAroundStep.
