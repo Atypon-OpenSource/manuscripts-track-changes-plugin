@@ -9,7 +9,7 @@ ProseMirror plugin designed to track changes within a document, similar to the t
 3. **Command Set:** Provides commands to enable, disable, skip, accept, reject changes. Commands are issues as transactions meta. This is the way to communicate with the plugin.
 4. **Interpretation:** Plugin provides a ChangeSet class that helps to interpret changes in a user-friendly way.
 
-## Core Architecture Overview
+## Core Architecture Overview 
 
 ### Main design points 
 
