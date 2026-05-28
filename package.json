@@ -22,7 +22,7 @@
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test",
-    "prepare": "node -e \"process.env.CI || require('child_process').execSync('husky', {stdio:'inherit'})\""
+    "prepare": "husky"
   },
   "dependencies": {
     "debug": "4.4.1",
