@@ -1,6 +1,6 @@
 {
   "name": "@manuscripts/track-changes-plugin",
-  "version": "2.3.14-LEAN-5654.0",
+  "version": "2.3.15",
   "author": "Atypon Systems LLC",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Atypon-OpenSource/manuscripts-track-changes-plugin",
@@ -22,7 +22,7 @@
     "typecheck": "tsc --project tsconfig.test.json --noEmit",
     "lint": "eslint --cache --ext .js,.ts, ./src ./test",
     "lint:fix": "eslint --fix --ext .js,.ts, ./src ./test",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "debug": "4.4.1",

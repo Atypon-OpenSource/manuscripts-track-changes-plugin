@@ -19,6 +19,7 @@ import { CHANGE_STATUS, StructureAttrs } from './types/change'
 import { TrackChangesStatus } from './types/track'
 
 export enum TrackChangesAction {
+  skipSelection = 'track-changes-skip-selection',
   skipTrack = 'track-changes-skip-tracking',
   setUserID = 'track-changes-set-user-id',
   setPluginStatus = 'track-changes-set-track-status',
@@ -30,6 +31,7 @@ export enum TrackChangesAction {
 }
 
 export type TrackChangesActionParams = {
+  [TrackChangesAction.skipSelection]: boolean
   [TrackChangesAction.skipTrack]: boolean
   [TrackChangesAction.setUserID]: string
   [TrackChangesAction.setPluginStatus]: TrackChangesStatus
@@ -84,6 +86,13 @@ export function setAction<K extends keyof TrackChangesActionParams>(
  * @returns
  */
 export const skipTracking = (tr: Transaction) => setAction(tr, TrackChangesAction.skipTrack, true)
+
+/**
+ * Guarantee skipping setting selection on a newly produced change.
+ * @param tr
+ * @returns
+ */
+export const skipSelect = (tr: Transaction) => setAction(tr, TrackChangesAction.skipSelection, true)
 
 export const isIndentationAction = (action: ReturnType<typeof getAction>) =>
   action === 'indent' || action === 'unindent'

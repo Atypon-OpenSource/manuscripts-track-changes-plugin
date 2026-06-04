@@ -19,6 +19,7 @@ import { Mapping, ReplaceStep } from 'prosemirror-transform'
 
 import { isStructuralChange } from '../changeHelpers/structureChange'
 import { TrTrackingContext } from './types'
+import { getAction, hasAction, TrackChangesAction } from '../actions'
 
 /**
  * Retrieves a static property from Selection class instead of having to use direct imports
@@ -36,7 +37,19 @@ export function fixAndSetSelectionAfterTracking(
   deletedNodeMapping: Mapping,
   trContext: TrTrackingContext
 ) {
+  
   const wasNodeSelection = oldTr.selection instanceof NodeSelectionClass
+
+  if (getAction(oldTr, TrackChangesAction.skipSelection)) {
+      // only fix previous selection if needed - otherwise skip if this action is provided on the incoming transaction
+      if (oldTr.selection.to > oldTr.doc.nodeSize) {
+        const sel: typeof Selection = getSelectionStaticConstructor(oldTr.selection)
+        const near: Selection = sel.near(newTr.doc.resolve(oldTr.doc.nodeSize), -1)
+        newTr.setSelection(near)
+      }
+      
+      return newTr
+  }
 
   if (!wasNodeSelection && !oldTr.selectionSet && trContext.selectionPosFromInsertion) {
     const sel: typeof Selection = getSelectionStaticConstructor(oldTr.selection)
